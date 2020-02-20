@@ -1,22 +1,25 @@
-version: '3'
-
+version: "3"
 services:
-  backend:
-    container_name: backend
-    build: ./backend
-    tty: true
-    ports:
-      - '8000:8000'
+  db:
+    image: mysql:latest
+    command: mysqld --default-authentication-plugin=mysql_native_password
     volumes:
-      - ./backend/code:/code
-    # command: python djangoproject/manage.py runserver 0.0.0.0:8000
-
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    tty: true
+      - "./mysql:/var/lib/mysql"
+    container_name: mysqlDB
     ports:
-      - '3000:3000'
+      - "3306:3306"
+    env_file:
+      - ./.env
+    restart: always
+  app:
+    restart: always
+    build: . # Current directory!
+    command: bash -c "cd schedule && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:80"
+    container_name: schedule_web
     volumes:
-      - ./frontend/src:/usr/src/app
-    # command: [sh, -c, "cd nuxtproject/ && npm run dev"]
+      - .:/code
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+  
