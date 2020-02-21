@@ -18,6 +18,7 @@ GENDER_CHOICES = (
     ('F', _('Female'))
 )
 
+
 class CustomUser(AbstractUser):
     department = models.CharField(max_length=100,
                                   choices=DEPARTMENT_CHOICES,

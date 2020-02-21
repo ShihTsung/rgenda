@@ -14,7 +14,6 @@ import os
 import pytz
 from django.utils.translation import gettext_lazy as _
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,9 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account',
+    'account.apps.AccountConfig',
 ]
-AUTH_USER_MODEL = 'account.CustomUser'  # new
 
 
 MIDDLEWARE = [
@@ -60,7 +58,7 @@ ROOT_URLCONF = 'schedule.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates').replace('\\', '/'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,10 +86,10 @@ WSGI_APPLICATION = 'schedule.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_app',
+        'NAME': 'DB',
         'USER': 'circlepen',
         'PASSWORD': 'redfalcon',
-        'HOST': 'db',
+        'HOST': 'mysqlDB',
         'PORT': '3306',
         'OPTIONS': {'charset': 'utf8mb4'},
     }
@@ -134,3 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+AUTH_USER_MODEL = 'account.CustomUser'  # new
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
