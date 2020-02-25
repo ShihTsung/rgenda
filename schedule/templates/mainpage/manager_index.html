@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Redfalcon Schedule | Home{% endblock %}
+<!-- {% load static %} -->
+{% block content %}
+<div class="container">
+    <!-- {% load tz %}
+        {% now 'Y-m-d P' %}
+
+
+
+{% get_current_timezone as TIME_ZONE %}
+{{TIME_ZONE}} -->
+
+    <div class="greet text-center">
+        <h1>管理者首頁</h1>
+
+        {% if user.is_authenticated %}
+        Hi {{ user.username }}!
+        {% else %}
+        <p>You are not logged in</p>
+        {% endif %}
+
+    </div>
+    
+
+</div>  <!-- end container -->
+        
+        
+{% endblock %}
+
+{% block styles %}
+<style>
+    html,
+    body {
+        height: 100%;
+        /* background-color: #F1F1F1; */
+        background-color: #333;
+    }
+
+    .greet {
+        margin-top: 2rem;
+        height: 8rem;
+        display: flex;
+        flex-direction: column;
+        /* background-color:palegoldenrod; */
+    }
+
+    .greet{
+        align-content: center;
+        color: #FFF
+    }
+
+    .container {
+        /* background-color:green; */
+        padding: auto;
+        height: 100vh;
+    }
+
+    .row {
+        display: flex;
+        width: 100%;
+        margin: auto;
+        margin-top: 1rem;
+        flex-direction: row;
+        /* background-color: brown; */
+    }
+    .card{
+        box-shadow: 5px 5px 1px #000;
+    }
+
+    .card-body {
+        color: black;
+        font-size: 24px;
+        text-decoration: none;
+        min-height: 10rem;
+        text-overflow: hide;
+    }
+
+    i {
+        font-size: 60px;
+    }
+    a, a:hover{
+        text-decoration: none;
+    }
+    .card-body:hover {
+        /* background-color: antiquewhite; */
+        background-color: #c0eeff;
+        text-decoration: none;
+    }
+
+    .col-md-4 {
+        flex: 0 0 33.333%;
+        margin-top: 3em;
+        max-width: 33.33%;
+        min-width: 200px;
+        justify-content: center;
+    }
+
+    hr{
+        width: 100%;
+        margin-top: 5rem;
+        border-top: 1px solid #999999;
+    }
+    .modal{
+        top: 0;
+        left: 20vw;
+    }
+    .modal-content{
+        width: 60vw;
+        /* left: 25%; */
+    }
+    .modal-body{
+        max-width: 60vw;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var nextPeriod = {}
+    var blocked_dates = []
+    var ids = {}
+    document.addEventListener('DOMContentLoaded', function () {
+      var initialLocaleCode = 'en';
+      var localeSelectorEl = document.getElementById('locale-selector');
+      var Draggable = FullCalendarInteraction.Draggable;
+      var calendarEl = document.getElementById('calendar');
+      
+      // get period
+    //   $.ajax({
+    //     type: "GET",
+    //     url: "/api/periods/next",
+    //     dataType: 'json',
+    //     success: function (data) {
+    //       nextPeriod = data;
+    //       calendar.gotoDate(nextPeriod.start_date);
+    //     },
+      });
+    //   var get_blocked_dates = function(){
+    //     $.ajax({
+    //         type: "GET",
+    //         url: '/api/blocked_dates',
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             data.forEach(e=>{
+    //                 blocked_dates.push(e.date);
+    //                 ids[e.date] = e.id
+    //             });
+    //         },
+    //     });
+    //   }
+    //   get_blocked_dates();
+  
+      // fullcalendar
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+  
+        plugins: ['dayGrid', 'interaction'],
+        defaultView: 'dayGridMonth',
+        defaultDate: '2019-11-12',
+        showNonCurrentDates: false,
+        editable: true,
+        timeZone: 'UTC',
+        header: {
+          left: '',
+          center: 'title',
+          right: ''
+        },
+        dayRender: function (info) {
+            var yearString = info.date.getUTCFullYear().toString()
+            var monthString = (info.date.getUTCMonth() + 1).toString()
+            if (monthString.length == 1) {
+                monthString = '0' + monthString;
+            }
+            var dayString = (info.date.getUTCDate()).toString()
+            if (dayString.length == 1) {
+                dayString = '0' + dayString;
+            }
+            date_str = yearString + '-' + monthString + '-' + dayString
+            if (blocked_dates.includes(date_str)) {
+                info.el.style.backgroundColor = '#FF9999';
+            }
+        },
+        dateClick: function(info){
+            // if (blocked_dates.includes(info.dateStr)){
+            //     $.ajax({
+            //         type: "DELETE",
+            //         headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            //         url: '/api/blocked_dates/' + ids[info.dateStr],
+            //         dataType: 'json',
+            //         success: function (data) {
+            //             info.dayEl.style.backgroundColor = '#fff';
+            //             delete ids[info.dateStr]
+            //             var index = blocked_dates.indexOf(info.dateStr);
+            //             blocked_dates.splice(index, 1);
+            //         },
+            //     });
+            // }
+            // else{
+            //     $.ajax({
+            //         type: "POST",
+            //         headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            //         url: '/api/blocked_dates/',
+            //         dataType: 'json',
+            //         data: {
+            //             period: nextPeriod.url,
+            //             date: info.dateStr
+            //         },
+            //         success: function (data) {
+            //             info.dayEl.style.backgroundColor = '#FF9999';
+            //             blocked_dates.push(info.dateStr);
+            //             ids[info.dateStr] = data.id
+            //         },
+            //     });
+            // }
+        }
+      });
+  
+      
+  
+      if ("{{LANGUAGE_CODE}}" == 'zh-hant') {
+        calendar.setOption('locale', 'zh-tw');
+      }
+      $('#myModal').on('shown.bs.modal', function () {
+            calendar.render();
+        });
+  
+    });
+   
+  </script>
+{% endblock %}

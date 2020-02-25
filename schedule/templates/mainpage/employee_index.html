@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Redfalcon Schedule | Home{% endblock %}
+{% load static %}
+{% block content %}
+<div class="container">
+<div class="greet text-center">
+        <h1>使用者首頁</h1>
+
+        {% if user.is_authenticated %}
+        <p>Hi {{ user.username }}!</p>
+        {% else %}
+        <p>You are not logged in</p>
+        {% endif %}
+
+    </div>
+        
+    
+        
+
+</div>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        body {
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+  }
+  .fc-unthemed td.fc-today{
+    background: #888;
+  }
+
+  #calendar {
+    max-width: 900px;
+    margin: 20px auto;
+    
+  }
+  .table-bordered{
+      top: 100px;
+  }
+  .greet, .fc-center{
+    color:#FFFFFF;
+  }
+  .blank{
+      height: 4rem;
+  }
+  .fc-view-container{
+    background-color: #333;
+    color: #FFF;
+  }
+  .fc-title{
+      font-size: 1.2rem;
+  }
+  .fc-button{
+    background-color: #777;
+  }
+  a, a:hover{
+    text-decoration: none;
+  }
+  
+  .card-body{
+      padding: .25rem;
+      margin: .25rem;
+      width: 15vw;
+      min-width: 12rem;
+      max-width: 25rem;
+  }
+  .card-body:hover {
+        /* background-color: antiquewhite; */
+        background-color: #c0eeff;
+    }
+  #top {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    padding: 0 10px;
+    line-height: 40px;
+    font-size: 12px;
+  }
+  .container{
+      width: 100%;
+  }
+  .fc-event-container {
+    color: white;
+  }
+  i {
+        font-size: 30px;
+    }
+  .card-body {
+        color: black;
+        font-size: 1.2rem;
+        text-decoration: none;
+        text-overflow: hide;
+    }
+    </style>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                    <form method="post">
+                            <div class="title text-center">
+                                    <h2>User Login</h2>
+                            </div>
+                        {% csrf_token %}
+                        {{ form |crispy }}
+                        <br>
+                        <div class="col-12 text-center">
+                            <button class='btn-primary btn-lg col-md-6' type="submit">Login</button>
+                        </div>
+                        <br>
+                        <!-- <small><a href="{% url 'password_reset' %}" class="btn btn-link">forgot password?</a></small> -->
+                    </form>
+            </div>
+        </div>
+        
+    </div>
+
+
+{%endblock%}
+
+{% block styles %}
+<style>
+.container{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+.card{
+    margin-top:3em;
+    background-color: #555;
+    color:#eee;
+    box-shadow: 2px 2px 2px #000;
+    width: 25vw;
+}
+.btn-primary{
+    box-shadow: 2px 2px 1px #000;
+}
+h1{
+    color:#eee;
+}
+</style>
+{% endblock %}

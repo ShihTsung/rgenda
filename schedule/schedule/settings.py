@@ -40,8 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
+    'mainpage',
+    'crispy_forms',
 ]
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'schedule.urls'
@@ -126,11 +130,17 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+LANGUAGES = [
+    ('en', _('English')),
+    ('zh-hant', _('Traditional Chinese')),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
+LOGIN_REDIRECT_URL = '/'
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'account.CustomUser'  # new
 STATICFILES_DIRS = [

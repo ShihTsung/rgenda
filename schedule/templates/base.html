@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+        
+        {% load static %}
+        {% load i18n %}
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
+    {% block heads %}{% endblock %}
+       
+</head>
+
+<body>
+        
+
+        <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+        
+        <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
+        <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
+        <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
+        <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
+        <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
+        <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
+        <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
+        
+        
+        <!-- custom filter module -->
+        {% load i18n_switcher %}
+    <main>
+        {% include 'nav.html' %}
+        {% block content %}
+        {% endblock %}
+        <!-- {% include 'footer.html' %} -->
+    </main>
+        {% block styles %}
+        {% endblock %}
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #333;
+            }
+            main{
+                width: 100%;
+                position: absolute;
+                top: 2rem;
+            }
+            .container{
+                padding-top: 5rem;
+                padding-bottom:5rem;
+            }
+            
+            .dropdown:hover{
+                background-color:#eee;
+                color:#16f
+            }
+        </style>
+    
+        
+    
+        {% block scripts %}
+        {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+
+{% load static %}
+{% load i18n %}
+
+<!-- custom filter module -->
+{% load i18n_switcher %}
+
+{% block extrahead %}
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+{% endblock %}
+
+
+
+{% block userlinks %}
+    <li name="" id="" class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'language' %}
+            <span class="caret"></span>
+            <ul class="dropdown-menu">
+                <li><a href="{{ request|switch_i18n:'en' }}">
+                        <span style="font-size:1em;">🇺🇸 English</span>
+                    </a>
+                </li>
+                <li><a href="{{ request|switch_i18n:'zh-hant' }}">
+                        <span style="font-size:1em;">🇹🇼 繁體中文</span>
+                    </a>
+                </li>
+            </ul>
+        </a>
+    </li>
+{% endblock %}

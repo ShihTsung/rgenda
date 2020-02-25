@@ -1,0 +1,19 @@
+
+    {% extends 'base.html'%}
+    {% block title %} logged out{% endblock %}
+{% block content %} 
+<div class="container">
+        <h1 style="margin-top:3rem;color:white" class="text-center">You've logged out</h1>
+</div>
+
+<script>
+onload=function () {
+        setInterval(back,2000)
+    };
+var back = function(){
+    location.href = '/'
+}
+</script>
+{% endblock %}
+
+    
