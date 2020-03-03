@@ -3,7 +3,7 @@
 {% block nav%}
 <!-- custom filter module -->
 {% load i18n_switcher %}
-<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-light">
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
     <a class="navbar-brand offset-1" href="{% url 'home' %}">Redfalcon</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,65 +17,63 @@
             </li>
             {% if user.is_staff%}
             <li class="nav-item">
-                <a class="nav-link" href="#">{% trans 'Manager' %}</a>
+                <a class="nav-link" href="/admin">{% trans 'Manager' %}</a>
             </li>
             {% endif %}
             
            
         </ul>
-        <form class="form-inline my-2 my-lg-0 mr-5 bg-light">
-                <div class="dropdown bg-light">
-                        <a class="nav-link dropdown-toggle bg-light" href="#" id="navbarDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {% trans 'language' %}
-                        </a>
-                        <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item bg-light" href="{{ request|switch_i18n:'en' }}">English</a>
-                            <a class="dropdown-item bg-light" href="{{ request|switch_i18n:'zh-hant' }}">繁體中文</a>
-                        </div>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% trans 'language' %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ request|switch_i18n:'en' }}">English</a>
+                        <a class="dropdown-item" href="{{ request|switch_i18n:'zh-hant' }}">繁體中文</a>
                     </div>
-                {% if user.is_authenticated %}
-                <!-- <a class="btn btn-danger" href=""> Logout</a> -->
-                    <div class="dropdown mr-5 bg-light">
-                        <a class="nav-link dropdown-toggle bg-light" href="#" id="navbarDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{user.username}}
-                        </a>
-                        <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item bg-light" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
-                            <a class="dropdown-item bg-light" href="#">個人班表</a>
-                        </div>
+                </div>
+            {% if user.is_authenticated %}
+            <!-- <a class="btn btn-danger" href=""> Logout</a> -->
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{user.username}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
+                        <a class="dropdown-item" href="#">個人班表</a>
+                        {% if user.is_staff %}
+                        <a class="dropdown-item" href="/accounts/list">帳號管理</a>
+                        {% endif %}
+                        
                     </div>
-                {% else %}
-                <a class="btn btn-primary" href="{% url 'login' %}">{% trans 'Login' %}</a>
-                <a class="btn btn-outline-secondary ml-2" href="#">{% trans 'Sign up' %}</a>
-                {% endif %}
-        </form>
-    </div>
+                </div>
+            {% else %}
+            <a class="btn btn-primary" href="{% url 'login' %}">{% trans 'Login' %}</a>
+            {% endif %}
+
+            </div>
+                
 </nav>
 <style>
-/* nav{
-    background-color: #000;
-    color: #fff;
-} */
-.bg-light{
-    background-color: #666 !important;
-    color:white;
+nav{
+    box-shadow: 1px 0px 2px 0px;
 }
 .dropdown-toggle{
-    border-radius: .25rem;
+    color:white;
 }
-.dropdown{
-    margin-right: 1rem;
+.dropdown-toggle:hover{
+    color:white;
+    box-shadow: 1px 1px 5px 0px #666;
 }
+
 .dropdown:hover{
-    color: #2233ff;
-}
-a{
-    color:#666;
+    color:white;
 }
 .btn{
-    box-shadow: 2px 2px 2px #000;
+    box-shadow: 0px 0px 3px 1px #000;
+    margin: .25rem;
 }
 </style>
 {% endblock %}

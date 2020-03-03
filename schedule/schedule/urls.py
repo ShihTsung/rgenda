@@ -26,7 +26,8 @@ from django.utils.translation import gettext_lazy as _
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('mainpage.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('account.urls')),
+    path('api/', include('api.urls')),
     prefix_default_language=False
 )
 

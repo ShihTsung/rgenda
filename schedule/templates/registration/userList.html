@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %} accounts {% endblock %}
+{% load i18n %}
+{% block content %}
+<div class="container">
+
+<a href="/accounts/register" class="btn btn-primary" id="register">register</a>
+<table class="table table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">username</th>
+        <th scope="col">name</th>
+        <th scope="col">email</th>
+        <th scope="col">department</th>
+        <th scope="col">level</th>
+        <th scope="col">action</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+    
+      <tr>
+        <th scope="row">{{u.id}}</th>
+        <td>{{u.username}}</td>
+        <td>{{u.first_name}} {{u.last_name}}</td>
+        <td>{{u.email}}</td>
+        <td>{{u.department}}</td>
+        <td>{{u.level}}</td>
+        <td>
+          <a href="/accounts/update/{{u.id}}">
+            <div class="btn btn-success"><i class="fas fa-edit"></i></div>
+          </a>
+            {% if user.is_superuser %}
+            <a href="/accounts/delete/{{u.id}}">
+                <div class="btn btn-danger"><i class="fas fa-trash-alt"></i></div>
+            </a>
+            {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+    table{
+        background-color: white;
+        box-shadow: 2px 2px 3px 0px rgba(0,0,0,0.8);
+    }
+    .btn{
+        color:white;
+    }
+    
+</style>
+{% endblock %}

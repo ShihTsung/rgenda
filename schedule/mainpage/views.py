@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 # models
 
-
+@login_required
 def index(request):
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html')

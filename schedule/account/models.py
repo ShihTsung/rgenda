@@ -18,6 +18,12 @@ GENDER_CHOICES = (
     ('F', _('Female'))
 )
 
+"""
+class Department(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_('Department'))
+    detail = models.CharField(max_length=100, verbose_name=_('Detail'))
+"""
+
 
 class CustomUser(AbstractUser):
     department = models.CharField(max_length=100,

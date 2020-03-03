@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import pytz
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.messages import constants as messages
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -42,9 +42,20 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'mainpage',
     'crispy_forms',
+    'api',
+    'rest_framework'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,7 +127,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+# messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

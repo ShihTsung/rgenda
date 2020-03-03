@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Add User{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+                <form method="post">
+                        <div class="title text-center">
+                                <h2>User Register</h2>
+                        </div>
+                        <div>
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                                {{message}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% csrf_token %}
+                    {{ form.username |as_crispy_field }}
+                    <br>
+                    {{ form.email |as_crispy_field }}
+                    <br>
+                    {{ form.password1 |as_crispy_field }}
+                    <br>
+                    {{ form.password2 |as_crispy_field }}
+                    <div>
+                        {{form.error}}
+                    </div>
+                    <div class="col-12 text-center">
+                        <button class='btn-primary btn-lg col-md-6' type="submit">Register</button>
+                    </div>
+                    <br>
+                    <!-- <small><a href="{% url 'password_reset' %}" class="btn btn-link">forgot password?</a></small> -->
+                </form>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+
+{% block styles %}
+<style>
+.container{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+.card{
+    margin-top:5rem;
+    box-shadow: 2px 2px 2px 2px;
+    width: 25vw;
+    min-width: 20rem;
+}
+.btn-primary{
+    box-shadow: 1px 1px 1px 1px #000;
+}
+@media (max-width:600px){
+    .card{
+        width: 80vw;
+    }
+}
+</style>
+{% endblock %}
