@@ -58,7 +58,7 @@ class CustomUserChangeForm(UserChangeForm):
         model = CustomUser
         fields = ('username', 'first_name', 'last_name', 'email', 'department',
                   'level', 'eng_name', 'gender', 'is_staff', 'is_superuser',
-                  'is_active', 'eid', 'gid', 'onboard_date', 'user_permissions')
+                  'is_active', 'eid', 'gid', 'onboard_date')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

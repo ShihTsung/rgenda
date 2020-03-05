@@ -8,7 +8,7 @@
         <div class="card-body">
             <form method="post">
                 <div class="title text-center">
-                    <h2>User Editing</h2>
+                    <h2>Edit User</h2>
                 </div>
                 {% csrf_token %}
                 
@@ -24,7 +24,6 @@
                     {{ form.is_staff |as_crispy_field }}
                     {%if user.is_superuser%}
                     {{ form.is_superuser |as_crispy_field }}
-                    {{form.user_permissions|as_crispy_field}}
                     {%endif%}
                     {{ form.eid |as_crispy_field }}
                     {{ form.gid |as_crispy_field }}
@@ -42,7 +41,7 @@
 <style>
     .card{
     margin-top:5rem;
-    box-shadow: 2px 2px 2px 2px;
+    box-shadow: 1px 1px 2px 0px;
     min-width: 20rem;
     }
     .card-body{

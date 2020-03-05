@@ -3,8 +3,9 @@
 {% block nav%}
 <!-- custom filter module -->
 {% load i18n_switcher %}
-<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
-    <a class="navbar-brand offset-1" href="{% url 'home' %}">Redfalcon</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button class="btn-dark" id="menu-toggle"><i class="fas fa-bars"></i></button>
+    <!-- <a class="navbar-brand offset-1" href="{% url 'home' %}">Redfalcon</a> -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -12,9 +13,6 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'home' %}">{% trans 'User' %}<span class="sr-only"></span></a>
-            </li>
             {% if user.is_staff%}
             <li class="nav-item">
                 <a class="nav-link" href="/admin">{% trans 'Manager' %}</a>
@@ -43,6 +41,7 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
                         <a class="dropdown-item" href="#">個人班表</a>
+                        <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
                         {% if user.is_staff %}
                         <a class="dropdown-item" href="/accounts/list">帳號管理</a>
                         {% endif %}
@@ -59,6 +58,7 @@
 <style>
 nav{
     box-shadow: 1px 0px 2px 0px;
+    top: 0;
 }
 .dropdown-toggle{
     color:white;

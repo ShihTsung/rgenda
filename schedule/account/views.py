@@ -31,6 +31,13 @@ def userList(request):
     }
     return render(request, 'registration/userList.html', context)
 
+
+@login_required
+def detail(request, id):
+    user = CustomUser.objects.get(id=id)
+    return render(request, 'registration/detail.html', {'target_user': user})
+
+
 # 刪除使用者資料
 @login_required
 def destroy(request, id=None):

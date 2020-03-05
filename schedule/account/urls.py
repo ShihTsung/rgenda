@@ -14,5 +14,6 @@ urlpatterns = [
     path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('list/', userList, name='userlist'),
     path('delete/<int:id>', destroy, name="delete"),
-    path('update/<int:id>', update, name="update")
+    path('update/<int:id>', update, name="update"),
+    path('<int:id>', detail, name="detail")
 ]
