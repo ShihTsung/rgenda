@@ -6,22 +6,47 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <form method="POST">
+            <form method="post">
+                <div class="title text-center">
+                    <h2>User Editing</h2>
+                </div>
                 {% csrf_token %}
-                {{form|crispy}}
+                
+                    {{ form.username |as_crispy_field }}
+                    {{ form.email |as_crispy_field }}
+                    {{ form.first_name |as_crispy_field }}
+                    {{ form.last_name |as_crispy_field }}
+                    {{ form.department |as_crispy_field }}
+                    {{ form.level |as_crispy_field }}
+                    {{ form.eng_name |as_crispy_field }}
+                    {{ form.gender |as_crispy_field }}
+                    {{ form.is_active |as_crispy_field }}
+                    {{ form.is_staff |as_crispy_field }}
+                    {%if user.is_superuser%}
+                    {{ form.is_superuser |as_crispy_field }}
+                    {{form.user_permissions|as_crispy_field}}
+                    {%endif%}
+                    {{ form.eid |as_crispy_field }}
+                    {{ form.gid |as_crispy_field }}
+                    {{ form.onboard_date |as_crispy_field }}
+                    
             <div class="col-12 text-center">
-                <button class='btn-primary btn-lg col-md-6' type="submit">update</button>
+                <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
             </div>
             </form>
-            
         </div>
     </div>
 </div>
 
 
 <style>
-    card-body{
-        width: 60%;
+    .card{
+    margin-top:5rem;
+    box-shadow: 2px 2px 2px 2px;
+    min-width: 20rem;
+    }
+    .card-body{
+        padding: 5rem 10rem;
     }
 </style>
 {% endblock %}

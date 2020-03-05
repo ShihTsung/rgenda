@@ -6,10 +6,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 
 # Create your views here.
-from .models import *
+from .models import CustomUser
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
-
+# 新增使用者
 @login_required
 def registerPage(request):
     form = CustomUserCreationForm()
@@ -22,7 +22,7 @@ def registerPage(request):
     context = {'form': form}
     return render(request, 'registration/register.html', context)
 
-
+# 使用者清單
 @login_required
 def userList(request):
     users = CustomUser.objects.all()
@@ -31,9 +31,9 @@ def userList(request):
     }
     return render(request, 'registration/userList.html', context)
 
-
+# 刪除使用者資料
 @login_required
-def destroy(request, id):
+def destroy(request, id=None):
     user = CustomUser.objects.get(id=id)
     if request.user.is_superuser and request.user.id != user.id:
         user.delete()
@@ -45,22 +45,16 @@ def destroy(request, id):
     else:
         return redirect("/accounts/list")
 
-
+# 使用者資料編輯
 @login_required
-def update(request, id):
+def update(request, id=None):
     id = int(id)
     choosed_user = CustomUser.objects.get(id=id)
-    # initials = {'username': user.username,
-    #             'email': user.email,
-    #             'department': user.department,
-    #             'level': user.level,
-    #             'eng_name': user.eng_name,
-    #             'gender': user.gender,
-    #             'is_staff': user.is_staff,
-    #             'is_superuser': user.is_superuser,
-    #             'is_active': user.is_active,
-    #             }
-
+    if choosed_user.is_superuser:
+        if not request.user.is_superuser:
+            # raise PermissionError("you don't have permission")
+            messages.error(request, "you don't have permission ")
+            return redirect('/accounts/list')
     form = CustomUserChangeForm(request.POST or None, instance=choosed_user)
     if form.is_valid():
         form.save()

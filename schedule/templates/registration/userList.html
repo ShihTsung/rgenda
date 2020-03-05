@@ -4,7 +4,13 @@
 {% block content %}
 <div class="container">
 
-<a href="/accounts/register" class="btn btn-primary" id="register">register</a>
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+        {{message}}
+    </div>
+  {% endfor %}
+  <a href="/accounts/register" class="btn btn-primary" id="register">register</a>
+
 <table class="table table-striped">
     <thead class="thead-dark">
       <tr>
@@ -12,8 +18,11 @@
         <th scope="col">username</th>
         <th scope="col">name</th>
         <th scope="col">email</th>
+        <th scope="col">role</th>
         <th scope="col">department</th>
         <th scope="col">level</th>
+        <th scope="col">eid</th>
+        <th scope="col">on board</th>
         <th scope="col">action</th>
       </tr>
     </thead>
@@ -25,8 +34,19 @@
         <td>{{u.username}}</td>
         <td>{{u.first_name}} {{u.last_name}}</td>
         <td>{{u.email}}</td>
+        <td>
+          {% if u.is_superuser %}
+            admin
+          {% elif u.is_staff %}
+            manager
+          {% else %}
+            user
+          {% endif %}
+        </td>
         <td>{{u.department}}</td>
         <td>{{u.level}}</td>
+        <td>{{u.eid}}</td>
+        <td>{{u.onboard_date}}</td>
         <td>
           <a href="/accounts/update/{{u.id}}">
             <div class="btn btn-success"><i class="fas fa-edit"></i></div>

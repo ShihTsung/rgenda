@@ -56,14 +56,14 @@ class CustomUserChangeForm(UserChangeForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'department',
+        fields = ('username', 'first_name', 'last_name', 'email', 'department',
                   'level', 'eng_name', 'gender', 'is_staff', 'is_superuser',
-                  'is_active')
+                  'is_active', 'eid', 'gid', 'onboard_date', 'user_permissions')
 
     def __init__(self, *args, **kwargs):
-        super(UserChangeForm, self).__init__(*args, **kwargs)
-
-        for fieldname in ['username', 'email', 'department', 'level',
-                          'eng_name', 'gender', 'is_staff',
-                          'is_superuser', 'is_active', 'password']:
+        super().__init__(*args, **kwargs)
+        field_list = ['username', 'first_name', 'last_name', 'email',
+                  'department', 'level', 'eng_name', 'gender',
+                  'is_staff', 'is_superuser', 'is_active', 'password']
+        for fieldname in field_list:
             self.fields[fieldname].help_text = None
