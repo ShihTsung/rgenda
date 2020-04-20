@@ -19,7 +19,12 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import path, include, re_path
 from django.utils.translation import gettext_lazy as _
-
+from account.views import (departmentList,
+                           departmentEdit,
+                           departmentCreate,
+                           departmentDelete)
+from . import mail
+from . import initial
 # other modules
 
 
@@ -28,6 +33,16 @@ urlpatterns = i18n_patterns(
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),
     path('api/', include('api.urls')),
+    path('departments/create', departmentCreate),
+    path('departments/update/<int:id>', departmentEdit),
+    path('departments/list', departmentList, name="departmentList"),
+    path('departments/delete/<int:id>', departmentDelete),
+    path('mailtest', mail.mail),
+    path('stations/', include('station.urls')),
+    path('demands/', include('demand.urls')),
+    path('shifts/', include('shift.urls')),
+    path('init/', initial.initial),
+    # path('pre_results', include('pre_result.urls')),
     prefix_default_language=False
 )
 

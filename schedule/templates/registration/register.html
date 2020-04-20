@@ -13,24 +13,70 @@
                         </div>
                         <div>
                             {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                            <div class="alert {{ message.tags }} alert-dismissible" role="alert">
                                 {{message}}
                             </div>
                             {% endfor %}
                         </div>
                     {% csrf_token %}
-                    {{ form.username |as_crispy_field }}
-                    <br>
-                    {{ form.email |as_crispy_field }}
-                    <br>
-                    {{ form.password1 |as_crispy_field }}
-                    <br>
-                    {{ form.password2 |as_crispy_field }}
+                    <div class="col-8">
+                        {{ form.username |as_crispy_field }}
+                    </div>
+                    <div class="col-8">
+                        {{ form.email |as_crispy_field }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.password1 |as_crispy_field }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.password2 |as_crispy_field }}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="col-6">
+                            {{ form.full_name |as_crispy_field}}
+                        </div>
+                        <div class="col-6">
+                            {{ form.department |as_crispy_field }}
+                        </div>
+                    </div>
+                  <div class="form-row">
+                      <div class="col-4">
+                        {{ form.level |as_crispy_field }}
+                      </div>
+                      <div class="col-4">
+                        {{ form.gender |as_crispy_field }}
+                      </div>
+                      <div class="col-4">
+                        {{ form.role |as_crispy_field }}
+                      </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-4">
+                        {{ form.can_be_scheduled |as_crispy_field }}
+                    </div>
+                    <div class="col-4">
+                        {{ form.type_of_user |as_crispy_field }}
+                    </div>
+                    <div class="col-4">
+                        
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-6">
+                        {{ form.eid |as_crispy_field }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.onboard_date |as_crispy_field }}
+                    </div>
+                  </div>  
                     <div>
                         {{form.error}}
                     </div>
-                    <div class="col-12 text-center">
-                        <button class='btn-primary btn-lg col-md-6' type="submit">Register</button>
+                    <div class="d-flex justify-content-around text-center">
+                        <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
+                        <button class='btn-primary btn-lg col-md-3' type="submit">Register</button>
                     </div>
                     <br>
                     <!-- <small><a href="{% url 'password_reset' %}" class="btn btn-link">forgot password?</a></small> -->
@@ -39,6 +85,11 @@
     </div>
     
 </div>
+<script>
+    document.getElementById('back').addEventListener('click',
+    function(){
+        window.location.href="/accounts/list"});
+</script>
 {% endblock %}
 
 

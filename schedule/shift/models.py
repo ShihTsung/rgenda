@@ -1,0 +1,25 @@
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from station.models import Station
+
+"""
+班別管理
+"""
+
+
+class Shift(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_('Name'), null=True)
+    shift_type = models.CharField(
+        max_length=100, verbose_name=_('ShiftType'), null=True)
+    start_hour = models.IntegerField(verbose_name=_('StartHour'), null=True)
+    start_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
+    end_hour = models.IntegerField(verbose_name=_('StartHour'), null=True)
+    end_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
+    station = models.ForeignKey(Station,
+                                on_delete=models.CASCADE,
+                                verbose_name=_('Station'),
+                                null=True)
+    work_hours = models.FloatField(verbose_name=_('WorkHours'), null=True)
+
+    def __str__(self):
+        return self.name

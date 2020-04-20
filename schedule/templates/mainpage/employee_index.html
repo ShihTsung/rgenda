@@ -15,11 +15,65 @@
         {% endif %}
 
     </div>
+    <div id="calendar">
+    </div>
         
     
         
 
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var initialLocaleCode = 'en';
+    var localeSelectorEl = document.getElementById('locale-selector');
+    var Draggable = FullCalendarInteraction.Draggable;
+    var calendarEl = document.getElementById('calendar');
+    var nextPeriod = {}
+
+    // fullcalendar
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+
+      plugins: ['dayGrid'],
+      defaultView: 'dayGridMonth',
+      defaultDate: '2019-11-12',
+      header: {
+        left: 'prev,next',
+        center: 'title',
+        right: ''
+      },
+      eventRender: function (info) {
+        $(info.el).tooltip({
+          html:true,
+          title: info.event.extendedProps.station+'<br>'+info.event.extendedProps.description,
+          content:info.event.extendedProps.description,
+          placement: "top",
+          trigger: "hover",
+          container: "body"
+        });
+      },
+      events: 'api/schedule_result_table?mode=checkPersonal'
+
+    });
+
+    // get period
+    $.ajax({
+      type: "GET",
+      url: "/api/periods/next",
+      dataType: 'json',
+      success: function (data) {
+        nextPeriod = data;
+        calendar.gotoDate(nextPeriod.start_date);
+      },
+    });
+  
+
+    if ("{{LANGUAGE_CODE}}" == 'zh-hant') {
+      calendar.setOption('locale', 'zh-tw');
+    }
+    calendar.render();
+
+  });
+</script>
 {% endblock %}
 
 {% block styles %}

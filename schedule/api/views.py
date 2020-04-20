@@ -1,11 +1,21 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions
-from .serializers import CustomUserSerializer
-from account.models import CustomUser
+from .serializers import (CustomUserSerializer,
+                          ShiftSerializer,
+                          StationSerializer,
+                          DepartmentSerializer,
+                          GetStationSerializer,
+                          GetShiftSerializer,
+                          GetCustomUserSerializer,
+                          OnedaySerializer)
+from account.models import CustomUser, Department
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime, timedelta
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from station.models import Station
+from shift.models import Shift
+from date.models import Oneday
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -28,13 +38,28 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         else:
-            return request.user.is_staff
+            return request.user.role == 'admin'
+
+
+class IsManagerOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        else:
+            cond1 = request.user.role == 'admin'
+            cond2 = request.user.role == 'manager'
+            cond3 = request.user.is_superuser
+            return cond1 or cond2 or cond3
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('username')
-    serializer_class = CustomUserSerializer
     permission_classes = (IsAdminOrReadOnly, permissions.IsAuthenticated)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetCustomUserSerializer
+        return CustomUserSerializer
 
     def get_object(self):
         pk = self.kwargs.get('pk')
@@ -50,3 +75,41 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if mode == 'onlyUser':
             return queryset.filter(is_staff=False)
         return queryset
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+
+class ShiftViewSet(viewsets.ModelViewSet):
+    queryset = Shift.objects.all()
+    serializer_class = ShiftSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetShiftSerializer
+        return ShiftSerializer
+
+
+class StationViewSet(viewsets.ModelViewSet):
+    queryset = Station.objects.all()
+    serializer_class = StationSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetStationSerializer
+        return StationSerializer
+
+
+class OnedayViewSet(viewsets.ModelViewSet):
+    serializer_class = OnedaySerializer
+    queryset = Oneday.objects.all()
+
+    def get_queryset(self):
+        start = self.request.query_params.get('start')
+        end = self.request.query_params.get('end')
+        return Oneday.objects.filter(date__range=[start, end])

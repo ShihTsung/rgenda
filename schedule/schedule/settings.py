@@ -40,10 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
-    'mainpage',
+    'rest_framework',
     'crispy_forms',
+    'mainpage',
     'api',
-    'rest_framework'
+    'result',
+    'station',
+    'demand',
+    'shift',
+    'date',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -129,8 +134,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 # messages
 MESSAGE_TAGS = {
-    messages.ERROR: 'danger'
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
 }
+
+# email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'circlepen1252@gmail.com'
+EMAIL_HOST_PASSWORD = 'godhand810699'
+EMAIL_USE_TLS = 'True'
+EMAIL_POST = '587'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

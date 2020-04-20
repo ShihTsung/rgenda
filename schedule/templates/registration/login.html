@@ -2,66 +2,72 @@
 {% load crispy_forms_tags %}
 {% block title %}Login{% endblock %}
 {% block content %}
-    <div class="container">
-        <div class="card">
-            <div class="card-title text-center">
-                <h2>User Login</h2>     
-            </div>
-            <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <!-- <label for="username">username :</label>
+<div class="container">
+  <div class="card">
+    <div class="card-title text-center">
+      <h2>User Login</h2>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <!-- <label for="username">username :</label>
                             <input type="text" name="username" id="username" class="form-control"> -->
-                            {{ form.username|as_crispy_field }}
-                        </div>
-                        <div class="form-group">
-                            <!-- <label for="password">password :</label>
+          {{ form.username|as_crispy_field }}
+        </div>
+        <div class="form-group">
+          <!-- <label for="password">password :</label>
                             <input type="text" name="password" id="password" class="form-control"> -->
-                            {{ form.password|as_crispy_field }}
-                        </div>
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{error}}
-                            {%endfor%}
-                        </div>
-                        {%endif%}
-                        <br>
-                        <div class="col-12 text-center">
-                            <button class='btn-primary btn-lg col-md-6' type="submit">Login</button>
-                        </div>
-                        <br>
-                        <!-- <small><a href="{% url 'password_reset' %}" class="btn btn-link">forgot password?</a></small> -->
-                    </form>
-            </div>
+          {{ form.password|as_crispy_field }}
+        </div>
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+          {{error}}
+          {%endfor%}
+        </div>
+        {%endif%}
+        <br>
+        <div class="col-12 text-center">
+          <button class='btn-primary btn-lg col-md-6' type="submit">Login</button>
+          <br>
+          <br>
+          <small><b><a href="{% url 'password_reset' %}">forgot password?</a></b></small>
+      </form>
         </div>
         
     </div>
+  </div>
 
+</div>
 
 {%endblock%}
 
 {% block styles %}
 <style>
-.container{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-.card{
-    background-color: #fff;
-    padding-top: 3rem;
-    box-shadow: 0px 1px 5px rgba(0,0,0,0.8);
-    width: 25rem;
-    min-width: 20rem;
-    color:rgb(5, 7, 50);
-}
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-.btn-primary{
-    box-shadow: 0px 1px 3px #000;
-}
+    .card {
+        background-color: #fff;
+        padding: 3rem 1rem;
+        box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
+        width: 30rem;
+        min-width: 25rem;
+        color: rgb(5, 7, 50);
+    }
+    .btn-primary {
+        box-shadow: 0px 1px 3px #000;
+    }
 
+    @media(max-width:600px) {
+      .card{
+        width:90vw;
+      }
+    }
 </style>
 {% endblock %}

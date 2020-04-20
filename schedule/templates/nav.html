@@ -3,7 +3,7 @@
 {% block nav%}
 <!-- custom filter module -->
 {% load i18n_switcher %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-dark bg-dark">
     <button class="btn-dark" id="menu-toggle"><i class="fas fa-bars"></i></button>
     <!-- <a class="navbar-brand offset-1" href="{% url 'home' %}">Redfalcon</a> -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -13,67 +13,81 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            {% if user.is_staff%}
+            <!-- {% if user.is_superuser%}
             <li class="nav-item">
                 <a class="nav-link" href="/admin">{% trans 'Manager' %}</a>
             </li>
-            {% endif %}
+            {% endif %} -->
             
            
         </ul>
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% trans 'language' %}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ request|switch_i18n:'en' }}">English</a>
-                        <a class="dropdown-item" href="{{ request|switch_i18n:'zh-hant' }}">繁體中文</a>
-                    </div>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% trans 'language' %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{{ request|switch_i18n:'en' }}">English</a>
+                    <a class="dropdown-item" href="{{ request|switch_i18n:'zh-hant' }}">繁體中文</a>
                 </div>
-            {% if user.is_authenticated %}
-            <!-- <a class="btn btn-danger" href=""> Logout</a> -->
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{user.username}}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
-                        <a class="dropdown-item" href="#">個人班表</a>
-                        <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
-                        {% if user.is_staff %}
-                        <a class="dropdown-item" href="/accounts/list">帳號管理</a>
-                        {% endif %}
-                        
-                    </div>
-                </div>
-            {% else %}
-            <a class="btn btn-primary" href="{% url 'login' %}">{% trans 'Login' %}</a>
-            {% endif %}
-
             </div>
+        {% if user.is_authenticated %}
+        <!-- <a class="btn btn-danger" href=""> Logout</a> -->
+            <div class="dropdown rightest">
+                <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{user.username}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
+                    <a class="dropdown-item" href="#">個人班表</a>
+                    <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
+                    {% if user.role in "manager,admin" %}
+                    <a class="dropdown-item" href="/accounts/list">帳號管理</a>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        {% else %}
+        <a class="btn btn-primary" href="{% url 'login' %}">{% trans 'Login' %}</a>
+        {% endif %}
+        </div>
                 
 </nav>
 <style>
+a:hover{
+    text-decoration: none;
+}
 nav{
     box-shadow: 1px 0px 2px 0px;
+    position: fixed;
     top: 0;
     font-size: 1.2rem;
+}
+.navbar{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    transition: top 0.3s;
+    z-index: 10;
+}
+nav button i{
+    font-size: 2.5rem;
 }
 .dropdown-toggle{
     color:white;
 }
 .dropdown-toggle:hover{
     color:white;
-    box-shadow: 1px 1px 5px 0px #666;
+    box-shadow: 1px 1px 5px 0px #000;
 }
 
 .dropdown:hover{
     color:white;
 }
+
 .btn{
-    box-shadow: 0px 0px 3px 1px #000;
+    box-shadow: 1px 1px 3px 0px #000;
     margin: .25rem;
 }
 </style>

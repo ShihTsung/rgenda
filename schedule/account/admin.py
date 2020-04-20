@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext, gettext_lazy as _
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser
+from .models import CustomUser, Department
 
 
 class CustomUserAdmin(UserAdmin):
@@ -11,18 +11,21 @@ class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
     model = CustomUser
     list_display = ['username', 'id', 'email', 'level',
-                    'department', 'gid', 'eid', 'onboard_date']
+                    'department', 'eid', 'onboard_date']
     fieldsets = UserAdmin.fieldsets + (
         (_('Profile'), {'fields': (
-            'eng_name',
+            'role', 'type_of_user', 'can_be_scheduled', 'holiday_rest_num',
+            'special_rest_num', 'hour_required', 'hour_realized',
             'level',
             'department',
             'gender',
-            'gid',
             'eid',
             'onboard_date')}),
     )
 
+
+class DepartmentAdmin(admin.ModelAdmin):
+    model = Department
 
 # class LevelAdmin(admin.ModelAdmin):
 #     model = Level
@@ -30,3 +33,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Department, DepartmentAdmin)

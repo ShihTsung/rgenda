@@ -4,6 +4,11 @@
 {% block title %}Redfalcon Schedule | Home{% endblock %}
 <!-- {% load static %} -->
 {% block content %}
+<script src="{% static "fullcalendar/resource-common/main.js" %}"></script>
+<script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script>
+<script src="{% static "fullcalendar/resource-timeline/main.js" %}"></script>
+<script src="{% static "fullcalendar/resource-daygrid/main.js" %}"></script>
+<link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
 <div class="container">
     <!-- {% load tz %}
         {% now 'Y-m-d P' %}
@@ -13,7 +18,7 @@
 {% get_current_timezone as TIME_ZONE %}
 {{TIME_ZONE}} -->
 
-    <div class="greet text-center">
+    <!-- <div class="greet text-center">
         <h1>管理者首頁</h1>
 
         {% if user.is_authenticated %}
@@ -22,12 +27,18 @@
         <p>You are not logged in</p>
         {% endif %}
 
-    </div>
-    
+    </div> -->
 
-</div>  <!-- end container -->
-        
-        
+    <div class="dash-top" >
+        資訊面板
+    </div>
+    <div class="dash-calendar" id="calendar">
+        班表
+    </div>
+
+</div> <!-- end container -->
+
+
 {% endblock %}
 
 {% block styles %}
@@ -36,7 +47,13 @@
     body {
         height: 100%;
     }
-
+    .dash-top{
+        width: 100%;
+        margin-bottom: 3rem;
+        height: 8rem;
+        background-color: chocolate;
+    }
+   
     .greet {
         margin-top: 2rem;
         height: 8rem;
@@ -225,5 +242,47 @@
   
     });
    
+  </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        timeZone: 'UTC',
+        plugins: [ 'interaction', 'resourceTimeline' ],
+        header: {
+        left: 'promptResource today prev,next',
+        center: 'title',
+        right: 'resourceTimelineDay,resourceTimelineWeek'
+        },
+        resourceAreaWidth: "6rem",
+        customButtons: {
+        promptResource: {
+            text: '+ room',
+            click: function() {
+            var title = prompt('Room name');
+            if (title) {
+                calendar.addResource({
+                title: title
+                });
+            }
+            }
+        }
+        },
+        // editable: true,
+        aspectRatio: 2,
+        defaultView: 'resourceTimelineWeek',
+        slotLabelInterval:{day:1},
+        slotLabelFormat: [
+          {month:'numeric', day:'numeric'},
+          {weekday: 'short'} // lower level of text
+        ],
+        resourceLabelText: 'Rooms',
+        resources: 'https://fullcalendar.io/demo-resources.json?with-nesting',
+        events: 'https://fullcalendar.io/demo-events.json?single-day&for-resource-timeline'
+    });
+
+    calendar.render();
+    });
   </script>
 {% endblock %}

@@ -2,13 +2,19 @@ from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+
 
 # Create your views here.
-from .models import CustomUser
+from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import DepartmentChangeForm, DepartmentCreationForm
 
+"""
+帳號管理
+"""
 # 新增使用者
 @login_required
 def registerPage(request):
@@ -16,7 +22,20 @@ def registerPage(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            # admin 才能建立 admin 帳號
+            if form.cleaned_data.get('role') == 'admin':
+                if request.user.role == 'admin':
+                    form.save()
+                else:
+                    messages.error(request, "Permission denied")
+                    return redirect('/accounts/list')
+            if form.cleaned_data.get('role') == 'manager':
+                if request.user.role in ['manager', 'admin']:
+                    form.save()
+                else:
+                    messages.error(request, "Permission denied")
+                    return redirect('/accounts/list')
+
             user = form.cleaned_data.get('username')
             messages.success(request, "Accunt was created for " + user)
     context = {'form': form}
@@ -25,13 +44,18 @@ def registerPage(request):
 # 使用者清單
 @login_required
 def userList(request):
-    users = CustomUser.objects.all()
+    # admin 或 開發者顯示全部使用者，不然只會顯示同部門的使用者
+    if request.user.role == 'admin' or request.user.is_superuser:
+        users = CustomUser.objects.all()
+    else:
+        users = CustomUser.objects.filter(department=request.user.department)
+
     context = {
         'users': users
     }
     return render(request, 'registration/userList.html', context)
 
-
+# 使用者詳細資料
 @login_required
 def detail(request, id):
     user = CustomUser.objects.get(id=id)
@@ -42,12 +66,17 @@ def detail(request, id):
 @login_required
 def destroy(request, id=None):
     user = CustomUser.objects.get(id=id)
-    if request.user.is_superuser and request.user.id != user.id:
+    # admin 不能刪除自己
+    if request.user.role == 'admin' and request.user.id != user.id:
+        name = user.username
         user.delete()
+        messages.success(request, name+'已經被刪除')
         return redirect("/accounts/list")
-    elif request.user.is_staff:
-        if not user.is_staff:
+    elif request.user.role == 'manager':
+        if user.role not in ['manager', 'admin']:
+            name = user.username
             user.delete()
+            messages.success(request, name+'已經被刪除')
         return redirect("/accounts/list")
     else:
         return redirect("/accounts/list")
@@ -70,15 +99,52 @@ def update(request, id=None):
     context = {'form': form, 'target': choosed_user}
     return render(request, 'registration/userEdit.html', context)
 
-# def loginPage(request):
-#     # if request.method == 'POST':
-#     #     username = request.POST.get('username')
-#     #     password = request.POST.get('password')
 
-#     #     user = authenticate(request, username=username, password=password)
+"""
+部門管理
+"""
+# 新增部門
+@login_required
+def departmentCreate(request):
+    form = DepartmentCreationForm()
+    if request.method == 'POST':
+        form = DepartmentCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            department = form.cleaned_data.get('name')
+            messages.success(request, "Department was created for "+department)
+            return redirect('/departments/list')
+    context = {'form': form}
+    return render(request, 'department/departmentCreate.html', context)
 
-#     #     if user is not None:
-#     #         login(request, user)
-#     #         return redirect('home')
-#     context = {}
-#     return render(request, 'registration/login.html', context)
+# 部門清單
+@login_required
+def departmentList(request):
+    departments = Department.objects.all()
+    context = {
+        'departments': departments
+    }
+    return render(request, 'department/departmentList.html', context)
+
+# 編輯部門
+@login_required
+def departmentEdit(request, id=None):
+    id = int(id)
+    department = Department.objects.get(id=id)
+    form = DepartmentChangeForm(request.POST or None, instance=department)
+    if form.is_valid():
+        form.save()
+        return redirect('/departments/list')
+
+    context = {'form': form, 'target': department}
+    return render(request, 'department/departmentEdit.html', context)
+
+# 刪除部門
+@login_required
+def departmentDelete(request, id=None):
+    department = Department.objects.get(id=id)
+    if request.user.is_staff:
+        department.delete()
+        return redirect("/departments/list")
+    else:
+        return redirect("/departments/list")

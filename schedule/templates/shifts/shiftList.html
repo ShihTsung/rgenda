@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %} shifts {% endblock %}
+{% load i18n %}
+{% block content %}
+<div class="container">
+  <!-- modal -->
+  <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="exampleModalScrollableTitle">Delete Shift</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+            <div class="modal-body">
+                <p>Do you confirm to delete?</p>
+                <div class="row">
+                    <div class="col text-right"><button class="btn btn-primary" type="button" data-dismiss="modal">Cancel</button></div>
+                    <div class="col text-left"><button id="btn-delete" class="btn btn-danger" type="button">Delete</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- End modal -->
+
+  <div class="title text-center">
+    <h1>Shift List</h1>
+  </div>
+
+  {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+        {{message}}
+    </div>
+  {% endfor %}
+  <a href="/shifts/create" class="btn btn-primary" id="register"> create </a>
+  
+  <span id="searchbar"><i class="fa fa-search"></i><input type="text" class="form-input" placeholder="search by username" id="myInput"><button class="btn btn-secondary btn-small dropdown-toggle" type="button" data-toggle="dropdown" id="condition">
+    condition
+  </button>
+  <div class="dropdown-menu">
+    <a class="dropdown-item" href="#">Action</a>
+    <a class="dropdown-item" href="#">Another action</a>
+    <a class="dropdown-item" href="#">Something else here</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="#">Separated link</a>
+  </div></span> 
+<table class="table table-striped text-center" id="myTable">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">name</th>
+        <th scope="col">shift type</th>
+        <th scope="col">start time</th>
+        <th scope="col">end time</th>
+        <th scope="col">station</th>
+        <th scope="col">work hours</th>
+        {% if user.role in "admin,manager" or user.is_superuser %}
+        <th scope="col">actions</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift in shifts %}
+      <tr idx="{{shift.id}}">
+        <td class="name">{{shift.name}}</td>
+        <td>{{shift.shift_type}}</td>
+        <td>{{shift.show_start_hour}} : {{shift.show_start_min}}</td>
+        <td>{{shift.show_end_hour}} : {{shift.show_end_min}}</td>
+        <td>{{shift.station}}</td>
+        <td>{{shift.work_hours}}</td>
+        {% if user.role in "admin,manager" or user.is_superuser %}
+        <td>
+          <a href="/shifts/update/{{shift.id}}">
+            <div class="btn btn-success"><i class="fas fa-edit"></i></div>
+          </a>
+          <button class="btn btn-delete btn-danger" type="button" data-toggle="modal" data-target="#modal-delete" value="{{ shift.id }}"><i class="fa fa-trash-alt"></i></button>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+
+<style>
+    table{
+        background-color: white;
+        box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+    }
+    .btn{
+        color:white;
+    }
+    #searchbar{
+      float: right;
+    }
+    #searchbar i{
+      font-size: 1.5rem;
+    }
+    #searchbar input{
+      border: 1px solid #888;
+      border-radius: 8px;
+      height: 2.5rem;
+      width:15rem;
+      margin-left: 1rem;
+    }
+    .btn-secondary{
+      float:right;
+    }
+    
+</style>
+
+<script>
+  function searchFilter() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+  let inputBox = document.getElementById("myInput");
+  inputBox.addEventListener('keyup',searchFilter);
+  
+  document.addEventListener("DOMContentLoaded", function(event) {
+    // Your code to run since DOM is loaded and ready
+    let id = "#";
+    let name = "";
+    document.querySelectorAll(".btn-delete").forEach(function(el){
+        el.addEventListener('click', function(){
+          id = this.parentNode.parentNode.getAttribute('idx');
+          name = this.parentNode.parentNode.childNodes[1].innerText;
+          document.querySelector(".modal-body").querySelector("p").innerText = "Are you sure to delete shift "+name+" ?";
+          document.querySelector("#btn-delete").addEventListener('click', function(){
+              window.location.href = "/shifts/delete/" + id;
+          });
+     });
+      });
+  });
+  
+</script>
+{% endblock %}

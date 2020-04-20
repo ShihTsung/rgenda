@@ -10,22 +10,29 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
 {% endblock %}
 
-
-
 {% block userlinks %}
-    <li name="" id="" class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'language' %}
-            <span class="caret"></span>
-            <ul class="dropdown-menu">
-                <li><a href="{{ request|switch_i18n:'en' }}">
-                        <span style="font-size:1em;">🇺🇸 English</span>
-                    </a>
-                </li>
-                <li><a href="{{ request|switch_i18n:'zh-hant' }}">
-                        <span style="font-size:1em;">🇹🇼 繁體中文</span>
-                    </a>
-                </li>
-            </ul>
+<ul>
+    <li><a href="{{ request|switch_i18n:'en' }}">
+            <span>🇺🇸 English</span>
         </a>
     </li>
+    <li><a href="{{ request|switch_i18n:'zh-hant' }}">
+            <span>🇹🇼 繁體中文</span>
+        </a>
+    </li>
+</ul>
+
+    {{ block.super }}
+    
+    <style>
+        #user-tools{
+            font-size: .8rem;
+        }
+        ul, li{
+            display:inline;
+        }
+        ul{
+            margin-right: 1rem;
+        }
+    </style>
 {% endblock %}

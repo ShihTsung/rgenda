@@ -24,7 +24,7 @@
             </tr>
             <tr>
                 <td>{% trans 'name' %}</td>
-                <td>{{target_user.last_name}}{{target_user.first_name}}</td>
+                <td>{{target_user.full_name}}</td>
             </tr>
             <tr>
                 <td>{% trans 'level' %}</td>
@@ -35,10 +35,6 @@
                 <td>{{target_user.eid}}</td>
             </tr>
             <tr>
-                <td>{% trans 'gid' %}</td>
-                <td>{{target_user.gid}}</td>
-            </tr>
-            <tr>
                 <td>{% trans 'gender' %}</td>
                 <td>{{target_user.gender}}</td>
             </tr>
@@ -47,19 +43,48 @@
                 <td>{{target_user.department}}</td>
             </tr>
             <tr>
+                <td>{% trans 'canSchedule' %}</td>
+                <td>{{target_user.can_be_scheduled}}</td>
+            </tr>
+            <tr>
                 <td>{% trans 'role' %}</td>
                 <td>
-                    {% if target_user.is_superuser %}
-                    admin
-                    {% elif target_user.is_staff %}
-                    manager
-                    {% else %}
-                    user
-                    {% endif %}
+                   {{target_user.role}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'type' %}</td>
+                <td>
+                   {{target_user.type_of_user}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'holidayRest' %}</td>
+                <td>
+                   {{target_user.holiday_rest_num}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'specialRest' %}</td>
+                <td>
+                   {{target_user.special_rest_num}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'workhourRequired' %}</td>
+                <td>
+                   {{target_user.hour_required}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'workhourRealized' %}</td>
+                <td>
+                   {{target_user.hour_realized}}
                 </td>
             </tr>
         </tbody>
     </table>
+        <a href="/accounts/change_password" class="btn btn-lg btn-success">{% trans 'ChangePassword' %}</a>
         {% if user.is_staff %}
         <a href="/accounts/update/{{target_user.id}}" class="btn btn-lg btn-primary">{% trans 'Edit' %}</a>
         {% endif %}
@@ -67,7 +92,7 @@
 </div>
 <style>
     table{
-        font-size: 1.5rem;
+        font-size: 1rem;
         background-color: white;
         box-shadow: 1px 1px 5px 0;
     }
