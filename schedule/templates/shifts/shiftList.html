@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %} shifts {% endblock %}
 {% load i18n %}
+{% load static %}
+
 {% block content %}
 <div class="container">
   <!-- modal -->
@@ -35,17 +37,20 @@
     </div>
   {% endfor %}
   <a href="/shifts/create" class="btn btn-primary" id="register"> create </a>
-  
-  <span id="searchbar"><i class="fa fa-search"></i><input type="text" class="form-input" placeholder="search by username" id="myInput"><button class="btn btn-secondary btn-small dropdown-toggle" type="button" data-toggle="dropdown" id="condition">
-    condition
-  </button>
-  <div class="dropdown-menu">
-    <a class="dropdown-item" href="#">Action</a>
-    <a class="dropdown-item" href="#">Another action</a>
-    <a class="dropdown-item" href="#">Something else here</a>
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="#">Separated link</a>
-  </div></span> 
+
+  <!-- 搜尋欄 -->
+  <span id="searchbar" class="d-flex">
+      
+      <i class="fa fa-search"></i>
+    <input type="text" class="form-input" id="myInput">
+    <select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
+      {% for index, field in field_names %}
+      <option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
+      {% endfor %}
+    </select>
+  </span> 
+  <!-- 搜尋欄end -->
+
 <table class="table table-striped text-center" id="myTable">
     <thead class="thead-dark">
       <tr>
@@ -90,28 +95,10 @@
         background-color: white;
         box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
     }
-    .btn{
-        color:white;
-    }
-    #searchbar{
-      float: right;
-    }
-    #searchbar i{
-      font-size: 1.5rem;
-    }
-    #searchbar input{
-      border: 1px solid #888;
-      border-radius: 8px;
-      height: 2.5rem;
-      width:15rem;
-      margin-left: 1rem;
-    }
-    .btn-secondary{
-      float:right;
-    }
-    
 </style>
-
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+{% endblock %}
 <script>
   function searchFilter() {
   // Declare variables
@@ -123,7 +110,7 @@
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
+    td = tr[i].getElementsByTagName("td")[sid];
     if (td) {
       txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -134,6 +121,14 @@
     }
   }
 }
+  function printOption(){
+    let e = document.getElementById('condition');
+    sid = e.options[e.selectedIndex].value;
+    optiontext = e.options[e.selectedIndex].text;
+    searchFilter(sid);
+    document.getElementById('myInput').placeholder = "search by " + optiontext;
+  }
+  let sid = 0
   let inputBox = document.getElementById("myInput");
   inputBox.addEventListener('keyup',searchFilter);
   
@@ -141,6 +136,7 @@
     // Your code to run since DOM is loaded and ready
     let id = "#";
     let name = "";
+    let cond = document.getElementById('condition');
     document.querySelectorAll(".btn-delete").forEach(function(el){
         el.addEventListener('click', function(){
           id = this.parentNode.parentNode.getAttribute('idx');
@@ -151,7 +147,11 @@
           });
      });
       });
+    sid = cond.options[cond.selectedIndex].value;
+    optiontext = cond.options[cond.selectedIndex].text;
+    document.getElementById('myInput').placeholder = "search by " + optiontext;
   });
+  
   
 </script>
 {% endblock %}

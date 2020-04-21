@@ -1,0 +1,29 @@
+#searchbar{
+    float: right;
+    display: flex;
+    align-items: center;
+    border: 1px solid #666;
+    border-radius: 3px;
+    background-color: white;
+  }
+  #searchbar i{
+    font-size: 1.5rem;
+  }
+  #searchbar input{
+    border: none;
+    height: 2.5rem;
+    width:15rem;
+  }
+  .bootstrap-select{
+    width: 8rem !important;
+  }
+  .bootstrap-select>.dropdown-toggle{
+    width: 8rem !important;
+  }
+  .bootstrap-select .btn{
+    margin: 0;
+    height: 2.5rem;
+    border: none;
+    box-shadow: none;
+    border-radius: 0px;
+  }

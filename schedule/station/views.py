@@ -28,7 +28,8 @@ def station_create(request):
 @login_required
 def station_list(request):
     stations = Station.objects.all()
-    context = {'stations': stations}
+    field_names = [(0, 'name'), (1, 'department')]
+    context = {'stations': stations, 'field_names': field_names}
 
     return render(request, 'stations/stationList.html', context)
 

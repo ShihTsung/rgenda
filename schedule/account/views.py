@@ -50,8 +50,15 @@ def userList(request):
     else:
         users = CustomUser.objects.filter(department=request.user.department)
 
+    field_names = [
+        (0, 'username'),
+        (1, 'name'),
+        (3, 'role'),
+        (4, 'department')
+        ]
     context = {
-        'users': users
+        'users': users,
+        'field_names': field_names
     }
     return render(request, 'registration/userList.html', context)
 
@@ -121,8 +128,13 @@ def departmentCreate(request):
 @login_required
 def departmentList(request):
     departments = Department.objects.all()
+    field_names = [
+        (0, 'name'),
+        (1, 'detail')
+        ]
     context = {
-        'departments': departments
+        'departments': departments,
+        'field_names': field_names
     }
     return render(request, 'department/departmentList.html', context)
 

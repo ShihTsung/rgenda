@@ -38,8 +38,13 @@ def demand_list(request):
     output = []
     for k in demand_dict.keys():
         output.append(demand_dict[k])
+    field_names = [(0, 'station'), (1, 'shift'), (2, 'level')]
 
-    context = {'demands': demand_dict, 'stations': stations}
+    context = {
+        'demands': demand_dict,
+        'stations': stations,
+        'field_names': field_names
+               }
 
     return render(request, 'demands/demandList.html', context)
 
