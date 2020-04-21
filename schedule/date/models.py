@@ -1,8 +1,9 @@
 from django.db import models
-
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
 class Oneday(models.Model):
-    date = models.DateField(verbose_name='date')
-    attribute = models.CharField(max_length=100, verbose_name='attr')
+    date = models.DateField(verbose_name=_('Date'))
+    attribute = models.CharField(max_length=100, verbose_name=_('Attr'))
+    locked = models.BooleanField(verbose_name=_('Locked'), default=False)

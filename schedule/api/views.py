@@ -110,6 +110,11 @@ class OnedayViewSet(viewsets.ModelViewSet):
     queryset = Oneday.objects.all()
 
     def get_queryset(self):
-        start = self.request.query_params.get('start')[:10]
-        end = self.request.query_params.get('end')[:10]
-        return Oneday.objects.filter(date__range=[start, end])
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            if not end:
+                end = start
+            return Oneday.objects.filter(date__range=[start[:10], end[:10]])
+        else:
+            return Oneday.objects.all()

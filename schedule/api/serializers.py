@@ -76,4 +76,4 @@ class ShiftSerializer(serializers.ModelSerializer):
 class OnedaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Oneday
-        fields = ('id', 'date', 'attribute')
+        fields = ('id', 'date', 'attribute', 'locked')

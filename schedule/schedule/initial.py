@@ -2,7 +2,7 @@ import os
 import pathlib
 import random
 import sys
-from datetime import timedelta
+import datetime
 import django
 from django.utils import timezone
 from django.shortcuts import render, redirect
@@ -17,6 +17,7 @@ def initial(request):
     django.setup()
     from account.models import CustomUser as User
     from account.models import Department
+    from date.models import Oneday
     if User.objects.all():
         print('clean database')
         User.objects.all().delete()
@@ -27,7 +28,29 @@ def initial(request):
 # departments
     for d in Department.objects.all():
         d.delete()
+    print('create departments')
     department = Department.objects.create(name='RD', detail='研發部')
     department.save()
+    department = Department.objects.create(name='FC', detail='財務部')
+    department.save()
+
+# days
+
+    print('create days')
+    for d in Oneday.objects.all():
+        d.delete()
+    daystmp = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d')
+    work_or_holiday = ""
+
+    for i in range(520):
+        if daystmp.weekday() in [5, 6]:
+            work_or_holiday = "holiday"
+        else:
+            work_or_holiday = "workday"
+        newday = Oneday.objects.create(date=daystmp, attribute=work_or_holiday)
+        newday.save()
+        daystmp += datetime.timedelta(days=1)
+
     print('finish')
+
     return redirect('/')
