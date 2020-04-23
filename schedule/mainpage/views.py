@@ -9,7 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 @login_required
 def index(request):
+    context = {'LANG': request.LANGUAGE_CODE}
     if request.user.is_staff:
-        return render(request, 'mainpage/manager_index.html')
+        return render(request, 'mainpage/manager_index.html', context)
     else:
-        return render(request, 'mainpage/employee_index.html')
+        return render(request, 'mainpage/employee_index.html', context)

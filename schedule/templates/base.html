@@ -44,7 +44,7 @@
             <div class="bg-dark" id="sidebar-wrapper">
               <a class="bg-dark list-group-item sidebar-heading" href="{% url 'home' %}" styles="border:None">Redfalcon</a>
               <div class="list-group list-group-flush">
-                {% if user.role == 'admin' %}
+                {% if user.role == 'admin' or user.is_superuser %}
                 <a href="/departments/list" class="list-group-item list-group-item-action 
                 bg-dark">Department</a>
                 {% endif %}

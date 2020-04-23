@@ -11,7 +11,7 @@ from account.models import CustomUser
 class PreResult(models.Model):
 
     user = models.ForeignKey(
-        Customuser,
+        CustomUser,
         verbose_name=_('User'),
         on_delete=models.CASCADE,
         null=True
@@ -22,7 +22,7 @@ class PreResult(models.Model):
     )
     shift = models.ForeignKey(
         Shift,
-        verbose_name=_('User'),
+        verbose_name=_('Shift'),
         on_delete=models.CASCADE,
         null=True
     )
@@ -39,7 +39,7 @@ class PreResult(models.Model):
 class Result(models.Model):
 
     user = models.ForeignKey(
-        Customuser,
+        CustomUser,
         verbose_name=_('User'),
         on_delete=models.CASCADE,
         null=True
@@ -50,7 +50,7 @@ class Result(models.Model):
     )
     shift = models.ForeignKey(
         Shift,
-        verbose_name=_('User'),
+        verbose_name=_('Shift'),
         on_delete=models.CASCADE,
         null=True
     )
@@ -67,7 +67,7 @@ class Result(models.Model):
 class AfterResult(models.Model):
 
     user = models.ForeignKey(
-        Customuser,
+        CustomUser,
         verbose_name=_('User'),
         on_delete=models.CASCADE,
         null=True
@@ -78,7 +78,7 @@ class AfterResult(models.Model):
     )
     shift = models.ForeignKey(
         Shift,
-        verbose_name=_('User'),
+        verbose_name=_('Shift'),
         on_delete=models.CASCADE,
         null=True
     )

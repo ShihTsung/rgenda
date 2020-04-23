@@ -82,10 +82,21 @@ START_MIN_CHOICES = (
 END_MIN_CHOICES = (
     (i, i) for i in range(0, 61, 5)
 )
+TYPE_CHOICES = (
+    ('白班', '白班'),
+    ('小夜', '小夜'),
+    ('大夜', '大夜'),
+    ('休假', '休假'),
+    ('公假', '公假')
+)
 
 
 class ShiftEditForm(forms.ModelForm):
     name = forms.CharField(max_length=100, label=_('Name'))
+    shift_type = forms.CharField(
+        max_length=100,
+        label=_('ShiftType'),
+        widget=forms.widgets.Select(choices=TYPE_CHOICES))
     start_hour = forms.IntegerField(
         label=_('StartHour'),
         widget=forms.widgets.Select(choices=START_HOUR_CHOICES))

@@ -9,6 +9,9 @@ router.register(r'stations', views.StationViewSet)
 router.register(r'shifts', views.ShiftViewSet)
 router.register(r'departments', views.DepartmentViewSet)
 router.register(r'dates', views.OnedayViewSet)
+router.register(r'result', views.ResultViewSet)
+router.register(r'preresult', views.PreResultViewSet)
+router.register(r'afterresult', views.AfterResultViewSet)
 
 
 urlpatterns = [

@@ -42,6 +42,7 @@ urlpatterns = i18n_patterns(
     path('demands/', include('demand.urls')),
     path('shifts/', include('shift.urls')),
     path('init/', initial.initial),
+    path('dates/', include('date.urls')),
     # path('pre_results', include('pre_result.urls')),
     prefix_default_language=False
 )

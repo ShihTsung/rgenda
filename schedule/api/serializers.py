@@ -5,6 +5,7 @@ from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
 from date.models import Oneday
+from result.models import Result, PreResult, AfterResult
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -74,6 +75,74 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class OnedaySerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="attribute")
+    start = serializers.CharField(source="date")
+    id = serializers.CharField()
+    extendedProps = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
+    className = serializers.SerializerMethodField()
+
     class Meta:
         model = Oneday
-        fields = ('id', 'date', 'attribute', 'locked')
+        fields = ('id', 'title', 'start', 'color', 'className', 'extendedProps')
+        read_only_fields = ("id",)
+
+    def get_className(self, obj):
+        return 'bigEvent'
+
+    def get_color(self, obj):
+        if obj.attribute == 'holiday':
+            return 'red'
+        else:
+            return ''
+
+    def get_extendedProps(self, obj):
+
+        return{
+            'locked': obj.locked,
+        }
+
+
+class PreResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreResult
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class ResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Result
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class AfterResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AfterResult
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class GetPreResultSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+    shift = ShiftSerializer()
+
+    class Meta:
+        model = PreResult
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class GetResultSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+    shift = ShiftSerializer()
+
+    class Meta:
+        model = Result
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class GetAfterResultSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+    shift = ShiftSerializer()
+
+    class Meta:
+        model = AfterResult
+        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')

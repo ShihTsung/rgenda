@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions
-from .serializers import (CustomUserSerializer,
-                          ShiftSerializer,
-                          StationSerializer,
-                          DepartmentSerializer,
-                          GetStationSerializer,
-                          GetShiftSerializer,
-                          GetCustomUserSerializer,
-                          OnedaySerializer)
+from .serializers import *
+"""(CustomUserSerializer,
+                            ShiftSerializer,
+                            StationSerializer,
+                            DepartmentSerializer,
+                            GetStationSerializer,
+                            GetShiftSerializer,
+                            GetCustomUserSerializer,
+                            OnedaySerializer,
+                            )"""
 from account.models import CustomUser, Department
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,6 +18,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
+from result.models import Result, PreResult, AfterResult
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -38,7 +41,7 @@ class IsAdminOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         else:
-            return request.user.role == 'admin'
+            return request.user.role == 'admin' or request.user.is_superuser
 
 
 class IsManagerOrReadOnly(BasePermission):
@@ -118,3 +121,36 @@ class OnedayViewSet(viewsets.ModelViewSet):
             return Oneday.objects.filter(date__range=[start[:10], end[:10]])
         else:
             return Oneday.objects.all()
+
+
+class ResultViewSet(viewsets.ModelViewSet):
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetResultSerializer
+        return ResultSerializer
+
+
+class PreResultViewSet(viewsets.ModelViewSet):
+    queryset = PreResult.objects.all()
+    serializer_class = PreResultSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetPreResultSerializer
+        return PreResultSerializer
+
+
+class AfterResultViewSet(viewsets.ModelViewSet):
+    queryset = AfterResult.objects.all()
+    serializer_class = AfterResultSerializer
+    permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetAfterResultSerializer
+        return AfterResultSerializer

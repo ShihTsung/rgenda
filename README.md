@@ -13,3 +13,11 @@ MYSQL_USER=circlepen
 MYSQL_PASSWORD=redfalcon
 
 ```
+
+第一次build mysql 會比較晚起來，所以會出錯
+control + C 跳出，再重新 docker-compose up 就行了
+或是可以先啟動 docker-compose up db
+再啟動 web
+
+
+網址列輸入 /init 可以將資料庫資料初始化

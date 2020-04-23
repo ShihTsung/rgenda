@@ -18,13 +18,15 @@ def initial(request):
     from account.models import CustomUser as User
     from account.models import Department
     from date.models import Oneday
-    if User.objects.all():
-        print('clean database')
-        User.objects.all().delete()
+    from station.models import Station
+    from shift.models import Shift
+
+    print('clean database')
+    User.objects.all().delete()
 # superuser
-        print('create a super user')
-        user = User.objects.create_superuser(
-            'circlepen', 'lyle.lai@redfalcon-hpc.com', 'redfalcon')
+    print('create a super user')
+    user = User.objects.create_superuser(
+        'circlepen', 'lyle.lai@redfalcon-hpc.com', 'redfalcon')
 # departments
     for d in Department.objects.all():
         d.delete()
@@ -50,6 +52,25 @@ def initial(request):
         newday = Oneday.objects.create(date=daystmp, attribute=work_or_holiday)
         newday.save()
         daystmp += datetime.timedelta(days=1)
+
+    # station
+    print('create station')
+    for s in Station.objects.all():
+        s.delete()
+    department = Department.objects.first()
+    station = Station.objects.create(name="station1", department=department)
+    station.save()
+
+    print('create shift')
+    shift = Shift.objects.create(
+        name="shift1",
+        shift_type="白班",
+        start_hour=8,
+        start_min=0,
+        end_hour=16,
+        end_min=30
+    )
+    shift.save()
 
     print('finish')
 

@@ -13,9 +13,9 @@ services:
       - ./.env
     restart: on-failure:3
   app:
-    restart: on-failure:3
+    restart: always
     build: . # Current directory!
-    command: bash -c "cd schedule && python3 manage.py makemigrations && python3 manage.py migrate && python3 scripts/fake_data.py && python3 manage.py runserver 0.0.0.0:80"
+    command: bash -c "cd schedule && python3 manage.py makemigrations && python3 manage.py migrate &&  python3 manage.py runserver 0.0.0.0:80"
     container_name: schedule_web
     volumes:
       - .:/code

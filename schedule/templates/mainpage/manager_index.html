@@ -31,6 +31,7 @@
 
     <div class="dash-top" >
         資訊面板
+        {{LANG}}
     </div>
     <div class="dash-calendar" id="calendar">
         班表
@@ -128,127 +129,24 @@
     .modal-body{
         max-width: 60vw;
     }
+    #calendar{
+        background-color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0px 0px 2px 0px;
+    }
 </style>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    var nextPeriod = {}
-    var blocked_dates = []
-    var ids = {}
-    document.addEventListener('DOMContentLoaded', function () {
-      var initialLocaleCode = 'en';
-      var localeSelectorEl = document.getElementById('locale-selector');
-      var Draggable = FullCalendarInteraction.Draggable;
-      var calendarEl = document.getElementById('calendar');
-      
-      // get period
-    //   $.ajax({
-    //     type: "GET",
-    //     url: "/api/periods/next",
-    //     dataType: 'json',
-    //     success: function (data) {
-    //       nextPeriod = data;
-    //       calendar.gotoDate(nextPeriod.start_date);
-    //     },
-      });
-    //   var get_blocked_dates = function(){
-    //     $.ajax({
-    //         type: "GET",
-    //         url: '/api/blocked_dates',
-    //         dataType: 'json',
-    //         success: function (data) {
-    //             data.forEach(e=>{
-    //                 blocked_dates.push(e.date);
-    //                 ids[e.date] = e.id
-    //             });
-    //         },
-    //     });
-    //   }
-    //   get_blocked_dates();
-  
-      // fullcalendar
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-  
-        plugins: ['dayGrid', 'interaction'],
-        defaultView: 'dayGridMonth',
-        defaultDate: '2019-11-12',
-        showNonCurrentDates: false,
-        editable: true,
-        timeZone: 'UTC',
-        header: {
-          left: '',
-          center: 'title',
-          right: ''
-        },
-        dayRender: function (info) {
-            var yearString = info.date.getUTCFullYear().toString()
-            var monthString = (info.date.getUTCMonth() + 1).toString()
-            if (monthString.length == 1) {
-                monthString = '0' + monthString;
-            }
-            var dayString = (info.date.getUTCDate()).toString()
-            if (dayString.length == 1) {
-                dayString = '0' + dayString;
-            }
-            date_str = yearString + '-' + monthString + '-' + dayString
-            if (blocked_dates.includes(date_str)) {
-                info.el.style.backgroundColor = '#FF9999';
-            }
-        },
-        dateClick: function(info){
-            // if (blocked_dates.includes(info.dateStr)){
-            //     $.ajax({
-            //         type: "DELETE",
-            //         headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-            //         url: '/api/blocked_dates/' + ids[info.dateStr],
-            //         dataType: 'json',
-            //         success: function (data) {
-            //             info.dayEl.style.backgroundColor = '#fff';
-            //             delete ids[info.dateStr]
-            //             var index = blocked_dates.indexOf(info.dateStr);
-            //             blocked_dates.splice(index, 1);
-            //         },
-            //     });
-            // }
-            // else{
-            //     $.ajax({
-            //         type: "POST",
-            //         headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-            //         url: '/api/blocked_dates/',
-            //         dataType: 'json',
-            //         data: {
-            //             period: nextPeriod.url,
-            //             date: info.dateStr
-            //         },
-            //         success: function (data) {
-            //             info.dayEl.style.backgroundColor = '#FF9999';
-            //             blocked_dates.push(info.dateStr);
-            //             ids[info.dateStr] = data.id
-            //         },
-            //     });
-            // }
-        }
-      });
-  
-      
-  
-      if ("{{LANGUAGE_CODE}}" == 'zh-hant') {
-        calendar.setOption('locale', 'zh-tw');
-      }
-      $('#myModal').on('shown.bs.modal', function () {
-            calendar.render();
-        });
-  
-    });
-   
-  </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         timeZone: 'UTC',
+        editable: true,
+        schedulerLicenseKey: '0780359527-fcs-1573633868',
         plugins: [ 'interaction', 'resourceTimeline' ],
         header: {
         left: 'promptResource today prev,next',
@@ -274,14 +172,15 @@
         defaultView: 'resourceTimelineWeek',
         slotLabelInterval:{day:1},
         slotLabelFormat: [
-          {month:'numeric', day:'numeric'},
-          {weekday: 'short'} // lower level of text
+          {month:'numeric', day:'numeric', weekday: 'short'},// lower level of text
         ],
         resourceLabelText: 'Rooms',
         resources: 'https://fullcalendar.io/demo-resources.json?with-nesting',
         events: 'https://fullcalendar.io/demo-events.json?single-day&for-resource-timeline'
     });
-
+    if ("{{LANG}}" == 'zh-hant') {
+      calendar.setOption('locale', 'zh-tw');
+    }
     calendar.render();
     });
   </script>

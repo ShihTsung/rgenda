@@ -13,6 +13,7 @@ RUN pip install --upgrade setuptools
 RUN apt-get update
 RUN apt-get install python3-dev default-libmysqlclient-dev gcc  -y
 RUN pip install mysqlclient
+RUN pip install uwsgi
 ADD requirements.txt /code/
 #Install dependencies
 RUN pip install -r requirements.txt
