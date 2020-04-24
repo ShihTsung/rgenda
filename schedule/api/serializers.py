@@ -74,7 +74,7 @@ class ShiftSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class OnedaySerializer(serializers.ModelSerializer):
+class GetOnedaySerializer(serializers.ModelSerializer):
     title = serializers.CharField(source="attribute")
     start = serializers.CharField(source="date")
     id = serializers.CharField()
@@ -101,6 +101,13 @@ class OnedaySerializer(serializers.ModelSerializer):
         return{
             'locked': obj.locked,
         }
+
+
+class OnedaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Oneday
+        fields = ('id',  'date', 'attribute', 'locked')
+        read_only_fields = ("id",)
 
 
 class PreResultSerializer(serializers.ModelSerializer):

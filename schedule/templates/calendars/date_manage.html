@@ -5,61 +5,90 @@
 
 {% block content %}
 <div class="container">
-    <div id="calendar">
+  <div id="calendar">
 
-    </div>
+  </div>
 </div>
 
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel"></h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form action="">
-              <div class="form-grounp">
-                  <label for="day">type</label>
-                <select name="day" id="day" class="form-control">
-                    <option value="workday">
-                      workday
-                    </option> 
-                    <option value="holiday">
-                      holiday
-                    </option> 
-                </select>
-              </div>
-            <br>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="locked">
-                <label class="form-check-label" for="locked">locked</label>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
-          <button type="button" class="btn btn-primary" onclick="sendData()">{%trans 'Save'%}</button>
-        </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <div class="form-grounp">
+            <label for="day">type</label>
+            <select name="day" id="day" class="form-control">
+              <option value="workday">
+                workday
+              </option>
+              <option value="holiday">
+                holiday
+              </option>
+            </select>
+          </div>
+          <br>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="locked">
+            <label class="form-check-label" for="locked">locked</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+        <button type="button" class="btn btn-primary" id="save" >{%trans 'Save'%}</button>
       </div>
     </div>
   </div>
+</div>
 
 <script>
+    let currInfo = {}
+    let calendar = {}
+            // 送出修改某天的資料
     let sendData = function(){
-
-    }
+        let target = currInfo.event.id;
+        let e = document.getElementById("day")
+        let WorkOrRest = e.options[e.selectedIndex].value;
+        let locked = document.getElementById("locked").checked;
+        let date = currInfo.event.start.toISOString().split('T')[0];
+        updateData = {
+            'id': target,
+            'date': date,
+            'attribute': WorkOrRest,
+            'locked': locked
+        }
+        // TODO: 修改PUT 內容
+        fetch('/api/dates/' + target + '/', {
+          method: "PUT",
+          headers:{
+            'X-CSRFToken': '{{ csrf_token }}',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        }).then(response => {
+          calendar.refetchEvents();
+        })
+        $('#myModal').modal('hide');
+      }
+    
+        
+    
     document.addEventListener('DOMContentLoaded', function () {
         let Calendar = FullCalendar.Calendar;
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-        let currInfo = {} 
         
 
-        let calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],
                 selectable: false,
                 selectHelper: true,
@@ -89,12 +118,16 @@
                 eventClick: function(info){
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
-                    console.log($('#exampleModalLabel').text())
                     $('#myModal').modal('show');
+                    $('#day').val(info.event.title);
+                    $('#locked').prop('checked',info.event.extendedProps.locked);
                 },
                 eventRender: function(info) {
-                   info.event.title = "***";
-                   console.log(info.event.title);
+                  if (info.event.extendedProps.locked){
+                    x = document.createElement('div');
+                    x.innerHTML = '<i class="fas fa-lock"></i>';
+                    info.el.appendChild(x);
+                  }
                 },
                 events: '/api/dates'
             });
@@ -103,6 +136,10 @@
             }
             calendar.render();
         });
+        saveButton = document.getElementById('save');
+        saveButton.addEventListener('click',sendData);
+
+
 </script>
 <style>
     .fc-title{
@@ -113,11 +150,11 @@
         padding: 2rem;
     }
     .fc-content{
-        font-size: 2rem;
+        font-size: 1rem;
     }
     .bigEvent{
-        height:5rem;
-        width:80%;
+        height: 3rem;
+        width: 80%;
         margin-left: 10%;
         display: flex;
         justify-content: center;
@@ -125,4 +162,3 @@
     }
 </style>
 {% endblock %}
-

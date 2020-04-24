@@ -112,6 +112,11 @@ class OnedayViewSet(viewsets.ModelViewSet):
     serializer_class = OnedaySerializer
     queryset = Oneday.objects.all()
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetOnedaySerializer
+        return OnedaySerializer
+
     def get_queryset(self):
         if self.request.query_params:
             start = self.request.query_params.get('start')
