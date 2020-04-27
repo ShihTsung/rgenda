@@ -22,7 +22,6 @@
                 {% csrf_token %}
                 {{ form.shift |as_crispy_field }}
                 <br>
-                {{ form.station |as_crispy_field }}
                 {{ form.level |as_crispy_field }}
                 {{ form.weekday |as_crispy_field }}
                 {{ form.holiday |as_crispy_field }}

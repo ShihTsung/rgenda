@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'ReversingHoliday' %}{% endblock %}
+
+
+<!-- 加入full calendar套件 -->
+{% block content %}
+<div class="container">
+  <div class="greet text-center">
+    {{start}}
+    <br>
+    {{end}}
+    {% if user.is_authenticated %}
+    <h1> <b> {{user.username}} </b> {%trans 'ReversingHoliday'%}</h1>
+    {% endif%}
+  </div>
+  <div class="calendar-container">
+    <div id="calendar">
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<!-- 自訂 CSS -->
+
+{% block styles %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #calendar {
+        padding: 2rem;
+        max-width: 900px;
+        background-color: white;
+    }
+    .calendar-container{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 2rem;
+    }
+
+</style>
+{% endblock %}
+
+
+
+<!-- 自訂 scripts -->
+{% block scripts %}
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        var Calendar = FullCalendar.Calendar;
+        var Draggable = FullCalendarInteraction.Draggable;
+        var calendarEl = document.getElementById('calendar');
+        var initialLocaleCode = 'en';
+        var localeSelectorEl = document.getElementById('locale-selector')
+        let days = {}
+        let url = '/api/dates?start='  + "{{start}}" + '&end=' + "{{end}}"
+        fetch(url)
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(jsonData){
+            jsonData.forEach(e=>{
+                    days[e.start] = e
+                })
+        })
+        //  fullcalender define
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['interaction', 'dayGrid'],
+            selectable: true,
+            selectHelper: true,
+            theme: true,
+            editable: true,
+            defaultDate:'2020-04-13',
+            themeSystem: 'bootstrap',
+            dayRender:function(info){
+                // console.log(info.date.toISOString().split('T')[0]=='2020-04-13')
+                dateStr = info.date.toISOString().split('T')[0]
+                if (days[dateStr].extendedProps.locked === true){
+                  info.el.style.backgroundColor = 'red';
+                }
+            },
+            eventLimit: true, // when too many events in a day, show the popover
+            timeZone: 'UTC',
+            locale: 'en',
+            dateClick:function(info){
+                console.log(info.dateStr, days[info.dateStr]);
+                // 核對資訊
+            },
+            customButtons: {
+                submitButton: {
+                    text: '  back  ',
+                    click: function () {
+                        window.location = "/";
+                    }
+                }
+            },
+            header: {
+                left: 'today',
+                center: 'title',
+                right: 'prev,next'
+            },
+            footer: {
+                center: 'submitButton'
+            },
+            showNonCurrentDates: false,
+            droppable: true,
+        });
+        if ("{{LANG}}" == 'zh-hant') {
+            calendar.setOption('locale', 'zh-tw');
+        }
+        calendar.render();
+
+        
+        // 印出目前顯示的最早與最晚時間
+        
+        //console.log(calendar.view.activeStart);
+        //console.log(calendar.view.activeEnd);
+    });
+</script>
+{% endblock %}

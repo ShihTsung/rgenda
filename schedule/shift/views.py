@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Shift
 from .forms import (ShiftCreationForm, ShiftEditForm)
+from demand.models import DemandOfStation
 from datetime import datetime
 from copy import copy
 
@@ -19,6 +20,15 @@ def shift_create(request):
         form = ShiftCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            last_shift = Shift.objects.last()
+            for i in range(1, 4):
+                demand = DemandOfStation.objects.create(
+                    shift=last_shift,
+                    level=i,
+                    weekday=0,
+                    holiday=0
+                )
+                demand.save()
             return redirect('/shifts/list')
 
     context = {'form': form}

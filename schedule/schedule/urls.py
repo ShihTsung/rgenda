@@ -43,6 +43,7 @@ urlpatterns = i18n_patterns(
     path('shifts/', include('shift.urls')),
     path('init/', initial.initial),
     path('dates/', include('date.urls')),
+    path('reserves/', include('reservation.urls')),
     # path('pre_results', include('pre_result.urls')),
     prefix_default_language=False
 )

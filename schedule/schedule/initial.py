@@ -61,6 +61,7 @@ def initial(request):
     station = Station.objects.create(name="station1", department=department)
     station.save()
 
+    # shift
     print('create shift')
     shift = Shift.objects.create(
         name="shift1",
@@ -68,7 +69,8 @@ def initial(request):
         start_hour=8,
         start_min=0,
         end_hour=16,
-        end_min=30
+        end_min=30,
+        station=Station.objects.first()
     )
     shift.save()
 

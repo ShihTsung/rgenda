@@ -28,12 +28,12 @@ def demand_create(request):
 @login_required
 def demand_list(request):
     demands = DemandOfStation.objects.all()
-    stations = set((x.station for x in demands))
+    stations = set((x.shift.station for x in demands))
     stations = list(stations)
     demand_dict = {x.name: [] for x in stations}
     for i in stations:
         for d in demands:
-            if d.station.name == i.name:
+            if d.shift.station.name == i.name:
                 demand_dict[i.name].append(d)
     output = []
     for k in demand_dict.keys():
@@ -69,7 +69,7 @@ def demand_delete(request, id=None):
 
     demand = DemandOfStation.objects.get(id=id)
     if request.user.is_staff:
-        department.delete()
+        demand.delete()
         return redirect("/demands/list")
     else:
         return redirect("/demands/list")

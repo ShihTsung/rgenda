@@ -22,4 +22,4 @@ class Shift(models.Model):
     work_hours = models.FloatField(verbose_name=_('WorkHours'), null=True)
 
     def __str__(self):
-        return self.name
+        return self.station.name + '-' + self.name

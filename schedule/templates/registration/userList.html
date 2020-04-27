@@ -41,7 +41,7 @@
   <span id="searchbar" class="d-flex">
         
   <i class="fa fa-search"></i>
-  <input type="text" class="form-input" id="myInput">
+  <input type="text" class="form-input" id="myInput" placeholder="Search by ">
   <select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
     {% for index, field in field_names %}
     <option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
@@ -153,9 +153,6 @@
           });
      });
       });
-      sid = cond.options[cond.selectedIndex].value;
-      optiontext = cond.options[cond.selectedIndex].text;
-      document.getElementById('myInput').placeholder = "search by " + optiontext;
   });
   let conditions = ['']
   
