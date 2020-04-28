@@ -6,6 +6,7 @@ from shift.models import Shift
 from demand.models import DemandOfStation
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult
+from reservation.models import Reservation
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -33,9 +34,9 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'username', 'email', 'full_name', 'department', 'level',
-            'gender', 'role', 'type_of_user', 'can_be_scheduled',
-            'holiday_rest_num', 'special_rest_num', 'hour_required',
-            'hour_realized', 'eid', 'onboard_date')
+            'gender', 'role', 'is_superuser', 'type_of_user',
+            'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
+            'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
 
 
@@ -84,7 +85,8 @@ class GetOnedaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Oneday
-        fields = ('id', 'title', 'start', 'color', 'className', 'extendedProps')
+        fields = ('id', 'title', 'start', 'color',
+                  'className', 'extendedProps')
         read_only_fields = ("id",)
 
     def get_className(self, obj):
@@ -153,3 +155,31 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AfterResult
         fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reservation
+        fields = ('id', 'user', 'year', 'shift')
+
+
+class GetReservationSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+    shift = ShiftSerializer()
+
+    class Meta:
+        model = Reservation
+        fields = ('id', 'user', 'year', 'shift')
+
+class DemandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DemandOfStation
+        fields = ('shift', 'level', 'weekday', 'holiday')
+
+
+class GetDemandSerializer(serializers.ModelSerializer):
+    shift = ShiftSerializer()
+
+    class Meta:
+        model = DemandOfStation
+        fields = ('shift', 'level', 'weekday', 'holiday')

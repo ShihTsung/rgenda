@@ -1,17 +1,16 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans 'ReversingHoliday' %}{% endblock %}
+{% load static %}
+{% block title %}{% trans 'ReservingHoliday' %}{% endblock %}
 
 
 <!-- 加入full calendar套件 -->
 {% block content %}
 <div class="container">
+  
   <div class="greet text-center">
-    {{start}}
-    <br>
-    {{end}}
     {% if user.is_authenticated %}
-    <h1> <b> {{user.username}} </b> {%trans 'ReversingHoliday'%}</h1>
+    <h1> {%trans 'ReservingHoliday'%}</h1>
     {% endif%}
   </div>
   <div class="calendar-container">
@@ -19,6 +18,7 @@
 
     </div>
   </div>
+
 </div>
 {% endblock %}
 
@@ -59,17 +59,19 @@
         var calendarEl = document.getElementById('calendar');
         var initialLocaleCode = 'en';
         var localeSelectorEl = document.getElementById('locale-selector')
-        let days = {}
-        let url = '/api/dates?start='  + "{{start}}" + '&end=' + "{{end}}"
-        fetch(url)
-        .then(function(response){
-            return response.json();
+        let locked_days = new Array()  // 紀錄被鎖的日期
+        let choosed_days = new Array() // 紀錄目前被選的日期
+        let curr_user = {}
+        fetch('/api/users/curr')
+        .then(response=>{
+          return response.json()
         })
-        .then(function(jsonData){
-            jsonData.forEach(e=>{
-                    days[e.start] = e
-                })
+        .then(data=>{
+          curr_user = data;
+          console.log(curr_user)
         })
+
+        
         //  fullcalender define
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: ['interaction', 'dayGrid'],
@@ -77,20 +79,34 @@
             selectHelper: true,
             theme: true,
             editable: true,
-            defaultDate:'2020-04-13',
+            defaultDate:"{{start}}",
             themeSystem: 'bootstrap',
             dayRender:function(info){
                 // console.log(info.date.toISOString().split('T')[0]=='2020-04-13')
-                dateStr = info.date.toISOString().split('T')[0]
-                if (days[dateStr].extendedProps.locked === true){
-                  info.el.style.backgroundColor = 'red';
-                }
+                // dateStr = info.date.toISOString().split('T')[0]
+                // if (days[dateStr].extendedProps.locked === true){
+                //   info.el.style.backgroundColor = 'red';
+                // }
             },
             eventLimit: true, // when too many events in a day, show the popover
             timeZone: 'UTC',
             locale: 'en',
             dateClick:function(info){
-                console.log(info.dateStr, days[info.dateStr]);
+              if (!locked_days.includes(info.dateStr)){
+                if(curr_user.role=="admin" || curr_user.is_superuser){
+                  console.log('admin')
+                }else{
+                  console.log('else')
+                }
+                // info.dayEl.style.backgroundColor='#07AB13'
+                calendar.addEvent({
+                  start: info.dateStr,
+                  title:'test',
+                  textColor: 'white',
+                  className: 'bigevent'
+                })
+              }
+                
                 // 核對資訊
             },
             customButtons: {
@@ -100,6 +116,36 @@
                         window.location = "/";
                     }
                 }
+            },
+            events:function(fetchInfo, successCallback, failureCallback){
+              let days = []
+              let url = '/api/dates'
+              fetch(url)
+              .then(function(response){
+                return response.json();
+              })
+              .then(function(jsonData){
+                jsonData.forEach(e=>{
+                  if (e.title=='holiday'){
+                    e.color='yellow'
+                  }
+                  else{
+                    e.color='white'
+                  }
+                  if(e.extendedProps.locked==true){
+                    e.color='red'
+                    locked_days.push(e.start)
+                  }
+                  e.rendering="background"
+                })
+                successCallback(jsonData)
+                  
+              })
+            },
+            eventClick:function(info){
+              
+              // 點擊事件可以刪除
+              info.event.remove()
             },
             header: {
                 left: 'today',

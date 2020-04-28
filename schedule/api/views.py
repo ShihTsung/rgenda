@@ -2,14 +2,22 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions
 from .serializers import *
 """(CustomUserSerializer,
-                            ShiftSerializer,
-                            StationSerializer,
-                            DepartmentSerializer,
-                            GetStationSerializer,
-                            GetShiftSerializer,
-                            GetCustomUserSerializer,
-                            OnedaySerializer,
-                            )"""
+ShiftSerializer,
+StationSerializer,
+DepartmentSerializer,
+GetStationSerializer,
+GetShiftSerializer,
+GetCustomUserSerializer,
+OnedaySerializer,
+ReservationSerializer,
+GetReservationSerializer
+ResultSerializer,
+GetResultSerializer,
+PreResultSerializer,
+GetPreResultSerializer,
+AfterResultSerializer,
+GetAfterResultSerializer,
+)"""
 from account.models import CustomUser, Department
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,6 +27,8 @@ from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult
+from reservation.models import Reservation
+from demand.models import DemandOfStation
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -67,7 +77,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     def get_object(self):
         pk = self.kwargs.get('pk')
 
-        if pk == "current":
+        if pk == "curr":
             return self.request.user
 
         return super(CustomUserViewSet, self).get_object()
@@ -159,3 +169,23 @@ class AfterResultViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetAfterResultSerializer
         return AfterResultSerializer
+
+
+class ReservationViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetReservationSerializer
+        return ReservationSerializer
+
+
+class DemandViewSet(viewsets.ModelViewSet):
+    queryset = DemandOfStation.objects.all()
+    serializer_class = DemandSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetDemandSerializer
+        return DemandSerializer

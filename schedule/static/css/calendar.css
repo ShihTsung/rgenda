@@ -1,0 +1,18 @@
+.fc-title{
+    color:white;
+}
+#calendar{
+    background-color: white;
+    padding: 2rem;
+}
+.fc-content{
+    font-size: 1rem;
+}
+.bigEvent{
+    height: 3rem;
+    width: 80%;
+    margin-left: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

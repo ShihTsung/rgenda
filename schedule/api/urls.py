@@ -12,6 +12,8 @@ router.register(r'dates', views.OnedayViewSet)
 router.register(r'result', views.ResultViewSet)
 router.register(r'preresult', views.PreResultViewSet)
 router.register(r'afterresult', views.AfterResultViewSet)
+router.register(r'reservation', views.ReservationViewSet)
+router.register(r'demands', views.DemandViewSet)
 
 
 urlpatterns = [
