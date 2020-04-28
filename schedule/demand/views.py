@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DemandOfStation
 from .forms import (DemandCreationForm, DemandEditForm)
+from collections import defaultdict
+import json
 
 """
 人力需求管理
 """
+
 
 # 建立需求
 @login_required
@@ -30,28 +33,24 @@ def demand_list(request):
     demands = DemandOfStation.objects.all()
     stations = set((x.shift.station for x in demands))
     stations = list(stations)
-    demand_dict = {x.name: [] for x in stations}
-    for i in stations:
-        for d in demands:
-            if d.shift.station.name == i.name:
-                demand_dict[i.name].append(d)
-    output = []
-    for k in demand_dict.keys():
-        output.append(demand_dict[k])
-    field_names = [(0, 'station'), (1, 'shift'), (2, 'level')]
-
+    demand_dict = defaultdict(lambda: defaultdict(dict))
+    for demand in demands:
+        demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
+            'weekday': demand.weekday,
+            'holiday': demand.holiday,
+        }
+    field_names = [(0, 'station')]
     context = {
-        'demands': demand_dict,
+        'demands': json.dumps(dict(demand_dict)),
         'stations': stations,
-        'field_names': field_names
-               }
-
+        'field_names': field_names,
+    }
     return render(request, 'demands/demandList.html', context)
 
 
 # 編輯需求
 @login_required
-def demand_edit(request, id=None):
+def demand_edit(request):
 
     demand = DemandOfStation.objects.get(id=id)
     form = DemandEditForm(request.POST or None, instance=demand)
