@@ -8,12 +8,12 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
-    <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
-
+    
     {% block heads %}{% endblock %}
        
 </head>
@@ -30,8 +30,8 @@
         <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
         <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
         <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
         <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
+        <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
         
         
         <!-- custom filter module -->
@@ -112,7 +112,7 @@
                 -o-transition: margin .25s ease-out;
                 transition: margin .25s ease-out;
             }
-            
+
             #sidebar-wrapper a{
                 color:white;
                 text-decoration: none;
@@ -167,9 +167,8 @@
             #wrapper.toggled #sidebar-wrapper {
                 margin-left: -15rem;
             }
-            
         </style>
-    
+
         {% block scripts %}
         {% endblock %}
         <script>
@@ -179,6 +178,7 @@
             });
             
         </script>
+        
 </body>
 
 </html>
