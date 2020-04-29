@@ -62,7 +62,7 @@
     </thead>
     <tbody>
     {% for station in stations %}
-      <tr idx="{{d.id}}">
+      <tr idx="{{station.id}}">
         <td class="name">{{station.name}}</td>
         <td>{{station.department}}</td>
         {% if user.role in "admin,manager" or user.is_superuser %}
@@ -71,7 +71,7 @@
             <div class="btn btn-success"><i class="fas fa-edit"></i></div>
           </a>
            
-          <button class="btn btn-delete btn-danger" type="button" data-toggle="modal" data-target="#modal-delete" value="{{ d.id }}"><i class="fa fa-trash-alt"></i></button>
+          <button class="btn btn-delete btn-danger" type="button" data-toggle="modal" data-target="#modal-delete" value="{{ station.id }}"><i class="fa fa-trash-alt"></i></button>
         </td>
         {% endif %}
       </tr>

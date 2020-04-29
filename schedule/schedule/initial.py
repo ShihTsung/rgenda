@@ -27,6 +27,17 @@ def initial(request):
     print('create a super user')
     user = User.objects.create_superuser(
         'circlepen', 'lyle.lai@redfalcon-hpc.com', 'redfalcon')
+    user.role = 'admin'
+    user.full_name = 'YiJu Lai'
+    user.level = 3
+    user.gender = 'male'
+    user.holiday_rest_num = 10
+    user.special_rest_num = 10
+    user.eid = 20190022
+    user.hour_required = 100.0
+    user.hour_realized = 0.0
+    user.save()
+
 # departments
     for d in Department.objects.all():
         d.delete()
@@ -53,7 +64,7 @@ def initial(request):
         newday.save()
         daystmp += datetime.timedelta(days=1)
 
-    # station
+# station
     print('create station')
     for s in Station.objects.all():
         s.delete()
@@ -61,7 +72,7 @@ def initial(request):
     station = Station.objects.create(name="station1", department=department)
     station.save()
 
-    # shift
+# shift
     print('create shift')
     shift = Shift.objects.create(
         name="shift1",

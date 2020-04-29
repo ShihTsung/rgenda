@@ -5,7 +5,7 @@ from .models import Reservation
 
 class ReservationAdmin(admin.ModelAdmin):
     model = Reservation
-    list_display = ['id', 'user', 'year', 'shift']
+    list_display = ['id', 'user', 'year']
 
 # class LevelAdmin(admin.ModelAdmin):
 #     model = Level

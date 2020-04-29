@@ -48,10 +48,18 @@
                 <a href="/departments/list" class="list-group-item list-group-item-action 
                 bg-dark">Department</a>
                 {% endif %}
-                <a href="/shifts/list" class="list-group-item list-group-item-action bg-dark">Shifts</a>
-                <a href="/stations/list" class="list-group-item list-group-item-action bg-dark">Stations</a>
-                <a href="/demands/list" class="list-group-item list-group-item-action bg-dark">Demands</a>
-                <a href="/dates/date_management" class="list-group-item list-group-item-action bg-dark">Dates</a>
+                {% if user.role in 'admin, manager' or user.is_superuser %}
+                <a href="/shifts/list" class="list-group-item list-group-item-action bg-dark">
+                    Shifts</a>
+                <a href="/stations/list" class="list-group-item list-group-item-action bg-dark">
+                    Stations</a>
+                <a href="/demands/list" class="list-group-item list-group-item-action bg-dark">
+                    Demands</a>
+                <a href="/dates/date_management" class="list-group-item list-group-item-action bg-dark">
+                    Dates</a>
+                {% endif %}
+                <a href="/reserves/reserve" class="list-group-item list-group-item-action bg-dark">
+                    Reservation</a>
               </div>
             </div>
             <!-- /#sidebar-wrapper -->

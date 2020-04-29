@@ -42,7 +42,7 @@
                     <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
                     <a class="dropdown-item" href="#">個人班表</a>
                     <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
-                    {% if user.role in "manager,admin" %}
+                    {% if user.role in "manager,admin" or user.is_superuser%}
                     <a class="dropdown-item" href="/accounts/list">帳號管理</a>
                     {% endif %}
                     

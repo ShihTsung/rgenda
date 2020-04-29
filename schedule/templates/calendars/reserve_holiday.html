@@ -43,6 +43,11 @@
         align-items: center;
         margin-top: 2rem;
     }
+    .bigEvent{
+      height: 3rem;
+      font-size: 2rem;
+      text-align: center;
+    }
 
 </style>
 {% endblock %}
@@ -62,13 +67,14 @@
         let locked_days = new Array()  // 紀錄被鎖的日期
         let choosed_days = new Array() // 紀錄目前被選的日期
         let curr_user = {}
+        let days = {}
+
         fetch('/api/users/curr')
         .then(response=>{
           return response.json()
         })
         .then(data=>{
           curr_user = data;
-          console.log(curr_user)
         })
 
         
@@ -91,59 +97,104 @@
             eventLimit: true, // when too many events in a day, show the popover
             timeZone: 'UTC',
             locale: 'en',
+            // 點一下加入事件
             dateClick:function(info){
               if (!locked_days.includes(info.dateStr)){
-                if(curr_user.role=="admin" || curr_user.is_superuser){
-                  console.log('admin')
-                }else{
-                  console.log('else')
+                console.log(days)
+                newEvent = {
+                  user: curr_user.id,
+                  year: info.dateStr.split('-')[0],
+                  date: info.dateStr.split('T')[0]
                 }
-                // info.dayEl.style.backgroundColor='#07AB13'
-                calendar.addEvent({
-                  start: info.dateStr,
-                  title:'test',
-                  textColor: 'white',
-                  className: 'bigevent'
+                console.log(newEvent);
+                fetch('/api/reservations/', 
+                      {
+                        method: "POST",
+                        headers:{
+                          'X-CSRFToken': '{{ csrf_token }}',
+                          'content-type': 'application/json'
+                      },
+                      body: JSON.stringify(newEvent)
+                      })
+                .then(response=>{
+                  return response.json()
+                })
+                .then(jsonData=>{
+                  calendar.addEvent({
+                    id: jsonData.id,
+                    start: info.dateStr,
+                    title:'排休',
+                    textColor: 'white',
+                    className: 'bigEvent'
+                  })
                 })
               }
-                
-                // 核對資訊
             },
             customButtons: {
                 submitButton: {
-                    text: '  back  ',
+                    text: '  submit  ',
                     click: function () {
                         window.location = "/";
                     }
                 }
             },
-            events:function(fetchInfo, successCallback, failureCallback){
-              let days = []
-              let url = '/api/dates'
+            eventSources:[{
+              events: function(fetchInfo, successCallback, failureCallback){
+              let url = '/api/dates/'
+              start_str = fetchInfo.startStr
+              end_str = fetchInfo.endStr
+              url += '?start=' + start_str + '&end=' + end_str
               fetch(url)
               .then(function(response){
                 return response.json();
               })
               .then(function(jsonData){
                 jsonData.forEach(e=>{
+                  days[e.start]=e.id
                   if (e.title=='holiday'){
-                    e.color='yellow'
+                    e.color='yellow';
                   }
                   else{
-                    e.color='white'
+                    e.color='white';
                   }
                   if(e.extendedProps.locked==true){
-                    e.color='red'
-                    locked_days.push(e.start)
+                    e.color='red';
+                    locked_days.push(e.start);
                   }
                   e.rendering="background"
                 })
-                successCallback(jsonData)
+                successCallback(jsonData);
                   
               })
-            },
+            }
+            },{
+              events: function(fetchInfo, successCallback, failureCallback){
+                let url = '/api/reservations/'
+                start_str = fetchInfo.startStr
+                end_str = fetchInfo.endStr
+                url += '?start=' + start_str + '&end=' + end_str
+                url += '&mode=personal'
+                fetch(url)
+                .then(function(response){
+                return response.json();
+                })
+                .then(function(data){
+                  data.forEach(e=>{
+                    e.className = 'bigEvent';
+                    e.title = "排休";
+                    e.textColor='white';
+                  });
+                  successCallback(data);
+                });
+              }
+            }],
             eventClick:function(info){
-              
+              fetch('/api/reservations/' + info.event.id + '/', {
+                    method: "DELETE",
+                    headers:{
+                      'X-CSRFToken': '{{ csrf_token }}',  
+                    },
+              })
               // 點擊事件可以刪除
               info.event.remove()
             },

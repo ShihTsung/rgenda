@@ -14,12 +14,6 @@ class Reservation(models.Model):
     )
     year = models.IntegerField(verbose_name=_('Year'))
     date = models.DateField(verbose_name=_('Date'))
-    shift = models.ForeignKey(
-        Shift,
-        on_delete=models.CASCADE,
-        verbose_name=_('Shift'),
-        null=None)
 
-
-def __str__(self):
-    return self.user.username + self.date
+    def __str__(self):
+        return self.user.username + self.date
