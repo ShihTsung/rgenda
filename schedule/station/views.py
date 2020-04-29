@@ -42,7 +42,7 @@ def station_create(request):
 # 工作站列表
 @login_required
 def station_list(request):
-    stations = Station.objects.all()
+    stations = Station.objects.order_by('name')
     field_names = [(0, 'name'), (1, 'department')]
     context = {'stations': stations, 'field_names': field_names}
 
@@ -69,7 +69,7 @@ def station_delete(request, id=None):
 
     station = Station.objects.get(id=id)
     if request.user.is_staff:
-        department.delete()
+        station.delete()
         return redirect("/stations/list")
     else:
         return redirect("/stations/list")
