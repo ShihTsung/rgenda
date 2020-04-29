@@ -175,6 +175,13 @@ class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+        mode = self.request.query_params.get('mode', None)
+        if mode == 'personal':
+            return queryset.filter(user=self.request.user)
+        return queryset
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GetReservationSerializer

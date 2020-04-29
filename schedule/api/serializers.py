@@ -20,7 +20,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'username', 'email', 'full_name', 'department', 'level',
+            'id', 'username', 'email', 'full_name', 'department', 'level',
             'gender', 'role', 'type_of_user', 'can_be_scheduled',
             'holiday_rest_num', 'special_rest_num', 'hour_required',
             'hour_realized', 'eid', 'onboard_date')
@@ -33,7 +33,7 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'username', 'email', 'full_name', 'department', 'level',
+            'id', 'username', 'email', 'full_name', 'department', 'level',
             'gender', 'role', 'is_superuser', 'type_of_user',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
@@ -158,18 +158,21 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(input_formats=['%Y-%m-%d', 'iso-8601'])
+
     class Meta:
         model = Reservation
-        fields = ('id', 'user', 'year', 'shift')
+        fields = ('id', 'user', 'year', 'date')
 
 
 class GetReservationSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
-    shift = ShiftSerializer()
+    # user = CustomUserSerializer()
+    user = serializers.IntegerField(source="user.id")
 
     class Meta:
         model = Reservation
-        fields = ('id', 'user', 'year', 'shift')
+        fields = ('id', 'user', 'year', 'date')
+
 
 class DemandSerializer(serializers.ModelSerializer):
     class Meta:
