@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Station
 from .forms import (StationCreationForm, StationEditForm)
-
+from shift.models import Shift
 """
 工作站管理
 """
@@ -17,6 +17,21 @@ def station_create(request):
         form = StationCreationForm(request.POST)
         if form.is_valid():
             form.save()
+            names = ['Request', 'Off', '公假']
+            types = ['休假', '休假', '公假']
+            hours = [0, 0, 8]
+
+            for i in range(3):
+                shift = Shift.objects.create(
+                    name=names[i],
+                    shift_type=types[i],
+                    start_hour=24,
+                    start_min=0,
+                    end_hour=24,
+                    end_min=0,
+                    station=Station.objects.last(),
+                    work_hours=hours[i])
+                shift.save()
             return redirect('/stations/list')
 
     context = {'form': form}
