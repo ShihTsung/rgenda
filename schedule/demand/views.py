@@ -52,7 +52,7 @@ def demand_list(request):
 @login_required
 def demand_edit(request):
 
-    demand = DemandOfStation.objects.get(id=id)
+    demand = DemandOfStation.objects.all()
     form = DemandEditForm(request.POST or None, instance=demand)
     if form.is_valid():
         form.save()
