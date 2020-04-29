@@ -1,44 +1,103 @@
 {% extends "base.html" %}
 {% block title %} Edit Demand {% endblock %}
 {% load i18n %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="container">
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
-                <div class="title text-center">
-                    <h2>Edit Demand</h2>
-                </div>
-                {% csrf_token %}
-                {{ form.shift |as_crispy_field }}
-                <br>
-                {{ form.level |as_crispy_field }}
-                {{ form.weekday |as_crispy_field }}
-                {{ form.holiday |as_crispy_field }}
-                    
-            <div class="col-12 text-center">
-                <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
-                <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
-            </div>
-            </form>
-        </div>
+	<div class="title text-center">
+		<h1>Edit Demand</h1>
     </div>
+
+    <form method="POST" action="/demands/update">
+        {% csrf_token %}
+        <button id="btn-submit" class="btn btn-success" type="button"><i class="far fa-save"></i></button>
+        <table class="table table-striped text-center" id="myTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th rowspan="2" scope="col">Station</th>
+                    <th rowspan="2" scope="col">Shift</th>
+                    <th colspan="3" scope="col">Weekday</th>
+                    <th colspan="3" scope="col">Holiday</th>
+                </tr>
+                <tr>
+                    <th>Level 3</th>
+                    <th>Level 2</th>
+                    <th>Level 1</th>
+                    <th>Level 3</th>
+                    <th>Level 2</th>
+                    <th>Level 1</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </form>
 </div>
 
+<script src="{% static 'jquery-validation-1.19.1/dist/jquery.validate.js' %}"></script>
 <script>
-    document.getElementById('back').addEventListener('click',
-    function(){
-        window.location.href="/demands/list"});
+    $(document).ready(function(){
+        // Build the form.
+        var demands = {{ demands | safe }};
+        $.each(demands, function(station, shifts){
+            let first_of_station = true;
+            let rowspan = Object.keys(shifts).length;
+            $.each(shifts, function(shift, val){
+                let tr = $("<tr></tr>");
+                if (first_of_station) {
+                    first_of_station = false;
+                    let td_station = $("<td rowspan=" + rowspan + ">" + station + "</td>");
+                    $(tr).append(td_station);
+                }
+                $(tr).append("<td>" + shift + "</td>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[3]["id"] + "w' value='" + val[3]["weekday"] + "' required>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[2]["id"] + "w' value='" + val[2]["weekday"] + "' required>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[1]["id"] + "w' value='" + val[1]["weekday"] + "' required>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[3]["id"] + "h' value='" + val[3]["holiday"] + "' required>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[2]["id"] + "h' value='" + val[2]["holiday"] + "' required>");
+                $(tr).append("<td><input class='form-control valid' name='" + val[1]["id"] + "h' value='" + val[1]["holiday"] + "' required>");
+                $("tbody").append(tr);
+            });
+        });
+
+        // Set validation.
+        $("form").validate();
+        $.validator.addClassRules({
+            valid: {
+                digits: true,
+                min: 0,
+            },
+        });
+        $("#btn-submit").click(function(){
+            if ($("form").valid()) {
+                $("form").submit();
+            }
+        });
+    });
 </script>
 <style>
-    .card{
-    margin-top:5rem;
-    box-shadow: 1px 1px 2px 0px;
-    min-width: 20rem;
+	table {
+		background-color: white;
+		box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+	}
+	table th, table td {
+		vertical-align: middle !important;
+        width: 12.5%;
+	}
+	#btn-submit {
+		margin-left: 0;
+	}
+    .form-control {
+        height: 24px;
+        width: 80%;
+        margin: 0 auto;
+        padding: 0 12px;
     }
-    .card-body{
-        padding: 5rem 10rem;
+    input.error {
+        border: 1px solid rgba(255, 0, 0, 1);
+    }
+    label.error {
+        color: rgb(240, 0, 0);
     }
 </style>
 {% endblock %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import DemandOfStation
@@ -31,8 +31,6 @@ def demand_create(request):
 @login_required
 def demand_list(request):
     demands = DemandOfStation.objects.all()
-    stations = set((x.shift.station for x in demands))
-    stations = list(stations)
     demand_dict = defaultdict(lambda: defaultdict(dict))
     for demand in demands:
         demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
@@ -42,7 +40,6 @@ def demand_list(request):
     field_names = [(0, 'station')]
     context = {
         'demands': json.dumps(dict(demand_dict)),
-        'stations': stations,
         'field_names': field_names,
     }
     return render(request, 'demands/demandList.html', context)
@@ -51,14 +48,27 @@ def demand_list(request):
 # 編輯需求
 @login_required
 def demand_edit(request):
-
-    demand = DemandOfStation.objects.all()
-    form = DemandEditForm(request.POST or None, instance=demand)
-    if form.is_valid():
-        form.save()
+    if request.method == 'POST':
+        for key, val in request.POST.items():
+            if key != 'csrfmiddlewaretoken':
+                demand = DemandOfStation.objects.get(pk=int(key[:-1]))
+                if key[-1] == 'w':
+                    demand.weekday = val
+                if key[-1] == 'h':
+                    demand.holiday = val
+                demand.save()
         return redirect('/demands/list')
-
-    context = {'form': form, 'target': demand}
+    demands = DemandOfStation.objects.all()
+    demand_dict = defaultdict(lambda: defaultdict(dict))
+    for demand in demands:
+        demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
+            'id': demand.id,
+            'weekday': demand.weekday,
+            'holiday': demand.holiday,
+        }
+    context = {
+        'demands': json.dumps(dict(demand_dict)),
+    }
     return render(request, 'demands/demandEdit.html', context)
 
 
