@@ -6,57 +6,56 @@
 {% block content %}
 <div class="container">
 	<div class="title text-center">
-    	<h1>Demand List</h1>
-  	</div>
+		<h1>Demand List</h1>
+	</div>
 
-  	{% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible" role="alert">
-    	{{message}}
-    </div>
-  	{% endfor %}
+	{% for message in messages %}
+	<div class="alert {{ message.tags }} alert-dismissible" role="alert">
+		{{message}}
+	</div>
+	{% endfor %}
 	<a href="/demands/update">
 		<div id="btn-edit" class="btn btn-success"><i class="fas fa-edit"></i></div>
 	</a>
-  	<!-- 搜尋欄 -->
-  	<span id="searchbar" class="d-flex">
-  		<i class="fa fa-search"></i>
-  		<input type="text" class="form-input" id="myInput" placeholder="Search by ">
-  		<select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
-    		{% for index, field in field_names %}
-    		<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
-    		{% endfor %}
-    	</select>
-  	</span>
+	<!-- 搜尋欄 -->
+	<span id="searchbar" class="d-flex">
+		<i class="fa fa-search"></i>
+		<input type="text" class="form-input" id="myInput" placeholder="Search by ">
+		<select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
+			{% for index, field in field_names %}
+			<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
+			{% endfor %}
+		</select>
+	</span>
 	<!-- 搜尋欄end -->
 
 	<table class="table table-striped text-center" id="myTable">
-    	<thead class="thead-dark">
-      		<tr>
+		<thead class="thead-dark">
+			<tr>
 				<th rowspan="2" scope="col">Station</th>
 				<th rowspan="2" scope="col">Shift</th>
         		<th colspan="3" scope="col">Weekday</th>
         		<th colspan="3" scope="col">Holiday</th>
-			  </tr>
-			  <tr>
-				  <th>Level 3</th>
-				  <th>Level 2</th>
-				  <th>Level 1</th>
-				  <th>Level 3</th>
-				  <th>Level 2</th>
-				  <th>Level 1</th>
-			  </tr>
+			</tr>
+			<tr>
+				<th>Level 3</th>
+				<th>Level 2</th>
+				<th>Level 1</th>
+				<th>Level 3</th>
+				<th>Level 2</th>
+				<th>Level 1</th>
+			</tr>
     	</thead>
-		<tbody>
-		</tbody>
+		<tbody></tbody>
 	</table>
 </div>
 
 
 <style>
-    table {
-        background-color: white;
-        box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
-    }
+	table {
+		background-color: white;
+		box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+	}
 	table th, table td {
 		vertical-align: middle !important;
 	}
@@ -93,36 +92,36 @@
 		});
 	});
 	function searchFilter() {
-  		// Declare variables
-  		var input, filter, table, tr, td, i, txtValue;
-	  	input = document.getElementById("myInput");
-  		filter = input.value.toUpperCase();
-  		table = document.getElementById("myTable");
-  		tr = table.getElementsByTagName("tr");
+		// Declare variables
+		var input, filter, table, tr, td, i, txtValue;
+		input = document.getElementById("myInput");
+		filter = input.value.toUpperCase();
+		table = document.getElementById("myTable");
+		tr = table.getElementsByTagName("tr");
 
-  		// Loop through all table rows, and hide those who don't match the search query
-	  	for (i = 0; i < tr.length; i++) {
-    		td = tr[i].getElementsByTagName("td")[sid];
-    		if (td) {
-      			txtValue = td.textContent || td.innerText;
-	      		if (txtValue.toUpperCase().indexOf(filter) > -1) {
-    		    	tr[i].style.display = "";
-      			} else {
-        			tr[i].style.display = "none";
-      			}
-    		}
-  		}
+		// Loop through all table rows, and hide those who don't match the search query
+		for (i = 0; i < tr.length; i++) {
+			td = tr[i].getElementsByTagName("td")[sid];
+			if (td) {
+				txtValue = td.textContent || td.innerText;
+				if (txtValue.toUpperCase().indexOf(filter) > -1) {
+					tr[i].style.display = "";
+				} else {
+					tr[i].style.display = "none";
+				}
+			}
+		}
 	}
-  	function printOption(){
-    	let e = document.getElementById('condition');
-    	sid = e.options[e.selectedIndex].value;
-    	optiontext = e.options[e.selectedIndex].text;
-    	searchFilter(sid);
-    	document.getElementById('myInput').placeholder = "search by " + optiontext;
-  	}
-  	let sid = 0
-  	let inputBox = document.getElementById("myInput");
-  	inputBox.addEventListener('keyup',searchFilter);
+	function printOption(){
+		let e = document.getElementById('condition');
+		sid = e.options[e.selectedIndex].value;
+		optiontext = e.options[e.selectedIndex].text;
+		searchFilter(sid);
+		document.getElementById('myInput').placeholder = "search by " + optiontext;
+	}
+	let sid = 0
+	let inputBox = document.getElementById("myInput");
+	inputBox.addEventListener('keyup',searchFilter);
 
 	document.addEventListener("DOMContentLoaded", function(event) {
 		// Your code to run since DOM is loaded and ready
