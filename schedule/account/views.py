@@ -11,10 +11,13 @@ from django.contrib.auth import update_session_auth_hash
 from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
+from condition.models import Condition
 
 """
 帳號管理
 """
+
+
 # 新增使用者
 @login_required
 def registerPage(request):
@@ -42,6 +45,7 @@ def registerPage(request):
     context = {'form': form}
     return render(request, 'registration/register.html', context)
 
+
 # 使用者清單
 @login_required
 def userList(request):
@@ -62,6 +66,7 @@ def userList(request):
         'field_names': field_names
     }
     return render(request, 'registration/userList.html', context)
+
 
 # 使用者詳細資料
 @login_required
@@ -89,6 +94,7 @@ def destroy(request, id=None):
     else:
         return redirect("/accounts/list")
 
+
 # 使用者資料編輯
 @login_required
 def update(request, id=None):
@@ -112,6 +118,8 @@ def update(request, id=None):
 部門管理
 """
 # 新增部門
+
+
 @login_required
 def departmentCreate(request):
     form = DepartmentCreationForm()
@@ -120,10 +128,15 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = form.cleaned_data.get('name')
+            condition = Condition.objects.create(
+                department=department,
+            )
+            condition.save()
             messages.success(request, "Department was created for "+department)
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
+
 
 # 部門清單
 @login_required
@@ -139,6 +152,7 @@ def departmentList(request):
     }
     return render(request, 'department/departmentList.html', context)
 
+
 # 編輯部門
 @login_required
 def departmentEdit(request, id=None):
@@ -151,6 +165,7 @@ def departmentEdit(request, id=None):
 
     context = {'form': form, 'target': department}
     return render(request, 'department/departmentEdit.html', context)
+
 
 # 刪除部門
 @login_required

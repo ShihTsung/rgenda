@@ -11,6 +11,7 @@ from copy import copy
 班別管理
 """
 
+
 # 建立班別
 @login_required
 def shift_create(request):

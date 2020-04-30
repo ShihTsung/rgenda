@@ -5,6 +5,7 @@
     border: 1px solid #666;
     border-radius: 3px;
     background-color: white;
+    margin-bottom: 0.25rem;
   }
   #searchbar i{
     font-size: 1.5rem;
