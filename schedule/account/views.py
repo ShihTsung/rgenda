@@ -127,12 +127,12 @@ def departmentCreate(request):
         form = DepartmentCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            department = form.cleaned_data.get('name')
+            department = Department.objects.last()
             condition = Condition.objects.create(
                 department=department,
             )
             condition.save()
-            messages.success(request, "Department was created for "+department)
+            messages.success(request, "Department was created for "+department.name)
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
