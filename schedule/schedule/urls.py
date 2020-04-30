@@ -33,6 +33,7 @@ urlpatterns = i18n_patterns(
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),
     path('api/', include('api.urls')),
+    path('condition/', include('condition.urls')),
     path('departments/create', departmentCreate),
     path('departments/update/<int:id>', departmentEdit),
     path('departments/list', departmentList, name="departmentList"),

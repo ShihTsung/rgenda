@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Condition
-from .forms import (ConditionCreationForm, ConditionEditForm)
+from .forms import ConditionEditForm
+from account.models import Department
+from collections import defaultdict
 
 """
 排班條件管理
@@ -11,27 +13,24 @@ from .forms import (ConditionCreationForm, ConditionEditForm)
 # 建立條件
 @login_required
 def condition_create(request):
-    form = ConditionCreationForm()
-
-    if request.method == 'POST':
-        form = ConditionCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/conditions/list')
-
-    context = {'form': form}
-
-    return render(request, 'conditions/conditionCreate.html', context)
+    departments = Department.objects.all()
+    for department in departments:
+        condition = Condition.objects.create(
+            department=department,
+        )
+        condition.save()
+    return redirect("/condition/list")
 
 
 # 條件列表
 @login_required
 def condition_list(request):
-
     conditions = Condition.objects.all()
-    context = {'conditions': condition_dict, 'stations': stations}
-
-    return render(request, 'conditions/conditionList.html', context)
+    context = {
+        'conditions': conditions,
+        'field_names': [(0, 'department')],
+    }
+    return render(request, 'condition/conditionList.html', context)
 
 
 # 編輯條件
@@ -42,10 +41,10 @@ def condition_edit(request, id=None):
     form = ConditionEditForm(request.POST or None, instance=condition)
     if form.is_valid():
         form.save()
-        return redirect('/conditions/list')
+        return redirect('/condition/list')
 
     context = {'form': form, 'target': condition}
-    return render(request, 'conditions/conditionEdit.html', context)
+    return render(request, 'condition/conditionEdit.html', context)
 
 
 # 刪除條件
@@ -54,7 +53,7 @@ def condition_delete(request, id=None):
 
     condition = Condition.objects.get(id=id)
     if request.user.is_staff:
-        department.delete()
-        return redirect("/conditions/list")
+        condition.delete()
+        return redirect("/condition/list")
     else:
-        return redirect("/conditions/list")
+        return redirect("/condition/list")
