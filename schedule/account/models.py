@@ -79,17 +79,3 @@ class CustomUser(AbstractUser):
         if self.role == 'andmin' or self.role == 'manager':
             self.is_staff = True
         super(CustomUser, self).save(*args, **kwargs)
-
-
-"""
-class Shift(models.Model):
-    name = models.CharField(max_length=100,
-                            verbose_name=_('Name'),
-                            null=True)
-    start-time = models.CharField(max_length=10, verbose_name=_('Start_time'),
-                                      null=True)
-    end-time = models.CharField(max_length=10, verbose_name=_('End_time'),
-                                      null=True)
-    station = models.ForeignField()
-    hours 
-"""

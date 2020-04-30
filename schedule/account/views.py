@@ -19,18 +19,19 @@ from .forms import DepartmentChangeForm, DepartmentCreationForm
 @login_required
 def registerPage(request):
     form = CustomUserCreationForm()
+    is_super = request.user.is_superuser
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             # admin 才能建立 admin 帳號
             if form.cleaned_data.get('role') == 'admin':
-                if request.user.role == 'admin':
+                if request.user.role == 'admin' or is_super:
                     form.save()
                 else:
                     messages.error(request, "Permission denied")
                     return redirect('/accounts/list')
             if form.cleaned_data.get('role') == 'manager':
-                if request.user.role in ['manager', 'admin']:
+                if request.user.role in ['manager', 'admin'] or is_super:
                     form.save()
                 else:
                     messages.error(request, "Permission denied")

@@ -1,9 +1,12 @@
 .fc-title{
     color:white;
 }
+
 #calendar{
     background-color: white;
     padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0px 0px 3px 0px;
 }
 .fc-content{
     font-size: 1rem;
@@ -15,4 +18,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+
+.card-body {
+    font-size: 24px;
+    text-decoration: none;
+    min-height: 10rem;
+    text-overflow: hide;
 }

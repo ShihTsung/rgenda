@@ -15,7 +15,7 @@ import json
 @login_required
 def demand_create(request):
     form = DemandCreationForm()
-
+    is_super = request.user.is_superuser
     if request.method == 'POST':
         form = DemandCreationForm(request.POST)
         if form.is_valid():
@@ -23,20 +23,26 @@ def demand_create(request):
             return redirect('/demands/list')
 
     context = {'form': form}
-
-    return render(request, 'demands/demandCreate.html', context)
+    if request.user.role in ['admin', 'manager']:
+        return render(request, 'demands/demandCreate.html', context)
+    else:
+        return redirect('/demands/list')
 
 
 # 需求列表
 @login_required
 def demand_list(request):
+    is_super = request.user.is_superuser
     demands = DemandOfStation.objects.all()
     demand_dict = defaultdict(lambda: defaultdict(dict))
     for demand in demands:
-        demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
-            'weekday': demand.weekday,
-            'holiday': demand.holiday,
-        }
+        cond1 = demand.shift.station.department == request.user.department
+        cond2 = request.user.role=='admin'
+        if cond1 or cond2 or is_super:
+            demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
+                'weekday': demand.weekday,
+                'holiday': demand.holiday,
+            }
     field_names = [(0, 'station')]
     context = {
         'demands': json.dumps(dict(demand_dict)),
@@ -48,6 +54,7 @@ def demand_list(request):
 # 編輯需求
 @login_required
 def demand_edit(request):
+    is_super = request.user.is_superuser
     if request.method == 'POST':
         for key, val in request.POST.items():
             if key != 'csrfmiddlewaretoken':
@@ -61,11 +68,14 @@ def demand_edit(request):
     demands = DemandOfStation.objects.all()
     demand_dict = defaultdict(lambda: defaultdict(dict))
     for demand in demands:
-        demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
-            'id': demand.id,
-            'weekday': demand.weekday,
-            'holiday': demand.holiday,
-        }
+        cond1 = demand.shift.station.department == request.user.department
+        cond2 = request.user.role=='admin'
+        if cond1 or cond2 or is_super:
+            demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
+                'id': demand.id,
+                'weekday': demand.weekday,
+                'holiday': demand.holiday,
+            }
     context = {
         'demands': json.dumps(dict(demand_dict)),
     }

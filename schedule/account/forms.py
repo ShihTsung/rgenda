@@ -88,10 +88,25 @@ class CustomUserChangeForm(UserChangeForm):
         initial=False
     )
 
-    holiday_rest_num = forms.IntegerField(label=_('HolidayRestNum'), disabled=True)
-    special_rest_num = forms.IntegerField(label=_('SpecialRestNum'), disabled=True)
-    hour_required = forms.IntegerField(label=_('HourRequired'), disabled=True)
-    hour_realized = forms.IntegerField(label=_('HourRealized'), disabled=True)
+    holiday_rest_num = forms.IntegerField(
+        label=_('HolidayRestNum'),
+        disabled=True,
+        required=False
+    )
+    special_rest_num = forms.IntegerField(
+        label=_('SpecialRestNum'),
+        disabled=True
+    )
+    hour_required = forms.IntegerField(
+        label=_('HourRequired'),
+        disabled=True,
+        required=False
+    )
+    hour_realized = forms.IntegerField(
+        label=_('HourRealized'),
+        disabled=True,
+        required=False
+    )
 
     eid = forms.CharField(label=_('EmployeeId'),
                           max_length=100, empty_value="Null")

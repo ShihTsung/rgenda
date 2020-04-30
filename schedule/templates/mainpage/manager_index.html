@@ -8,35 +8,16 @@
 <script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script>
 <script src="{% static "fullcalendar/resource-timeline/main.js" %}"></script>
 <script src="{% static "fullcalendar/resource-daygrid/main.js" %}"></script>
-<link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
+
 <div class="container">
-    <!-- {% load tz %}
-        {% now 'Y-m-d P' %}
-
-
-
-{% get_current_timezone as TIME_ZONE %}
-{{TIME_ZONE}} -->
-
-    <!-- <div class="greet text-center">
-        <h1>管理者首頁</h1>
-
-        {% if user.is_authenticated %}
-        Hi {{ user.username }}!
-        {% else %}
-        <p>You are not logged in</p>
-        {% endif %}
-
-    </div> -->
 
     <div class="dash-top" >
         資訊面板
         {{LANG}}
     </div>
-    <div class="dash-calendar" id="calendar">
+    <div id="calendar">
         班表
     </div>
-
 </div> <!-- end container -->
 
 
@@ -44,10 +25,6 @@
 
 {% block styles %}
 <style>
-    html,
-    body {
-        height: 100%;
-    }
     .dash-top{
         width: 100%;
         margin-bottom: 3rem;
@@ -81,43 +58,16 @@
         flex-direction: row;
         /* background-color: brown; */
     }
-    .card{
-        box-shadow: 5px 5px 1px #000;
-    }
-
-    .card-body {
-        color: black;
-        font-size: 24px;
-        text-decoration: none;
-        min-height: 10rem;
-        text-overflow: hide;
-    }
-
-    /* i {
-        font-size: 60px;
+    /* #calendar{
+        background-color: white!important;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0px 0px 3px 0px;
     } */
     a, a:hover{
         text-decoration: none;
     }
-    .card-body:hover {
-        /* background-color: antiquewhite; */
-        background-color: #c0eeff;
-        text-decoration: none;
-    }
 
-    .col-md-4 {
-        flex: 0 0 33.333%;
-        margin-top: 3em;
-        max-width: 33.33%;
-        min-width: 200px;
-        justify-content: center;
-    }
-
-    hr{
-        width: 100%;
-        margin-top: 5rem;
-        border-top: 1px solid #999999;
-    }
     .modal{
         top: 0;
         left: 20vw;
@@ -129,12 +79,7 @@
     .modal-body{
         max-width: 60vw;
     }
-    #calendar{
-        background-color: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0px 0px 2px 0px;
-    }
+  
 </style>
 {% endblock %}
 
@@ -184,4 +129,8 @@
     calendar.render();
     });
   </script>
+{% endblock %}
+{% block heads%}
+<link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 {% endblock %}
