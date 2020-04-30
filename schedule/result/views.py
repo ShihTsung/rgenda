@@ -9,7 +9,7 @@ def cal_workhour(request):
 
 
 # 計算月工時(可以輸入查找時間)
-def cal_period_workhour(request: Request, start: str, end: str) -> HttpResponcse:
+def cal_period_workhour(request, start, end):
     if request.user.role == 'admin' or request.user.is_superuser:
         users = User.objects.all()
     else:
@@ -27,3 +27,10 @@ def cal_period_workhour(request: Request, start: str, end: str) -> HttpResponcse
     context = {'hour_table': u_workhour_dict}
 
     return render(request, 'calculation/total_workhour.html', context)
+
+
+def show_results(request):
+    lang = request.LANGUAGE_CODE
+    context = {'LANG': lang}
+
+    return render(request, 'calendars/results.html', context)

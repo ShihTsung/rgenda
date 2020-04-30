@@ -77,11 +77,17 @@
           </div>
         
         
-        <!-- {% include 'footer.html' %} -->
+        {% include 'footer.html' %}
     </main>
+    
         {% block styles %}
         {% endblock %}
         <style>
+            #wrapper #sidebar-wrapper {
+                position:fixed;
+                box-shadow: 0 0 2px 0 #000;
+                min-height: 100vh;
+            }
             body {
                 margin: 0;
                 padding: 0;
@@ -99,24 +105,25 @@
                 padding-bottom: 3rem;
                 min-height: 90vh;
             }
-            #wrapper.toggled #sidebar-wrapper {
-            margin-left: 0;
+             #wrapper>.rightest{
+                margin-right: 15rem;
             }
+            #wrapper.toggled>.rightest{
+                margin-right: 0rem;
+            }
+            #wrapper>.navbar-toggler{
+                margin-right: 15rem;
+            }
+            #wrapper.toggled>.navbar-toggler{
+                margin-right: 0rem;
+            }
+            #wrapper.toggled #sidebar-wrapper {
+                margin-left: -15rem;
+            } 
             #wrapper.toggled #page-content-wrapper {
             margin-left: 0;
             }
-            #sidebar-wrapper {
-                position:fixed;
-                box-shadow: 0 2px 2px 1px #000;
-                /* top:3.9rem; */
-                left:0;
-                min-height: 100vh;
-                margin-left: -15rem;
-                -webkit-transition: margin .25s ease-out;
-                -moz-transition: margin .25s ease-out;
-                -o-transition: margin .25s ease-out;
-                transition: margin .25s ease-out;
-            }
+            
 
             #sidebar-wrapper a{
                 color:white;
@@ -126,6 +133,8 @@
             #sidebar-wrapper .sidebar-heading {
             padding: 0.875rem 1.25rem;
             font-size: 2rem;
+            height: 5rem;
+            margin-bottom: 1rem;
             }
 
             #sidebar-wrapper .list-group {
@@ -134,44 +143,24 @@
 
             #page-content-wrapper {
             min-width: 100vw;
+            width: 100%;
             margin-left: 15rem;
+            overflow-x: hidden;
             -webkit-transition: margin .25s ease-out;
             -moz-transition: margin .25s ease-out;
             -o-transition: margin .25s ease-out;
             transition: margin .25s ease-out;
             }
+
             .rightest, .navbar-toggler{
             -webkit-transition: margin .25s ease-out;
             -moz-transition: margin .25s ease-out;
             -o-transition: margin .25s ease-out;
             transition: margin .25s ease-out;
             }
-            #wrapper .rightest{
-                margin-right: 15rem;
-            }
-            #wrapper.toggled .rightest{
-                margin-right: 0rem;
-            }
-            #wrapper .navbar-toggler{
-                margin-right: 15rem;
-            }
-            #wrapper.toggled .navbar-toggler{
-                margin-right: 0rem;
-            }
+           
 
-            #sidebar-wrapper {
-                margin-left: 0;
-            }
-
-            #page-content-wrapper {
-                min-width: 0;
-                width: 100%;
-                overflow-x: hidden;
-            }
-
-            #wrapper.toggled #sidebar-wrapper {
-                margin-left: -15rem;
-            }
+            
         </style>
 
         {% block scripts %}
@@ -181,7 +170,10 @@
               e.preventDefault();
               $("#wrapper").toggleClass("toggled");
             });
-            
+            document.addEventListener('DOMContentLoaded',function(){
+                let side = document.getElementById('sidebar-wrapper')
+                side.style.transition = 'margin .25s ease-out ';
+            })
         </script>
         
 </body>

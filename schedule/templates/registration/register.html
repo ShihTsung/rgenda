@@ -19,19 +19,22 @@
                             {% endfor %}
                         </div>
                     {% csrf_token %}
-                    <div class="col-8">
-                        {{ form.username |as_crispy_field }}
+                    <div class="form-row">
+                        <div class="col-6">
+                            {{ form.username |as_crispy_field }}
+                        </div>
+                        <div class="col-6">
+                            {{ form.email |as_crispy_field }}
+                        </div>
                     </div>
-                    <div class="col-8">
-                        {{ form.email |as_crispy_field }}
+                    <div class="form-row">
+                        <div class="col-6">
+                            {{ form.password1 |as_crispy_field }}
+                        </div>
+                        <div class="col-6">
+                            {{ form.password2 |as_crispy_field }}
+                        </div>
                     </div>
-                    <div class="col-6">
-                        {{ form.password1 |as_crispy_field }}
-                    </div>
-                    <div class="col-6">
-                        {{ form.password2 |as_crispy_field }}
-                    </div>
-                    
                     <div class="form-row">
                         <div class="col-6">
                             {{ form.full_name |as_crispy_field}}

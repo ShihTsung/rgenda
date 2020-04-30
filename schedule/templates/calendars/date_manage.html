@@ -3,12 +3,17 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block title %}Date Manage{{LANGUAGE_CODE}}{% endblock %}
-{% block head %}
-<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
-{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+
 <div class="container">
+
+<!-- 警告訊息 -->
+  <div class="alert" role="alert" style="visibility:hidden;" id="message">
+    permission denied
+  </div>
+
+<!-- 日歷 -->
   <div id="calendar">
 
   </div>
@@ -78,8 +83,28 @@
           },
           body: JSON.stringify(updateData)
         }).then(response => {
-          calendar.refetchEvents();
-        })
+          if(response.ok){
+            calendar.refetchEvents();
+            let msg = document.getElementById('message');
+            
+            msg.style.visibility = '';
+            msg.classList.remove('alert-danger')
+            msg.classList.add('alert-success')
+            msg.innerText = 'change sucess'
+            setTimeout(function (){
+              msg.style.visibility = 'hidden';
+            }, 2000);
+          }else{
+            let msg = document.getElementById('message');
+            msg.style.visibility = '';
+            msg.classList.remove('alert-success')
+            msg.classList.add('alert-danger')
+            msg.innerText = 'permission denied'
+            setTimeout(function (){
+              msg.style.visibility = 'hidden';
+            }, 2000);
+          }
+        });
         $('#myModal').modal('hide');
       }
     

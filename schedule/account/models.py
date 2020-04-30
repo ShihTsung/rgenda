@@ -22,6 +22,7 @@ TYPE_CHOICES = (
     ('Normal', _('Normal')),
     ('Pragnant', _('Pragnant')),
     ('Intern', _('Intern')),
+    ('PartTime', _('PartTime'))
 )
 
 
@@ -36,38 +37,71 @@ class Department(models.Model):
 
 # User 模型
 class CustomUser(AbstractUser):
-    department = models.ForeignKey(Department,
-                                   on_delete=models.CASCADE,
-                                   verbose_name=_('Department'),
-                                   null=True)
-    full_name = models.CharField(max_length=100,
-                                 verbose_name=_('FullName'),
-                                 null=True)
-    level = models.IntegerField(verbose_name=_('Level'),
-                                choices=LEVEL_CHOICES,
-                                null=True)
-    role = models.CharField(max_length=100,
-                            verbose_name=_('Role'),
-                            null=True, choices=ROLE_CHOICES)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        verbose_name=_('Department'),
+        null=True)
 
-    gender = models.CharField(max_length=20, choices=GENDER_CHOICES,
-                              verbose_name=_('Gender'),
-                              default="None")
-    type_of_user = models.CharField(max_length=20, choices=TYPE_CHOICES,
-                                    verbose_name=_('Type'),
-                                    default="None")
+    full_name = models.CharField(
+        max_length=100,
+        verbose_name=_('FullName'),
+        null=True)
+
+    level = models.IntegerField(
+        verbose_name=_('Level'),
+        choices=LEVEL_CHOICES,
+        null=True)
+
+    role = models.CharField(
+        max_length=100,
+        verbose_name=_('Role'),
+        null=True, choices=ROLE_CHOICES)
+
+    gender = models.CharField(
+        max_length=20,
+        choices=GENDER_CHOICES,
+        verbose_name=_('Gender'),
+        default="None")
+
+    type_of_user = models.CharField(
+        max_length=20, choices=TYPE_CHOICES,
+        verbose_name=_('Type'),
+        default="Normal")
     can_be_scheduled = models.BooleanField(
-        verbose_name=_('CanBeScheduled'), null=True, default=True)
-    holiday_rest_num = models.IntegerField(verbose_name=_('HolidayRestNum'),
-                                           null=True)
-    special_rest_num = models.IntegerField(verbose_name=_('SpecialRestNum'),
-                                           null=True)
-    eid = models.CharField(max_length=100, verbose_name=_('EmployeeId'),
-                           null=True)
-    hour_required = models.FloatField(verbose_name=_('HourRequired'),
-                                      null=True, default=0.0)
-    hour_realized = models.FloatField(verbose_name=_('HourRealized'),
-                                      null=True, default=0.0)
+        verbose_name=_('CanBeScheduled'),
+        null=True,
+        default=True)
+
+    holiday_rest_num = models.IntegerField(
+        verbose_name=_('HolidayRestNum'),
+        null=True)
+
+    holiday_rest_num_used = models.IntegerField(
+        verbose_name=_('HolidayRestNumUsed'),
+        null=True)
+
+    special_rest_num = models.IntegerField(
+        verbose_name=_('SpecialRestNum'),
+        null=True)
+    special_rest_num_used = models.IntegerField(
+        verbose_name=_('SpecialRestNum'),
+        null=True)
+
+    eid = models.CharField(
+        max_length=100,
+        verbose_name=_('EmployeeId'),
+        null=True)
+
+    hour_required = models.FloatField(
+        verbose_name=_('HourRequired'),
+        null=True,
+        default=0.0)
+    hour_realized = models.FloatField(
+        verbose_name=_('HourRealized'),
+        null=True,
+        default=0.0)
+
     onboard_date = models.DateField(
         verbose_name=_('OnboardDate'),
         null=True)

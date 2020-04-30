@@ -20,7 +20,7 @@ class Condition(models.Model):
 
     department = models.ForeignKey(
         Department,
-        verbose_name=_("Department")
+        verbose_name=_("Department"),
         on_delete=models.CASCADE,
         null=True
     )

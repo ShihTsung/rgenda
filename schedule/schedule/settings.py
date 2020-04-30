@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'shift',
     'date',
     'reservation',
+    'condition',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

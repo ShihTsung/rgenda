@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
 from django.utils.translation import gettext_lazy as _
+from condition.models import Condition
 
 ROLE_CHOICES = (
     ('admin', _('admin')),
@@ -21,6 +22,7 @@ TYPE_CHOICES = (
     ('Normal', _('Normal')),
     ('Pragnant', _('Pragnant')),
     ('Intern', _('Intern')),
+    ('PartTime', _('PartTime'))
 )
 
 
@@ -95,7 +97,8 @@ class CustomUserChangeForm(UserChangeForm):
     )
     special_rest_num = forms.IntegerField(
         label=_('SpecialRestNum'),
-        disabled=True
+        disabled=True,
+        required=False
     )
     hour_required = forms.IntegerField(
         label=_('HourRequired'),
