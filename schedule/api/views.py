@@ -76,7 +76,6 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         pk = self.kwargs.get('pk')
-
         if pk == "curr":
             return self.request.user
 
@@ -87,6 +86,13 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         mode = self.request.query_params.get('mode', None)
         if mode == 'onlyUser':
             return queryset.filter(is_staff=False)
+        if mode == 'resource':
+            user = self.request.user
+
+            return queryset.filter(
+                department=user.department,
+                can_be_scheduled=True)
+
         return queryset
 
 

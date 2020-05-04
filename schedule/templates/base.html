@@ -107,16 +107,16 @@
                 padding-bottom: 3rem;
                 min-height: 90vh;
             }
-             #wrapper>.rightest{
+             #wrapper .rightest{
                 margin-right: 15rem;
             }
-            #wrapper.toggled>.rightest{
+            #wrapper.toggled .rightest{
                 margin-right: 0rem;
             }
-            #wrapper>.navbar-toggler{
-                margin-right: 15rem;
+            #wrapper .navbar-toggler{
+                margin-right: -15rem;
             }
-            #wrapper.toggled>.navbar-toggler{
+            #wrapper.toggled .navbar-toggler{
                 margin-right: 0rem;
             }
             #wrapper.toggled #sidebar-wrapper {
@@ -173,8 +173,12 @@
               $("#wrapper").toggleClass("toggled");
             });
             document.addEventListener('DOMContentLoaded',function(){
-                let side = document.getElementById('sidebar-wrapper')
-                side.style.transition = 'margin .25s ease-out ';
+                setTimeout(
+                    function(){
+                        let side = document.getElementById('sidebar-wrapper')
+                        side.style.transition = 'margin .25s ease-out ';
+                    },1000
+                )
             })
         </script>
         

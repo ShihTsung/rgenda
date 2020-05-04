@@ -11,23 +11,11 @@
                     <h2>Edit User</h2>
                 </div>
                 {% csrf_token %}
-                
-                    {{ form.username |as_crispy_field }}
-                    {{ form.email |as_crispy_field }}
-                    {{ form.full_name |as_crispy_field}}
-                    {{ form.department |as_crispy_field }}
-                    {{ form.level |as_crispy_field }}
-                    {{ form.gender |as_crispy_field }}
-                    {{ form.role |as_crispy_field }}
-                    {{ form.can_be_scheduled |as_crispy_field }}
-                    {{ form.type_of_user |as_crispy_field }}
-                    {{ form.holiday_rest_num |as_crispy_field }}
-                    {{ form.special_rest_num |as_crispy_field }}
-                    {{ form.hour_required |as_crispy_field }}
-                    {{ form.hour_realized |as_crispy_field }}
-                    {{ form.eid |as_crispy_field }}
-                    {{ form.onboard_date |as_crispy_field }}
-                    
+                {% for field in form%}
+                    {% if field.name != 'password' %}
+                    {{ field |as_crispy_field }}
+                    {% endif %}
+                {% endfor %}
             <div class="d-flex justify-content-around text-center">
                 <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
                 <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
