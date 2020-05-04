@@ -18,10 +18,10 @@
 	<!-- 搜尋欄 -->
 	<span id="searchbar" class="d-flex">
 		<i class="fa fa-search"></i>
-		<input type="text" class="form-input" id="myInput" placeholder="Search by">
-		<select class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
-			{% for index, field in field_names %}
-			<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
+		<input type="text" class="form-input" id="myInput">
+		<select class="selectpicker" data-style="btn-info" id="condition">
+			{% for index in field_names %}
+			<option class="dropdown-item">{{ index }}</a>
 			{% endfor %}
 		</select>
 	</span>
@@ -41,6 +41,7 @@
                 <th scope="col">兼職員工排假日班</th>
                 <th scope="col">實習員工排假日班</th>
                 <th scope="col">實習員工只排白班</th>
+                <th scope="col">同日排休人數提醒</th>
                 {% if user.role in "admin,manager" or user.is_superuser %}
                 <th scope="col"></th>
                 {% endif %}
@@ -53,7 +54,7 @@
                 <td>每月 {{ condition.limit_pre_schedule }} 次</td>
                 <td>每月 {{ condition.deadline_pre_schedule }} 號</td>
                 <td>每年 {{ condition.holiday_rest }} 次</td>
-                <td>每年 {{ condition.recal_workhour_date }}</td>
+                <td>每年 {{ condition.reset_month }} / {{ condition.reset_day }}</td>
                 <td>
                     {% if condition.law_rule == 1 %}一般{% endif %}
                     {% if condition.law_rule == 2 %}變形工時{% endif %}
@@ -85,6 +86,7 @@
                     {% else %}<i class="fas fa-times"></i>
                     {% endif %}
                 </td>
+                <td>{{ condition.same_day_notice }} 人</td>
                 {% if user.role in "admin,manager" or user.is_superuser %}
                 <td>
                     {% if user.role == "admin" or user.is_superuser or user.role == "manager" and user.department == condition.department %}
@@ -116,25 +118,25 @@
 <link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
 {% endblock %}
 <script>
-    function searchFilter() {
-        // Declare variables
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[sid];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
+    // Search by input.
+    let search_field = {{ field_names | safe }};
+    $("#myInput").keyup(function(){
+        let input = $("#myInput").val().toUpperCase();
+        if (input == "") {
+            $.each($("tbody").children("tr"), function(ind, val){
+                $(this).show();
+            });
+        } else {
+            let td_num = search_field[$(".filter-option-inner-inner").text()];
+            $.each($("tbody").children("tr"), function(ind, val){
+                let td_content = $(this).find("td:eq(" + td_num + ")").text().toUpperCase();
+                if (td_content.includes(input)) {
+                    $(this).show();
                 } else {
-                    tr[i].style.display = "none";
+                    $(this).hide();
                 }
-            }
+            });
         }
-    }
+    });
 </script>
 {% endblock %}

@@ -10,6 +10,7 @@ from collections import defaultdict
 排班條件管理
 """
 
+
 # 建立條件
 @login_required
 def condition_create(request):
@@ -28,7 +29,9 @@ def condition_list(request):
     conditions = Condition.objects.all()
     context = {
         'conditions': conditions,
-        'field_names': [(0, 'department')],
+        'field_names': {
+            'Department': 0,
+        },
     }
     return render(request, 'condition/conditionList.html', context)
 
@@ -36,7 +39,6 @@ def condition_list(request):
 # 編輯條件
 @login_required
 def condition_edit(request, id=None):
-
     condition = Condition.objects.get(id=id)
     form = ConditionEditForm(request.POST or None, instance=condition)
     if form.is_valid():
@@ -50,7 +52,6 @@ def condition_edit(request, id=None):
 # 刪除條件
 @login_required
 def condition_delete(request, id=None):
-
     condition = Condition.objects.get(id=id)
     if request.user.is_staff:
         condition.delete()
