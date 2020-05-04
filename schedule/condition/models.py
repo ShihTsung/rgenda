@@ -9,13 +9,14 @@ level 員工職級
 limit_pre_schedule 員工自排次數限制
 deadline_pre_schedule 自排班假期限
 holiday_rest  可休假日數限制
-recal_workhour_date 累積時數歸零的日期
+reset_month, reset_day 累積時數歸零的月，日
 law_rule 勞基法規則, 1: 7休2, 2: 14休4, 3: 28休8, 4: 56休16
 schedule_rule 醫院規則 1: 花花, 2: 單月同班種, 3: 三月同班種
 admin_in_schedule 管理者排班
 part_time_in_holiday 兼職排假日班
 intern_in_holiday 實習排假日班
 intern_d_only 實習只排白班
+same_day_notice 同天休假人數提醒
 """
 # 排班條件
 
@@ -43,10 +44,13 @@ class Condition(models.Model):
         default=40,
         null=True,
     )
-    recal_workhour_date = models.CharField(
-        verbose_name=_("RecalWorkHourDate"),
-        default='1/1',
-        max_length=5,
+    reset_month = models.IntegerField(
+        verbose_name=_("ResetMonth"),
+        default=1,
+    )
+    reset_day = models.IntegerField(
+        verbose_name=_("ResetDay"),
+        default=1,
     )
     law_rule = models.IntegerField(
         verbose_name=_("LawRule"),
@@ -73,6 +77,10 @@ class Condition(models.Model):
     intern_d_only = models.BooleanField(
         verbose_name=_("InternDOnly"),
         default=True,
+    )
+    same_day_notice = models.IntegerField(
+        verbose_name=_("SameDayNotice"),
+        default=5,
     )
 
     def __str__(self):
