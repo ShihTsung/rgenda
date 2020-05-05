@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
 from django.utils.translation import gettext_lazy as _
 from condition.models import Condition
+from django.core.validators import ValidationError
+import os
 
 ROLE_CHOICES = (
     ('admin', _('admin')),
@@ -167,3 +169,21 @@ class DepartmentChangeForm(forms.ModelForm):
         model = Department
         help_texts = {}
         fields = ['name', 'detail']
+
+
+class ImportForm(forms.Form):
+
+    def file_validator(self):
+        file_name = os.path.basename(self.file.name)
+        if file_name.split('.')[-1] != 'xlsx':
+            raise ValidationError(_('AcceptExcelOnly'))
+
+    file = forms.FileField(
+        required=True,
+        validators=[file_validator],
+        widget=forms.FileInput(
+            attrs={
+                'accept': '.xlsx',
+            }
+        )
+    )

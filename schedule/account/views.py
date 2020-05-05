@@ -9,9 +9,11 @@ from django.contrib.auth import update_session_auth_hash
 
 # Create your views here.
 from .models import CustomUser, Department
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from condition.models import Condition
+from django.http import HttpResponse
+import openpyxl
 
 """
 帳號管理
@@ -50,6 +52,10 @@ def registerPage(request):
 @login_required
 def userList(request):
     # admin 或 開發者顯示全部使用者，不然只會顯示同部門的使用者
+
+    form = ImportForm()
+    if request.method == 'POST':
+        return HttpResponse('Import Success!')
     if request.user.role == 'admin' or request.user.is_superuser:
         users = CustomUser.objects.all()
     else:
@@ -63,7 +69,9 @@ def userList(request):
         ]
     context = {
         'users': users,
-        'field_names': field_names
+        'field_names': field_names,
+        'form': form,
+        'modal_form_title': 'Import User',
     }
     return render(request, 'registration/userList.html', context)
 
