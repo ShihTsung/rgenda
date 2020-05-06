@@ -133,6 +133,7 @@
     // Your code to run since DOM is loaded and ready
     let id = "#";
     let name = "";
+    let cond = document.getElementById('condition');
     document.querySelectorAll(".btn-delete").forEach(function(el){
         el.addEventListener('click', function(){
           id = this.parentNode.parentNode.getAttribute('idx');

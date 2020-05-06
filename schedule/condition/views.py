@@ -33,7 +33,7 @@ def condition_list(request):
             'Department': 0,
         },
     }
-    return render(request, 'condition/conditionList.html', context)
+    return render(request, 'condition/condition_list.html', context)
 
 
 # 編輯條件
@@ -46,7 +46,7 @@ def condition_edit(request, id=None):
         return redirect('/condition/list')
 
     context = {'form': form, 'target': condition}
-    return render(request, 'condition/conditionEdit.html', context)
+    return render(request, 'condition/condition_edit.html', context)
 
 
 # 刪除條件

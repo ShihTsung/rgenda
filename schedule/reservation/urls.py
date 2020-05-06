@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path('reserve', views.reserve),
+    path('promises', views.promises),
 ]
