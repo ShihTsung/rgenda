@@ -20,7 +20,7 @@ ROLE_CHOICES = (
 
 TYPE_CHOICES = (
     ('Normal', _('Normal')),
-    ('Pragnant', _('Pragnant')),
+    ('Pregnant', _('Pregnant')),
     ('Intern', _('Intern')),
     ('PartTime', _('PartTime'))
 )
