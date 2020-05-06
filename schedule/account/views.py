@@ -135,7 +135,7 @@ def check_excel(row, users, departments, eids, data):
     :param departments:
     :param eids:
     :param data:
-    :return: 
+    :return:
     """
     if row[0] in users or row[0] in data:
         return 'Repeat "username" ' + row[0]
