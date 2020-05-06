@@ -21,6 +21,7 @@ def initial(request):
     from station.models import Station
     from shift.models import Shift
     from condition.models import Condition
+    from demand.models import DemandOfStation
 
     print('clean database')
     User.objects.all().delete()

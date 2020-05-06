@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}{% trans 'ReservingHoliday' %}{% endblock %}
+{% block title %}{% trans 'PromiseShift' %}{% endblock %}
 
 
 <!-- 加入full calendar套件 -->
@@ -10,7 +10,7 @@
   
   <div class="greet text-center">
     {% if user.is_authenticated %}
-    <h1> {%trans 'ReservingHoliday'%}</h1>
+    <h1> {%trans 'PromiseShift'%}</h1>
     {% endif%}
   </div>
   <div class="calendar-container">
@@ -19,6 +19,38 @@
     </div>
   </div>
 
+</div>
+<!-- modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <div class="form-grounp">
+            <label for="user">user</label>
+            <select name="user" id="user-select" class="form-control">
+            </select>
+            <label for="shift">shift</label>
+            <select name="shift" id="shift-select" class="form-control">
+            </select>
+          </div>
+          <br>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+        <button type="button" class="btn btn-primary" id="save" >{%trans 'Save'%}</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -45,7 +77,7 @@
     }
     .bigEvent{
       height: 3rem;
-      font-size: 2rem;
+      font-size: 1rem;
       text-align: center;
     }
 
@@ -63,21 +95,43 @@
         var Draggable = FullCalendarInteraction.Draggable;
         var calendarEl = document.getElementById('calendar');
         var initialLocaleCode = 'en';
-        var localeSelectorEl = document.getElementById('locale-selector')
         let locked_days = new Array()  // 紀錄被鎖的日期
         let choosed_days = new Array() // 紀錄目前被選的日期
-        let curr_user = {}
+        let users = []
         let days = {}
+        let shifts = []
+        let date = ''
 
-        fetch('/api/users/curr')
+// 查詢所有使用者
+        fetch('/api/users/')
         .then(response=>{
           return response.json()
         })
         .then(data=>{
-          curr_user = data;
+          data.forEach(user=>{
+            let select = document.getElementById('user-select');
+            let option = document.createElement('option');
+            option.setAttribute('value', user.username);
+            option.value = user.id;
+            option.text = user.full_name;
+            select.add(option);
+          });
         })
+// 查詢所有班別
+        fetch('/api/shifts')
+        .then(response=>{
+          return response.json();  
+        })
+        .then(data=>{
+            data.forEach(shift=>{
+                let select = document.getElementById('shift-select');
+                let option = document.createElement('option');
+                option.value = shift.id;
+                option.text = shift.name;
+                select.add(option);
+            });
+        });
 
-        
         //  fullcalender define
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: ['interaction', 'dayGrid'],
@@ -97,33 +151,11 @@
             eventLimit: true, // when too many events in a day, show the popover
             timeZone: 'UTC',
             locale: 'en',
-            eventOverlap: false,
             // 點一下加入事件
             dateClick:function(info){
-              if (!locked_days.includes(info.dateStr)){
-                if(!choosed_days.includes(info.dateStr)){
-                  newEvent = {
-                    user: curr_user.id,
-                    year: info.dateStr.split('-')[0],
-                    date: info.dateStr.split('T')[0]
-                  }
-                  fetch('/api/reservations/', 
-                        {
-                          method: "POST",
-                          headers:{
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'content-type': 'application/json'
-                        },
-                        body: JSON.stringify(newEvent)
-                        })
-                  .then(response=>{
-                    return response.json()
-                  })
-                  .then(jsonData=>{
-                    calendar.refetchEvents();
-                  })
-                }
-              }
+                $('#myModal').modal('show');
+                $('#exampleModalLabel').text(info.dateStr);
+                date = info.dateStr;
             },
             customButtons: {
                 submitButton: {
@@ -152,10 +184,6 @@
                   else{
                     e.color='white';
                   }
-                  if(e.extendedProps.locked==true){
-                    e.color='red';
-                    locked_days.push(e.start);
-                  }
                   e.rendering="background";
                   e.overlap=true;
                 })
@@ -165,11 +193,10 @@
             }
             },{
               events: function(fetchInfo, successCallback, failureCallback){
-                let url = '/api/reservations/'
+                let url = '/api/promises/'
                 start_str = fetchInfo.startStr
                 end_str = fetchInfo.endStr
                 url += '?start=' + start_str + '&end=' + end_str
-                url += '&mode=personal'
                 fetch(url)
                 .then(function(response){
                 return response.json();
@@ -177,9 +204,13 @@
                 .then(function(data){
                   data.forEach(e=>{
                     e.className = 'bigEvent';
-                    e.title = "排休";
+                    e.title = e.user.full_name + '\n' + e.shift.name;
                     e.textColor = 'white';
-                    e.overlap = false;
+                    
+                    if(e.shift.shift_type=='休假'){
+                        e.color = 'red'
+                    }
+                    console.log(e)
                     choosed_days.push(e.date)
                   });
                   successCallback(data);
@@ -187,7 +218,7 @@
               }
             }],
             eventClick:function(info){
-              fetch('/api/reservations/' + info.event.id + '/', {
+              fetch('/api/promises/' + info.event.id + '/', {
                     method: "DELETE",
                     headers:{
                       'X-CSRFToken': '{{ csrf_token }}',  
@@ -211,8 +242,38 @@
             calendar.setOption('locale', 'zh-tw');
         }
         calendar.render();
+        // 按下儲存後要送出request
+        save_btn = document.getElementById('save');
+        save_btn.addEventListener('click', function(){
+            let e = document.getElementById("user-select");
+            user = e.options[e.selectedIndex].value;
+            e = document.getElementById("shift-select");
+            shift = e.options[e.selectedIndex].value;
+            new_shift = {
+                'user': user,
+                'year': date.split('-')[0],
+                'date': date,
+                'shift': shift
+            }
+            fetch('/api/promises/', 
+                        {
+                          method: "POST",
+                          headers:{
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'content-type': 'application/json'
+                        },
+                        body: JSON.stringify(new_shift)
+                        })
+                  .then(response=>{
+                    return response.json()
+                  })
+                  .then(jsonData=>{
+                    calendar.refetchEvents();
+                    $('#myModal').modal('hide');
+                  });
+        });
 
-        
+
         // 印出目前顯示的最早與最晚時間
         
         //console.log(calendar.view.activeStart);

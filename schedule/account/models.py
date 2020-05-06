@@ -79,14 +79,17 @@ class CustomUser(AbstractUser):
 
     holiday_rest_num_used = models.IntegerField(
         verbose_name=_('HolidayRestNumUsed'),
-        null=True)
+        null=True,
+        default=0)
 
     special_rest_num = models.IntegerField(
         verbose_name=_('SpecialRestNum'),
         null=True)
+
     special_rest_num_used = models.IntegerField(
-        verbose_name=_('SpecialRestNum'),
-        null=True)
+        verbose_name=_('SpecialRestNumUsed'),
+        null=True,
+        default=0)
 
     eid = models.CharField(
         max_length=100,

@@ -27,7 +27,7 @@ from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult
-from reservation.models import Reservation
+from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 
 
@@ -67,7 +67,7 @@ class IsManagerOrReadOnly(BasePermission):
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('username')
-    permission_classes = (IsAdminOrReadOnly, permissions.IsAuthenticated)
+    permission_classes = (IsManagerOrReadOnly, permissions.IsAuthenticated)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -88,11 +88,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             return queryset.filter(is_staff=False)
         if mode == 'resource':
             user = self.request.user
-
-            return queryset.filter(
-                department=user.department,
-                can_be_scheduled=True)
-
+            if user.role == 'manager':
+                return queryset.filter(
+                    department=user.department,
+                    can_be_scheduled=True)
+            if user.role == 'admin' or user.is_superuser:
+                return queryset(can_be_scheduled=True)
         return queryset
 
 
@@ -184,8 +185,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         mode = self.request.query_params.get('mode', None)
+        start = self.request.query_params.get('start', None)
+        end = self.request.query_params.get('end', None)
         if mode == 'personal':
-            return queryset.filter(user=self.request.user)
+            return queryset.filter(
+                user=self.request.user,
+                date__range=[start[:10], end[:10]])
         return queryset
 
     def get_serializer_class(self):
@@ -202,3 +207,21 @@ class DemandViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetDemandSerializer
         return DemandSerializer
+
+
+class PromiseShiftViewSet(viewsets.ModelViewSet):
+    queryset = PromiseShift.objects.all()
+    serializer_class = PromiseShiftSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetPromiseShiftSerializer
+        return PromiseShiftSerializer
+
+    def get_queryset(self):
+        start = self.request.query_params.get('start', None)
+        end = self.request.query_params.get('end', None)
+        if self.request.query_params:
+            return PromiseShift.objects.filter(date__range=[start[:10], end[:10]])
+        else:
+            return PromiseShift.objects.all()

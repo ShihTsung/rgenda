@@ -65,9 +65,21 @@
                 </td>
             </tr>
             <tr>
+                <td>{% trans 'holidayRestUsed' %}</td>
+                <td>
+                   {{target_user.holiday_rest_num_used}}
+                </td>
+            </tr>
+            <tr>
                 <td>{% trans 'specialRest' %}</td>
                 <td>
                    {{target_user.special_rest_num}}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'specialRestUsed' %}</td>
+                <td>
+                   {{target_user.special_rest_num_used}}
                 </td>
             </tr>
             <tr>

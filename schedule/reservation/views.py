@@ -17,3 +17,16 @@ def reserve(request):
     }
 
     return render(request, 'calendars/reserve_holiday.html', context)
+
+
+@login_required
+def promises(request):
+    start, end = range()
+
+    context = {
+        'LANG': request.LANGUAGE_CODE,
+        'start': start,
+        'end': end
+    }
+
+    return render(request, 'calendars/promise_shift.html', context)
