@@ -76,8 +76,10 @@ def demand_edit(request):
                 'weekday': demand.weekday,
                 'holiday': demand.holiday,
             }
+    form = DemandEditForm()
     context = {
         'demands': json.dumps(dict(demand_dict)),
+        'form': form,
     }
     return render(request, 'demands/demandEdit.html', context)
 

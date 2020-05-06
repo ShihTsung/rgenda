@@ -32,15 +32,8 @@ class DemandCreationForm(forms.ModelForm):
                   'weekday', 'holiday']
 
 
-class DemandEditForm(forms.ModelForm):
-    shift = forms.ModelChoiceField(
-        queryset=Shift.objects.all(),
-        label=_('Shift'))
-    level = forms.IntegerField(label=_('level'))
-    weekday = forms.IntegerField(label=_('weekdayDemand'))
-    holiday = forms.IntegerField(label=_('holidayDemand'))
-
-    class Meta:
-        model = DemandOfStation
-        fields = ['shift', 'level',
-                  'weekday', 'holiday']
+class DemandEditForm(forms.Form):
+    demand = forms.IntegerField(
+        min_value=0,
+        required=True,
+    )

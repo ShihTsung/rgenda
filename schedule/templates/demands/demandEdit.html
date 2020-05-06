@@ -11,7 +11,8 @@
 
     <form method="POST" action="/demands/update">
         {% csrf_token %}
-        <button id="btn-submit" class="btn btn-success" type="button"><i class="far fa-save"></i></button>
+        <button id="btn-submit" class="btn btn-success" type="submit"><i class="far fa-save"></i></button>
+        {{ form.demand | as_crispy_field }}
         <table class="table table-striped text-center" id="myTable">
             <thead class="thead-dark">
                 <tr>
@@ -39,6 +40,7 @@
     $(document).ready(function(){
         // Build the form.
         var demands = {{ demands | safe }};
+        let input_field = $("#id_demand");
         $.each(demands, function(station, shifts){
             let first_of_station = true;
             let rowspan = Object.keys(shifts).length;
@@ -50,29 +52,16 @@
                     $(tr).append(td_station);
                 }
                 $(tr).append("<td>" + shift + "</td>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[3]["id"] + "w' value='" + val[3]["weekday"] + "' required>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[2]["id"] + "w' value='" + val[2]["weekday"] + "' required>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[1]["id"] + "w' value='" + val[1]["weekday"] + "' required>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[3]["id"] + "h' value='" + val[3]["holiday"] + "' required>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[2]["id"] + "h' value='" + val[2]["holiday"] + "' required>");
-                $(tr).append("<td><input class='form-control valid' name='" + val[1]["id"] + "h' value='" + val[1]["holiday"] + "' required>");
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "w").attr("name", val[3]["id"] + "w").val(val[3]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "w").attr("name", val[2]["id"] + "w").val(val[2]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "w").attr("name", val[1]["id"] + "w").val(val[1]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "h").attr("name", val[3]["id"] + "h").val(val[3]["holiday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "h").attr("name", val[2]["id"] + "h").val(val[2]["holiday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "h").attr("name", val[1]["id"] + "h").val(val[1]["holiday"])));
                 $("tbody").append(tr);
             });
         });
-
-        // Set validation.
-        $("form").validate();
-        $.validator.addClassRules({
-            valid: {
-                digits: true,
-                min: 0,
-            },
-        });
-        $("#btn-submit").click(function(){
-            if ($("form").valid()) {
-                $("form").submit();
-            }
-        });
+        $("#div_id_demand").remove();
     });
 </script>
 <style>
@@ -92,12 +81,6 @@
         width: 80%;
         margin: 0 auto;
         padding: 0 12px;
-    }
-    input.error {
-        border: 1px solid rgba(255, 0, 0, 1);
-    }
-    label.error {
-        color: rgb(240, 0, 0);
     }
 </style>
 {% endblock %}
