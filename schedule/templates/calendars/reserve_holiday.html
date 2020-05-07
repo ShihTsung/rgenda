@@ -13,6 +13,11 @@
     <h1> {%trans 'ReservingHoliday'%}</h1>
     {% endif%}
   </div>
+  <!-- 警告訊息 -->
+  <div class="alert" role="alert" style="visibility:hidden;" id="message">
+    選擇這天的人數已經超過上限，請考慮別天
+  </div>
+
   <div class="calendar-container">
     <div id="calendar">
 
@@ -120,6 +125,15 @@
                     return response.json()
                   })
                   .then(jsonData=>{
+                    if(jsonData.alarm){
+                      let msg = document.getElementById('message');
+                      msg.style.visibility = '';
+                      msg.classList.add('alert-danger')
+                      msg.innerText = jsonData.alarm
+                      setTimeout(function (){
+                        msg.style.visibility = 'hidden';
+                      }, 5000);
+                    }
                     calendar.refetchEvents();
                   })
                 }

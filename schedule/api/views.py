@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets, generics, permissions
+from rest_framework import viewsets, generics, permissions, status
 from .serializers import *
 """(CustomUserSerializer,
 ShiftSerializer,
@@ -29,6 +29,7 @@ from date.models import Oneday
 from result.models import Result, PreResult, AfterResult
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
+from condition.models import Condition
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -181,6 +182,32 @@ class AfterResultViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    # 覆寫 create
+
+    def create(self, request):
+        condition = Condition.objects.get(department=request.user.department)
+        max_reserve = condition.same_day_notice
+        serializer = ReservationSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            # 算出同一天有多少reserve
+            same_day_num = len(self.queryset.filter(
+                date=serializer.validated_data['date']))
+            # 如果超過最大值就在response塞警告
+            if same_day_num > max_reserve:
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                serializer.data['alarm'] = 'too many same day'
+                return Response(
+                    {"alarm": "too many same day"},
+                    status=status.HTTP_201_CREATED)
+            # 否則response就是 data
+            else:
+                self.perform_create(serializer)
+                headers = self.get_success_headers(serializer.data)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED,
+                    headers=headers)
 
     def get_queryset(self):
         queryset = self.queryset

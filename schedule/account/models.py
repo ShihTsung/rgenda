@@ -4,9 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 # 選項的部分之後可以用獨立 model取代
 LEVEL_CHOICES = (
-    (3, _('Leader')),
-    (2, _('Senior')),
-    (1, _('Junior'))
+    (4, _('N4')),
+    (3, _('N3')),
+    (2, _('N2')),
+    (1, _('N, N1'))
 )
 GENDER_CHOICES = (
     ('M', _('Male')),
