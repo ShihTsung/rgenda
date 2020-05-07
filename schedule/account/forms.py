@@ -173,15 +173,8 @@ class DepartmentChangeForm(forms.ModelForm):
 
 
 class ImportForm(forms.Form):
-
-    def file_validator(self):
-        file_name = os.path.basename(self.file.name)
-        if file_name.split('.')[-1] != 'xlsx':
-            raise ValidationError(_('AcceptExcelOnly'))
-
     file = forms.FileField(
         required=True,
-        validators=[file_validator],
         widget=forms.FileInput(
             attrs={
                 'accept': '.xlsx',

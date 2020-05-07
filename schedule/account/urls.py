@@ -32,4 +32,5 @@ urlpatterns = [
     path('delete/<int:id>', destroy, name="delete"),
     path('update/<int:id>', update, name="update"),
     path('<int:id>', detail, name="detail"),
+    path('download/empty-excel', download_empty_excel, name='download_empty_excel'),
 ]
