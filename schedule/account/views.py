@@ -12,9 +12,10 @@ from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from condition.models import Condition
-from django.http import HttpResponse
-import openpyxl
+from django.http import FileResponse
 from datetime import datetime
+from django.templatetags.static import static
+import openpyxl
 
 """
 帳號管理
@@ -71,7 +72,7 @@ def userList(request):
         departments = [department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
-        if row0 != ('Username', 'Email address', 'Full name', 'Department', 'Level', 'Gender', 'Role', 'Can Be Scheduled', 'Type', 'Employee ID', 'Onboard Date'):
+        if row0 != ('Username', 'Email address', 'Full name', 'Department', 'Level', 'Gender', 'Role', 'Type', 'Employee ID', 'Onboard Date'):
             messages.error(request, row0)
             return redirect('/accounts/list')
         for row in ws.iter_rows(values_only=True, min_row=3):
@@ -89,7 +90,6 @@ def userList(request):
                 role=raw_data[name]['role'],
                 gender=raw_data[name]['gender'],
                 type_of_user=raw_data[name]['type'],
-                can_be_scheduled=raw_data[name]['can be scheduled'],
                 eid=raw_data[name]['employee id'],
                 onboard_date=raw_data[name]['onboard date'],
             )
@@ -160,22 +160,18 @@ def check_excel(row, users, departments, eids, data):
     if not row[6] in ['admin', 'manager', 'user']:
         return 'Invalid "role" for ' + row[0]
     if not row[7]:
-        return '"Can be scheduled" is required for ' + row[0]
-    if not row[7] in ['Y', 'N']:
-        return 'Invalid "can be scheduled" for ' + row[0]
-    if not row[8]:
         return '"Type" is required for ' + row[0]
-    if not row[8] in ['Normal', 'Pregnant', 'PartTime', 'Intern']:
+    if not row[7] in ['Normal', 'Pregnant', 'PartTime', 'Intern']:
         return 'Invalid "type" for ' + row[0]
-    if not row[9]:
+    if not row[8]:
         return '"Employee ID" is required for ' + row[0]
-    if str(row[9]) in eids:
+    if str(row[8]) in eids:
         return '"Employee ID" is repeat for ' + row[0]
-    eids.append(str(row[9]))
-    if not row[10]:
+    eids.append(str(row[8]))
+    if not row[9]:
         return '"Onboard date" is required for ' + row[0]
-    if not type(row[10]) is datetime:
-        return 'Invalid "onboard date" for ' + row[0] + ', ' + str(type(row[10]))
+    if not type(row[9]) is datetime:
+        return 'Invalid "onboard date" for ' + row[0]
     data[row[0]] = {
         'email address': row[1],
         'full name': row[2],
@@ -183,12 +179,17 @@ def check_excel(row, users, departments, eids, data):
         'level': row[4],
         'gender': row[5],
         'role': row[6],
-        'can be scheduled': True if row[7] == 'Y' else False,
-        'type': row[8],
-        'employee id': row[9],
-        'onboard date': row[10],
+        'type': row[7],
+        'employee id': row[8],
+        'onboard date': row[9],
     }
     return ''
+
+
+@login_required
+def download_empty_excel(request):
+    file = open('static/RgendaUsers.xlsx', 'rb')
+    return FileResponse(file)
 
 
 # 使用者詳細資料
