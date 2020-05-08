@@ -43,9 +43,10 @@ def registerPage(request):
                 else:
                     messages.error(request, "Permission denied")
                     return redirect('/accounts/list')
-
+            form.save()
             user = form.cleaned_data.get('username')
             messages.success(request, "Account was created for " + user)
+            return redirect('/accounts/list')
     context = {'form': form}
     return render(request, 'registration/register.html', context)
 
@@ -270,9 +271,11 @@ def departmentList(request):
         (0, 'name'),
         (1, 'detail')
         ]
+    users = CustomUser.objects.all()
     context = {
         'departments': departments,
-        'field_names': field_names
+        'field_names': field_names,
+        'users': users
     }
     return render(request, 'department/departmentList.html', context)
 
@@ -285,9 +288,19 @@ def departmentEdit(request, id=None):
     form = DepartmentChangeForm(request.POST or None, instance=department)
     if form.is_valid():
         form.save()
+        new_managers = [form.data['mgr1'], form.data['mgr2']]
+        users = CustomUser.objects.filter(department=department)
+        print(new_managers)
+        for user in users:
+            if user.role != 'admin':
+                if str(user.id) in new_managers:
+                    user.role = 'manager'
+                else:
+                    user.role = 'user'
+                user.save()
         return redirect('/departments/list')
 
-    context = {'form': form, 'target': department}
+    context = {'form': form, 'target': department, 'id': id}
     return render(request, 'department/departmentEdit.html', context)
 
 

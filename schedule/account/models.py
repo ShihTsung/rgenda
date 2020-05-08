@@ -31,6 +31,9 @@ TYPE_CHOICES = (
 class Department(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Department'))
     detail = models.CharField(max_length=100, verbose_name=_('Detail'))
+    manager_num = models.IntegerField(
+        verbose_name=_('managerNum'),
+        default=2)
 
     def __str__(self):
         return self.name
@@ -117,3 +120,17 @@ class CustomUser(AbstractUser):
         if self.role == 'andmin' or self.role == 'manager':
             self.is_staff = True
         super(CustomUser, self).save(*args, **kwargs)
+
+
+# class DepartmentManager(models.Model):
+#     department = models.ForeignKey(
+#         Department,
+#         on_delete=models.CASCADE,
+#         verbose_name=_('Department'),
+#     )
+#     user = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         verbose_name=_('User'),
+#         null=True
+#     )

@@ -56,6 +56,7 @@
       <tr>
         <th scope="col">name</th>
         <th scope="col">detail</th>
+        <th scope="col"> manager</th>
         {% if user.role in "admin,manager" or user.is_superuser %}
         <th scope="col">actions</th>
         {% endif %}
@@ -70,6 +71,13 @@
       <tr idx="{{d.id}}">
         <td class="name">{{d.name}}</td>
         <td>{{d.detail}}</td>
+        <td>
+          {%for user in users%}
+            {% if user.role == 'manager' and user.department == d %}
+              <div> {{user.full_name}} </div>
+            {% endif %}
+          {% endfor %}
+        </td>
         {% if user.role in "admin,manager" or user.is_superuser %}
         <td>
           <a href="/departments/update/{{d.id}}">

@@ -14,6 +14,18 @@
 
                 {{ form.name |as_crispy_field }}
                 {{ form.detail |as_crispy_field }}
+                <div class="form-group">
+                    <label for="">manager1</label>
+                    <select name="mgr1" id="manager1" class="form-control">
+                        <option value="NULL" selected="selected">---</option> 
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="">manager2</label>
+                    <select name="mgr2" id="manager2" class="form-control">
+                        <option value="NULL" selected="selected">---</option> 
+                    </select>
+                </div>
 
                 <div class="col-12 text-center">
                     <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
@@ -27,6 +39,40 @@
 <script>
     document.getElementById('back').addEventListener('click', function(){
         window.location.href="/departments/list";
+    });
+    document.addEventListener('DOMContentLoaded', function(){
+        let department = "{{id}}";
+        let users = [];
+        let mgr1 = document.getElementById('manager1');
+        let mgr2 = document.getElementById('manager2');
+        let selected = []
+        fetch('/api/users/?department=' + department)
+        .then(res=>{
+            return res.json()
+        })
+        .then(data=>{
+            //過濾出要顯示在選單的人
+            let index = 1
+            data.forEach(e=>{
+                if(e.role!=='admin'){
+                    op = document.createElement('option')
+                    op.value = e.id;
+                    op.text = e.full_name;
+                    mgr1.appendChild(op);
+                    op = document.createElement('option')
+                    op.value = e.id;
+                    op.text = e.full_name;
+                    mgr2.appendChild(op);
+                    if (e.role=='manager' && !selected.includes(index)){
+                        selected.push(index)
+                    }
+                    index ++;
+                console.log(index);
+                console.log(selected);
+                }
+            });
+        });
+        
     });
 </script>
 <style>
