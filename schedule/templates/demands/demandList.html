@@ -35,13 +35,15 @@
 			<tr>
 				<th rowspan="2" scope="col" id='station'>Station</th>
 				<th rowspan="2" scope="col">Shift</th>
-				<th colspan="3" scope="col">Weekday</th>
-				<th colspan="3" scope="col">Holiday</th>
+				<th colspan="4" scope="col">Weekday</th>
+				<th colspan="4" scope="col">Holiday</th>
 			</tr>
 			<tr>
+				<th>Level 4</th>
 				<th>Level 3</th>
 				<th>Level 2</th>
 				<th>Level 1</th>
+				<th>Level 4</th>
 				<th>Level 3</th>
 				<th>Level 2</th>
 				<th>Level 1</th>
@@ -59,7 +61,7 @@
 	}
 	table th, table td {
 		vertical-align: middle !important;
-		width: 12.5%;
+		width: 10%;
 	}
 	#btn-edit {
 		margin-left: 0;
@@ -84,9 +86,11 @@
 				$(tr).append(td_station);
 			}
 			$(tr).append("<td>" + shift + "</td>");
+			$(tr).append("<td>" + val[4]["weekday"] + "</td>");
 			$(tr).append("<td>" + val[3]["weekday"] + "</td>");
 			$(tr).append("<td>" + val[2]["weekday"] + "</td>");
 			$(tr).append("<td>" + val[1]["weekday"] + "</td>");
+			$(tr).append("<td>" + val[4]["holiday"] + "</td>");
 			$(tr).append("<td>" + val[3]["holiday"] + "</td>");
 			$(tr).append("<td>" + val[2]["holiday"] + "</td>");
 			$(tr).append("<td>" + val[1]["holiday"] + "</td>");

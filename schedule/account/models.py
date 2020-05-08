@@ -21,9 +21,8 @@ ROLE_CHOICES = (
 
 TYPE_CHOICES = (
     ('Normal', _('Normal')),
-    ('Pregnant', _('Pregnant')),
     ('Intern', _('Intern')),
-    ('PartTime', _('PartTime'))
+    ('PartTime', _('PartTime')),
 )
 
 
@@ -72,6 +71,10 @@ class CustomUser(AbstractUser):
         max_length=20, choices=TYPE_CHOICES,
         verbose_name=_('Type'),
         default="Normal")
+    pregnant = models.BooleanField(
+        verbose_name=_('Pregnant'),
+        default=False,
+    )
     can_be_scheduled = models.BooleanField(
         verbose_name=_('CanBeScheduled'),
         null=True,

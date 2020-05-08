@@ -7,6 +7,7 @@ class ConditionEditForm(forms.ModelForm):
     limit_pre_schedule = forms.IntegerField(
         label=_("LimitPreSchedule"),
         min_value=0,
+        max_value=31,
     )
     deadline_pre_schedule = forms.ChoiceField(
         label=_("DeadlinePreSchedule"),
@@ -17,6 +18,7 @@ class ConditionEditForm(forms.ModelForm):
     holiday_rest = forms.IntegerField(
         label=_("HolidayRest"),
         min_value=0,
+        max_value=106,
     )
     reset = forms.ChoiceField(
         label=_('Reset'),

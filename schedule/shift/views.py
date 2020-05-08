@@ -22,7 +22,7 @@ def shift_create(request):
         if form.is_valid():
             form.save()
             last_shift = Shift.objects.last()
-            for i in range(1, 4):
+            for i in range(1, 5):
                 demand = DemandOfStation.objects.create(
                     shift=last_shift,
                     level=i,
