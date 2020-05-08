@@ -11,21 +11,9 @@
                     <h2>Edit Condition</h2>
                 </div>
                 {% csrf_token %}
-                {{ form.limit_pre_schedule |as_crispy_field }}
-                {{ form.deadline_pre_schedule |as_crispy_field }}
-                {{ form.holiday_rest |as_crispy_field }}
-                {{ form.reset_month |as_crispy_field }}
-                {{ form.reset_day |as_crispy_field }}
-                {{ form.law_rule |as_crispy_field }}
-                {{ form.schedule_rule |as_crispy_field }}
-                {{ form.admin_in_schedule |as_crispy_field }}
-                {{ form.part_time_in_holiday |as_crispy_field }}
-                {{ form.intern_in_holiday |as_crispy_field }}
-                {{ form.intern_d_only |as_crispy_field }}
-                {{ form.same_day_notice |as_crispy_field }}
-                <!-- {% for field in form %}
+                {% for field in form %}
                 {{ field |as_crispy_field }}
-                {% endfor %} -->
+                {% endfor %}
                 <div class="col-12 text-center">
                     <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
                     <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
@@ -38,36 +26,6 @@
 <script>
     document.getElementById('back').addEventListener('click', function(){
         window.location.href = "/condition/list";
-    });
-    $(document).ready(function(){
-        var set_day_option = function(){
-            let month = $("#id_reset_month").val();
-            if (month == 2) {
-                $("#id_reset_day").children("option[value='29']").hide();
-                $("#id_reset_day").children("option[value='30']").hide();
-                $("#id_reset_day").children("option[value='31']").hide();
-                let day = $("#id_reset_day").val();
-                if ($.inArray(day, ["29", "30", "31"]) != -1) {
-                    $("#id_reset_day").val(1);
-                }
-            } else if ($.inArray(month, ["4", "6", "9", "11"]) != -1) {
-                $("#id_reset_day").children("option[value='29']").show();
-                $("#id_reset_day").children("option[value='30']").show();
-                $("#id_reset_day").children("option[value='31']").hide();
-                let day = $("#id_reset_day").val();
-                if (day == 31) {
-                    $("#id_reset_day").val(1);
-                }
-            } else {
-                $("#id_reset_day").children("option[value='29']").show();
-                $("#id_reset_day").children("option[value='30']").show();
-                $("#id_reset_day").children("option[value='31']").show();
-            }
-        };
-        set_day_option();
-        $("#id_reset_month").change(function(){
-            set_day_option();
-        });
     });
 </script>
 <style>
