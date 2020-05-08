@@ -54,7 +54,11 @@
                 <td>每月 {{ condition.limit_pre_schedule }} 次</td>
                 <td>每月 {{ condition.deadline_pre_schedule }} 號</td>
                 <td>每年 {{ condition.holiday_rest }} 次</td>
-                <td>每年 {{ condition.reset_month }} / {{ condition.reset_day }}</td>
+                <td>
+                    {% if condition.reset == 0 %}每年1月1號
+                    {% else %}每月1號
+                    {% endif %}
+                </td>
                 <td>
                     {% if condition.law_rule == 1 %}一般{% endif %}
                     {% if condition.law_rule == 2 %}變形工時{% endif %}

@@ -18,17 +18,11 @@ class ConditionEditForm(forms.ModelForm):
         label=_("HolidayRest"),
         min_value=0,
     )
-    reset_month = forms.ChoiceField(
-        label=_('ResetMonth'),
+    reset = forms.ChoiceField(
+        label=_('Reset'),
         required=True,
         widget=forms.Select,
-        choices=[(i, i) for i in range(1, 13)],
-    )
-    reset_day = forms.ChoiceField(
-        label=_('ResetDay'),
-        required=True,
-        widget=forms.Select,
-        choices=[(i, i) for i in range(1, 32)],
+        choices=[(0, _('PerYear(at 1/1)')), (1, _('PerMonth(at 1)'))],
     )
     law_rule = forms.ChoiceField(
         label=_("LawRules"),
@@ -76,6 +70,6 @@ class ConditionEditForm(forms.ModelForm):
     class Meta:
         model = Condition
         help_texts = {}
-        fields = ['limit_pre_schedule', 'deadline_pre_schedule', 'holiday_rest', 'reset_month', 'reset_day', 'law_rule',
+        fields = ['limit_pre_schedule', 'deadline_pre_schedule', 'holiday_rest', 'reset', 'law_rule',
                   'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday', 'intern_in_holiday', 'intern_d_only',
                   'same_day_notice']
