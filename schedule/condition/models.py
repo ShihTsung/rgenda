@@ -9,7 +9,7 @@ level 員工職級
 limit_pre_schedule 員工自排次數限制
 deadline_pre_schedule 自排班假期限
 holiday_rest  可休假日數限制
-reset_month, reset_day 累積時數歸零的月，日
+reset 累積時數重置 0: 每年, 1: 每月
 law_rule 勞基法規則, 1: 7休2, 2: 14休4, 3: 28休8, 4: 56休16
 schedule_rule 醫院規則 1: 花花, 2: 單月同班種, 3: 三月同班種
 admin_in_schedule 管理者排班
@@ -44,13 +44,9 @@ class Condition(models.Model):
         default=40,
         null=True,
     )
-    reset_month = models.IntegerField(
-        verbose_name=_("ResetMonth"),
-        default=1,
-    )
-    reset_day = models.IntegerField(
-        verbose_name=_("ResetDay"),
-        default=1,
+    reset = models.IntegerField(
+        verbose_name=_("Reset"),
+        default=0,
     )
     law_rule = models.IntegerField(
         verbose_name=_("LawRule"),

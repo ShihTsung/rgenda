@@ -15,6 +15,7 @@ from condition.models import Condition
 from django.http import FileResponse
 from datetime import datetime
 from django.templatetags.static import static
+from collections import defaultdict
 import openpyxl
 
 """
@@ -69,6 +70,10 @@ def userList(request):
         users = CustomUser.objects.all()
         usernames = [user.username for user in users]
         eids = [user.eid for user in users]
+        manager_num = defaultdict(int)
+        for user in users:
+            if user.role == 'manager':
+                manager_num[user.departmant.name] += 1
         departments = [department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
@@ -76,7 +81,7 @@ def userList(request):
             messages.error(request, row0)
             return redirect('/accounts/list')
         for row in ws.iter_rows(values_only=True, min_row=3):
-            error_message = check_excel(row, usernames, departments, eids, raw_data)
+            error_message = check_excel(row, usernames, departments, eids, manager_num, raw_data)
             if error_message:
                 messages.error(request, error_message)
                 return redirect('/accounts/list')
@@ -116,7 +121,7 @@ def userList(request):
     return render(request, 'registration/userList.html', context)
 
 
-def check_excel(row, users, departments, eids, data):
+def check_excel(row, users, departments, eids, manager_num, data):
     """
     :param row: (
             0: Username,
@@ -159,6 +164,10 @@ def check_excel(row, users, departments, eids, data):
         return '"Role" is required for ' + row[0]
     if not row[6] in ['admin', 'manager', 'user']:
         return 'Invalid "role" for ' + row[0]
+    if row[6] == 'manager':
+        manager_num[row[2]] += 1
+        if manager_num[row[2]] == 3:
+            return 'Manager of ' + row[2] + ' more than two'
     if not row[7]:
         return '"Type" is required for ' + row[0]
     if not row[7] in ['Normal', 'Pregnant', 'PartTime', 'Intern']:
