@@ -70,6 +70,8 @@ class ConditionEditForm(forms.ModelForm):
     class Meta:
         model = Condition
         help_texts = {}
-        fields = ['limit_pre_schedule', 'deadline_pre_schedule', 'holiday_rest', 'reset', 'law_rule',
-                  'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday', 'intern_in_holiday', 'intern_d_only',
-                  'same_day_notice']
+        fields = [
+            'limit_pre_schedule', 'deadline_pre_schedule',
+            'holiday_rest', 'reset', 'law_rule', 'schedule_rule',
+            'admin_in_schedule', 'part_time_in_holiday',
+            'intern_in_holiday', 'intern_d_only', 'same_day_notice']
