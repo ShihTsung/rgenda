@@ -3,10 +3,10 @@
 {% load static %}
 {% block title %}{% trans 'Result' %}{% endblock %}
 {% block content %}
-<script src="{% static "fullcalendar/resource-common/main.js" %}"></script>
-<script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script>
-<script src="{% static "fullcalendar/resource-timeline/main.js" %}"></script>
-<script src="{% static "fullcalendar/resource-daygrid/main.js" %}"></script>
+<script src="{% static "fullcalendar/resource-common/main.min.js" %}"></script>
+<!-- <script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script> -->
+<script src="{% static "fullcalendar/resource-timeline/main.min.js" %}"></script>
+<script src="{% static "fullcalendar/resource-daygrid/main.min.js" %}"></script>
 
 <link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
@@ -15,6 +15,31 @@
 
     </div>
 </div>
+<!-- modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">new event</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <select name="shift" id="shift" class="form-control">
+
+          </select>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+        <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -22,7 +47,39 @@
     var Draggable = FullCalendarInteraction.Draggable;
     var calendarEl = document.getElementById('calendar');
     var initialLocaleCode = 'en';
-    
+    let currInfo = {};
+    let calendar;
+    // 送出資料，新增事件
+    let users = [];
+
+    let sendData = function(){
+      let n = {
+        title: 'The Title', // a property!
+        start: '2020-05-11', // a property!
+        resourceId: '1',
+        
+      }
+      calendar.addEvent(n);
+      console.log(calendar);
+      $('#myModal').modal('hide');
+    }
+    save_btn = document.getElementById('save');
+    save_btn.addEventListener('click', sendData);
+    // 加入班別選項
+    fetch('/api/shifts')
+    .then(res=>{
+      return res.json();
+    })
+    .then(data=>{
+      data.forEach(e=>{
+        option = document.createElement('option');
+        option.text = e.name;
+        option.value = e.id;
+        document.getElementById('shift').add(option);
+      });
+    });
+
+    // fullcalendar 
     calendar = new FullCalendar.Calendar(calendarEl, {
       timeZone: 'UTC',
       editable: true,
@@ -31,8 +88,7 @@
       header: {
         left: 'prev,next',
         center: 'title',
-        right: "resourceTimelineMonth"
-        // right: 'resourceTimelineMonth'
+        right: "resourceTimelineWeek,resourceTimelineMonth"
       },
       columnHeaderFormat: {
         weekday: 'short',
@@ -46,11 +102,27 @@
       slotLabelFormat: [
           {weekday: 'short', month:'numeric', day:'numeric'},
       ],
+      dateClick: function (info) {
+        currInfo = info;
+        $('#myModal').modal('show');
+
+      },
       resourceLabelText: '員工列表',
-      
+      resources: function(fetchInfo, successCallback, failureCallback) {
+        fetch('/api/users/?mode=resource/')
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          data.forEach(e=>{
+            e.title = e.full_name
+          });
+          successCallback(data);
+        });
+      }
     });
     if("{{LANG}}" == 'zh-hant'){
-        calendar.setOption('locale','zh-tw');
+        calendar.setOption('locale', 'zh-tw');
     }
     calendar.render();
     });

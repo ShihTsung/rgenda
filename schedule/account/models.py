@@ -66,12 +66,13 @@ class CustomUser(AbstractUser):
         max_length=20,
         choices=GENDER_CHOICES,
         verbose_name=_('Gender'),
-        default="None")
+        default="Male")
 
     type_of_user = models.CharField(
         max_length=20, choices=TYPE_CHOICES,
         verbose_name=_('Type'),
         default="Normal")
+
     can_be_scheduled = models.BooleanField(
         verbose_name=_('CanBeScheduled'),
         null=True,
@@ -79,7 +80,8 @@ class CustomUser(AbstractUser):
 
     holiday_rest_num = models.IntegerField(
         verbose_name=_('HolidayRestNum'),
-        null=True)
+        null=True,
+        default=10)
 
     holiday_rest_num_used = models.IntegerField(
         verbose_name=_('HolidayRestNumUsed'),
@@ -88,7 +90,8 @@ class CustomUser(AbstractUser):
 
     special_rest_num = models.IntegerField(
         verbose_name=_('SpecialRestNum'),
-        null=True)
+        null=True,
+        default=10)
 
     special_rest_num_used = models.IntegerField(
         verbose_name=_('SpecialRestNumUsed'),

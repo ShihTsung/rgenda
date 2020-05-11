@@ -113,6 +113,14 @@ class ShiftViewSet(viewsets.ModelViewSet):
     serializer_class = ShiftSerializer
     permission_classes = (IsManagerOrReadOnly,)
 
+    def get_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
+        if user.role == 'admin' or user.is_superuser:
+            return queryset
+        else:
+            return queryset.filter(department=user.department)
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GetShiftSerializer

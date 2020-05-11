@@ -73,7 +73,8 @@
         let choosed_days = new Array() // 紀錄目前被選的日期
         let curr_user = {}
         let days = {}
-
+        let max = parseInt("{{max}}")
+        
         fetch('/api/users/curr')
         .then(response=>{
           return response.json()
@@ -107,35 +108,40 @@
             dateClick:function(info){
               if (!locked_days.includes(info.dateStr)){
                 if(!choosed_days.includes(info.dateStr)){
-                  newEvent = {
+                  console.log(choosed_days.length)
+                  if(choosed_days.length < max){
+                    newEvent = {
                     user: curr_user.id,
                     year: info.dateStr.split('-')[0],
                     date: info.dateStr.split('T')[0]
-                  }
-                  fetch('/api/reservations/', 
-                        {
-                          method: "POST",
-                          headers:{
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'content-type': 'application/json'
-                        },
-                        body: JSON.stringify(newEvent)
-                        })
-                  .then(response=>{
-                    return response.json()
-                  })
-                  .then(jsonData=>{
-                    if(jsonData.alarm){
-                      let msg = document.getElementById('message');
-                      msg.style.visibility = '';
-                      msg.classList.add('alert-danger')
-                      msg.innerText = jsonData.alarm
-                      setTimeout(function (){
-                        msg.style.visibility = 'hidden';
-                      }, 5000);
                     }
-                    calendar.refetchEvents();
-                  })
+                    fetch('/api/reservations/', 
+                          {
+                            method: "POST",
+                            headers:{
+                              'X-CSRFToken': '{{ csrf_token }}',
+                              'content-type': 'application/json'
+                          },
+                          body: JSON.stringify(newEvent)
+                          })
+                    .then(response=>{
+                      return response.json()
+                    })
+                    .then(jsonData=>{
+                      if(jsonData.alarm){
+                        let msg = document.getElementById('message');
+                        msg.style.visibility = '';
+                        msg.classList.add('alert-danger')
+                        msg.innerText = jsonData.alarm
+                        setTimeout(function (){
+                          msg.style.visibility = 'hidden';
+                        }, 5000);
+                      }
+                      calendar.refetchEvents();
+                    });
+                  }else{
+                    alert('too many');
+                  }
                 }
               }
             },
@@ -148,6 +154,7 @@
                 }
             },
             eventSources:[{
+              // 每天的資訊
               events: function(fetchInfo, successCallback, failureCallback){
               let url = '/api/dates/'
               start_str = fetchInfo.startStr
@@ -178,7 +185,9 @@
               })
             }
             },{
+              // 已經預定的資料
               events: function(fetchInfo, successCallback, failureCallback){
+                choosed_days = new Array()
                 let url = '/api/reservations/'
                 start_str = fetchInfo.startStr
                 end_str = fetchInfo.endStr
@@ -206,9 +215,16 @@
                     headers:{
                       'X-CSRFToken': '{{ csrf_token }}',  
                     },
-              })
+              }).then(res=>{
+                  calendar.refetchEvents();
+                  console.log(choosed_days)
+              });
               // 點擊事件可以刪除
-              info.event.remove()
+              // index = choosed_days.indexOf(info.event.start.toISOString().split('T')[0])
+              // console.log(index)
+              
+              // info.event.remove();
+              
             },
             header: {
                 left: 'today',
