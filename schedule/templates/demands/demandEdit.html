@@ -18,13 +18,15 @@
                 <tr>
                     <th rowspan="2" scope="col">Station</th>
                     <th rowspan="2" scope="col">Shift</th>
-                    <th colspan="3" scope="col">Weekday</th>
-                    <th colspan="3" scope="col">Holiday</th>
+                    <th colspan="4" scope="col">Weekday</th>
+                    <th colspan="4" scope="col">Holiday</th>
                 </tr>
                 <tr>
+                    <th>Level 4</th>
                     <th>Level 3</th>
                     <th>Level 2</th>
                     <th>Level 1</th>
+                    <th>Level 4</th>
                     <th>Level 3</th>
                     <th>Level 2</th>
                     <th>Level 1</th>
@@ -52,9 +54,11 @@
                     $(tr).append(td_station);
                 }
                 $(tr).append("<td>" + shift + "</td>");
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[4]["id"] + "w").attr("name", val[4]["id"] + "w").val(val[4]["weekday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "w").attr("name", val[3]["id"] + "w").val(val[3]["weekday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "w").attr("name", val[2]["id"] + "w").val(val[2]["weekday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "w").attr("name", val[1]["id"] + "w").val(val[1]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[4]["id"] + "h").attr("name", val[4]["id"] + "h").val(val[4]["holiday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "h").attr("name", val[3]["id"] + "h").val(val[3]["holiday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "h").attr("name", val[2]["id"] + "h").val(val[2]["holiday"])));
                 $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "h").attr("name", val[1]["id"] + "h").val(val[1]["holiday"])));
@@ -71,7 +75,7 @@
 	}
 	table th, table td {
 		vertical-align: middle !important;
-        width: 12.5%;
+        width: 10%;
 	}
 	#btn-submit {
 		margin-left: 0;

@@ -16,10 +16,6 @@ class PreResult(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-    year = models.IntegerField(
-        verbose_name=_('Year'),
-        null=True
-    )
     shift = models.ForeignKey(
         Shift,
         verbose_name=_('Shift'),
@@ -44,10 +40,6 @@ class Result(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-    year = models.IntegerField(
-        verbose_name=_('Year'),
-        null=True
-    )
     shift = models.ForeignKey(
         Shift,
         verbose_name=_('Shift'),
@@ -70,10 +62,6 @@ class AfterResult(models.Model):
         CustomUser,
         verbose_name=_('User'),
         on_delete=models.CASCADE,
-        null=True
-    )
-    year = models.IntegerField(
-        verbose_name=_('Year'),
         null=True
     )
     shift = models.ForeignKey(

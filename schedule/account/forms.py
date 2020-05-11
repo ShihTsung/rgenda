@@ -87,6 +87,10 @@ class CustomUserChangeForm(UserChangeForm):
         widget=forms.widgets.Select(
             choices=TYPE_CHOICES)
     )
+    pregnant = forms.BooleanField(
+        label=_('Pregnant'),
+        required=False,
+    )
     can_be_scheduled = forms.BooleanField(
         label=_('CanBeScheduled'),
         required=False,
