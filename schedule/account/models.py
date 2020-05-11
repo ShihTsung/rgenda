@@ -71,14 +71,12 @@ class CustomUser(AbstractUser):
         max_length=20, choices=TYPE_CHOICES,
         verbose_name=_('Type'),
         default="Normal")
-<<<<<<< HEAD
 
-=======
     pregnant = models.BooleanField(
         verbose_name=_('Pregnant'),
         default=False,
     )
->>>>>>> 4b74df5eb772d2344c44552087821d9b1c5d0c4e
+
     can_be_scheduled = models.BooleanField(
         verbose_name=_('CanBeScheduled'),
         null=True,
