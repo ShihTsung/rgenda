@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect
 from .models import Result, AfterResult, PreResult
 from account.models import CustomUser as User
+from django.contrib.auth.decorators import login_required
 
 
 # 計算總工時
+@login_required
 def cal_workhour(request):
     pass
 
 
 # 計算月工時(可以輸入查找時間)
+@login_required
 def cal_period_workhour(request, start, end):
     if request.user.role == 'admin' or request.user.is_superuser:
         users = User.objects.all()
@@ -29,8 +32,15 @@ def cal_period_workhour(request, start, end):
     return render(request, 'calculation/total_workhour.html', context)
 
 
+@login_required
 def show_results(request):
     lang = request.LANGUAGE_CODE
     context = {'LANG': lang}
-
     return render(request, 'calendars/results.html', context)
+
+
+@login_required
+def user_results(request):
+    lang = request.LANGUAGE_CODE
+    context = {'LANG': lang}
+    return render(request, 'calendars/read_only_results.html', context)

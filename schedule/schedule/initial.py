@@ -111,7 +111,7 @@ def initial(request):
         end_min=30,
         station=Station.objects.first()
     )
-    for i in range(1, 4):
+    for i in range(1, 5):
         demand = DemandOfStation.objects.create(
             shift=shift,
             level=i,

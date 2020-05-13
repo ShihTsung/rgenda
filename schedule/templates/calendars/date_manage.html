@@ -144,9 +144,6 @@
                 },
                 showNonCurrentDates: false,
                 droppable: true,
-                dateClick: function(info){
-                  console.log(info.date.toISOString());
-                },
                 eventClick: function(info){
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
@@ -167,9 +164,11 @@
                 calendar.setOption('locale', 'zh-tw');
             }
             calendar.render();
+            
         });
         saveButton = document.getElementById('save');
         saveButton.addEventListener('click',sendData);
+        
 
 
 </script>

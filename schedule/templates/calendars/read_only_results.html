@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans 'Result' %}{% endblock %}
+{% block content %}
+<script src="{% static "fullcalendar/resource-common/main.min.js" %}"></script>
+<!-- <script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script> -->
+<script src="{% static "fullcalendar/resource-timeline/main.min.js" %}"></script>
+<script src="{% static "fullcalendar/resource-daygrid/main.min.js" %}"></script>
+
+<link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+<div class="container">
+    <div id="calendar">
+
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var Calendar = FullCalendar.Calendar;
+    var Draggable = FullCalendarInteraction.Draggable;
+    var calendarEl = document.getElementById('calendar');
+    var initialLocaleCode = 'en';
+    let currInfo = {};
+    let calendar;
+    let users = [];
+
+
+
+    // fullcalendar 
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      timeZone: 'UTC',
+      editable: false,
+      schedulerLicenseKey: '0780359527-fcs-1573633868',
+      plugins: ['interaction', 'resourceTimeline'],
+      header: {
+        left: 'prev,next, custom2',
+        center: 'title',
+        right: "resourceTimelineWeek,resourceTimelineMonth"
+      },
+      columnHeaderFormat: {
+        weekday: 'short',
+      },
+      aspectRatio: 1.5,
+      resourceAreaWidth: "6rem",
+      defaultView: 'resourceTimelineWeek',
+      slotLabelInterval:{day:1},
+      slotLabelFormat: [
+          {weekday: 'short', day:'numeric'},
+      ], 
+      resourceLabelText: '員工列表',
+      resources: function(fetchInfo, successCallback, failureCallback) {
+        fetch('/api/users/?mode=resource/')
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          data.forEach(e=>{
+            e.title = e.full_name
+          });
+          successCallback(data);
+        });
+      },
+      events: function(fetchInfo, successCallback, failureCallback){
+        let url = '/api/results/?start='
+        url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
+        fetch(url)
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          data.forEach(e=>{
+            e.title = e.shift.name;
+            e.resourceId = e.user.id;
+            console.log(e)
+          });
+          successCallback(data);
+        });
+      }
+    });
+    if("{{LANG}}" == 'zh-hant'){
+        calendar.setOption('locale', 'zh-tw');
+    }
+    calendar.render();
+    });
+
+</script>
+<style>
+    .container{
+        max-width: 90vw;
+    }
+    .fc-custom1-button, .fc-custom2-button{
+        width: 5rem;
+    }
+</style>
+{% endblock %}

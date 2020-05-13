@@ -6,9 +6,10 @@ from shift.models import Shift
 
 
 LEVEL_CHOICES = (
-    (3, _('Leader')),
-    (2, _('Senior')),
-    (1, _('Junior'))
+    (4, _('N4')),
+    (3, _('N3')),
+    (2, _('N2')),
+    (1, _('N1,N'))
 )
 
 """

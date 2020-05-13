@@ -135,7 +135,7 @@ class OnedaySerializer(serializers.ModelSerializer):
 class PreResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 # 排班結果2
 
@@ -143,7 +143,7 @@ class PreResultSerializer(serializers.ModelSerializer):
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 # 排班結果3
 
@@ -151,7 +151,7 @@ class ResultSerializer(serializers.ModelSerializer):
 class AfterResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 
 class GetPreResultSerializer(serializers.ModelSerializer):
@@ -160,7 +160,7 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 
 class GetResultSerializer(serializers.ModelSerializer):
@@ -169,7 +169,7 @@ class GetResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Result
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
@@ -178,7 +178,7 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'year', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime')
 
 
 class ReservationSerializer(serializers.ModelSerializer):

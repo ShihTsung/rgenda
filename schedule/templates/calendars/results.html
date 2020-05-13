@@ -15,7 +15,7 @@
 
     </div>
 </div>
-<!-- modal -->
+<!-- modal  create-->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -41,6 +41,31 @@
 </div>
 
 
+<!-- modal edit-->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">edit event</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <select name="shift" id="edit-shift" class="form-control">
+
+          </select>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal" id="edit-delete">{%trans 'Delete'%}</button>
+        <button type="button" class="btn btn-primary" id="edit-save">{%trans 'Save'%}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
     var Calendar = FullCalendar.Calendar;
@@ -53,14 +78,32 @@
     let users = [];
 
     let sendData = function(){
+      // 新 event
+      let e = document.getElementById('shift')
+      let title = e.options[e.selectedIndex].innerText
+      let selectedId = e.options[e.selectedIndex].value
       let n = {
-        title: 'The Title', // a property!
-        start: '2020-05-11', // a property!
-        resourceId: '1',
-        
+        user: currInfo.resource.id,
+        shift: selectedId,
+        date: currInfo.dateStr
       }
-      calendar.addEvent(n);
-      console.log(calendar);
+      fetch('/api/results/',
+      {
+        method: "POST",
+        headers:{
+          'X-CSRFToken': '{{ csrf_token }}',
+          'content-type': 'application/json'
+      },
+        body: JSON.stringify(n)
+      })
+      .then(res=>{
+        return res.json()
+      })
+      .then(e=>{
+        console.log(e);
+        calendar.refetchEvents();
+      })
+
       $('#myModal').modal('hide');
     }
     save_btn = document.getElementById('save');
@@ -76,36 +119,101 @@
         option.text = e.name;
         option.value = e.id;
         document.getElementById('shift').add(option);
+        option = document.createElement('option');
+        option.text = e.name;
+        option.value = e.id;
+        document.getElementById('edit-shift').add(option);
       });
     });
 
     // fullcalendar 
     calendar = new FullCalendar.Calendar(calendarEl, {
       timeZone: 'UTC',
-      editable: true,
+      editable: false,
       schedulerLicenseKey: '0780359527-fcs-1573633868',
       plugins: ['interaction', 'resourceTimeline'],
       header: {
-        left: 'prev,next',
+        left: 'prev,next, custom2',
         center: 'title',
         right: "resourceTimelineWeek,resourceTimelineMonth"
       },
       columnHeaderFormat: {
         weekday: 'short',
       },
-      customButtons: {
-      },
       aspectRatio: 1.5,
       resourceAreaWidth: "6rem",
       defaultView: 'resourceTimelineWeek',
       slotLabelInterval:{day:1},
       slotLabelFormat: [
-          {weekday: 'short', month:'numeric', day:'numeric'},
-      ],
+          {weekday: 'short', day:'numeric'},
+      ], 
+      customButtons: {
+      custom1: {
+        text: 'save',
+        click: function() {
+          // if (calendar.getOption('editable')==true){
+          //   calendar.setOption('editable',false);
+          //   calendar.setOption('header', {
+          //     left: 'prev,next, custom2',
+          //     center: 'title',
+          //     right: "resourceTimelineWeek,resourceTimelineMonth"
+          //   });
+          //   }
+          window.location='/results'
+          }
+      },
+      custom2: {
+        text: 'edit',
+        click: function() {
+          if (calendar.getOption('editable')==false){
+            calendar.setOption('editable', true);
+            calendar.setOption('header', {
+              left: 'prev,next, custom1',
+              center: 'title',
+              right: "resourceTimelineWeek,resourceTimelineMonth"
+            });
+            }
+          }
+        }
+      },
       dateClick: function (info) {
-        currInfo = info;
-        $('#myModal').modal('show');
-
+        if(calendar.getOption('editable')){
+          currInfo = info;
+          console.log(info)
+          $('#myModal').modal('show');
+        }
+      },
+      eventClick:function(info){
+        if(calendar.getOption('editable')){
+          currInfo = info;
+          $('#editModal').modal('show');
+        }
+      },
+      eventDrop: function(info){
+        console.log(info.event)
+        let update_body = {
+          id: info.event.id,
+          date: info.event.start.toISOString().split('T')[0],
+          shift: info.oldEvent.extendedProps.shift.id,
+        }
+        if(info.newResource){
+          update_body.user = info.newResource.id
+        }
+        fetch('/api/results/'+info.event.id+'/',
+              {
+              method: "PATCH",
+              headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify(update_body)
+            })
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          console.log(data);
+        });
       },
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
@@ -119,17 +227,59 @@
           });
           successCallback(data);
         });
+      },
+      events: function(fetchInfo, successCallback, failureCallback){
+        let url = '/api/results/?start='
+        url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
+        fetch(url)
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          data.forEach(e=>{
+            e.title = e.shift.name;
+            e.resourceId = e.user.id;
+            console.log(e)
+          });
+          successCallback(data);
+        });
       }
     });
     if("{{LANG}}" == 'zh-hant'){
         calendar.setOption('locale', 'zh-tw');
     }
     calendar.render();
+    document.getElementById('edit-delete').addEventListener('click', 
+      function(){
+        let target = currInfo.event.id
+        fetch('/api/results/'+target,
+        {
+        method: "DELETE",
+        headers:{
+          'X-CSRFToken': '{{ csrf_token }}',
+          'content-type': 'application/json'
+        }
+      })
+      .then(res=>{
+        currInfo.event.remove();
+      });
+      });
+    document.getElementById('edit-save').addEventListener('click', 
+      function(){
+        let e = document.getElementById('edit-shift');
+        currInfo.event.setProp("title", e.options[e.selectedIndex].innerText);
+        currInfo.event.setProp("shift", e.options[e.selectedIndex].value);
+        $('#editModal').modal('hide');
+      });
     });
+
 </script>
 <style>
     .container{
         max-width: 90vw;
+    }
+    .fc-custom1-button, .fc-custom2-button{
+        width: 5rem;
     }
 </style>
 {% endblock %}

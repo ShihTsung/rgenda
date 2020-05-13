@@ -75,6 +75,7 @@
 {% endblock %}
 <script>
 	var demands = {{ demands | safe }};
+	console.log(demands)
 	$.each(demands, function(station, shifts){
 		let first_of_station = true;
 		let rowspan = Object.keys(shifts).length;

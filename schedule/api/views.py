@@ -1,23 +1,24 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions, status
 from .serializers import *
-"""(CustomUserSerializer,
-ShiftSerializer,
-StationSerializer,
-DepartmentSerializer,
-GetStationSerializer,
-GetShiftSerializer,
-GetCustomUserSerializer,
-OnedaySerializer,
-ReservationSerializer,
+"""
+CustomUserSerializer
+ShiftSerializer
+StationSerializer
+DepartmentSerializer
+GetStationSerializer
+GetShiftSerializer
+GetCustomUserSerializer
+OnedaySerializer
+ReservationSerializer
 GetReservationSerializer
-ResultSerializer,
-GetResultSerializer,
-PreResultSerializer,
-GetPreResultSerializer,
-AfterResultSerializer,
-GetAfterResultSerializer,
-)"""
+ResultSerializer
+GetResultSerializer
+PreResultSerializer
+GetPreResultSerializer
+AfterResultSerializer
+GetAfterResultSerializer
+"""
 from account.models import CustomUser, Department
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -64,6 +65,21 @@ class IsManagerOrReadOnly(BasePermission):
             cond2 = request.user.role == 'manager'
             cond3 = request.user.is_superuser
             return cond1 or cond2 or cond3
+
+
+"""
+CustomUserViewSet     |帳號 api
+DepartmentViewSet     |部門 api
+ShiftViewSet          |班別 api
+StationViewSet        |工站 api
+OnedayViewSet         |日期 api
+ResultViewSet         |已發布排班結果 api
+PreResultViewSet      |未發布排班結果 api
+AfterResultViewSet    |已執行排班結果 api
+ReservationViewSet    |預排假 api
+DemandViewSet         |人力需求 api
+PromiseShiftViewSet   |管理者排班 api
+"""
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -168,6 +184,15 @@ class ResultViewSet(viewsets.ModelViewSet):
             return GetResultSerializer
         return ResultSerializer
 
+    def get_queryset(self):
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            if not end:
+                end = start
+            return Result.objects.filter(date__range=[start[:10], end[:10]])
+        return Result.objects.all()
+
 
 class PreResultViewSet(viewsets.ModelViewSet):
     queryset = PreResult.objects.all()
@@ -178,6 +203,15 @@ class PreResultViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetPreResultSerializer
         return PreResultSerializer
+
+    def get_queryset(self):
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            if not end:
+                end = start
+            return PreResult.objects.filter(date__range=[start[:10], end[:10]])
+        return PreResult.objects.all()
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
@@ -190,12 +224,22 @@ class AfterResultViewSet(viewsets.ModelViewSet):
             return GetAfterResultSerializer
         return AfterResultSerializer
 
+    def get_queryset(self):
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            if not end:
+                end = start
+            return AfterResult.objects.filter(
+                date__range=[start[:10], end[:10]])
+        return AfterResult.objects.all()
+
 
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
-    # 覆寫 create
 
+    # 覆寫 create
     def create(self, request):
         condition = Condition.objects.get(department=request.user.department)
         max_reserve = condition.same_day_notice

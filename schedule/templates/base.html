@@ -59,7 +59,11 @@
                     Demands</a>
                 <a href="/dates/date_management" class="list-group-item list-group-item-action bg-dark">
                     Dates</a>
+                <a href="/results/" class="list-group-item list-group-item-action bg-dark">
+                    results</a>
                 {% endif %}
+                <a href="/results/read_only" class="list-group-item list-group-item-action bg-dark">
+                    user results</a>
                 <a href="/reserves/reserve" class="list-group-item list-group-item-action bg-dark">
                     Reservation</a>
               </div>
@@ -75,10 +79,7 @@
               
             </div>
             <!-- /#page-content-wrapper -->
-        
           </div>
-        
-        
         {% include 'footer.html' %}
     </main>
     
@@ -93,8 +94,7 @@
             body {
                 margin: 0;
                 padding: 0;
-                background-color: rgba(180, 230, 255, 0.2);
-                
+                background-color: rgba(180, 230, 255, 0.2);   
             }
             main{
                 margin: 0;
@@ -125,24 +125,19 @@
             #wrapper.toggled #page-content-wrapper {
             margin-left: 0;
             }
-            
-
             #sidebar-wrapper a{
                 color:white;
                 text-decoration: none;
             }
-
             #sidebar-wrapper .sidebar-heading {
             padding: 0.875rem 1.25rem;
             font-size: 2rem;
             height: 5rem;
             margin-bottom: 1rem;
             }
-
             #sidebar-wrapper .list-group {
             width: 15rem;
             }
-
             #page-content-wrapper {
             min-width: 100vw;
             width: 100%;
@@ -153,16 +148,12 @@
             -o-transition: margin .25s ease-out;
             transition: margin .25s ease-out;
             }
-
             .rightest, .navbar-toggler{
             -webkit-transition: margin .25s ease-out;
             -moz-transition: margin .25s ease-out;
             -o-transition: margin .25s ease-out;
             transition: margin .25s ease-out;
             }
-           
-
-            
         </style>
 
         {% block scripts %}
@@ -177,7 +168,7 @@
                     function(){
                         let side = document.getElementById('sidebar-wrapper')
                         side.style.transition = 'margin .25s ease-out ';
-                    },1000
+                    },500
                 )
             })
         </script>
