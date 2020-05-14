@@ -71,11 +71,23 @@ class StationSerializer(serializers.ModelSerializer):
 
 class GetShiftSerializer(serializers.ModelSerializer):
     station = StationSerializer()
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+
+    def get_start_time(self, obj):
+        hour = str(obj.start_hour)
+        minute = str(obj.start_min)
+        return ('0'+hour)[-2:]+':'+('0'+minute)[-2:]
+
+    def get_end_time(self, obj):
+        hour = str(obj.end_hour)
+        minute = str(obj.end_min)
+        return ('0'+hour)[-2:]+':'+('0'+minute)[-2:]
 
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'station', 'work_hours')
+        fields = ('id', 'name', 'shift_type', 'start_time',
+                  'end_time', 'station', 'work_hours')
         read_only_fields = ('id',)
 
 # 班別
@@ -157,28 +169,40 @@ class AfterResultSerializer(serializers.ModelSerializer):
 class GetPreResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
     shift = ShiftSerializer()
+    station_name = serializers.SerializerMethodField()
+
+    def get_station_name(self, obj):
+        return obj.shift.station.name
 
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
 
 
 class GetResultSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
-    shift = ShiftSerializer()
+    user = GetCustomUserSerializer()
+    shift = GetShiftSerializer()
+    station_name = serializers.SerializerMethodField()
+
+    def get_station_name(self, obj):
+        return obj.shift.station.name
 
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
 
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
     shift = ShiftSerializer()
+    station_name = serializers.SerializerMethodField()
+
+    def get_station_name(self, obj):
+        return obj.shift.station.name
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
 
 
 class ReservationSerializer(serializers.ModelSerializer):

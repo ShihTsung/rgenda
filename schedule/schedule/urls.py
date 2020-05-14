@@ -27,6 +27,8 @@ from . import mail
 from . import initial
 # other modules
 
+handler404 = 'mainpage.views.handler404'
+handler500 = 'mainpage.views.handler500'
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
