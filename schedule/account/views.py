@@ -301,11 +301,10 @@ def departmentEdit(request, id=None):
     id = int(id)
     department = Department.objects.get(id=id)
     form = DepartmentChangeForm(request.POST or None, instance=department)
-    if form.is_valid():
+    if form.is_valid() and request.method == "POST":
         form.save()
         new_managers = [form.data['mgr1'], form.data['mgr2']]
         users = CustomUser.objects.filter(department=department)
-        print(new_managers)
         for user in users:
             if user.role != 'admin':
                 if str(user.id) in new_managers:

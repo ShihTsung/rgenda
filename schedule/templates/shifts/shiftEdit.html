@@ -22,19 +22,14 @@
                 {{ form.work_hours |as_crispy_field }}
                     
             <div class="col-12 text-center">
-                <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
-                <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
+                <a href="/shifts/list" class="btn btn-secondary btn-lg col-3">Cancel</a>
+                <button class='btn btn-primary btn-lg col-md-3' type="submit">update</button>
             </div>
             </form>
         </div>
     </div>
 </div>
 
-<script>
-    document.getElementById('back').addEventListener('click',
-    function(){
-        window.location.href="/shifts/list"});
-</script>
 <style>
     .card{
     margin-top:5rem;

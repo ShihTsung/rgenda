@@ -38,8 +38,8 @@
                 {{ form.same_day_notice |as_crispy_field }}
 
                 <div class="col-12 text-center">
-                    <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>
-                    <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
+                    <a href="/departments/list" class="btn btn-secondary btn-lg col-3">Cancel</a>
+                    <button class="btn btn-primary btn-lg col-3" type="submit">update</button>
                 </div>
             </form>
         </div>
@@ -47,9 +47,6 @@
 </div>
 
 <script>
-    document.getElementById('back').addEventListener('click', function(){
-        window.location.href="/departments/list";
-    });
     document.addEventListener('DOMContentLoaded', function(){
         let department = "{{id}}";
         let users = [];
@@ -82,7 +79,6 @@
             mgr1.selectedIndex = selected[0];
             mgr2.selectedIndex = selected[1];
         });
-        
     });
 </script>
 <style>
@@ -93,6 +89,9 @@
     }
     .card-body{
         padding: 5rem 10rem;
+    }
+    a.btn{
+        margin: 0;
     }
 </style>
 {% endblock %}
