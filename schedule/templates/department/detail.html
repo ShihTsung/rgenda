@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %} Department Detail {% endblock %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">{% trans 'field' %}</th>
+                <th scope="col">{% trans 'value' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{% trans 'name' %}</td>
+                <td>{{ department.name }}</td>
+            </tr>
+            <tr>
+                <td>{% trans 'detail' %}</td>
+                <td>{{ department.detail }}</td>
+            </tr>
+            <tr>
+                <td>{% trans 'managers' %}</td>
+                <td>
+                    {% for manager in managers %}
+                    <div>{{ manager.full_name }}</div>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'limitPreSchedule' %}</td>
+                <td>{{ department.limit_pre_schedule }} 天</td>
+            </tr>
+            <tr>
+                <td>{% trans 'deadlinePreSchedule' %}</td>
+                <td>每月 {{ department.deadline_pre_schedule }} 號</td>
+            </tr>
+            <tr>
+                <td>{% trans 'reset' %}</td>
+                <td>
+                    {% if department.reset == 0 %}每年1月1號
+                    {% else %}每月1號
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'lawRule' %}</td>
+                <td>
+                    {% if department.law_rule == 0 %}一般工時，7休2
+                    {% elif department.law_rule == 1 %}雙週變形工時，14休4
+                    {% elif department.law_rule == 2 %}四週變形工時，28休8
+                    {% elif department.law_rule == 3 %}八週變形工時，56休16
+                    {% else %}{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'scheduleRule' %}</td>
+                <td>
+                    {% if department.schedule_rule == 0 %}花班
+                    {% elif department.schedule_rule == 1 %}單月同班種
+                    {% elif department.schedule_rule == 2 %}三月同班種
+                    {% else %}{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'adminInSchedule' %}</td>
+                <td>
+                    {% if department.admin_in_schedule %}<i class="fas fa-check"></i>
+                    {% else %}<i class="fas fa-times"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'partTimeInHoliday' %}</td>
+                <td>
+                    {% if department.part_time_in_holiday %}<i class="fas fa-check"></i>
+                    {% else %}<i class="fas fa-times"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'internInHoliday' %}</td>
+                <td>
+                    {% if department.intern_in_holiday %}<i class="fas fa-check"></i>
+                    {% else %}<i class="fas fa-times"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'internDOnly' %}</td>
+                <td>
+                    {% if department.intern_d_only %}<i class="fas fa-check"></i>
+                    {% else %}<i class="fas fa-times"></i>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{% trans 'sameDayNotice' %}</td>
+                <td>{{ department.same_day_notice }} 人</td>
+            </tr>
+        </tbody>
+    </table>
+    {% if user.is_staff %}
+    <a href="/departments/update/{{department.id}}" class="btn btn-lg btn-primary">{% trans 'Edit' %}</a>
+    {% endif %}
+
+</div>
+<style>
+    table {
+        font-size: 1rem;
+        background-color: white;
+        box-shadow: 1px 1px 5px 0;
+    }
+</style>
+
+{% endblock %}

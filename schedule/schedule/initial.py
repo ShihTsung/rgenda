@@ -20,7 +20,6 @@ def initial(request):
     from date.models import Oneday
     from station.models import Station
     from shift.models import Shift
-    from condition.models import Condition
     from demand.models import DemandOfStation
 
     print('clean database')
@@ -31,16 +30,8 @@ def initial(request):
         d.delete()
     print('create departments')
     department = Department.objects.create(name='RD', detail='研發部')
-    condition = Condition.objects.create(
-        department=department,
-    )
-    condition.save()
     department.save()
     department = Department.objects.create(name='FC', detail='財務部')
-    condition = Condition.objects.create(
-        department=department,
-    )
-    condition.save()
     department.save()
 
 # superuser

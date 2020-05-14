@@ -30,7 +30,6 @@ from date.models import Oneday
 from result.models import Result, PreResult, AfterResult
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
-from condition.models import Condition
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -241,8 +240,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
     # 覆寫 create
     def create(self, request):
-        condition = Condition.objects.get(department=request.user.department)
-        max_reserve = condition.same_day_notice
+        max_reserve = request.user.department.same_day_notice
         serializer = ReservationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             # 算出同一天有多少reserve

@@ -11,7 +11,6 @@ from django.contrib.auth import update_session_auth_hash
 from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
-from condition.models import Condition
 from django.http import FileResponse
 from datetime import datetime
 from django.templatetags.static import static
@@ -204,7 +203,7 @@ def download_empty_excel(request):
 
 # 使用者詳細資料
 @login_required
-def detail(request, id):
+def userDetail(request, id):
     user = CustomUser.objects.get(id=id)
     return render(request, 'registration/detail.html', {'target_user': user})
 
@@ -262,10 +261,6 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = Department.objects.last()
-            condition = Condition.objects.create(
-                department=department,
-            )
-            condition.save()
             messages.success(request, "Department was created for "+department.name)
             return redirect('/departments/list')
     context = {'form': form}
@@ -284,9 +279,20 @@ def departmentList(request):
     context = {
         'departments': departments,
         'field_names': field_names,
-        'users': users
+        'users': users,
     }
     return render(request, 'department/departmentList.html', context)
+
+
+@login_required
+def departmentDetail(request, id):
+    department = Department.objects.get(id=id)
+    managers = CustomUser.objects.filter(role='manager', department=department)
+    context = {
+        'department': department,
+        'managers': managers,
+    }
+    return render(request, 'department/detail.html', context)
 
 
 # 編輯部門

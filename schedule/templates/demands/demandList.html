@@ -21,10 +21,9 @@
 	<span id="searchbar" class="d-flex">
 		<i class="fa fa-search"></i>
 		<input type="text" class="form-input" id="myInput" placeholder="Search by">
-		<select class="selectpicker" data-style="btn-info" id="condition"
-			onchange="printOption()">
+		<select class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
 			{% for index, field in field_names %}
-			<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
+			<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</option>>
 			{% endfor %}
 		</select>
 	</span>

@@ -28,11 +28,65 @@ TYPE_CHOICES = (
 
 # Department 模型
 class Department(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_('Department'))
-    detail = models.CharField(max_length=100, verbose_name=_('Detail'))
-    manager_num = models.IntegerField(
-        verbose_name=_('managerNum'),
-        default=2)
+    name = models.CharField(
+        max_length=100,
+        verbose_name=_('Department'),
+    )
+    detail = models.CharField(
+        max_length=100,
+        verbose_name=_('Detail'),
+    )
+    limit_pre_schedule = models.IntegerField(
+        verbose_name=_("LimitPreSchedule"),
+        default=3,
+    )
+    deadline_pre_schedule = models.IntegerField(
+        verbose_name=_("DeadlinePreSchedule"),
+        default=19,
+    )
+    reset = models.IntegerField(
+        verbose_name=_("Reset"),
+        default=0,
+    )
+    law_rule = models.IntegerField(
+        verbose_name=_("LawRule"),
+        default=0,
+        choices=(
+            (0, _('一般工時，7休2')),
+            (1, _('雙週變形工時，14休4')),
+            (2, _('四週變形工時，28休8')),
+            (3, _('八週變形工時，56休16')),
+        ),
+    )
+    schedule_rule = models.IntegerField(
+        verbose_name=_("ScheduleRule"),
+        default=0,
+        choices=(
+            (0, _('花班')),
+            (1, _('單月同班種')),
+            (2, _('三月同班種')),
+        ),
+    )
+    admin_in_schedule = models.BooleanField(
+        verbose_name=_("AdminInSchedule"),
+        default=False,
+    )
+    part_time_in_holiday = models.BooleanField(
+        verbose_name=_("PartTimeInHoliday"),
+        default=False,
+    )
+    intern_in_holiday = models.BooleanField(
+        verbose_name=_("InternInHoliday"),
+        default=False,
+    )
+    intern_d_only = models.BooleanField(
+        verbose_name=_("InternDOnly"),
+        default=True,
+    )
+    same_day_notice = models.IntegerField(
+        verbose_name=_("SameDayNotice"),
+        default=5,
+    )
 
     def __str__(self):
         return self.name

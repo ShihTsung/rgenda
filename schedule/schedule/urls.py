@@ -19,10 +19,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import path, include, re_path
 from django.utils.translation import gettext_lazy as _
-from account.views import (departmentList,
-                           departmentEdit,
-                           departmentCreate,
-                           departmentDelete)
+from account.views import departmentList, departmentEdit, departmentCreate, departmentDelete, departmentDetail
 from . import mail
 from . import initial
 # other modules
@@ -35,10 +32,10 @@ urlpatterns = i18n_patterns(
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),
     path('api/', include('api.urls')),
-    path('condition/', include('condition.urls')),
     path('departments/create', departmentCreate),
     path('departments/update/<int:id>', departmentEdit),
     path('departments/list', departmentList, name="departmentList"),
+    path('departments/<int:id>', departmentDetail),
     path('departments/delete/<int:id>', departmentDelete),
     path('mailtest', mail.mail),
     path('stations/', include('station.urls')),
@@ -48,9 +45,8 @@ urlpatterns = i18n_patterns(
     path('dates/', include('date.urls')),
     path('reserves/', include('reservation.urls')),
     path('results/', include('result.urls')),
-    path('conditions/', include('condition.urls')),
     # path('results', include('result.urls')),
-    prefix_default_language=False
+    prefix_default_language=False,
 )
 
 admin.site.site_header = 'Redfalcon'

@@ -28,7 +28,6 @@ control + C 跳出，再重新 docker-compose up 就行了
 | ----------- | -------------- |
 | account     | 帳號，部門      |
 | api         | API相關        |
-| condition   | 排班條件        |
 | date        | 日期管理        |
 | demand      | 人力需求        |
 | mainpage    | 首頁           |

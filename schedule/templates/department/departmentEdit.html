@@ -17,15 +17,25 @@
                 <div class="form-group">
                     <label for="">manager1</label>
                     <select name="mgr1" id="manager1" class="form-control">
-                        <option value="NULL" selected="selected">---</option> 
+                        <option value="NULL" selected="selected">---</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="">manager2</label>
                     <select name="mgr2" id="manager2" class="form-control">
-                        <option value="NULL" selected="selected">---</option> 
+                        <option value="NULL" selected="selected">---</option>
                     </select>
                 </div>
+                {{ form.limit_pre_schedule |as_crispy_field }}
+                {{ form.deadline_pre_schedule |as_crispy_field }}
+                {{ form.reset |as_crispy_field }}
+                {{ form.law_rule |as_crispy_field }}
+                {{ form.schedule_rule |as_crispy_field }}
+                {{ form.admin_in_schedule |as_crispy_field }}
+                {{ form.part_time_in_holiday |as_crispy_field }}
+                {{ form.intern_in_holiday |as_crispy_field }}
+                {{ form.intern_d_only |as_crispy_field }}
+                {{ form.same_day_notice |as_crispy_field }}
 
                 <div class="col-12 text-center">
                     <button class='btn-secondary btn-lg col-md-3' id="back">Back</button>

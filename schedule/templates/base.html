@@ -47,8 +47,6 @@
                 {% if user.role == 'admin' or user.is_superuser %}
                 <a href="/departments/list" class="list-group-item list-group-item-action 
                 bg-dark">Department</a>
-                <a href="/conditions/list" class="list-group-item list-group-item-action 
-                bg-dark">Condition</a>
                 {% endif %}
                 {% if user.role in 'admin, manager' or user.is_superuser %}
                 <a href="/shifts/list" class="list-group-item list-group-item-action bg-dark">
