@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
 from django.utils.translation import gettext_lazy as _
-from condition.models import Condition
 from django.core.validators import ValidationError
 import os
 
@@ -169,11 +168,71 @@ class DepartmentChangeForm(forms.ModelForm):
         max_length=100,
         empty_value="Null",
         required=False)
+    limit_pre_schedule = forms.IntegerField(
+        label=_("LimitPreSchedule"),
+        min_value=0,
+        max_value=31,
+    )
+    deadline_pre_schedule = forms.ChoiceField(
+        label=_("DeadlinePreSchedule"),
+        required=True,
+        widget=forms.Select,
+        choices=[(i, i) for i in range(1, 29)],
+    )
+    reset = forms.ChoiceField(
+        label=_('Reset'),
+        required=True,
+        widget=forms.Select,
+        choices=[(0, _('PerYear(at 1/1)')), (1, _('PerMonth(at 1)'))],
+    )
+    law_rule = forms.ChoiceField(
+        label=_("LawRules"),
+        required=True,
+        widget=forms.Select,
+        choices=[
+            (0, '一般工時（7休2）'),
+            (1, '雙週變形工時（14休4）'),
+            (2, '四周變形工時（28休8）'),
+            (3, '八週變形工時（56休16）'),
+        ],
+    )
+    schedule_rule = forms.ChoiceField(
+        label=_("RecalWorkHourDate"),
+        required=True,
+        widget=forms.Select,
+        choices=[
+            (0, '花班'),
+            (1, '單月同班種'),
+            (2, '三月同班種'),
+        ],
+    )
+    admin_in_schedule = forms.BooleanField(
+        label=_("AdminInSchedule"),
+        required=False,
+    )
+    part_time_in_holiday = forms.BooleanField(
+        label=_("PartTimeInHoliday"),
+        required=False,
+    )
+    intern_in_holiday = forms.BooleanField(
+        label=_("InternInHoliday"),
+        required=False,
+    )
+    intern_d_only = forms.BooleanField(
+        label=_("InternDOnly"),
+        required=False,
+    )
+    same_day_notice = forms.IntegerField(
+        label=_("SameDayNotice"),
+        required=True,
+        min_value=0,
+    )
 
     class Meta:
         model = Department
         help_texts = {}
-        fields = ['name', 'detail']
+        fields = ['name', 'detail', 'limit_pre_schedule', 'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
+                  'admin_in_schedule', 'part_time_in_holiday', 'intern_in_holiday', 'intern_d_only', 'same_day_notice']
 
 
 class ImportForm(forms.Form):
