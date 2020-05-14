@@ -35,10 +35,10 @@
       <div class="modal-body">
         <form action="">
           <div class="form-grounp">
-            <label for="user">user</label>
+            <label for="user">{%trans 'User'%}</label>
             <select name="user" id="user-select" class="form-control">
             </select>
-            <label for="shift">shift</label>
+            <label for="shift">{%trans 'Shift'%}</label>
             <select name="shift" id="shift-select" class="form-control">
             </select>
           </div>
@@ -48,6 +48,38 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
         <button type="button" class="btn btn-primary" id="save" >{%trans 'Save'%}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- modal edit-->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">edit shift</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <div class="form-row">
+            <label for="edit-user">{%trans 'User'%}</label>
+            <select name="shift" id="edit-user" class="form-control">
+            </select>
+          </div>
+          <div class="form-row">
+          <label for="edit-shift">{%trans 'Shift'%}</label>
+          <select name="shift" id="edit-shift" class="form-control">
+          </select>
+        </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal" id="edit-delete">{%trans 'Delete'%}</button>
+        <button type="button" class="btn btn-primary" id="edit-save">{%trans 'Save'%}</button>
       </div>
     </div>
   </div>
@@ -95,15 +127,17 @@
         var Draggable = FullCalendarInteraction.Draggable;
         var calendarEl = document.getElementById('calendar');
         var initialLocaleCode = 'en';
-        let locked_days = new Array()  // 紀錄被鎖的日期
-        let choosed_days = new Array() // 紀錄目前被選的日期
-        let users = []
-        let days = {}
-        let shifts = []
-        let date = ''
+        let locked_days = new Array();  // 紀錄被鎖的日期
+        let choosed_days = new Array(); // 紀錄目前被選的日期
+        let users = [];
+        let days = {};
+        let shifts = [];
+        let date = '';
+        let currInfo;
 
 // 查詢所有使用者
-        fetch('/api/users/')
+        department = "{{user.department.id}}"
+        fetch('/api/users/?department='+department)
         .then(response=>{
           return response.json()
         })
@@ -111,6 +145,12 @@
           data.forEach(user=>{
             let select = document.getElementById('user-select');
             let option = document.createElement('option');
+            option.setAttribute('value', user.username);
+            option.value = user.id;
+            option.text = user.full_name;
+            select.add(option);
+            select = document.getElementById('edit-user');
+            option = document.createElement('option');
             option.setAttribute('value', user.username);
             option.value = user.id;
             option.text = user.full_name;
@@ -126,6 +166,11 @@
             data.forEach(shift=>{
                 let select = document.getElementById('shift-select');
                 let option = document.createElement('option');
+                option.value = shift.id;
+                option.text = shift.name;
+                select.add(option);
+                select = document.getElementById('edit-shift');
+                option = document.createElement('option');
                 option.value = shift.id;
                 option.text = shift.name;
                 select.add(option);
@@ -180,6 +225,8 @@
                   days[e.start]=e.id
                   if (e.title=='holiday'){
                     e.color='yellow';
+                  }else if(e.extendedProps.locked==true){
+                    e.color='red';
                   }
                   else{
                     e.color='white';
@@ -210,7 +257,6 @@
                     if(e.shift.shift_type=='休假'){
                         e.color = 'red'
                     }
-                    console.log(e)
                     choosed_days.push(e.date)
                   });
                   successCallback(data);
@@ -218,14 +264,12 @@
               }
             }],
             eventClick:function(info){
-              fetch('/api/promises/' + info.event.id + '/', {
-                    method: "DELETE",
-                    headers:{
-                      'X-CSRFToken': '{{ csrf_token }}',  
-                    },
-              })
-              // 點擊事件可以刪除
-              info.event.remove()
+              $('#editModal').modal('show')
+              currInfo = info;
+              user = document.getElementById('edit-user');
+              user.value = info.event.extendedProps.user.id;
+              shift = document.getElementById('edit-shift');
+              shift.value = info.event.extendedProps.shift.id;
             },
             header: {
                 left: 'today',
@@ -271,6 +315,50 @@
                     calendar.refetchEvents();
                     $('#myModal').modal('hide');
                   });
+        });
+        document.getElementById('user-select').addEventListener('change',
+        (event)=>{
+          shiftSelect = document.getElementById('shift-select');
+        })
+        document.getElementById('edit-delete').addEventListener('click',
+        ()=>{
+          let url = '/api/promises/'+ currInfo.event.id + '/';
+          fetch(url, {
+            method: "DELETE",
+            headers:{
+              'X-CSRFToken': '{{ csrf_token }}',  
+            },
+          })
+          .then(res=>{
+            currInfo.event.remove();
+          });
+        });
+        document.getElementById('edit-save').addEventListener('click',
+        ()=>{
+          let url = '/api/promises/'+ currInfo.event.id + '/';
+          let e = document.getElementById("edit-user");
+          let user = e.options[e.selectedIndex].value;
+          e = document.getElementById("edit-shift");
+          let shift = e.options[e.selectedIndex].value;
+          let date = currInfo.event.start.toISOString().split('T')[0]
+          update_data = {
+            'user': user,
+            'year': date.split('-')[0],
+            'date': date,
+            'shift': shift
+          }
+          fetch(url, {
+            method: "PUT",
+            headers:{
+              'X-CSRFToken': '{{ csrf_token }}',
+              'content-type': 'application/json'  
+            },
+            body: JSON.stringify(update_data)
+          }).
+          then(res=>{
+            $('#editModal').modal('hide');
+            calendar.refetchEvents();
+          });
         });
 
 
