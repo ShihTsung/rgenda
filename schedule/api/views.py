@@ -134,7 +134,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         if user.role == 'admin' or user.is_superuser:
             return queryset
         else:
-            return queryset.filter(department=user.department)
+            return queryset.filter(station__department=user.department)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -237,8 +237,9 @@ class AfterResultViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
-
+    permission_classes = (permissions.IsAuthenticated,)
     # 覆寫 create
+
     def create(self, request):
         max_reserve = request.user.department.same_day_notice
         serializer = ReservationSerializer(data=request.data)
@@ -293,6 +294,7 @@ class DemandViewSet(viewsets.ModelViewSet):
 class PromiseShiftViewSet(viewsets.ModelViewSet):
     queryset = PromiseShift.objects.all()
     serializer_class = PromiseShiftSerializer
+    permission_classes = (IsManagerOrReadOnly,)
 
 # 重寫 create 根據 combo 產生複數的班
     def create(self, request, *args, **kwargs):
@@ -325,6 +327,7 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
         start = self.request.query_params.get('start', None)
         end = self.request.query_params.get('end', None)
         if self.request.query_params:
-            return PromiseShift.objects.filter(date__range=[start[:10], end[:10]])
+            return PromiseShift.objects.filter(
+                date__range=[start[:10], end[:10]])
         else:
             return PromiseShift.objects.all()

@@ -16,6 +16,8 @@ from datetime import datetime
 from django.templatetags.static import static
 from collections import defaultdict
 import openpyxl
+from station.models import Station
+from shift.models import Shift
 
 """
 帳號管理
@@ -261,7 +263,25 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = Department.objects.last()
-            messages.success(request, "Department was created for "+department.name)
+            station = Station.objects.create(
+                department=department,
+                name="None")
+            names = ['Request', 'Off', '公假']
+            types = ['休假', '休假', '公假']
+            hours = [0, 0, 8]
+            for i in range(3):
+                shift = Shift.objects.create(
+                    name=names[i],
+                    shift_type=types[i],
+                    start_hour=24,
+                    start_min=0,
+                    end_hour=24,
+                    end_min=0,
+                    station=station,
+                    work_hours=hours[i])
+            messages.success(
+                request,
+                "Department was created for "+department.name)
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)

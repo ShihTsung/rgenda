@@ -46,7 +46,7 @@ urlpatterns = i18n_patterns(
     path('reserves/', include('reservation.urls')),
     path('results/', include('result.urls')),
     # path('results', include('result.urls')),
-    prefix_default_language=False,
+    prefix_default_language=True,
 )
 
 admin.site.site_header = 'Redfalcon'

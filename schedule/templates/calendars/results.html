@@ -89,7 +89,7 @@
         shift: selectedId,
         date: currInfo.dateStr
       }
-      fetch('/api/results/',
+      fetch('/{{LANG}}/api/results/',
       {
         method: "POST",
         headers:{
@@ -110,7 +110,7 @@
     save_btn = document.getElementById('save');
     save_btn.addEventListener('click', sendData);
     // 加入班別選項
-    fetch('/api/shifts')
+    fetch('/{{LANG}}/api/shifts')
     .then(res=>{
       return res.json();
     })
@@ -211,7 +211,7 @@
         if(info.newResource){
           update_body.user = info.newResource.id
         }
-        fetch('/api/results/'+info.event.id+'/',
+        fetch('/{{LANG}}/api/results/'+info.event.id+'/',
               {
               method: "PATCH",
               headers:{
@@ -226,7 +226,7 @@
       },
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/api/users/?mode=resource/')
+        fetch('/{{LANG}}/api/users/?mode=resource/')
         .then(res=>{
           return res.json();
         })
@@ -238,7 +238,7 @@
         });
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/api/results/?start='
+        let url = '/{{LANG}}/api/results/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{
@@ -260,7 +260,7 @@
     document.getElementById('edit-delete').addEventListener('click', 
       function(){
         let target = currInfo.event.id
-        fetch('/api/results/'+target,
+        fetch('/{{LANG}}/api/results/'+target,
         {
         method: "DELETE",
         headers:{

@@ -23,16 +23,44 @@ def initial(request):
     from demand.models import DemandOfStation
 
     print('clean database')
+    Department.objects.all().delete()
     User.objects.all().delete()
-
+    Station.objects.all().delete()
+    Shift.objects.all().delete()
+    Oneday.objects.all().delete()
 # departments
-    for d in Department.objects.all():
-        d.delete()
     print('create departments')
     department = Department.objects.create(name='RD', detail='研發部')
-    department.save()
+    station = Station.objects.create(
+        department=department,
+        name="None")
+    names = ['Request', 'Off', '公假']
+    types = ['休假', '休假', '公假']
+    hours = [0, 0, 8]
+    for i in range(3):
+        shift = Shift.objects.create(
+            name=names[i],
+            shift_type=types[i],
+            start_hour=24,
+            start_min=0,
+            end_hour=24,
+            end_min=0,
+            station=station,
+            work_hours=hours[i])
     department = Department.objects.create(name='FC', detail='財務部')
-    department.save()
+    station = Station.objects.create(
+        department=department,
+        name="None")
+    for i in range(3):
+        shift = Shift.objects.create(
+            name=names[i],
+            shift_type=types[i],
+            start_hour=24,
+            start_min=0,
+            end_hour=24,
+            end_min=0,
+            station=station,
+            work_hours=hours[i])
 
 # superuser
     print('create a super user')
@@ -54,8 +82,6 @@ def initial(request):
 # days
 
     print('create days')
-    for d in Oneday.objects.all():
-        d.delete()
     daystmp = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d')
     work_or_holiday = ""
 
@@ -69,27 +95,12 @@ def initial(request):
         daystmp += datetime.timedelta(days=1)
 
 # station
-    print('create station')
-    for s in Station.objects.all():
-        s.delete()
-    department = Department.objects.first()
-    station = Station.objects.create(name="station1", department=department)
-    names = ['Request', 'Off', '公假']
-    types = ['休假', '休假', '公假']
-    hours = [0, 0, 8]
 
-    for i in range(3):
-        shift = Shift.objects.create(
-            name=names[i],
-            shift_type=types[i],
-            start_hour=24,
-            start_min=0,
-            end_hour=24,
-            end_min=0,
-            station=Station.objects.last(),
-            work_hours=hours[i])
-        shift.save()
-    station.save()
+    print('create station')
+    station = Station.objects.create(
+        department=Department.objects.first(),
+        name='工站一'
+    )
 
 # shift
     print('create shift')
@@ -100,7 +111,7 @@ def initial(request):
         start_min=0,
         end_hour=16,
         end_min=30,
-        station=Station.objects.first()
+        station=station
     )
     for i in range(1, 5):
         demand = DemandOfStation.objects.create(

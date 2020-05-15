@@ -138,7 +138,7 @@
 
 // 查詢所有使用者
         department = "{{user.department.id}}"
-        fetch('/api/users/?department='+department)
+        fetch('/{{LANG}}/api/users/?department='+department)
         .then(response=>{
           return response.json()
         })
@@ -159,7 +159,7 @@
           });
         })
 // 查詢所有班別
-        fetch('/api/shifts')
+        fetch('/{{LANG}}/api/shifts')
         .then(response=>{
           return response.json();  
         })
@@ -218,7 +218,7 @@
                 },
             eventSources:[{
               events: function(fetchInfo, successCallback, failureCallback){
-              let url = '/api/dates/'
+              let url = '/{{LANG}}/api/dates/'
               start_str = fetchInfo.startStr
               end_str = fetchInfo.endStr
               url += '?start=' + start_str + '&end=' + end_str
@@ -246,7 +246,7 @@
             }
             },{
               events: function(fetchInfo, successCallback, failureCallback){
-                let url = '/api/promises/'
+                let url = '/{{LANG}}/api/promises/'
                 start_str = fetchInfo.startStr
                 end_str = fetchInfo.endStr
                 url += '?start=' + start_str + '&end=' + end_str
@@ -308,7 +308,7 @@
                 'shift': shift,
                 'combo': combo
               }
-            fetch('/api/promises/', 
+            fetch('/{{LANG}}/api/promises/', 
                         {
                           method: "POST",
                           headers:{
@@ -321,8 +321,8 @@
                     return response.json()
                   })
                   .then(jsonData=>{
-                    calendar.refetchEvents();
                     $('#myModal').modal('hide');
+                    calendar.refetchEvents();
                   });
         });
         document.getElementById('user-select').addEventListener('change',
@@ -331,7 +331,7 @@
         })
         document.getElementById('edit-delete').addEventListener('click',
         ()=>{
-          let url = '/api/promises/'+ currInfo.event.id + '/';
+          let url = '/{{LANG}}/api/promises/'+ currInfo.event.id + '/';
           fetch(url, {
             method: "DELETE",
             headers:{
@@ -344,7 +344,7 @@
         });
         document.getElementById('edit-save').addEventListener('click',
         ()=>{
-          let url = '/api/promises/'+ currInfo.event.id + '/';
+          let url = '/{{LANG}}/api/promises/'+ currInfo.event.id + '/';
           let e = document.getElementById("edit-user");
           let user = e.options[e.selectedIndex].value;
           e = document.getElementById("edit-shift");

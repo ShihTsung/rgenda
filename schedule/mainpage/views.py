@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from account.models import CustomUser
+from scripts.get_date_range import *
 
 
 # 回傳所有員工類別的統計
@@ -27,12 +28,15 @@ def get_employee_status(dpmt):
 @login_required
 def index(request):
     n, p, i, pt = get_employee_status(request.user.department)
+    start, end = date_range(0, 3)
     context = {
         'LANG': request.LANGUAGE_CODE,
         'Normal': n,
         'Pragnant': p,
         'Intern': i,
-        'PartTime': pt
+        'PartTime': pt,
+        'start': start,
+        'end': end
     }
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html', context)
