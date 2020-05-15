@@ -5,13 +5,14 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="container">
-	<div class="title text-center">
-		<h1>Edit Demand</h1>
+    <div class="title text-center">
+        <h1>Edit Demand</h1>
     </div>
 
     <form method="POST" action="/demands/update">
         {% csrf_token %}
-        <button id="btn-submit" class="btn btn-success" type="submit"><i class="far fa-save"></i></button>
+        <button id="btn-submit" class="btn btn-success" type="submit"><i
+                class="far fa-save"></i></button>
         {{ form.demand | as_crispy_field }}
         <table class="table table-striped text-center" id="myTable">
             <thead class="thead-dark">

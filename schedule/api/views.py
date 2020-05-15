@@ -294,6 +294,28 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     queryset = PromiseShift.objects.all()
     serializer_class = PromiseShiftSerializer
 
+# 重寫 create 根據 combo 產生複數的班
+    def create(self, request, *args, **kwargs):
+        r_data = request.data
+        combo = int(r_data['combo'])
+        date_obj = datetime.strptime(r_data['date'], '%Y-%m-%d')
+        if combo > 10:
+            return Response(
+                'can not create more than 10 promise per time',
+                status=status.HTTP_400_BAD_REQUEST)
+        for i in range(combo):
+            r_data['date'] = date_obj.strftime('%Y-%m-%d')
+            r_data['year'] = r_data['date'][:4]
+            serializer = self.get_serializer(data=r_data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            date_obj += timedelta(days=1)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers)
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GetPromiseShiftSerializer

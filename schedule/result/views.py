@@ -3,29 +3,7 @@ from .models import Result, AfterResult, PreResult
 from account.models import CustomUser as User
 from django.contrib.auth.decorators import login_required
 import datetime
-
-
-def zeroPadding(num, digit):
-    zero = ""
-    for i in range(digit):
-        zero += '0'
-    return (zero + str(num))[-digit:]
-
-
-def get_start_date():
-    now = datetime.datetime.now()
-    year = str(now.year)
-    month = str(now.month)
-    start = zeroPadding(year, 4) + '-' + zeroPadding(month, 2) + '-01'
-    return start
-
-
-def get_end_date(num):
-    now = datetime.datetime.now()
-    year = now.year
-    month = now.month + num
-    end = zeroPadding(year, 4) + '-' + zeroPadding(month, 2) + '-01'
-    return end
+from scripts.get_date_range import *
 
 # 計算總工時
 @login_required
@@ -58,16 +36,14 @@ def cal_period_workhour(request, start, end):
 @login_required
 def show_results(request):
     lang = request.LANGUAGE_CODE
-    start = get_start_date()
-    end = get_end_date(3)
+    start, end = date_range(0, 3)
     context = {'LANG': lang, 'start': start, 'end': end}
     return render(request, 'calendars/results.html', context)
 
 
 @login_required
 def user_results(request):
-    start = get_start_date()
-    end = get_end_date(3)
+    start, end = date_range(0, 3)
     lang = request.LANGUAGE_CODE
     context = {'LANG': lang, 'start': start, 'end': end}
     return render(request, 'calendars/read_only_results.html', context)

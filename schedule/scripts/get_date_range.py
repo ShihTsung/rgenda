@@ -1,15 +1,33 @@
 import datetime
 import calendar
 
+# 格式化
 
-def range():
+
+def zeroPadding(num, digit):
+    zero = ""
+    for i in range(digit):
+        zero += '0'
+    return (zero + str(num))[-digit:]
+
+
+def get_date(num):
     now = datetime.datetime.now()
-    month = now.month + 1
-    if month == 13:
-        month = 1
-    day_num = calendar.monthrange(now.year, month)[1]
-    month_str = '0' + str(month) if len(str(month)) == 1 else str(month)
-    start = str(now.year) + '-' + month_str + '-' + '01'
-    end = str(now.year) + '-' + month_str + '-' + str(day_num)
+    year = now.year
+    month = now.month + num
+    if month > 12:
+        year += 1
+        month -= 12
+    date = zeroPadding(year, 4) + '-' + zeroPadding(month, 2) + '-01'
+
+    return date
+
+# 抓範圍，可自訂長度
+
+
+def date_range(m, n):
+
+    start = get_date(m)
+    end = get_date(n)
 
     return [start, end]

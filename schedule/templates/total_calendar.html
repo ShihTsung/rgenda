@@ -47,6 +47,7 @@
       },
       resourceAreaWidth: "6rem",
       defaultView: 'resourceTimelineWeek',
+      defaultDate: "{{start}}",
       slotLabelInterval:{day:1},
       slotLabelFormat: [
           {weekday: 'short', day:'numeric'},
@@ -85,6 +86,9 @@
           data.forEach(e=>{
             e.title = e.shift.name;
             e.resourceId = e.user.id;
+            if (e.shift.shift_type == '休假'){
+              e.color = 'red';
+            }
           });
           successCallback(data);
         });

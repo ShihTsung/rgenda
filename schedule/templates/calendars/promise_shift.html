@@ -41,6 +41,9 @@
             <label for="shift">{%trans 'Shift'%}</label>
             <select name="shift" id="shift-select" class="form-control">
             </select>
+            <label for="combo">{%trans 'Combo'%}</label>
+            <input name="combo" type="text" id="combo" class="form-control" value="1">
+            </input>
           </div>
           <br>
         </form>
@@ -94,7 +97,6 @@
         margin: 0;
         padding: 0;
     }
-
     #calendar {
         padding: 2rem;
         max-width: 900px;
@@ -112,7 +114,6 @@
       font-size: 1rem;
       text-align: center;
     }
-
 </style>
 {% endblock %}
 
@@ -200,6 +201,7 @@
             dateClick:function(info){
                 $('#myModal').modal('show');
                 $('#exampleModalLabel').text(info.dateStr);
+                document.getElementById('combo').value =  '1';
                 date = info.dateStr;
             },
             customButtons: {
@@ -210,6 +212,10 @@
                     }
                 }
             },
+            validRange:{
+                  start: "{{start}}",
+                  end: "{{end}}"
+                },
             eventSources:[{
               events: function(fetchInfo, successCallback, failureCallback){
               let url = '/api/dates/'
@@ -293,12 +299,15 @@
             user = e.options[e.selectedIndex].value;
             e = document.getElementById("shift-select");
             shift = e.options[e.selectedIndex].value;
-            new_shift = {
+            combo = document.getElementById('combo').value;
+
+              new_shift = {
                 'user': user,
                 'year': date.split('-')[0],
                 'date': date,
-                'shift': shift
-            }
+                'shift': shift,
+                'combo': combo
+              }
             fetch('/api/promises/', 
                         {
                           method: "POST",

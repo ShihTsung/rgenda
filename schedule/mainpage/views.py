@@ -40,12 +40,14 @@ def index(request):
         return render(request, 'mainpage/employee_index.html', context)
 
 
+# 處理  404
 def handler404(request, exception, template_name="404.html"):
     response = render(request, template_name)
     response.status_code = 404
     return response
 
 
+# 處理500
 def handler500(request, *args, **argv):
     response = render(request, '500.html', {})
     response.status_code = 500
