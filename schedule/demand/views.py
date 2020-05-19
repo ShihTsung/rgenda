@@ -69,12 +69,13 @@ def demand_edit(request):
     demand_dict = defaultdict(lambda: defaultdict(dict))
     for demand in demands:
         cond1 = demand.shift.station.department == request.user.department
-        cond2 = request.user.role=='admin'
+        cond2 = request.user.role == 'admin'
         if cond1 or cond2 or is_super:
             demand_dict[demand.shift.station.name][str(demand.shift)][demand.level] = {
                 'id': demand.id,
                 'weekday': demand.weekday,
                 'holiday': demand.holiday,
+                'LANG': request.LANGUAGE_CODE
             }
     form = DemandEditForm()
     context = {

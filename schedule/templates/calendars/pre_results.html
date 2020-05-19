@@ -87,9 +87,10 @@
       let n = {
         user: currInfo.resource.id,
         shift: selectedId,
-        date: currInfo.dateStr
+        date: currInfo.dateStr,
+        overtime: 0
       }
-      fetch('/{{LANG}}/api/results/',
+      fetch('/{{LANG}}/api/preresults/',
       {
         method: "POST",
         headers:{
@@ -215,7 +216,7 @@
         if(info.newResource){
           update_body.user = info.newResource.id
         }
-        fetch('/{{LANG}}/api/results/'+info.event.id+'/',
+        fetch('/{{LANG}}/api/preresults/'+info.event.id+'/',
               {
               method: "PATCH",
               headers:{
@@ -242,7 +243,7 @@
         });
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/{{LANG}}/api/results/?start='
+        let url = '/{{LANG}}/api/preresults/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{
@@ -264,7 +265,7 @@
     document.getElementById('edit-delete').addEventListener('click', 
       function(){
         let target = currInfo.event.id
-        fetch('/{{LANG}}/api/results/'+target,
+        fetch('/{{LANG}}/api/preresults/'+target,
         {
         method: "DELETE",
         headers:{

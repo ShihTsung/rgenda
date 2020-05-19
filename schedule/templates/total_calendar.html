@@ -47,14 +47,14 @@
       },
       resourceAreaWidth: "6rem",
       defaultView: 'resourceTimelineWeek',
-      defaultDate: "{{start}}",
+      defaultDate: "{{default}}",
       slotLabelInterval:{day:1},
       slotLabelFormat: [
           {weekday: 'short', day:'numeric'},
-      ], 
+      ],
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/api/users/?mode=resource/')
+        fetch('/{{LANG}}/api/users/?mode=resource/')
         .then(res=>{
           return res.json();
         })
@@ -76,7 +76,7 @@
         $(info.el).tooltip('dispose');
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/api/results/?start='
+        let url = '/{{LANG}}/api/{{results}}/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{

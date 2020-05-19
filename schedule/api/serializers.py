@@ -168,7 +168,7 @@ class AfterResultSerializer(serializers.ModelSerializer):
 
 class GetPreResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
-    shift = ShiftSerializer()
+    shift = GetShiftSerializer()
     station_name = serializers.SerializerMethodField()
 
     def get_station_name(self, obj):
@@ -194,7 +194,7 @@ class GetResultSerializer(serializers.ModelSerializer):
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
-    shift = ShiftSerializer()
+    shift = GetShiftSerializer()
     station_name = serializers.SerializerMethodField()
 
     def get_station_name(self, obj):

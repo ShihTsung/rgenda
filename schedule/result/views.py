@@ -32,7 +32,7 @@ def cal_period_workhour(request, start, end):
 
     return render(request, 'calculation/total_workhour.html', context)
 
-
+# 秀出正式班表
 @login_required
 def show_results(request):
     lang = request.LANGUAGE_CODE
@@ -40,10 +40,79 @@ def show_results(request):
     context = {'LANG': lang, 'start': start, 'end': end}
     return render(request, 'calendars/results.html', context)
 
-
+# 唯讀班表
 @login_required
 def user_results(request):
     start, end = date_range(0, 3)
     lang = request.LANGUAGE_CODE
-    context = {'LANG': lang, 'start': start, 'end': end}
+    context = {
+        'LANG': lang,
+        'start': start,
+        'end': end,
+        'results': 'results',
+        'default': start}
     return render(request, 'calendars/read_only_results.html', context)
+
+# 排完未發布班表
+@login_required
+def show_pre_result(request):
+    start, end = date_range(0, 2)
+    lang = request.LANGUAGE_CODE
+    context = {'LANG': lang, 'start': start, 'end': end}
+    return render(request, 'calendars/pre_results.html', context)
+
+# 歷史班表
+@login_required
+def show_after_result(request):
+    start, end = date_range(-12, 0)
+    lang = request.LANGUAGE_CODE
+    context = {
+        'LANG': lang,
+        'start': start,
+        'end': end,
+        'results': 'afterresults',
+        'default': end}
+    return render(request, 'calendars/history_results.html', context)
+
+# 班表發布
+@login_required
+def publish_result(request):
+    lang = request.LANGUAGE_CODE
+    results = PreResult.objects.all()
+    for result in results:
+        if result.shift.station.department == request.user.department:
+            Result.objects.create(
+                shift=result.shift,
+                user=result.user,
+                date=result.date,
+                overtime=result.overtime)
+            result.delete()
+    start, end = date_range(0, 2)
+    context = {'LANG': lang, 'start': start, 'end': end}
+    return render(request, 'calendars/results.html', context)
+
+# 現在班表轉歷史班表
+@login_required
+def result_to_history(request):
+    lang = request.LANGUAGE_CODE
+    start, end = date_range(-1, 0)
+    results = Result.objects.filter(
+        date__range=[start, end])
+    for result in results:
+        if result.shift.station.department == request.user.department:
+            AfterResult.objects.create(
+                shift=result.shift,
+                user=result.user,
+                date=result.date,
+                overtime=result.overtime)
+            result.delete()
+    start, end = date_range(0, 2)
+    context = {
+        'LANG': lang,
+        'start': start,
+        'end': end,
+        'results': 'afterresults',
+        'default': end
+    }
+
+    return render(request, 'calendars/history_results.html', context)

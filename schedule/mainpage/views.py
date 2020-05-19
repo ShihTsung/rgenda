@@ -36,7 +36,9 @@ def index(request):
         'Intern': i,
         'PartTime': pt,
         'start': start,
-        'end': end
+        'end': end,
+        'results': 'results',
+        'default': start
     }
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html', context)

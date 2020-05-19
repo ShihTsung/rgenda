@@ -15,9 +15,13 @@ def get_date(num):
     now = datetime.datetime.now()
     year = now.year
     month = now.month + num
-    if month > 12:
+    while month > 12:
         year += 1
         month -= 12
+    while month < 1:
+        year -= 1
+        month += 12
+
     date = zeroPadding(year, 4) + '-' + zeroPadding(month, 2) + '-01'
 
     return date
