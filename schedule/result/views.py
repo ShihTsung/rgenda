@@ -56,7 +56,6 @@ def user_results(request):
         'default': start}
     return render(request, 'calendars/read_only_results.html', context)
 
-<<<<<<< HEAD
 # 排完未發布班表
 @login_required
 def show_pre_result(request):
@@ -120,7 +119,7 @@ def result_to_history(request):
     }
 
     return redirect('/'+lang+'/results/after_results')
-=======
+
 
 def check_result(request):
     invalid = defaultdict(list)
@@ -260,4 +259,3 @@ def check_same_in_months(data, output):
             if d['type'] in ['白班', '小夜', '大夜']:
                 shift_type = d['type']
     return None
->>>>>>> d652fe24f00f0c1d91154421f075b1256d53ed24
