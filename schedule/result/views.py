@@ -89,7 +89,7 @@ def publish_result(request):
             result.delete()
     start, end = date_range(0, 2)
     context = {'LANG': lang, 'start': start, 'end': end}
-    return render(request, 'calendars/results.html', context)
+    return redirect('/'+lang+'/results')
 
 # 現在班表轉歷史班表
 @login_required
@@ -115,4 +115,4 @@ def result_to_history(request):
         'default': end
     }
 
-    return render(request, 'calendars/history_results.html', context)
+    return redirect('/'+lang+'/results/after_results')
