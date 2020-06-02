@@ -72,7 +72,7 @@
         <td>{{shift.shift_type}}</td>
         <td>{{shift.show_start_hour}} : {{shift.show_start_min}}</td>
         <td>{{shift.show_end_hour}} : {{shift.show_end_min}}</td>
-        <td>{{shift.station}}</td>
+        <td>{{shift.station.department}}-{{shift.station}}</td>
         <td>{{shift.work_hours}}</td>
         {% if user.role in "admin,manager" or user.is_superuser %}
         <td>
@@ -94,6 +94,10 @@
     table{
         background-color: white;
         box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+    }
+    *:focus{
+      outline: none;
+      border-color: inherit;
     }
 </style>
 {% block head %}

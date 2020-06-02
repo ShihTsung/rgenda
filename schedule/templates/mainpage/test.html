@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}test{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    {% for demand in demands %}
+    <div>
+        {{demand.shift}}
+        {{demand.level}}
+        {{demand.weekday}}
+        {{demand.holiday}}
+    </div>
+    {% endfor %}
+    {% for key, value in days.items %}
+    {{key}} {{value.num}}<br>
+    {{value.type_demand}}<br>
+    {% endfor %}
+    {% for user in users %}
+    {{user.username}}
+    {% endfor %}
+</div>
+
+
+{% endblock %}

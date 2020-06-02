@@ -131,14 +131,20 @@ def check_result(request):
     end_date_month = end_date.month
     for result in results:
         if result.shift.start_hour == 24:
-            start = datetime.combine(result.date, time(hour=0, minute=result.shift.start_min)) + timedelta(days=1)
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
+            start = datetime.combine(result.date, time(
+                hour=0, minute=result.shift.start_min)) + timedelta(days=1)
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
         elif result.shift.start_hour > result.shift.end_hour:
-            start = datetime.combine(result.date, time(hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
+            start = datetime.combine(result.date, time(
+                hour=result.shift.start_hour, minute=result.shift.start_min))
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
         else:
-            start = datetime.combine(result.date, time(hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min))
+            start = datetime.combine(result.date, time(
+                hour=result.shift.start_hour, minute=result.shift.start_min))
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min))
         data[result.user.id].append({
             'id': result.id,
             'class': 'Result',
@@ -147,16 +153,23 @@ def check_result(request):
             'start': start,
             'end': end,
         })
+    # 整理資料，合併兩個月的班表成一個 list
     for result in pre_results:
         if result.shift.start_hour == 24:
-            start = datetime.combine(result.date, time(hour=0, minute=result.shift.start_min)) + timedelta(days=1)
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
+            start = datetime.combine(result.date, time(
+                hour=0, minute=result.shift.start_min)) + timedelta(days=1)
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
         elif result.shift.start_hour > result.shift.end_hour:
-            start = datetime.combine(result.date, time(hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
+            start = datetime.combine(result.date, time(
+                hour=result.shift.start_hour, minute=result.shift.start_min))
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
         else:
-            start = datetime.combine(result.date, time(hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min))
+            start = datetime.combine(result.date, time(
+                hour=result.shift.start_hour, minute=result.shift.start_min))
+            end = datetime.combine(result.date, time(
+                hour=result.shift.end_hour, minute=result.shift.end_min))
         data[result.user.id].append({
             'id': result.id,
             'class': 'PreResult',
@@ -165,15 +178,18 @@ def check_result(request):
             'start': start,
             'end': end,
         })
-    attrs = attr_list(start_date, end_date)
+    attrs = attr_list(start_date, end_date)  # 撈出每天平假日
     for user_id in data:
         user = User.objects.get(id=user_id)
-        check_holiday_rest(data[user_id], attrs, user.holiday_rest_num - user.holiday_rest_num_used, invalid)
+        check_holiday_rest(
+            data[user_id], attrs, user.holiday_rest_num - user.holiday_rest_num_used, invalid)
         check_law_rule(data[user_id], user.department.law_rule, invalid)
         if user.pregnant or user.type_of_user == 'Intern' and user.department.intern_d_only:
             check_d_only(data[user_id], invalid)
+        # 實習兼職不值假日班
         if user.type_of_user == 'Intern' and not user.department.intern_in_holiday or user.type_of_user == 'PartTime' and not user.department.part_time_in_holiday:
-            check_workday_only(data[user_id], attr_list, invalid)
+            check_workday_only(data[user_id], attrs, invalid)
+        # 醫院規則
         if user.department.schedule_rule == 1:
             check_same_in_month(data[user_id], invalid)
         if user.department.schedule_rule == 2:
@@ -190,7 +206,8 @@ def check_holiday_rest(data, attrs, holiday_rest_num, output):
         if data[i]['type'] in ['休假', 'oncall'] and attrs[i] == 'holiday':
             holiday_rest_num -= 1
             if holiday_rest_num < 0:
-                output[data[i]['class'] + '-' + data[i]['id']].append('可休假假日數已用完')
+                output[data[i]['class'] + '-' +
+                       data[i]['id']].append('可休假假日數已用完')
     return None
 
 

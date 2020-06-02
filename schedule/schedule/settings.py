@@ -27,12 +27,14 @@ SECRET_KEY = '3mi1ba0@-#df52x1s@-3a^tzb%a6bx^z(0!ijyi25^o2f)+@u3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.55', '124.219.88.108']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.55', '124.219.88.108']
 
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,9 +52,16 @@ INSTALLED_APPS = [
     'shift',
     'date',
     'reservation',
+    'notifications',
+    'notice'
+]
+
+CRONJOBS = [
+    ('* */1 * * *', 'schedule.cron.cron_job', '>>/code/test.log')
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -177,3 +186,4 @@ AUTH_USER_MODEL = 'account.CustomUser'  # new
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+STATIC_ROOT = '/code/schedule/prod_static/'

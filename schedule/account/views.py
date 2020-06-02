@@ -18,6 +18,8 @@ from collections import defaultdict
 import openpyxl
 from station.models import Station
 from shift.models import Shift
+from notifications.signals import notify
+
 
 """
 帳號管理
@@ -76,14 +78,16 @@ def userList(request):
         for user in users:
             if user.role == 'manager':
                 manager_num[user.departmant.name] += 1
-        departments = [department.name for department in Department.objects.all()]
+        departments = [
+            department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
         if row0 != ('Username', 'Email address', 'Full name', 'Department', 'Level', 'Gender', 'Role', 'Type', 'Employee ID', 'Onboard Date'):
             messages.error(request, row0)
             return redirect('/accounts/list')
         for row in ws.iter_rows(values_only=True, min_row=3):
-            error_message = check_excel(row, usernames, departments, eids, manager_num, raw_data)
+            error_message = check_excel(
+                row, usernames, departments, eids, manager_num, raw_data)
             if error_message:
                 messages.error(request, error_message)
                 return redirect('/accounts/list')
@@ -282,6 +286,8 @@ def departmentCreate(request):
             messages.success(
                 request,
                 "Department was created for "+department.name)
+            notify.send(department, recipient=CustomUser.objects.all(),
+                        verb='department created')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
@@ -294,7 +300,7 @@ def departmentList(request):
     field_names = [
         (0, 'name'),
         (1, 'detail')
-        ]
+    ]
     users = CustomUser.objects.all()
     context = {
         'departments': departments,

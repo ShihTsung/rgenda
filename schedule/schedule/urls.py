@@ -23,6 +23,8 @@ from account.views import departmentList, departmentEdit, departmentCreate, depa
 from . import mail
 from . import initial
 # other modules
+import notifications.urls
+import notice.urls
 
 handler404 = 'mainpage.views.handler404'
 handler500 = 'mainpage.views.handler500'
@@ -45,6 +47,9 @@ urlpatterns = i18n_patterns(
     path('dates/', include('date.urls')),
     path('reserves/', include('reservation.urls')),
     path('results/', include('result.urls')),
+    re_path('^inbox/notifications/',
+            include(notifications.urls, namespace='notifications')),
+    path('notice/', include('notice.urls', namespace='notice')),
     # path('results', include('result.urls')),
     prefix_default_language=True,
 )

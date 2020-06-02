@@ -101,27 +101,37 @@ def initial(request):
         department=Department.objects.first(),
         name='工站一'
     )
+    station = Station.objects.create(
+        department=Department.objects.first(),
+        name='工站二'
+    )
+    station = Station.objects.create(
+        department=Department.objects.first(),
+        name='工站三'
+    )
 
 # shift
     print('create shift')
-    shift = Shift.objects.create(
-        name="shift1",
-        shift_type="白班",
-        start_hour=8,
-        start_min=0,
-        end_hour=16,
-        end_min=30,
-        station=station
-    )
-    for i in range(1, 5):
-        demand = DemandOfStation.objects.create(
-            shift=shift,
-            level=i,
-            weekday=0,
-            holiday=0
+    for i in range(7):
+        st = random.choice(['白班', '小夜', '大夜'])
+        shift = Shift.objects.create(
+            name="shift"+str(i),
+            shift_type=st,
+            start_hour=8,
+            start_min=0,
+            end_hour=16,
+            end_min=30,
+            station=station
         )
-        demand.save()
-    shift.save()
+        for i in range(1, 5):
+            demand = DemandOfStation.objects.create(
+                shift=shift,
+                level=i,
+                weekday=0,
+                holiday=0
+            )
+            demand.save()
+        shift.save()
 
     print('finish')
 

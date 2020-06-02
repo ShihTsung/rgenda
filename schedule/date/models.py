@@ -7,3 +7,6 @@ class Oneday(models.Model):
     date = models.DateField(verbose_name=_('Date'))
     attribute = models.CharField(max_length=100, verbose_name=_('Attr'))
     locked = models.BooleanField(verbose_name=_('Locked'), default=False)
+
+    def __str__(self):
+        return str(self.date)
