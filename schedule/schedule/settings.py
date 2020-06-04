@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,9 +55,6 @@ INSTALLED_APPS = [
     'notice'
 ]
 
-CRONJOBS = [
-    ('* * * * *', 'schedule.test.cron', '>>/code/test.log2>&1')
-]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
