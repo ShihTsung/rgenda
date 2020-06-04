@@ -57,7 +57,7 @@ INSTALLED_APPS = [
 ]
 
 CRONJOBS = [
-    ('* */1 * * *', 'schedule.cron.cron_job', '>>/code/test.log')
+    ('* * * * *', 'schedule.test.cron', '>>/code/test.log2>&1')
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

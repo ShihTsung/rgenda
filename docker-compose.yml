@@ -27,7 +27,7 @@ services:
       - app
   app:
     restart: always
-    build: ./schedule # Current directory!
+    build: ./schedule 
     # command: bash -c "cd schedule && python3 manage.py crontab add && python3 manage.py makemigrations && python3 manage.py migrate &&  python3 manage.py runserver 0.0.0.0:80"
     command: 
       - /bin/sh
@@ -46,3 +46,13 @@ services:
     #   - 80:80
     depends_on:
       - db
+  cron:
+    build: ./schedule
+    container_name: cronjob
+    command: 
+      - /bin/sh
+      - -c
+      - cron -f
+    volumes:
+      - .:/code
+      - ./schedule:/code/schedule

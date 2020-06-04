@@ -38,6 +38,11 @@ def get_employee_status(dpmt):
             continue
     return return_data
 
+
+# 回傳所有員工特定時間的總工時
+# def get_total_workhour_by_time(time, )
+
+
 # 首頁，分為使用者與管理者兩種
 @login_required
 def index(request):
@@ -137,8 +142,8 @@ def schedule_test(request):
     def zero():
         return 0
 
-    results = {}
-
+    results = {u.username: {i: '' for i in days.keys()} for u in user_list}
+    print(results)
     # 對每天遍歷
     for i in days.keys():
         days[i].type_demand = collections.defaultdict(zero)
@@ -180,7 +185,7 @@ def schedule_test(request):
                         choosed_shift = random.choice(
                             choosable[str(user_dict[u].level)])
 
-                results[(i, u)] = [user_dict[u], choosed_shift]
+                results[u][i] = choosed_shift
 
     # print(a is b)
     print(results)
@@ -193,3 +198,13 @@ def schedule_test(request):
     # 隨機取一人一班別指派
 
     return render(request, 'mainpage/test.html', context)
+
+"""
+{人:
+    {日期:
+        工作站
+
+    }
+
+}
+"""
