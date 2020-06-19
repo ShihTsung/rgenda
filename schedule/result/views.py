@@ -64,6 +64,7 @@ def show_pre_result(request):
     context = {'LANG': lang, 'start': start, 'end': end}
     return render(request, 'calendars/pre_results.html', context)
 
+
 # 歷史班表
 @login_required
 def show_after_result(request):
@@ -122,13 +123,14 @@ def result_to_history(request):
 
 
 def check_result(request):
-    invalid = defaultdict(list)
+    invalid = defaultdict(list)   # 不和規則的集合
     results = Result.objects.order_by('date')
     pre_results = PreResult.objects.order_by('date')
     data = defaultdict(list)
     start_date = results[0].date
     end_date = pre_results[-1].date if pre_results else results[-1].date
     end_date_month = end_date.month
+
     for result in results:
         if result.shift.start_hour == 24:
             start = datetime.combine(result.date, time(
@@ -199,6 +201,8 @@ def check_result(request):
                 check_same_in_months(data[user_id], invalid)
     return invalid
 
+# 檢查剩餘假日休假
+
 
 def check_holiday_rest(data, attrs, holiday_rest_num, output):
     for i in range(len(data)):
@@ -209,6 +213,8 @@ def check_holiday_rest(data, attrs, holiday_rest_num, output):
                 output[data[i]['class'] + '-' +
                        data[i]['id']].append('可休假假日數已用完')
     return None
+
+# 檢查法規
 
 
 def check_law_rule(data, rule, output):
@@ -235,6 +241,8 @@ def check_law_rule(data, rule, output):
         work_list.pop(0)
     return None
 
+# 不可值夜班
+
 
 def check_d_only(data, output):
     for d in data:
@@ -242,12 +250,16 @@ def check_d_only(data, output):
             output[d['class'] + '-' + d['id']].append('不可值夜班')
     return None
 
+# 不可執假日班
+
 
 def check_workday_only(data, attrs, output):
     for i in range(len(data)):
         if not data[i]['type'] in ['休假', 'oncall'] and attrs[i] == 'holiday':
             output[data[i]['class'] + '-' + data[i]['id']].append('不可值假日班')
     return None
+
+# 單月同班
 
 
 def check_same_in_month(data, output):
@@ -264,6 +276,8 @@ def check_same_in_month(data, output):
             if d['type'] in ['白班', '小夜', '大夜']:
                 shift_type = d['type']
     return None
+
+# 多月同班
 
 
 def check_same_in_months(data, output):

@@ -80,6 +80,9 @@ def handler500(request, *args, **argv):
 
 
 def get_demands(request):
+    """
+    回傳清單，限制同部門的
+    """
     demands = DemandOfStation.objects.all()
     demand_list = []
     for d in demands:
@@ -98,6 +101,9 @@ def get_shifts(request):
 
 
 def get_users(request):
+    """
+    回傳清單，清單內是每個使用者的物件
+    """
     users = CustomUser.objects.filter(
         can_be_scheduled=True,
         department=request.user.department)
@@ -107,6 +113,11 @@ def get_users(request):
 
 
 def get_dates():
+    """
+    回傳字典
+    key: 每天的字串
+    value: 每天的 date物件
+    """
     now = datetime.datetime.now()
     year = now.year
     next_month = now.month + 1
@@ -129,6 +140,56 @@ def check_continuous_limit(user, choosed_shift, valid):
         valid = False
 
 
+# 產生排班人員名單
+def make_user_pool(day, user_dict):
+    """
+    day=> 選定排班的當天
+    user_dict=> {username: UserObject}字典
+    """
+    user_pool = []
+    for u in user_dict.keys():
+        if day.attribute == 'holiday':
+            if u.type_of_user not in ['Intern', 'PartTime']:
+                user_pool.append(u.username)
+        else:
+            user_pool.append(u.username)
+    return user_pool
+
+# 特殊情況排除
+
+
+def exclude_shift(user, shift, day):
+    """
+    孕婦不得值夜班
+    實習生不排晚班
+    user=> 使用者
+    shift=> 班別
+    day=> 日期
+    """
+    # 孕婦不排夜班
+    if user.check_pregnant:
+        if shift.shift_type in ['大夜', '小夜']:
+            return False
+    # 實習不排晚班
+    if user.type_of_user == 'Intern':
+        if shift.shift_type in ['小夜', '大夜']:
+            return False
+    # 兼職不排假日
+    return True
+
+
+# 職級檢查
+def check_level_require(user, demand):
+    """
+    檢查職級是否吻合
+    user=> 使用者
+    demand=> 需求
+    """
+    if user.level < demand.level:
+        return False
+    return True
+
+
 def schedule_test(request):
     # 抓出需求
     demand_list = get_demands(request)
@@ -141,18 +202,19 @@ def schedule_test(request):
 
     def zero():
         return 0
-
-    results = {u.username: {i: '' for i in days.keys()} for u in user_list}
-    print(results)
     # 對每天遍歷
+    results = {u.username: {i: '' for i in days.keys()} for u in user_list}
+
     for i in days.keys():
+        # 產生班表的 pool
+        make_shift_pool(shift_list, demand_list, days[i])
+
         days[i].type_demand = collections.defaultdict(zero)
-        # 當天需求
+        # 產生當天需求
         demand_pool = {'1': {}, '2': {}, '3': {}, '4': {}}
         choosable = {'1': [], '2': [], '3': [], '4': []}
-
         for d in demand_list:
-            idx = str(d.shift.name) + '-' + str(d.shift.station.name)
+            idx = str(d.shift.id)
             days[i].type_demand[idx] = {'1': 0, '2': 0, '3': 0, '4': 0}
             if days[i].attribute == 'workday':
                 days[i].type_demand[idx][str(d.level)] += d.weekday
@@ -162,33 +224,34 @@ def schedule_test(request):
                         ][idx] = days[i].type_demand[idx][str(d.level)]
             choosable[str(d.level)].append(idx)
 
+        for d in demand_list:
+            idx = str(d.id)
+
         # 排序 user
         user_list.sort(key=lambda s: s.level, reverse=True)
         user_dict = {u.username: u for u in user_list}
-        user_pool = [u.username for u in user_list]
-        # print(days[i], user_list, user_pool, demand_pool)
-        # 挑人
-        for u in user_pool:
-            # 可以排班就排下去
-            if user_dict[u].can_be_scheduled:
-                # 選個班別
-                choosed_shift = random.choice(
-                    choosable[str(user_dict[u].level)])
-                valid = False  # 合法標記
-                count = 0      # 計算次數限制
-                while not valid:
-                    check_continuous_limit(user_dict[u], choosed_shift, valid)
-                    count += 1
-                    if count > 100:
-                        break
-                    if valid is False:
-                        choosed_shift = random.choice(
-                            choosable[str(user_dict[u].level)])
+        user_pool = make_user_pool(days[i], user_dict)
 
-                results[u][i] = choosed_shift
+        # 照順序挑人
+        for u in user_pool:
+            # 選個班別
+            choosed_shift = random.choice(
+                choosable[str(user_dict[u].level)])
+            valid = False  # 合法標記
+            count = 0      # 計算次數限制
+            while not valid:
+                check_continuous_limit(user_dict[u], choosed_shift, valid)
+                count += 1
+                if count > 100:
+                    break
+                if valid is False:
+                    choosed_shift = random.choice(
+                        choosable[str(user_dict[u].level)])
+
+            results[u][i] = choosed_shift
 
     # print(a is b)
-    print(results)
+    print('result', results)
 
     # print(results)
     context = {
@@ -199,12 +262,32 @@ def schedule_test(request):
 
     return render(request, 'mainpage/test.html', context)
 
-"""
-{人:
-    {日期:
-        工作站
 
-    }
+# 要在確定班別後才執行
+def count_holiday_rest(user, shift, day):
+    """
+    如果是休假，又是假日休，要扣掉假日休額度
+    user=> 使用者
+    shift=> 班別
+    day=> 日期
+    """
+    if day.attribute == 'holiday':
+        if shift.shift_type in ['休假', ]:
+            user.holiday_rest_num_used += 1
+            user.save()
 
-}
-"""
+
+def make_shift_pool(demand_list, shift_list, day):
+    pool = {'1': [], '2': [], '3': [], '4': []}
+
+
+def find_shift(day, user, shifts, demand_pool):
+    """
+    選定一個班別
+    檢查條件
+    day=> 選定的某一天
+    user=> 選定的使用者
+    shifts=> 本部門所有班別列表
+    demand_pool=> 需求列表
+    """
+    random.choice()
