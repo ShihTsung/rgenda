@@ -77,7 +77,75 @@ def initial(request):
     user.hour_realized = 0.0
     user.department = Department.objects.first()
     user.save()
-
+    print('create user')
+    people = [{
+        'name': 'Max',
+        'email': 'max.chen@redfalcon-hpc.com',
+        'password': 'redfalcon',
+        'level': 3,
+        'gender': 'male',
+        'holiday_rest_num': 10,
+        'special_rest_num': 10,
+        'eid': 12345678,
+        'hour_required': 100.0,
+        'hour_realized': 0.0,
+        'department': Department.objects.first()
+    },
+        {
+        'name': 'Peter',
+        'email': 'peter.chen@redfalcon-hpc.com',
+        'password': 'redfalcon',
+        'level': 4,
+        'gender': 'male',
+        'holiday_rest_num': 10,
+        'special_rest_num': 10,
+        'eid': 12345678,
+        'hour_required': 100.0,
+        'hour_realized': 0.0,
+        'department': Department.objects.first()
+    },
+        {
+        'name': 'Allison',
+        'email': 'allison.chen@redfalcon-hpc.com',
+        'password': 'redfalcon',
+        'level': 3,
+        'gender': 'female',
+        'holiday_rest_num': 10,
+        'special_rest_num': 10,
+        'eid': 12345678,
+        'hour_required': 100.0,
+        'hour_realized': 0.0,
+        'department': Department.objects.first()
+    },
+        {
+        'name': 'jenny',
+        'email': 'jenny.chin@redfalcon-hpc.com',
+        'password': 'redfalcon',
+        'level': 3,
+        'gender': 'female',
+        'holiday_rest_num': 10,
+        'special_rest_num': 10,
+        'eid': 12345678,
+        'hour_required': 100.0,
+        'hour_realized': 0.0,
+        'department': Department.objects.first()
+    },
+    ]
+    for i in range(4):
+        user = User.objects.create_user(
+            people[i]['name'], people[i]['email'], people[i]['password']
+        )
+        user.role = 'user'
+        user.full_name = 'user' + str(i)
+        user.level = people[i]['level']
+        user.gender = people[i]['gender']
+        user.holiday_rest_num = people[i]['holiday_rest_num']
+        user.special_rest_num = people[i]['special_rest_num']
+        user.eid = people[i]['eid']
+        user.hour_required = people[i]['hour_required']
+        user.hour_realized = people[i]['hour_realized']
+        user.department = Department.objects.first()
+        user.save()
 
 # days
 
@@ -127,8 +195,8 @@ def initial(request):
             demand = DemandOfStation.objects.create(
                 shift=shift,
                 level=i,
-                weekday=0,
-                holiday=0
+                weekday=2,
+                holiday=1
             )
             demand.save()
         shift.save()
