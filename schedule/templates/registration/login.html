@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="container">
@@ -8,34 +7,42 @@
       <h2>User Login</h2>
     </div>
     <div class="card-body">
-      <form method="post">
+      <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
-        <div class="form-group">
-          <!-- <label for="username">username :</label>
-                            <input type="text" name="username" id="username" class="form-control"> -->
-          {{ form.username|as_crispy_field }}
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <div class="input-group-text"> &nbsp<i class="fa fa-envelope" aria-hidden="true"></i> &nbsp</div>
+          </div>
+          <input type="text" class="form-control form-control-lg" id="username"  name="username" placeholder="Username">
         </div>
-        <div class="form-group">
-          <!-- <label for="password">password :</label>
-                            <input type="text" name="password" id="password" class="form-control"> -->
-          {{ form.password|as_crispy_field }}
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <div class="input-group-text"> &nbsp<i class="fa fa-lock" aria-hidden="true"></i> &nbsp</div>
+          </div>
+          <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Password">
         </div>
-        {% if form.errors %}
-        <div class="alert alert-danger">
-          {% for error in form.non_field_errors %}
-          {{error}}
-          {%endfor%}
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="autoSizingCheck">
+          <label class="form-check-label" for="autoSizingCheck">
+            Remember me
+          </label>
         </div>
-        {%endif%}
-        <br>
+      </div>
+      {% if form.errors %}
+      <p class=" label label-danger">
+          Your username and password didn't match. 
+          Please try again.
+      </p>
+      {% endif %}
         <div class="col-12 text-center">
-          <button class='btn-primary btn-lg col-md-6' type="submit">Login</button>
+          <input class='btn-primary btn-lg' type="submit" value="Login">
+          <input type="hidden" name="next" value="{{ next }}" />
           <br>
           <br>
           <small><b><a href="{% url 'password_reset' %}">forgot password?</a></b></small>
-      </form>
+      
         </div>
-        
+      </form>
     </div>
   </div>
 
@@ -45,20 +52,26 @@
 
 {% block styles %}
 <style>
+  body{
+    background-color: #84C0E9 !important; 
+  }
     .container {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        height: 90vh;
     }
 
     .card {
         background-color: #fff;
-        padding: 3rem 1rem;
+        padding: 3rem 2rem;
         box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
         width: 30rem;
         min-width: 25rem;
         color: rgb(5, 7, 50);
+    }
+    .card-title, h2{
+      margin: 0;
     }
     .btn-primary {
         box-shadow: 0px 1px 3px #000;
@@ -69,5 +82,18 @@
         width:90vw;
       }
     }
+    .input-group{
+      margin: 1rem 0;
+    }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded",function(){
+
+    let nav = document.querySelector('.navbar');
+    nav.classList.add('invisible');
+    nav.style.display = "none"
+  })
+
+</script>
 {% endblock %}

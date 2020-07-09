@@ -1,25 +1,28 @@
 # python modules
-from calendar import monthrange
 import datetime
 import collections
 import copy
 import random
+from numpy.random import choice
+from .functions import *
+from .get_data import *
+
 
 # django modules
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from account.models import CustomUser, Department
 from scripts.get_date_range import *
+
 # models
+from account.models import CustomUser, Department
 from shift.models import *
 from result.models import *
 from demand.models import *
 from date.models import *
 from reservation.models import *
 from station.models import *
-from numpy.random import choice
 
 
 # 回傳所有員工類別的統計
@@ -80,194 +83,59 @@ def handler500(request, *args, **argv):
     return response
 
 
-def get_demands(request):
-    """
-    回傳清單，限制同部門的
-    """
-    demands = DemandOfStation.objects.all()
-    demand_list = []
-    for d in demands:
-        if d.shift.station.department == request.user.department:
-            demand_list.append(d)
-    return demand_list
+class Staff:
 
-
-def get_shifts(request):
-    shift_list = []
-    shifts = Shift.objects.all()
-    for s in shifts:
-        if s.station.department == request.user.department:
-            shift_list.append(s)
-    return shift_list
-
-
-def get_users(request):
-    """
-    回傳清單，清單內是每個使用者的物件
-    """
-    users = CustomUser.objects.filter(
-        can_be_scheduled=True,
-        department=request.user.department)
-    user_list = users[::1]
-
-    return user_list
-
-
-def get_dates():
-    """
-    回傳字典
-    key: 每天的字串
-    value: 每天的 date物件
-    """
-    now = datetime.datetime.now()
-    year = now.year
-    next_month = now.month + 1
-    if next_month > 12:
-        next_month = 1
-        year += 1
-    day_nums = monthrange(now.year, next_month)[1]
-    start = str(year) + '-' + str(next_month) + '-01'
-    end = str(year) + '-' + str(next_month) + '-' + str(day_nums)
-    days = Oneday.objects.filter(date__range=[start, end])
-    days = {str(day.date): day for day in days}
-
-    return days
-
-
-def check_continuous_limit(user, choosed_shift, valid):
-    if user.hour_realized < 20:
-        valid = True
-    else:
-        valid = False
-
-
-# 產生排班人員名單
-def make_user_pool(day, user_dict):
-    """
-    day=> 選定排班的當天
-    user_dict=> {username: UserObject}字典
-    """
-    user_pool = []
-    for u in user_dict.keys():
-        if day.attribute == 'holiday':
-            if u.type_of_user not in ['Intern', 'PartTime']:
-                user_pool.append(u.username)
-        else:
-            user_pool.append(u.username)
-    return user_pool
-
-# 特殊情況排除
-
-
-def exclude_shift(user, shift, day):
-    """
-    孕婦不得值夜班
-    實習生不排晚班
-    user=> 使用者
-    shift=> 班別
-    day=> 日期
-    """
-    # 孕婦不排夜班
-    if user.check_pregnant:
-        if shift.shift_type in ['大夜', '小夜']:
-            return False
-    # 實習不排晚班
-    if user.type_of_user == 'Intern':
-        if shift.shift_type in ['小夜', '大夜']:
-            return False
-    # 兼職不排假日
-    return True
-
-
-# 職級檢查
-def check_level_require(user, demand):
-    """
-    檢查職級是否吻合
-    user=> 使用者
-    demand=> 需求
-    """
-    if user.level < demand.level:
-        return False
-    return True
-
-
-class Staff():
-
-    def __init__(self, name, workday, holiday_rest, continuous=0):
+    def __init__(self, name, workday, holiday_rest, scheduled_rest=[], scheduled_work=[], ensure_rest=[], continuous=0):
+        """
+        :param name: 名稱
+        :param workday: 工作天數
+        :param holiday_rest: 可休假日天數
+        :param scheduled_rest: 預排假
+        :param scheduled_work: 預排班/公假
+        :param ensure_rest: 保證價
+        :param continuous: 連續工作天數
+        """
         self.name = name
         self.workday = workday
         self.holiday_rest = holiday_rest
+        self.scheduled_rest = scheduled_rest
+        self.scheduled_work = scheduled_work
+        self.ensure_rest = ensure_rest
         self.continuous = continuous
 
     def __str__(self):
         return self.name
 
 
-def calaulate(staffs, demands):
-    # Check if staffs are enough
-    total_workday = sum([s.workday for s in staffs])
-    total_demand = sum(demands)
-    if total_demand > total_workday:
-        print('More staffs needed')
-        return None
-    # Start calculate
-    staff_list = [s.name for s in staffs]
-    staff_index = dict([(staffs[i].name, i) for i in range(len(staffs))])
+class Demand:
 
-    weight_workday = [s.workday for s in staffs]  # 工作天權重
-    continuous_list = [s.continuous for s in staffs]  # 連續工作天數
-
-    result = [[] for _ in range(len(staffs))]
-
-    # 每天
-    for i in range(len(demands)):
-
-        # Create weight
-        weight_continuous = [1 if c == 6 else 1000 for c in continuous_list]
-        weight = [weight_workday[i] * weight_continuous[i]
-                  * 1000 + 1 for i in range(len(staffs))]
-        # 權重 = 連續工作天 and 剩餘工作天
-        weight_sum = sum(weight)
-        weight = [i / weight_sum for i in weight]  # 每個人的權重 list
-        # Sampling
-        on_duty = choice(staff_list, demands[i], p=weight, replace=False)
-
-        for s in staffs:
-            staff_ind = staff_index[s.name]
-            if s.name in on_duty:
-                result[staff_ind].append(1)
-                weight_workday[staff_ind] -= 1
-                continuous_list[staff_ind] += 1
-                if weight_workday[staff_ind] == -1 or continuous_list[staff_ind] == 7:
-                    print('Calculate Failed, get' + str(result[staff_ind]))
-                    return None
-            else:
-                result[staff_ind].append(0)
-                continuous_list[staff_ind] = 0
-
-    return result
+    def __init__(self, day, staff_num, is_weekday=True):
+        """
+        :param day: 日期
+        :param staff_num: 需求人數
+        :param is_weekday: True=平日, False=假日
+        """
+        self.day = day
+        self.staff_num = staff_num
+        self.is_weekday = is_weekday
 
 
 def schedule_test(request):
-    # 抓出需求
-    demand_list = get_demands(request)
-    # 抓出本部門的所有班別
-    shift_list = get_shifts(request)
-    # 抓出所有使用者
-    user_list = get_users(request)
-    # 抓出要排班的所有日期
-    days = get_dates()
 
     def zero():
         return 0
     demand_whole_month = []
-    total_whole_month = []
+    total_whole_month = {'1': [], '2': [], '3': [], '4': []}
     for i in days.keys():
         days[i].type_demand = collections.defaultdict(zero)
         # 產生當天需求
-        demand_pool = {'1': {}, '2': {}, '3': {}, '4': {}}
+        demand_pool = {'白班': {'1': {}, '2': {}, '3': {}, '4': {}},
+                       '小夜': {'1': {}, '2': {}, '3': {}, '4': {}},
+                       '大夜': {'1': {}, '2': {}, '3': {}, '4': {}}
+                       }
         choosable = {'1': [], '2': [], '3': [], '4': []}
-        total = {'1':0, '2':0, '3':0, '4':0}
+        total = {'1': 0, '2': 0, '3': 0, '4': 0}
+        total_by_type = {'白班': 0, '小夜': 0, '大夜': 0, }
         for d in demand_list:
             idx = str(d.shift.name)
             days[i].type_demand[idx] = {'1': 0, '2': 0, '3': 0, '4': 0}
@@ -277,16 +145,14 @@ def schedule_test(request):
             else:
                 days[i].type_demand[idx][str(d.level)] += d.holiday
                 total[str(d.level)] += d.holiday
-            demand_pool[str(d.level)
-                        ][idx] = days[i].type_demand[idx][str(d.level)]
+            demand_pool[d.shift.shift_type][str(
+                d.level)][idx] = days[i].type_demand[idx][str(d.level)]
             choosable[str(d.level)].append(idx)
         demand_whole_month.append(demand_pool)
-        total_whole_month.append(total)
-
-    for demand in demand_whole_month:
-        print(demand)
-    for total in total_whole_month:
-        print(total)
+        for key, val in total.items():
+            total_whole_month[key].append(val)
+    for key, val in total_whole_month.items():
+        print(key, val)
 
     return redirect("/")
 
@@ -303,3 +169,65 @@ def count_holiday_rest(user, shift, day):
         if shift.shift_type in ['休假', ]:
             user.holiday_rest_num_used += 1
             user.save()
+
+# 指派例假或休息日
+
+
+def rest_assignment(req):
+    for key, val in req.items():
+        x, y = 0.5, 0.5
+        for i in range(len(val)):
+            if val[i] == 0:
+                v = choice(2, 1, p=[x, y])
+                if v == 1:
+                    val[i] = 'H'
+                    x *= 10
+                else:
+                    val[i] = 'R'
+                    y *= 10
+                x, y = x/(x+y), y/(x+y)
+
+    """把第一個假日設為例假"""
+    # for loop rows
+    for key, val in req.items():
+        # for loop items of row
+        for i in range(len(val)):
+            if val[i] == 'H':
+                break
+            if val[i] == 'R':
+                for j in range(i+1, len(val)):
+                    if val[j] == 'H':
+                        val[i], val[j] = val[j], val[i]
+                        break
+                break
+    return req
+
+
+def assignment(attendance_matrix, request):
+    user_nums = len(attendance_matrix)
+    users = attendance_matrix.keys()
+    demand_pool = {'白班': [], '小夜': [], '大夜': []}
+    demand_list = get_demands(request)
+
+    for d in demand_list:
+        demand_pool[d.shift.shift_type] += [d.id] * d.weekday
+    w, n, g = len(demand_pool['白班']), len(
+        demand_pool['小夜']), len(demand_pool['大夜'])
+    total_weight = w + n + g
+    weight_w = w/total_weight
+    weight_n = n/total_weight
+    weight_g = g/total_weight
+
+    type_result = choice(['白班', '小夜', '大夜'], user_nums,
+                         p=[weight_w, weight_n, weight_g])
+    result = []
+    for i in type_result:
+        select = random.choice(demand_pool[i])
+        result.append(select)
+        demand_pool[i].remove(select)
+    for i, (k, v) in enumerate(attendance_matrix.items()):
+        for idx in range(len(v)):
+            if v[idx] == 1:
+                v[idx] = result[i]
+
+    return attendance_matrix

@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError
+from datetime import datetime
+from crispy_forms.helper import FormHelper
 import os
 
 ROLE_CHOICES = (
@@ -121,7 +123,9 @@ class CustomUserChangeForm(UserChangeForm):
                           max_length=100, empty_value="Null")
     onboard_date = forms.DateField(
         label=_('OnboardDate'),
-        widget=forms.DateInput(attrs={'type': 'date'}))
+        widget=forms.SelectDateWidget(
+            attrs={'class': 'datepicker', 'type': 'date',
+                   'value': datetime.now().strftime("%Y/%m/%d")}))
 
     class Meta:
         model = CustomUser
@@ -130,6 +134,7 @@ class CustomUserChangeForm(UserChangeForm):
                   'can_be_scheduled', 'holiday_rest_num',
                   'special_rest_num', 'hour_required',
                   'hour_realized', 'eid', 'onboard_date')
+
 # 消除 help_text
 
     # def __init__(self, *args, **kwargs):
