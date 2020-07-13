@@ -67,6 +67,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -89,8 +90,10 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -157,10 +160,10 @@ EMAIL_POST = '587'
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'zh-hant'
 
-TIME_ZONE = 'UTC'
-
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Taipei'
 USE_I18N = True
 
 USE_L10N = True
@@ -172,13 +175,14 @@ LANGUAGES = [
     ('zh-hant', _('Traditional Chinese')),
 ]
 
+
+# SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+LOGIN_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-
-LOGIN_REDIRECT_URL = '/'
 STATIC_URL = '/static/'
-AUTH_USER_MODEL = 'account.CustomUser'  # new
+AUTH_USER_MODEL = 'account.CustomUser'  # self defined user model
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]

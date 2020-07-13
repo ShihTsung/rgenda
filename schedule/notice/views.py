@@ -16,7 +16,7 @@ class CommentNoticeListView(LoginRequiredMixin, ListView):
 
     # 未讀通知的查詢集
     def get_queryset(self):
-        return self.request.user.notifications.unread()
+        return self.request.user.notifications.all()
 
 
 class CommentNoticeUpdateView(View):

@@ -2,6 +2,7 @@ templates/notice/list.html
 
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}
     通知
@@ -16,16 +17,26 @@ templates/notice/list.html
     <div class="row mt-2 ml-4">
         <ul class="list-group">
             {% for notice in notices %}
-                <li class="list-group-item" id="notice_link">
+                <li class="list-group-item" id="notice_link"
+                    {% if notice.unread%} 
+                        style="background-color:#C0E9F9"
+                    {% else %}
+                        style="background-color:#FFF"
+                    {% endif%}>
+
                     <a href="{% url 'notice:update' %}?department_id={{ notice.target.id }}&notice_id={{ notice.id }}"
                        target="_blank"
                     >
-                    <span style="color: #5897fb;">
-                        {{ notice.actor }}
+                    <span style="color: #3867fb;">
+                        <strong>{{ notice.target }}</strong>
                     </span>
-                        在 <span style="color: #01a252;">{{ notice.target }}</span> {{ notice.verb }}。
+                             {{ notice.verb }}
+                        <span style="color: #01a252;"><strong>{{ notice.actor }}</strong></span>。
                     </a>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ notice.timesince}} 以前
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div style="float:right">
+                        {{ notice.timesince}} {%trans 'ago'%}
+                    </div>
                 </li>
             {% endfor %}
         </ul>
@@ -33,12 +44,8 @@ templates/notice/list.html
 </div>
 
 <style>
-    #notice_link a:link {
+    #notice_link a {
         color: black;
-    }
-
-    #notice_link a:visited {
-        color: lightgrey;
     }
 </style>
 {% endblock content %}

@@ -1,15 +1,12 @@
 # python modules
 import datetime
-import collections
-import copy
 import random
 from numpy.random import choice
 from mainpage.functions import *
 from mainpage.get_data import *
 from django.core.management.base import BaseCommand, CommandError
 from account.models import Department
-
-random.randint
+from calendar import monthrange
 
 
 class Staff:
@@ -58,121 +55,129 @@ class Demand:
 
 def get_info_of_month():
     now = datetime.datetime.today().weekday()  # 0 for monday, 6 for sunday
-    days = get_dates()
+    begin = 0
+    days = get_dates(begin)
     workdays = 0
     holidays = 0
     for i in days.keys():
-        if days[i].attribute == 'workday':
-            workdays += 1
-        elif days[i].attribute == 'holiday':
+        if days[i].is_holiday:
             holidays += 1
         else:
-            continue
+            workdays += 1
 
     return (workdays, holidays)
 
 
-def assignment(attendance_matrix, department):
-    if len(attendance_matrix) == 0:
-        return None
-    user_nums = len(attendance_matrix)
-    users = attendance_matrix.keys()
-    demand_pool = {'白班': [], '小夜': [], '大夜': []}
-    demand_list = get_demands(department)
+def devideDays(days):
+    past = []
+    present = []
+    future = []
+    now = datetime.datetime.now()
+    year = now.year
+    next_month = now.month + 1
+    if next_month > 12:
+        next_month = 1
+        year += 1
+    month_range = monthrange(year, next_month)
+    start = datetime.date(year, next_month, 1)
+    end = datetime.date(year, next_month, month_range[1])
 
-    for d in demand_list:
-        demand_pool[d.shift.shift_type] += [d.id] * d.weekday
-    w, n, g = len(demand_pool['白班']), len(
-        demand_pool['小夜']), len(demand_pool['大夜'])
-    total_weight = w + n + g
-    weight_w, weight_n, weight_g = w/total_weight, n/total_weight, g/total_weight
+    for k, v in days.items():
+        if v.date < start:
+            past.append(k)
+        elif v.date > end:
+            future.append(k)
+        else:
+            present.append(k)
+    return past, present, future
 
-    type_result = choice(['白班', '小夜', '大夜'], user_nums,
-                         p=[weight_w, weight_n, weight_g])
+
+def devidePeriod(days):
     result = []
-    for i in type_result:
-        if demand_pool[i] == []:
-            result.append('')
-            continue
-        select = random.choice(demand_pool[i])
-        result.append(select)
-        demand_pool[i].remove(select)
-    for i, (k, v) in enumerate(attendance_matrix.items()):
-        for idx in range(len(v)):
-            if v[idx] == 1:
-                v[idx] = result[i]
-    return attendance_matrix
+    day_list = list(days.keys())
+    for i in range(3):
+        result.append(day_list[i*14: i*14+14])
+    return result
 
 
 class Command(BaseCommand):
     help = 'calculate the schedule'
 
     def handle(self, *args, **options):
-        # 指定部門
-        department = Department.objects.first()
-        # 抓出需求
-        demand_list = get_demands(department)
-        # 抓出本部門的所有班別
-        shift_list = get_shifts(department)
-        # 抓出所有使用者
-        user_list = get_users(department)
-        # 抓出要排班的所有日期
-        days = get_dates()
-        # 結果總表
-        total_result = dict()
+        result = {}
+        department = Department.objects.first()  # 指定部門
+        demand_list = get_demands(department)  # 抓出需求
+        shift_list = get_shifts(department)  # 抓出本部門的所有班別
+        user_list = get_users(department)   # 抓出所有使用者
+        begin = department.begin_of_week
+        days = get_dates(begin)             # 抓出要排班的所有日期
+        past, curr, future = devideDays(days)  # 標記日期
+        # print('past', past) 目標月份的前個月
+        # print('curr', curr)   目標月份
+        # print('future', future)   目標的未來月份
 
-        demand_whole_month = []
-        total_whole_month = {'1': [], '2': [], '3': [], '4': []}  # 總共有多少需求
+        # 總共有多少需求
+        periods = devidePeriod(days)
 
-        # 算總需求
-        for i in days.keys():
-            total_per_day = {'1': 0, '2': 0, '3': 0, '4': 0}
-            for d in demand_list:
-                if days[i].attribute == 'workday':
-                    total_per_day[str(d.level)] += d.weekday
-                if days[i].attribute == 'holiday':
-                    total_per_day[str(d.level)] += d.holiday
-            for l in total_per_day.keys():
-                total_whole_month[l].append(total_per_day[l])
+        # 對三個週期遍歷
+        for period in periods:
+            total_whole_period = {'1': [], '2': [], '3': [], '4': []}
+            for i in period:
+                # 算總需求
+                total_per_day = {'1': 0, '2': 0, '3': 0, '4': 0}
+                for d in demand_list:
+                    if days[i].is_holiday:
+                        total_per_day[str(d.level)] += d.holiday
+                    else:
+                        total_per_day[str(d.level)] += d.weekday
+                for l in total_per_day.keys():
+                    total_whole_period[l].append(total_per_day[l])
 
-        workday_num, holiday_num = get_info_of_month()
+            for level in range(1, 5):
+                demands = []
+                for i in range(len(period)):
+                    day_obj = days[period[i]]
+                    staff_num = total_whole_period[str(level)][i]
+                    is_weekday = not day_obj.is_holiday
+                    demand = Demand(period[i], staff_num, is_weekday)
+                    demands.append(demand)
 
-        for level in range(1, 5):
-            demands = []
-            for i, (k, v) in enumerate(days.items()):
-                is_weekday = True if v.attribute == 'workday' else False
-                staff_num = total_whole_month[str(level)][i]
-                demand = Demand(k, staff_num, is_weekday)
-                demands.append(demand)
+                # 排班人員名單
+                staffs = []
+                for staff in user_list:
+                    if staff.level == level:
+                        s = Staff(staff.username, 10, 20)
+                        staffs.append(s)
+                self.stdout.write(self.style.SUCCESS(staffs))
+                # self.stdout.write(self.style.SUCCESS((workday_num, holiday_num)))
+                test_result = None
+                count = 0
 
-            # 排班人員名單
-            staffs = []
-            for staff in user_list:
-                if staff.level == level:
-                    s = Staff(staff.username, 27, 10)
-                    staffs.append(s)
-            self.stdout.write(self.style.SUCCESS(staffs))
-            self.stdout.write(self.style.SUCCESS((workday_num, holiday_num)))
-            test_result = None
-            count = 0
+                while test_result is None and count < 100:
+                    if len(staffs) == 0:
+                        break
+                    else:
+                        test_result = calculate(staffs, demands)
+                        count += 1
 
-            while test_result is None and count < 100:
-                if len(staffs) == 0:
-                    break
+                if test_result:
+                    # print('DEMAND')
+                    # print('D', [d.day for d in demands])
+                    # print('W', [1 if d.is_weekday else 0 for d in demands])
+
+                    # print('RESULT')
+                    # for s_name, val in test_result.items():
+                    #     print(s_name, val, '| on duty:', sum(val),
+                    #           '| holiday rest:',
+                    #           sum([1 if (val[i] == 0 and demands[i].is_weekday is False) else 0 for i in range(len(val))]))
+                    assign_result = assignment(test_result, department)
+                    add_rest = rest_assignment(assign_result)
+                    for s_name, val in add_rest.items():
+                        # print(s_name, val)
+                        if s_name in result.keys():
+                            result[s_name] += val
+                        else:
+                            result[s_name] = val
                 else:
-                    test_result = calculate(staffs, demands)
-                    count += 1
-            
-            if test_result:
-                print('DEMAND')
-                print('D', [d.day for d in demands])
-                print('W', [1 if d.is_weekday else 0 for d in demands])
-                assign_result = assignment(test_result, department)
-
-                print('RESULT')
-                for s_name, val in assign_result.items():
-                    print(s_name, val, '| on duty:', sum(val),
-                          '| holiday rest:',
-                          sum([1 if (val[i] == 0 and demands[i].is_weekday is False) else 0 for i in range(len(val))]))
-            else:
-                print('Fail')
+                    print('Fail')
+        print(result)

@@ -174,6 +174,10 @@ def count_holiday_rest(user, shift, day):
 
 
 def rest_assignment(req):
+    """
+    req => Dict{'name': List[0 or id of shift] }
+    return req
+    """
     for key, val in req.items():
         x, y = 0.5, 0.5
         for i in range(len(val)):
@@ -203,7 +207,12 @@ def rest_assignment(req):
     return req
 
 
-def assignment(attendance_matrix, request):
+def assignment(attendance_matrix, department):
+    """
+    attendance_matrix => Dict{'name':List[int]} 每個人的班表
+    department => Department object 部門
+    return Dict{'name': List[int or id of shift]}
+    """
     user_nums = len(attendance_matrix)
     users = attendance_matrix.keys()
     demand_pool = {'白班': [], '小夜': [], '大夜': []}
