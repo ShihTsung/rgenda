@@ -121,12 +121,14 @@ class ExchangeApplication(models.Model):
     user_apply = models.ForeignKey(
         CustomUser,
         verbose_name=_('UserApply'),
+        related_name='user_apply',
         on_delete=models.CASCADE,
         null=False,
     )
     user_receive = models.ForeignKey(
         CustomUser,
         verbose_name=_('UserReceive'),
+        related_name='user_receive',
         on_delete=models.CASCADE,
         null=False,
     )
