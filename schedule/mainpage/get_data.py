@@ -6,8 +6,6 @@ from date.models import *
 from reservation.models import *
 from station.models import *
 from account.models import CustomUser, Department
-from calendar import monthrange
-
 import datetime
 
 
@@ -44,7 +42,14 @@ def get_users(department):
     return user_list
 
 
-def get_dates():
+class Day:
+    def __init__(self, date, attr):
+        self.date = date
+        self.is_weekend = self.date.weekday() in [5, 6]
+        self.is_holiday = True if attr == 'holiday' else False
+
+
+def get_dates(begin):
     """
     回傳字典
     key: 每天的字串
@@ -56,10 +61,26 @@ def get_dates():
     if next_month > 12:
         next_month = 1
         year += 1
-    day_nums = monthrange(now.year, next_month)[1]
-    start = str(year) + '-' + str(next_month) + '-01'
-    end = str(year) + '-' + str(next_month) + '-' + str(day_nums)
-    days = Oneday.objects.filter(date__range=[start, end])
-    days = {str(day.date): day for day in days}
 
-    return days
+    next_month = str(next_month).zfill(2)
+    start = str(year) + '-' + str(next_month) + '-01'
+    w = datetime.date.fromisoformat(
+        start).weekday()  # 0 => Monday, 6 => Sunday
+
+    if begin == 0:
+        previous = datetime.date.fromisoformat(
+            start) - datetime.timedelta(days=w)
+
+    else:
+        previous = datetime.date.fromisoformat(
+            start) - datetime.timedelta(days=w+1)
+
+    end = (previous + datetime.timedelta(days=41)).strftime('%Y-%m-%d')
+    previous = previous.strftime('%Y-%m-%d')
+    days = Oneday.objects.filter(date__range=[previous, end])
+
+    result = {}
+    for day in days:
+        result[day.date.strftime('%Y-%m-%d')] = Day(day.date, day.attribute)
+
+    return result

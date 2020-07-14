@@ -1,3 +1,4 @@
+from random import choices
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
@@ -232,12 +233,24 @@ class DepartmentChangeForm(forms.ModelForm):
         required=True,
         min_value=0,
     )
+    begin_of_week = forms.IntegerField(
+        label=_("BeginOfWeek"),
+        required=True,
+        widget=forms.Select(
+            choices=[
+                (0, _('Monday')),
+                (6, _('Sunday'))
+            ])
+    )
 
     class Meta:
         model = Department
         help_texts = {}
-        fields = ['name', 'detail', 'limit_pre_schedule', 'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
-                  'admin_in_schedule', 'part_time_in_holiday', 'intern_in_holiday', 'intern_d_only', 'same_day_notice']
+        fields = ['name', 'detail', 'limit_pre_schedule',
+                  'deadline_pre_schedule', 'reset', 'law_rule',
+                  'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday',
+                  'intern_in_holiday', 'intern_d_only', 'same_day_notice',
+                  'begin_of_week']
 
 
 class ImportForm(forms.Form):

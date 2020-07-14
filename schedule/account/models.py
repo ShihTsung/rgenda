@@ -87,6 +87,10 @@ class Department(models.Model):
         verbose_name=_("SameDayNotice"),
         default=5,
     )
+    begin_of_week = models.IntegerField(
+        verbose_name=_("BeginOfWeek"),
+        default=0
+    )
 
     def __str__(self):
         return self.name
@@ -178,7 +182,7 @@ class CustomUser(AbstractUser):
         return self.username
 
     def save(self, *args, **kwargs):
-        if self.role == 'andmin' or self.role == 'manager':
+        if self.role == 'admin' or self.role == 'manager':
             self.is_staff = True
         super(CustomUser, self).save(*args, **kwargs)
 
