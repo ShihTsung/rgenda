@@ -67,17 +67,17 @@ class TimeAdjustmentSearchForm(forms.Form):
         label=_('adjustment_type'),
         required=True,
         widget=forms.widgets.Select(
-            choices=(
+            choices=[
                 (0, _('增加時數')),
                 (1, _('減少時數')),
-            ),
+            ],
         ),
     )
     adjustment_item = forms.IntegerField(
         label=_('adjustment_item'),
         required=True,
         widget=forms.widgets.Select(
-            choices=(
+            choices=[
                 (0, _('工作日加班')),
                 (1, _('休息日出勤')),
                 (2, _('國定假日出勤')),
@@ -86,7 +86,7 @@ class TimeAdjustmentSearchForm(forms.Form):
                 (5, _('機構減班')),
                 # 第一階段無請假系統，所以有'員工自假'選項
                 (6, _('員工自假')),
-            ),
+            ],
         ),
     )
     name = forms.CharField(
@@ -111,19 +111,19 @@ class ExchangeApplicationCreateForm(forms.Form):
         label=_('exchange_shift_type'),
         required=True,
         widget=forms.widgets.Select(
-            choices=(
+            choices=[
                 (None, _('Select')),
-                (0, _('白班')),
-                (1, _('小夜')),
-                (2, _('大夜')),
-            ),
+                ('D', _('白班')),
+                ('E', _('小夜')),
+                ('N', _('大夜')),
+            ],
         ),
     )
     receive_user = forms.CharField(
         label=_('receive_user'),
         required=True,
         widget=forms.widgets.Select(
-            (None, _('Select')),
+            choices=[(None, _('Select'))],
         ),
     )
 
