@@ -62,7 +62,7 @@ class Department(models.Model):
         verbose_name=_("ScheduleRule"),
         default=0,
         choices=(
-            (0, _('花班')),
+            (0, _('單週同班種')),
             (1, _('單月同班種')),
             (2, _('三月同班種')),
         ),

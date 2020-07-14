@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import Result, AfterResult, PreResult
+from .models import Result, AfterResult, PreResult, TimeAdjustment, ExchangeApplication
 from account.models import CustomUser as User
 from django.contrib.auth.decorators import login_required
 from scripts.get_date_range import *
 from datetime import time, datetime, timedelta
 from collections import defaultdict
 from date.views import attr_list
+from .forms import TimeAdjustmentCreateForm, TimeAdjustmentSearchForm, ExchangeApplicationCreateForm, ExchangeApplicationRefuseForm
 
 
 # 計算總工時
@@ -35,6 +36,7 @@ def cal_period_workhour(request, start, end):
 
     return render(request, 'calculation/total_workhour.html', context)
 
+
 # 秀出正式班表
 @login_required
 def show_results(request):
@@ -42,6 +44,7 @@ def show_results(request):
     start, end = date_range(0, 3)
     context = {'LANG': lang, 'start': start, 'end': end}
     return render(request, 'calendars/results.html', context)
+
 
 # 唯讀班表
 @login_required
@@ -55,6 +58,7 @@ def user_results(request):
         'results': 'results',
         'default': start}
     return render(request, 'calendars/read_only_results.html', context)
+
 
 # 排完未發布班表
 @login_required
@@ -122,84 +126,39 @@ def result_to_history(request):
     return redirect('/'+lang+'/results/after_results')
 
 
-def check_result(request):
-    invalid = defaultdict(list)   # 不和規則的集合
-    results = Result.objects.order_by('date')
-    pre_results = PreResult.objects.order_by('date')
-    data = defaultdict(list)
-    start_date = results[0].date
-    end_date = pre_results[-1].date if pre_results else results[-1].date
-    end_date_month = end_date.month
+def check_result_1(continue_dict, schedule_rule, last_off_hours, to_check_month, last_shift_type=None, cycle_start=None):
+    """
 
-    for result in results:
-        if result.shift.start_hour == 24:
-            start = datetime.combine(result.date, time(
-                hour=0, minute=result.shift.start_min)) + timedelta(days=1)
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
-        elif result.shift.start_hour > result.shift.end_hour:
-            start = datetime.combine(result.date, time(
-                hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
-        else:
-            start = datetime.combine(result.date, time(
-                hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min))
-        data[result.user.id].append({
-            'id': result.id,
-            'class': 'Result',
-            'type': result.shift.shift_type,
-            'date': result.date,
-            'start': start,
-            'end': end,
-        })
-    # 整理資料，合併兩個月的班表成一個 list
-    for result in pre_results:
-        if result.shift.start_hour == 24:
-            start = datetime.combine(result.date, time(
-                hour=0, minute=result.shift.start_min)) + timedelta(days=1)
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
-        elif result.shift.start_hour > result.shift.end_hour:
-            start = datetime.combine(result.date, time(
-                hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min)) + timedelta(days=1)
-        else:
-            start = datetime.combine(result.date, time(
-                hour=result.shift.start_hour, minute=result.shift.start_min))
-            end = datetime.combine(result.date, time(
-                hour=result.shift.end_hour, minute=result.shift.end_min))
-        data[result.user.id].append({
-            'id': result.id,
-            'class': 'PreResult',
-            'type': result.shift.shift_type,
-            'date': result.date,
-            'start': start,
-            'end': end,
-        })
-    attrs = attr_list(start_date, end_date)  # 撈出每天平假日
-    for user_id in data:
-        user = User.objects.get(id=user_id)
-        check_holiday_rest(
-            data[user_id], attrs, user.holiday_rest_num - user.holiday_rest_num_used, invalid)
-        check_law_rule(data[user_id], user.department.law_rule, invalid)
-        if user.pregnant or user.type_of_user == 'Intern' and user.department.intern_d_only:
-            check_d_only(data[user_id], invalid)
-        # 實習兼職不值假日班
-        if user.type_of_user == 'Intern' and not user.department.intern_in_holiday or user.type_of_user == 'PartTime' and not user.department.part_time_in_holiday:
-            check_workday_only(data[user_id], attrs, invalid)
-        # 醫院規則
-        if user.department.schedule_rule == 1:
-            check_same_in_month(data[user_id], invalid)
-        if user.department.schedule_rule == 2:
-            if end_date_month % 3 == 1:
-                check_same_in_month(data[user_id], invalid)
-            else:
-                check_same_in_months(data[user_id], invalid)
+    :param continue_dict: 各個user的連續工作天數
+    :param schedule_rule: 醫院規則，單週同班 or 單月同班 or 三月同班
+    :param last_off_hours: 前一次下班時間(不考慮加班)，datetime
+    :param last_shift_type: 前一班的班別(需與)，單週同班種才需要
+    :return: [(result_id, invalid item),]
+    """
+    invalid = list()
+
+    to_check = defaultdict(list)
+    pre_results = PreResult.objects.order_by('date')
+    if pre_results:
+        for result in pre_results:
+            to_check[result.user.id].append(result)
+    else:
+        results = Result.object.filter(date__month=to_check_month).order_by('date')
+        for result in results:
+            to_check[result.user.id].append(result)
+
+    check_shift_type(to_check, invalid)
+
     return invalid
+
+
+def check_shift_type(results, invalid):
+    return None
+
+
+def check_rest():
+    return None
+
 
 # 檢查剩餘假日休假
 
@@ -241,52 +200,134 @@ def check_law_rule(data, rule, output):
         work_list.pop(0)
     return None
 
-# 不可值夜班
+
+# TimeAdjustment 含加班/減班
+def time_adjustment_list(request):
+    create_form = TimeAdjustmentCreateForm()
+    search_form = TimeAdjustmentSearchForm()
+    results = Result.objects.exclude(time_adjustment__isnull=True).order_by('-time_adjustment__id')[:10]
+    if request.method == 'POST':
+        if 'result_date' in request.POST:
+            time_adjustment = TimeAdjustment(
+                hours=create_form.hours,
+                adjustment_type=create_form.adjustment_type,
+                remark=create_form.remark,
+            )
+            time_adjustment.save()
+            result = Result.objects.filter(
+                user__name=create_form.name,
+                date=create_form.result_date,
+            )
+            result.time_adjustment = time_adjustment
+            result.save()
+            return redirect('/results/time_adjustment')
+        if 'date_start' in request.POST:
+            results = Result.objects.filter(
+                date__range=[search_form.date_start, search_form.date_end],
+                user__name=search_form.name,
+                time_adjustment__isnull=False,
+                time_adjustment__item=search_form.adjustment_item,
+            )
+            create_form = TimeAdjustmentCreateForm()
+            search_form = TimeAdjustmentSearchForm()
+    context = {
+        'results': results,
+        'create_form': create_form,
+        'search_form': search_form,
+    }
+    return render(request, 'calendars/time_adjustment.html', context=context)
 
 
-def check_d_only(data, output):
-    for d in data:
-        if d['type'] in ['小夜', '大夜']:
-            output[d['class'] + '-' + d['id']].append('不可值夜班')
-    return None
+# 換班申請
+def exchange_application_list(request):
+    form = ExchangeApplicationCreateForm()
+    if request.method == 'POST':
+        application = ExchangeApplication(
+            user_apply=request.user,
+            user_receive=form.receive_user,
+            date_start=form.exchange_date_start,
+            date_end=form.exchange_date_end,
+        )
+        application.save()
+        return redirect('/result/exchange_application_list')
+    processing = list()
+    complete = list()
+    if request.user.role == 'user':
+        applications = ExchangeApplication.objects.filter(user_apply=request.user)
+        for application in applications:
+            if application.application_status in [0, 1, 2, 3]:
+                processing.append(application)
+            else:
+                complete.append(application)
+    else:
+        applications = ExchangeApplication.objects.exclude(application_status=0)
+        for application in applications:
+            if application.application_status == 1:
+                processing.append(application)
+            else:
+                complete.append(application)
+    context = {
+        'processing': processing,
+        'complete': complete,
+        'form': form,
+    }
+    return render(request, 'calenders/exchange_application_list.html', context=context)
 
-# 不可執假日班
+
+def exchange_application_audit(request):
+    form = ExchangeApplicationRefuseForm()
+    if request.method == 'POST':
+        application = ExchangeApplication.objects.get(id=form.exchange_application_id)
+        application.application_status = 2
+        application.remark = form.remark
+        application.save()
+        return redirect('/result/exchange_application_audit')
+    if request.user.role == 'user':
+        processing = ExchangeApplication.objects.filter(user_receive=request.user, application_status=0)
+        complete = None
+    else:
+        processing = ExchangeApplication.objects.filter(application_status=1)
+        complete = ExchangeApplication.objects.filter(application_status__in=[2, 3, 4, 5])
+    context = {
+        'processing': processing,
+        'complete': complete,
+        'form': form,
+    }
+    return render(request, 'calender/exchange_application_audit.html', context=context)
 
 
-def check_workday_only(data, attrs, output):
-    for i in range(len(data)):
-        if not data[i]['type'] in ['休假', 'oncall'] and attrs[i] == 'holiday':
-            output[data[i]['class'] + '-' + data[i]['id']].append('不可值假日班')
-    return None
-
-# 單月同班
+def exchange_application_undo(request, ea_id):
+    application = ExchangeApplication.objects.get(id=ea_id)
+    application.delete()
+    return redirect('/result/exchange_application_list')
 
 
-def check_same_in_month(data, output):
-    shift_type = None
-    m = data[0]['date'].month
-    for d in data:
-        if d['date'].month != m:
-            m = d['date'].month
-            shift_type = None
-        if shift_type:
-            if d['type'] != shift_type:
-                output[d['class'] + '-' + d['id']].append('同月的班種需相同')
-        else:
-            if d['type'] in ['白班', '小夜', '大夜']:
-                shift_type = d['type']
-    return None
+def exchange_application_accept(request, ea_id):
+    application = ExchangeApplication.objects.get(id=ea_id)
+    if request.user.role == 'user':
+        application.application_status = 1
+        application.save()
+        return redirect('/result/exchange_application_audit')
+    else:
+        application.application_status = 3
+        application.save()
+        date_list = [application.date_start]
+        temp_date = application.date_start
+        while temp_date < application.date_end:
+            temp_date += timedelta(days=1)
+            date_list.append(temp_date)
+        for d in date_list:
+            result_apply = Result.objects.filter(date=d, user=application.user_apply)
+            result_apply.user = application.user_receive
+            result_apply.save()
+            result_receive = Result.objects.filter(date=d, user=application.user_receive)
+            result_receive.user = application.user_apply
+            result_receive.save()
+        return redirect('/result/exchange_application_list')
 
-# 多月同班
 
-
-def check_same_in_months(data, output):
-    shift_type = None
-    for d in data:
-        if shift_type:
-            if d['type'] != shift_type:
-                output[d['class'] + '-' + d['id']].append('三個月的班種需相同')
-        else:
-            if d['type'] in ['白班', '小夜', '大夜']:
-                shift_type = d['type']
-    return None
+def exchange_application_archive(request, ea_id):
+    application = ExchangeApplication.objects.get(id=ea_id)
+    application.application_status += 2
+    application.save()
+    return redirect('/result/exchange_application_list')
