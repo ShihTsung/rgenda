@@ -27,11 +27,9 @@ class Shift(models.Model):
     start_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
     end_hour = models.IntegerField(verbose_name=_('StartHour'), null=True)
     end_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
-    station = models.ForeignKey(Station,
-                                on_delete=models.CASCADE,
-                                verbose_name=_('Station'),
-                                null=True)
+    department = models.ForeignKey(Department, verbose_name=_('Department'),
+                                   on_delete=models.CASCADE, null=True)
     work_hours = models.FloatField(verbose_name=_('WorkHours'), null=True)
 
     def __str__(self):
-        return self.name + '-' + self.station.department.name
+        return self.name + '-' + self.department.name

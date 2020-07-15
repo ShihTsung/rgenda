@@ -58,15 +58,15 @@ class ShiftCreationForm(forms.ModelForm):
     end_min = forms.IntegerField(
         label=_('EndMin'),
         widget=forms.widgets.Select(choices=END_MIN_CHOICES))
-    station = forms.ModelChoiceField(
-        queryset=Station.objects.all(),
-        label=_('Station'))
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        label=_('Department'))
     work_hours = forms.FloatField(label=_('WorkHours'))
 
     class Meta:
         model = Shift
         fields = ['name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'station', 'work_hours']
+                  'end_hour', 'end_min', 'department', 'work_hours']
 
 
 START_HOUR_CHOICES = (
@@ -112,12 +112,12 @@ class ShiftEditForm(forms.ModelForm):
     end_min = forms.IntegerField(
         label=_('EndMin'),
         widget=forms.widgets.Select(choices=END_MIN_CHOICES))
-    station = forms.ModelChoiceField(
-        queryset=Station.objects.all(),
-        label=_('Station'))
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        label=_('Department'))
     work_hours = forms.FloatField(label=_('WorkHours'))
 
     class Meta:
         model = Shift
         fields = ['name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'station', 'work_hours']
+                  'end_hour', 'end_min', 'department', 'work_hours']

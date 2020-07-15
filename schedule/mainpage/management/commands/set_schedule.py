@@ -53,21 +53,6 @@ class Demand:
         return self.day + ':::' + str(self.staff_num)
 
 
-def get_info_of_month():
-    now = datetime.datetime.today().weekday()  # 0 for monday, 6 for sunday
-    begin = 0
-    days = get_dates(begin)
-    workdays = 0
-    holidays = 0
-    for i in days.keys():
-        if days[i].is_holiday:
-            holidays += 1
-        else:
-            workdays += 1
-
-    return (workdays, holidays)
-
-
 def devideDays(days):
     past = []
     present = []

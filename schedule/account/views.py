@@ -332,7 +332,9 @@ def departmentDetail(request, id):
 def departmentEdit(request, id=None):
     id = int(id)
     department = Department.objects.get(id=id)
-    form = DepartmentChangeForm(request.POST or None, instance=department)
+    form = DepartmentChangeForm(request.POST or None,
+                                instance=department,
+                                )
     if form.is_valid() and request.method == "POST":
         form.save()
         new_managers = [form.data['mgr1'], form.data['mgr2']]
@@ -374,5 +376,8 @@ def cycle_analysis(d_id, input_date):
 
 def get_cycle(d_id, cycle_no):
     department = Department.objects.get(id=d_id)
-    date_first = department.date_start + timedelta(days=7 * 2 ** department.law_rule * cycle_no)
-    return [date_first + timedelta(days=i) for i in range(7 * 2 ** department.law_rule)]
+    date_first = department.date_start + timedelta(
+        days=7 * 2 ** department.law_rule * cycle_no)
+
+    return [date_first + timedelta(days=i) for i in range(
+        7 * 2 ** department.law_rule)]

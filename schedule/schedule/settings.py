@@ -197,8 +197,8 @@ LANGUAGE_CODE = 'zh-hant'
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Taipei'
 USE_I18N = True
-
-USE_L10N = True
+DATE_FORMAT = 'Y-m-d'
+USE_L10N = False
 
 USE_TZ = True
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]

@@ -126,32 +126,11 @@ def result_to_history(request):
     return redirect('/'+lang+'/results/after_results')
 
 
-<<<<<<< HEAD
-@login_required
-def check_result_1(continue_dict, schedule_rule, last_off_hours, to_check_month, last_shift_type=None, cycle_start=None):
-=======
 def check_result():
->>>>>>> cacc19c5a43a560c21b53c76fbba75e7d3fb7cd1
     """
     """
     invalid = list()
 
-<<<<<<< HEAD
-    to_check = defaultdict(list)
-    pre_results = PreResult.objects.order_by('date')
-    if pre_results:
-        for result in pre_results:
-            to_check[result.user.id].append(result)
-    else:
-        results = Result.object.filter(
-            date__month=to_check_month).order_by('date')
-        for result in results:
-            to_check[result.user.id].append(result)
-
-    check_shift_type(to_check, invalid)
-
-=======
->>>>>>> cacc19c5a43a560c21b53c76fbba75e7d3fb7cd1
     return invalid
 
 
