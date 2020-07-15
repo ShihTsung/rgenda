@@ -31,6 +31,10 @@ TYPE_CHOICES = (
 )
 
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+
 # 建立帳號
 class CustomUserCreationForm(UserCreationForm):
     department = forms.ModelChoiceField(
@@ -39,7 +43,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     onboard_date = forms.DateField(
         label=_('OnboardDate'),
-        widget=forms.DateInput(attrs={'type': 'date'}))
+        widget=DateInput(attrs={'type': 'date'}))
 
     class Meta:
         model = CustomUser
@@ -124,12 +128,16 @@ class CustomUserChangeForm(UserChangeForm):
                           max_length=100, empty_value="Null")
     onboard_date = forms.DateField(
         label=_('OnboardDate'),
-        widget=forms.SelectDateWidget(
-            attrs={'class': 'datepicker', 'type': 'date',
-                   'value': datetime.now().strftime("%Y/%m/%d")}))
+        widget=DateInput)
 
     class Meta:
         model = CustomUser
+        widgets = {
+            'onboard_date': DateInput(format=('%Y-%m-%d'),
+                                      attrs={'class': 'form-control',
+                                             'type': 'date'
+                                             })
+        }
         fields = ('username', 'full_name', 'email', 'department',
                   'level', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
@@ -242,15 +250,26 @@ class DepartmentChangeForm(forms.ModelForm):
                 (6, _('Sunday'))
             ])
     )
+    start_date = forms.DateField(
+        label=_('StartDate'),
+        required=True,
+        widget=DateInput,
+        localize=False)
 
     class Meta:
         model = Department
         help_texts = {}
+        widgets = {
+            'start_date': DateInput(format=('%Y-%m-%d'),
+                                    attrs={'class': 'form-control',
+                                           'type': 'date'
+                                           })
+        }
         fields = ['name', 'detail', 'limit_pre_schedule',
                   'deadline_pre_schedule', 'reset', 'law_rule',
                   'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday',
                   'intern_in_holiday', 'intern_d_only', 'same_day_notice',
-                  'begin_of_week']
+                  'begin_of_week', 'start_date']
 
 
 class ImportForm(forms.Form):

@@ -2,11 +2,14 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from shift.models import Shift
 from account.models import CustomUser
+from station.models import Station
 
 # TimeAdjustment 上班時間調整，包含加班、On Call、空班值班、國定假日值班...
 # PreResult 演算法排完的班表
 # result 已經發布的班表
 # AfterResult 執行完，不能更動的班表
+
+# 加減班
 
 
 class TimeAdjustment(models.Model):
@@ -63,6 +66,12 @@ class PreResult(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
+    station = models.ForeignKey(
+        Station,
+        verbose_name=_('Station'),
+        on_delete=models.CASCADE,
+        null=True
+    )
 
 
 class Result(models.Model):
@@ -86,6 +95,12 @@ class Result(models.Model):
     time_adjustment = models.ForeignKey(
         TimeAdjustment,
         verbose_name=_('TimeAdjustment'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    station = models.ForeignKey(
+        Station,
+        verbose_name=_('Station'),
         on_delete=models.CASCADE,
         null=True
     )
@@ -115,6 +130,14 @@ class AfterResult(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
+    station = models.ForeignKey(
+        Station,
+        verbose_name=_('Station'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+# 調班
 
 
 class ExchangeApplication(models.Model):

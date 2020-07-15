@@ -196,7 +196,7 @@ def check_rest(department, results, invalid):
 
 # 檢查剩餘假日休假
 
-
+@login_required
 def check_holiday_rest(data, attrs, holiday_rest_num, output):
     for i in range(len(data)):
         # 等於的值需再檢查
@@ -210,6 +210,7 @@ def check_holiday_rest(data, attrs, holiday_rest_num, output):
 # 檢查法規
 
 
+@login_required
 def check_law_rule(data, rule, output):
     continuous = 0
     work_list = list()
@@ -236,10 +237,12 @@ def check_law_rule(data, rule, output):
 
 
 # TimeAdjustment 含加班/減班
+@login_required
 def time_adjustment_list(request):
     create_form = TimeAdjustmentCreateForm()
     search_form = TimeAdjustmentSearchForm()
-    results = Result.objects.exclude(time_adjustment__isnull=True).order_by('-time_adjustment__id')[:10]
+    results = Result.objects.exclude(
+        time_adjustment__isnull=True).order_by('-time_adjustment__id')[:10]
     if request.method == 'POST':
         if 'result_date' in request.POST:
             time_adjustment = TimeAdjustment(
@@ -254,7 +257,7 @@ def time_adjustment_list(request):
             )
             result.time_adjustment = time_adjustment
             result.save()
-            return redirect('/results/time_adjustment')
+            return redirect('/result/time_adjustment')
         if 'date_start' in request.POST:
             results = Result.objects.filter(
                 date__range=[search_form.date_start, search_form.date_end],
@@ -269,10 +272,11 @@ def time_adjustment_list(request):
         'create_form': create_form,
         'search_form': search_form,
     }
-    return render(request, 'calendars/time_adjustment.html', context=context)
+    return render(request, 'results/time_adjustment.html', context=context)
 
 
 # 換班申請
+@login_required
 def exchange_application_list(request):
     form = ExchangeApplicationCreateForm()
     if request.method == 'POST':
@@ -287,14 +291,16 @@ def exchange_application_list(request):
     processing = list()
     complete = list()
     if request.user.role == 'user':
-        applications = ExchangeApplication.objects.filter(user_apply=request.user)
+        applications = ExchangeApplication.objects.filter(
+            user_apply=request.user)
         for application in applications:
             if application.application_status in [0, 1, 2, 3]:
                 processing.append(application)
             else:
                 complete.append(application)
     else:
-        applications = ExchangeApplication.objects.exclude(application_status=0)
+        applications = ExchangeApplication.objects.exclude(
+            application_status=0)
         for application in applications:
             if application.application_status == 1:
                 processing.append(application)
@@ -305,37 +311,43 @@ def exchange_application_list(request):
         'complete': complete,
         'form': form,
     }
-    return render(request, 'calenders/exchange_application_list.html', context=context)
+    return render(request, 'results/exchange_application_list.html', context=context)
 
 
+@login_required
 def exchange_application_audit(request):
     form = ExchangeApplicationRefuseForm()
     if request.method == 'POST':
-        application = ExchangeApplication.objects.get(id=form.exchange_application_id)
+        application = ExchangeApplication.objects.get(
+            id=form.exchange_application_id)
         application.application_status = 2
         application.remark = form.remark
         application.save()
         return redirect('/result/exchange_application_audit')
     if request.user.role == 'user':
-        processing = ExchangeApplication.objects.filter(user_receive=request.user, application_status=0)
+        processing = ExchangeApplication.objects.filter(
+            user_receive=request.user, application_status=0)
         complete = None
     else:
         processing = ExchangeApplication.objects.filter(application_status=1)
-        complete = ExchangeApplication.objects.filter(application_status__in=[2, 3, 4, 5])
+        complete = ExchangeApplication.objects.filter(
+            application_status__in=[2, 3, 4, 5])
     context = {
         'processing': processing,
         'complete': complete,
         'form': form,
     }
-    return render(request, 'calender/exchange_application_audit.html', context=context)
+    return render(request, 'results/exchange_application_audit.html', context=context)
 
 
+@login_required
 def exchange_application_undo(request, ea_id):
     application = ExchangeApplication.objects.get(id=ea_id)
     application.delete()
     return redirect('/result/exchange_application_list')
 
 
+@login_required
 def exchange_application_accept(request, ea_id):
     application = ExchangeApplication.objects.get(id=ea_id)
     if request.user.role == 'user':
@@ -351,15 +363,18 @@ def exchange_application_accept(request, ea_id):
             temp_date += timedelta(days=1)
             date_list.append(temp_date)
         for d in date_list:
-            result_apply = Result.objects.filter(date=d, user=application.user_apply)
+            result_apply = Result.objects.filter(
+                date=d, user=application.user_apply)
             result_apply.user = application.user_receive
             result_apply.save()
-            result_receive = Result.objects.filter(date=d, user=application.user_receive)
+            result_receive = Result.objects.filter(
+                date=d, user=application.user_receive)
             result_receive.user = application.user_apply
             result_receive.save()
         return redirect('/result/exchange_application_list')
 
 
+@login_required
 def exchange_application_archive(request, ea_id):
     application = ExchangeApplication.objects.get(id=ea_id)
     application.application_status += 2

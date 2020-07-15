@@ -22,14 +22,17 @@ class DemandCreationForm(forms.ModelForm):
         queryset=Shift.objects.all(),
         label=_('Shift'))
     level = forms.IntegerField(
-        label=_('level'),
+        label=_('Level'),
         widget=forms.widgets.Select(choices=LEVEL_CHOICES))
-    weekday = forms.IntegerField(label=_('weekdayDemand'))
-    holiday = forms.IntegerField(label=_('holidayDemand'))
+    station = forms.ModelChoiceField(
+        queryset=Station.objects.all(),
+        label=_('Station'))
+    weekday = forms.IntegerField(label=_('WeekdayDemand'))
+    holiday = forms.IntegerField(label=_('HolidayDemand'))
 
     class Meta:
         model = DemandOfStation
-        fields = ['shift', 'level',
+        fields = ['shift', 'level', 'station',
                   'weekday', 'holiday']
 
 

@@ -99,6 +99,10 @@ class Department(models.Model):
         null=True,
         default=1,
     )
+    start_date  = models.DateField(
+        verbose_name=_("StartDate"),
+        null=True
+    )
 
     def __str__(self):
         return self.name

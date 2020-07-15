@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
+    'corsheaders',
     'rest_framework',
     'crispy_forms',
     'mainpage',
@@ -71,6 +72,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -100,6 +102,36 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'schedule.wsgi.application'
+
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:*',
+]
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+)
 
 
 # Database
@@ -165,8 +197,8 @@ LANGUAGE_CODE = 'zh-hant'
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Taipei'
 USE_I18N = True
-
-USE_L10N = True
+DATE_FORMAT = 'Y-m-d'
+USE_L10N = False
 
 USE_TZ = True
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
