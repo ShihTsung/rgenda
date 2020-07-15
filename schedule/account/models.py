@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from datetime import date
+
 
 # 選項的部分之後可以用獨立 model取代
 LEVEL_CHOICES = (
@@ -87,9 +89,15 @@ class Department(models.Model):
         verbose_name=_("SameDayNotice"),
         default=5,
     )
-    begin_of_week = models.IntegerField(
-        verbose_name=_("BeginOfWeek"),
-        default=0
+    date_start = models.DateField(
+        verbose_name=_('DateStart'),
+        null=False,
+        default=date(2020, 6, 9),
+    )
+    month_cycle = models.IntegerField(
+        verbose_name=_('MonthCycle'),
+        null=True,
+        default=1,
     )
     start_date  = models.DateField(
         verbose_name=_("StartDate"),
