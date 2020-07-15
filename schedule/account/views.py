@@ -12,7 +12,7 @@ from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from django.http import FileResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.templatetags.static import static
 from collections import defaultdict
 import openpyxl
@@ -359,3 +359,20 @@ def departmentDelete(request, id=None):
         return redirect("/departments/list")
     else:
         return redirect("/departments/list")
+
+
+def cycle_analysis(d_id, input_date):
+    department = Department.objects.get(id=d_id)
+    date_start = department.date_start
+    rule = department.law_rule
+    date_diff = (input_date - date_start).days
+    return {
+        'cycle_no': date_diff // (7 * 2 ** rule),
+        'day_no': date_diff % (7 * 2 ** rule),
+    }
+
+
+def get_cycle(d_id, cycle_no):
+    department = Department.objects.get(id=d_id)
+    date_first = department.date_start + timedelta(days=7 * 2 ** department.law_rule * cycle_no)
+    return [date_first + timedelta(days=i) for i in range(7 * 2 ** department.law_rule)]

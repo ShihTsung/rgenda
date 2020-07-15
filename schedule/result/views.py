@@ -126,28 +126,10 @@ def result_to_history(request):
     return redirect('/'+lang+'/results/after_results')
 
 
-def check_result_1(continue_dict, schedule_rule, last_off_hours, to_check_month, last_shift_type=None, cycle_start=None):
+def check_result():
     """
-
-    :param continue_dict: 各個user的連續工作天數
-    :param schedule_rule: 醫院規則，單週同班 or 單月同班 or 三月同班
-    :param last_off_hours: 前一次下班時間(不考慮加班)，datetime
-    :param last_shift_type: 前一班的班別(需與)，單週同班種才需要
-    :return: [(result_id, invalid item),]
     """
     invalid = list()
-
-    to_check = defaultdict(list)
-    pre_results = PreResult.objects.order_by('date')
-    if pre_results:
-        for result in pre_results:
-            to_check[result.user.id].append(result)
-    else:
-        results = Result.object.filter(date__month=to_check_month).order_by('date')
-        for result in results:
-            to_check[result.user.id].append(result)
-
-    check_shift_type(to_check, invalid)
 
     return invalid
 
