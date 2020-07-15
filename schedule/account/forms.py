@@ -125,8 +125,8 @@ class CustomUserChangeForm(UserChangeForm):
     onboard_date = forms.DateField(
         label=_('OnboardDate'),
         widget=forms.SelectDateWidget(
-            attrs={'class': 'datepicker', 'type': 'date',
-                   'value': datetime.now().strftime("%Y/%m/%d")}))
+            attrs={'class': 'datepicker', 'type': 'date'}
+        ))
 
     class Meta:
         model = CustomUser
@@ -161,6 +161,10 @@ class DepartmentCreationForm(forms.ModelForm):
         model = Department
         help_texts = {}
         fields = ['name', 'detail']
+
+
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 
 class DepartmentChangeForm(forms.ModelForm):
@@ -242,15 +246,20 @@ class DepartmentChangeForm(forms.ModelForm):
                 (6, _('Sunday'))
             ])
     )
+    start_date = forms.DateField(
+        label=_('StartDate'),
+        required=True,
+        widget=DateInput)
 
     class Meta:
         model = Department
         help_texts = {}
+        widgets = {'start_date': DateInput()}
         fields = ['name', 'detail', 'limit_pre_schedule',
                   'deadline_pre_schedule', 'reset', 'law_rule',
                   'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday',
                   'intern_in_holiday', 'intern_d_only', 'same_day_notice',
-                  'begin_of_week']
+                  'begin_of_week', 'start_date']
 
 
 class ImportForm(forms.Form):

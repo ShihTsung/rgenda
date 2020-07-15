@@ -91,6 +91,10 @@ class Department(models.Model):
         verbose_name=_("BeginOfWeek"),
         default=0
     )
+    start_date  = models.DateField(
+        verbose_name=_("StartDate"),
+        null=True
+    )
 
     def __str__(self):
         return self.name
