@@ -19,4 +19,4 @@ class DemandOfStation(models.Model):
     holiday = models.IntegerField(verbose_name=_('HolidayDemand'), default=0)
 
     def __str__(self):
-        return self.shift.name + '-' + self.shift.station.name
+        return self.shift.name + '-' + self.station.name

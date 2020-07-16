@@ -27,7 +27,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
-from result.models import Result, PreResult, AfterResult
+from result.models import Result, PreResult, AfterResult, TimeAdjustment
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 
@@ -115,6 +115,11 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             if user.role == 'admin' or user.is_superuser:
                 return queryset(can_be_scheduled=True)
         return queryset
+
+
+class TimeAdjustmentViewSet(viewsets.ModelViewSet):
+    queryset = TimeAdjustment.objects.all()
+    serializer_class = TimeAdjustmentSerializer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):

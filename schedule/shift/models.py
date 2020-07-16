@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from station.models import Station
+from account.models import Department
 
 """
 班別管理
