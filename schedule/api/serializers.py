@@ -5,7 +5,7 @@ from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
 from date.models import Oneday
-from result.models import Result, PreResult, AfterResult
+from result.models import Result, PreResult, AfterResult, TimeAdjustment
 from reservation.models import Reservation, PromiseShift
 
 # 部門/科別
@@ -70,9 +70,9 @@ class StationSerializer(serializers.ModelSerializer):
 
 
 class GetShiftSerializer(serializers.ModelSerializer):
-    station = StationSerializer()
     start_time = serializers.SerializerMethodField()
     end_time = serializers.SerializerMethodField()
+    department = DepartmentSerializer()
 
     def get_start_time(self, obj):
         hour = str(obj.start_hour)
@@ -87,7 +87,7 @@ class GetShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
         fields = ('id', 'name', 'shift_type', 'start_time',
-                  'end_time', 'station', 'work_hours')
+                  'end_time', 'department', 'work_hours')
         read_only_fields = ('id',)
 
 # 班別
@@ -97,7 +97,7 @@ class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
         fields = ('id', 'name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'station', 'work_hours')
+                  'end_hour', 'end_min', 'department', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get
@@ -147,7 +147,7 @@ class OnedaySerializer(serializers.ModelSerializer):
 class PreResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 # 排班結果2
 
@@ -155,7 +155,7 @@ class PreResultSerializer(serializers.ModelSerializer):
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 # 排班結果3
 
@@ -163,46 +163,37 @@ class ResultSerializer(serializers.ModelSerializer):
 class AfterResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 
 class GetPreResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
     shift = GetShiftSerializer()
-    station_name = serializers.SerializerMethodField()
-
-    def get_station_name(self, obj):
-        return obj.shift.station.name
+    station = StationSerializer()
 
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 
 class GetResultSerializer(serializers.ModelSerializer):
     user = GetCustomUserSerializer()
     shift = GetShiftSerializer()
-    station_name = serializers.SerializerMethodField()
-
-    def get_station_name(self, obj):
-        return obj.shift.station.name
+    station = StationSerializer()
 
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
     shift = GetShiftSerializer()
-    station_name = serializers.SerializerMethodField()
-
-    def get_station_name(self, obj):
-        return obj.shift.station.name
+    station = StationSerializer()
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'overtime', 'station_name')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -227,15 +218,16 @@ class GetReservationSerializer(serializers.ModelSerializer):
 class DemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'weekday', 'holiday')
+        fields = ('id', 'shift', 'level', 'weekday', 'holiday', 'station')
 
 
 class GetDemandSerializer(serializers.ModelSerializer):
     shift = ShiftSerializer()
+    station = StationSerializer()
 
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'weekday', 'holiday')
+        fields = ('id', 'shift', 'level', 'weekday', 'holiday', 'station')
 
 # 保證假/班 Get
 
@@ -252,8 +244,14 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
 
 class PromiseShiftSerializer(serializers.ModelSerializer):
-    shift = Shift
 
     class Meta:
         model = PromiseShift
         fields = ('id', 'user', 'year', 'date', 'shift')
+
+
+class TimeAdjustmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TimeAdjustment
+        fields = ('id', 'hour', 'adjustment_type', 'remark')

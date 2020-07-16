@@ -58,7 +58,7 @@
         <th scope="col">shift type</th>
         <th scope="col">start time</th>
         <th scope="col">end time</th>
-        <th scope="col">station</th>
+        <th scope="col">department</th>
         <th scope="col">work hours</th>
         {% if user.role in "admin,manager" or user.is_superuser %}
         <th scope="col">actions</th>
@@ -72,7 +72,7 @@
         <td>{{shift.shift_type}}</td>
         <td>{{shift.show_start_hour}} : {{shift.show_start_min}}</td>
         <td>{{shift.show_end_hour}} : {{shift.show_end_min}}</td>
-        <td>{{shift.station.department}}-{{shift.station}}</td>
+        <td>{{shift.department}}</td>
         <td>{{shift.work_hours}}</td>
         {% if user.role in "admin,manager" or user.is_superuser %}
         <td>
