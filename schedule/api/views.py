@@ -136,10 +136,11 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         user = self.request.user
-        if user.role == 'admin' or user.is_superuser:
-            return queryset
+        if self.request.query_params:
+            if self.request.query_params.get('all') == "True":
+                return queryset
         else:
-            return queryset.filter(station__department=user.department)
+            return queryset.filter(department=user.department)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
