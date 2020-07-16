@@ -21,6 +21,7 @@ def initial(request):
     from station.models import Station
     from shift.models import Shift
     from demand.models import DemandOfStation
+    from result.models import Result, PreResult, AfterResult
 
     print('clean database')
     Department.objects.all().delete()
@@ -28,6 +29,10 @@ def initial(request):
     Station.objects.all().delete()
     Shift.objects.all().delete()
     Oneday.objects.all().delete()
+    Result.objects.all().delete()
+    PreResult.objects.all().delete()
+    AfterResult.objects.all().delete()
+
 # departments
     print('create departments')
     department = Department.objects.create(name='RD', detail='研發部')
@@ -45,7 +50,7 @@ def initial(request):
             start_min=0,
             end_hour=24,
             end_min=0,
-            station=station,
+            department = department,
             work_hours=hours[i])
     department = Department.objects.create(name='FC', detail='財務部')
     station = Station.objects.create(
@@ -59,7 +64,7 @@ def initial(request):
             start_min=0,
             end_hour=24,
             end_min=0,
-            station=station,
+            department=department,
             work_hours=hours[i])
 
 # superuser
@@ -189,16 +194,8 @@ def initial(request):
             start_min=0,
             end_hour=16,
             end_min=30,
-            station=station
+            department=Department.objects.first()
         )
-        for i in range(1, 5):
-            demand = DemandOfStation.objects.create(
-                shift=shift,
-                level=i,
-                weekday=2,
-                holiday=1
-            )
-            demand.save()
         shift.save()
 
     print('finish')
