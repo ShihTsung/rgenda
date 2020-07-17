@@ -329,7 +329,7 @@ def departmentList(request):
     departments = Department.objects.all()
     field_names = [
         (0, 'name'),
-        (1, 'detail')
+        (1, 'detail'),
     ]
     users = CustomUser.objects.all()
     context = {

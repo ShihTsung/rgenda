@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .models import Result, AfterResult, PreResult, TimeAdjustment, ExchangeApplication
 from account.models import CustomUser as User
+from account.models import Department
+from account.views import cycle_analysis, get_cycle
 from django.contrib.auth.decorators import login_required
 from scripts.get_date_range import *
 from datetime import time, datetime, timedelta
@@ -126,19 +128,69 @@ def result_to_history(request):
     return redirect('/'+lang+'/results/after_results')
 
 
-def check_result():
+def check_result(d_id, month_to_check=None):
     """
     """
-    invalid = list()
-
+    invalid = defaultdict(list)
+    if month_to_check:
+        results = Result.objects.filter(date__month=month_to_check).order_by('date')
+    else:
+        results = PreResult.objects.order_by('date')
+        month_to_check = results[0].date.month
+    to_check = defaultdict(list)
+    for result in results:
+        to_check[result.user.id].append(result)
+    department = Department.objects.get(id=d_id)
+    for user_id, results in to_check.items():
+        check_cycle(department, results, invalid)
+        chech_time()
     return invalid
 
 
-def check_shift_type(results, invalid):
+def check_cycle(department, results, invalid):
+    # 單週同班種
+    date0 = results[0].date
+    user = results[0].user
+    if department.schedule_rule == 0:
+        temp_results = results.copy()
+        ca = cycle_analysis(department.id, date0)
+        current_shift_type = None
+        for i, d in enumerate(get_cycle(department.id, ca['cycle_no'])):
+            if d < date0:
+                temp_results.insert(i, Result.objects.filter(date=d, user=user))
+            else:
+                break
+        for i, result in enumerate(temp_results):
+            if i % 7 == 0:
+                current_shift_type = None
+            if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
+                current_shift_type = result.shift.shift_type
+            elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type:
+                invalid[result.id].append('unique shift type in a week')
+        return None
+    # 單月/三月同班種
+    current_shift_type = None
+    if department.schedule_rule == 2 and date0.month % 3 != department.month_cycle:
+        results_last_month = Result.objects.filter(date__month=results[0].date.month - 1,
+                                                   user=user,
+                                                   shift__shift_type__in=['白班', '小夜', '大夜'])
+        shift_types = [result.shift.shift_type for result in results_last_month]
+        counter = 0
+        for st in ['白班', '小夜', '大夜']:
+            if shift_types.count(st) > counter:
+                counter = shift_types.count(st)
+                current_shift_type = st
+    for result in results:
+        if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
+            current_shift_type = result.shift.shift_type
+        elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type:
+            invalid[result.id].append('unique shift type in a week')
     return None
 
 
-def check_rest():
+def check_rest(department, results, invalid):
+    last_result = Result.objects.filter(user=results[0].user, date=results[0].date - timedelta(days=1))
+    
     return None
 
 
