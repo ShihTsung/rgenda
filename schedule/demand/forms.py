@@ -1,16 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from station.models import Station
-from .models import DemandOfStation
 from shift.models import Shift
 
-
-LEVEL_CHOICES = (
-    (4, _('N4')),
-    (3, _('N3')),
-    (2, _('N2')),
-    (1, _('N1,N'))
-)
 
 """
 人力需求管理

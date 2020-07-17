@@ -4,6 +4,8 @@ from django.contrib import messages
 from .models import DemandOfStation
 from .forms import (DemandCreationForm, DemandEditForm)
 from collections import defaultdict
+from shift.models import Shift
+from station.models import Station
 import json
 
 """
@@ -14,15 +16,19 @@ import json
 # 建立需求
 @login_required
 def demand_create(request):
+    department = request.user.department
     form = DemandCreationForm()
+    form.fields['shift'].queryset = Shift.objects.filter(department=department,
+                                                         shift_type__in=['白班', '小夜', '大夜', 'oncall'])
+    form.fields['station'].queryset = Station.objects.filter(department=department)
     is_super = request.user.is_superuser
     if request.method == 'POST':
         form = DemandCreationForm(request.POST)
         if form.is_valid():
             for level in [1, 2, 3, 4]:
                 demend = DemandOfStation.objects.create(
-                    shift=form.shift,
-                    station=form.station,
+                    shift=Shift.objects.get(id=request.POST.get('shift')),
+                    station=Station.objects.get(id=request.POST.get('station')),
                     level=level,
                 )
             return redirect('/demands/list')
