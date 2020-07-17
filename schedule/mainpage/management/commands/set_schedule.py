@@ -53,6 +53,28 @@ class Demand:
         return self.day + ':::' + str(self.staff_num)
 
 
+def cycle_analysis(department, input_date):
+    """
+    department => 科別/部門 object
+    input_date => datetime.date() object
+    """
+    date_start = department.date_start
+    rule = department.law_rule
+    date_diff = (input_date - date_start).days
+    cycle_no = date_diff // (7 * 2 ** rule)
+    day_no = date_diff % (7 * 2 ** rule)
+
+    return (cycle_no, day_no)
+
+
+def get_cycle(department, cycle_no):
+    date_first = department.date_start + timedelta(
+        days=7 * 2 ** department.law_rule * cycle_no)
+
+    return [date_first + timedelta(days=i) for i in range(
+        7 * 2 ** department.law_rule)]
+
+
 def devideDays(days):
     past = []
     present = []
