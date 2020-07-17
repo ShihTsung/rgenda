@@ -19,9 +19,13 @@ def demand_create(request):
     if request.method == 'POST':
         form = DemandCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            for level in [1, 2, 3, 4]:
+                demend = DemandOfStation.objects.create(
+                    shift=form.shift,
+                    station=form.station,
+                    level=level,
+                )
             return redirect('/demands/list')
-
     context = {'form': form}
     if request.user.role in ['admin', 'manager']:
         return render(request, 'demands/demandCreate.html', context)

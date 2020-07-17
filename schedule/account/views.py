@@ -271,13 +271,10 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = Department.objects.last()
-            station = Station.objects.create(
-                department=department,
-                name="None")
-            names = ['Request', 'Off', '公假']
-            types = ['休假', '休假', '公假']
-            hours = [0, 0, 8]
-            for i in range(3):
+            names = ['白班', '小夜', '大夜', '例假', '休假', 'On Call', '公假']
+            types = ['白班', '小夜', '大夜', '休假', '休假', 'oncall', '公假']
+            hours = [8, 8, 8, 0, 0, 0, 8]
+            for i in range(7):
                 shift = Shift.objects.create(
                     name=names[i],
                     shift_type=types[i],
@@ -285,8 +282,9 @@ def departmentCreate(request):
                     start_min=0,
                     end_hour=24,
                     end_min=0,
-                    station=station,
-                    work_hours=hours[i])
+                    department=department,
+                    work_hours=hours[i],
+                )
             messages.success(
                 request,
                 "Department was created for "+department.name)
@@ -305,7 +303,7 @@ def departmentList(request):
     departments = Department.objects.all()
     field_names = [
         (0, 'name'),
-        (1, 'detail')
+        (1, 'detail'),
     ]
     users = CustomUser.objects.all()
     context = {

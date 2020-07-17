@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Station
 from .forms import (StationCreationForm, StationEditForm)
 from shift.models import Shift
+from demand.models import DemandOfStation
 """
 工作站管理
 """
