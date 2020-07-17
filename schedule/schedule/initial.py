@@ -36,27 +36,10 @@ def initial(request):
 # departments
     print('create departments')
     department = Department.objects.create(name='RD', detail='研發部')
-    station = Station.objects.create(
-        department=department,
-        name="None")
-    names = ['Request', 'Off', '公假']
-    types = ['休假', '休假', '公假']
-    hours = [0, 0, 8]
-    for i in range(3):
-        shift = Shift.objects.create(
-            name=names[i],
-            shift_type=types[i],
-            start_hour=24,
-            start_min=0,
-            end_hour=24,
-            end_min=0,
-            department = department,
-            work_hours=hours[i])
-    department = Department.objects.create(name='FC', detail='財務部')
-    station = Station.objects.create(
-        department=department,
-        name="None")
-    for i in range(3):
+    names = ['休息', '例假', '公假', 'on-call']
+    types = ['休假', '休假', '公假', 'on-call']
+    hours = [0, 0, 8, 0]
+    for i in range(4):
         shift = Shift.objects.create(
             name=names[i],
             shift_type=types[i],
@@ -66,6 +49,74 @@ def initial(request):
             end_min=0,
             department=department,
             work_hours=hours[i])
+    shift = Shift.objects.create(
+            name='白班',
+            shift_type='白班',
+            start_hour=8,
+            start_min=0,
+            end_hour=17,
+            end_min=0,
+            department=department,
+            work_hours=8)
+    shift = Shift.objects.create(
+            name='小夜',
+            shift_type='小夜',
+            start_hour=12,
+            start_min=0,
+            end_hour=19,
+            end_min=0,
+            department=department,
+            work_hours=8)
+    shift = Shift.objects.create(
+            name='大夜',
+            shift_type='大夜',
+            start_hour=23,
+            start_min=0,
+            end_hour=8,
+            end_min=0,
+            department=department,
+            work_hours=8)
+    department = Department.objects.create(name='FC', detail='財務部')
+    names = ['休息', '例假', '公假', 'on-call']
+    types = ['休假', '休假', '公假', 'on-call']
+    hours = [0, 0, 8, 0]
+    for i in range(4):
+        shift = Shift.objects.create(
+            name=names[i],
+            shift_type=types[i],
+            start_hour=24,
+            start_min=0,
+            end_hour=24,
+            end_min=0,
+            department=department,
+            work_hours=hours[i])
+    shift = Shift.objects.create(
+            name='白班',
+            shift_type='白班',
+            start_hour=8,
+            start_min=0,
+            end_hour=17,
+            end_min=0,
+            department=department,
+            work_hours=8)
+    shift = Shift.objects.create(
+            name='小夜',
+            shift_type='小夜',
+            start_hour=12,
+            start_min=0,
+            end_hour=19,
+            end_min=0,
+            department=department,
+            work_hours=8)
+    shift = Shift.objects.create(
+            name='大夜',
+            shift_type='大夜',
+            start_hour=23,
+            start_min=0,
+            end_hour=8,
+            end_min=0,
+            department=department,
+            work_hours=8)
 
 # superuser
     print('create a super user')
@@ -182,21 +233,6 @@ def initial(request):
         department=Department.objects.first(),
         name='工站三'
     )
-
-# shift
-    print('create shift')
-    for i in range(7):
-        st = random.choice(['白班', '小夜', '大夜'])
-        shift = Shift.objects.create(
-            name="shift"+str(i),
-            shift_type=st,
-            start_hour=8,
-            start_min=0,
-            end_hour=16,
-            end_min=30,
-            department=Department.objects.first()
-        )
-        shift.save()
 
     print('finish')
 

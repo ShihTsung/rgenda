@@ -271,10 +271,10 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = Department.objects.last()
-            names = ['白班', '小夜', '大夜', '例假', '休假', 'On Call', '公假']
-            types = ['白班', '小夜', '大夜', '休假', '休假', 'oncall', '公假']
-            hours = [8, 8, 8, 0, 0, 0, 8]
-            for i in range(7):
+            names = ['休息', '例假', '公假', 'on-call']
+            types = ['休假', '休假', '公假', 'on-call']
+            hours = [0, 0, 8, 0]
+            for i in range(4):
                 shift = Shift.objects.create(
                     name=names[i],
                     shift_type=types[i],
@@ -283,8 +283,34 @@ def departmentCreate(request):
                     end_hour=24,
                     end_min=0,
                     department=department,
-                    work_hours=hours[i],
-                )
+                    work_hours=hours[i])
+            shift = Shift.objects.create(
+                    name='白班',
+                    shift_type='白班',
+                    start_hour=8,
+                    start_min=0,
+                    end_hour=17,
+                    end_min=0,
+                    department=department,
+                    work_hours=8)
+            shift = Shift.objects.create(
+                    name='小夜',
+                    shift_type='小夜',
+                    start_hour=12,
+                    start_min=0,
+                    end_hour=19,
+                    end_min=0,
+                    department=department,
+                    work_hours=8)
+            shift = Shift.objects.create(
+                    name='大夜',
+                    shift_type='大夜',
+                    start_hour=23,
+                    start_min=0,
+                    end_hour=8,
+                    end_min=0,
+                    department=department,
+                    work_hours=8)
             messages.success(
                 request,
                 "Department was created for "+department.name)
