@@ -51,11 +51,6 @@ def shift_list(request):
 
     shifts = Shift.objects.all()
     field_names = [(0, 'name'), (1, 'shift_type'), (4, 'station')]
-    for shift in shifts:
-        shift.show_start_hour = int_to_time_str(shift.start_hour)
-        shift.show_start_min = int_to_time_str(shift.start_min)
-        shift.show_end_hour = int_to_time_str(shift.end_hour)
-        shift.show_end_min = int_to_time_str(shift.end_min)
 
     context = {'shifts': shifts, 'field_names': field_names}
 

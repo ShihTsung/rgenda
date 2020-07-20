@@ -43,37 +43,29 @@ def initial(request):
         shift = Shift.objects.create(
             name=names[i],
             shift_type=types[i],
-            start_hour=24,
-            start_min=0,
-            end_hour=24,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=hours[i])
     shift = Shift.objects.create(
             name='白班',
             shift_type='白班',
-            start_hour=8,
-            start_min=0,
-            end_hour=17,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
     shift = Shift.objects.create(
             name='小夜',
             shift_type='小夜',
-            start_hour=12,
-            start_min=0,
-            end_hour=19,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
     shift = Shift.objects.create(
             name='大夜',
             shift_type='大夜',
-            start_hour=23,
-            start_min=0,
-            end_hour=8,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
     department = Department.objects.create(name='FC', detail='財務部')
@@ -84,37 +76,29 @@ def initial(request):
         shift = Shift.objects.create(
             name=names[i],
             shift_type=types[i],
-            start_hour=24,
-            start_min=0,
-            end_hour=24,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=hours[i])
     shift = Shift.objects.create(
             name='白班',
             shift_type='白班',
-            start_hour=8,
-            start_min=0,
-            end_hour=17,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
     shift = Shift.objects.create(
             name='小夜',
             shift_type='小夜',
-            start_hour=12,
-            start_min=0,
-            end_hour=19,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
     shift = Shift.objects.create(
             name='大夜',
             shift_type='大夜',
-            start_hour=23,
-            start_min=0,
-            end_hour=8,
-            end_min=0,
+            start_time=datetime.time(hour=8, minute=0),
+            end_time=datetime.time(hour=17, minute=0),
             department=department,
             work_hours=8)
 

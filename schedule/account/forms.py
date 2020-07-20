@@ -250,8 +250,8 @@ class DepartmentChangeForm(forms.ModelForm):
                 (6, _('Sunday'))
             ])
     )
-    start_date = forms.DateField(
-        label=_('StartDate'),
+    date_start = forms.DateField(
+        label=_('DateStart'),
         required=True,
         widget=DateInput,
         localize=False)
@@ -269,7 +269,7 @@ class DepartmentChangeForm(forms.ModelForm):
                   'deadline_pre_schedule', 'reset', 'law_rule',
                   'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday',
                   'intern_in_holiday', 'intern_d_only', 'same_day_notice',
-                  'begin_of_week', 'start_date']
+                  'begin_of_week', 'date_start']
 
 
 class ImportForm(forms.Form):

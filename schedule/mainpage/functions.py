@@ -8,9 +8,12 @@ def calculate(staffs, demands):
 
     demand_total = sum([d.staff_num for d in demands])
     workday_total = sum([s.workday for s in staffs])
+    # 人數不足，隨機刪除
     if demand_total > workday_total:
-        print('More staffs needed')
-        return None
+        for i in range(demane_total - workday_total):
+            d = random.choice(demands)
+            if d.is_weekday:
+                d.staff_num -= 1
 
     result = dict([(s.name, list()) for s in staffs])
 
@@ -21,6 +24,7 @@ def calculate(staffs, demands):
     continuous_dict = dict([(s.name, s.continuous) for s in staffs])
 
     # Start calculate
+
     for i in range(len(demands)):
         # Weight continuous
         weight_continuous = dict()
@@ -55,8 +59,11 @@ def calculate(staffs, demands):
                 weight_ensure_rest[s.name] = 1
         # Calculate weight
         if demands[i].is_weekday:
-            weight = dict([(s.name, weight_workday[s.name] * weight_continuous[s.name] * weight_scheduled_rest[s.name]
-                            * weight_scheduled_work[s.name] * weight_ensure_rest[s.name] * 1000 + 1) for s in staffs])
+            #[ {s.name: weight} ]
+            weight = dict(
+                [
+                    (s.name, weight_workday[s.name] * weight_continuous[s.name] * weight_scheduled_rest[s.name] * weight_scheduled_work[s.name] * weight_ensure_rest[s.name] * 1000 + 1) for s in staffs
+                ])
         else:
             weight = dict([(s.name, weight_workday[s.name] * weight_continuous[s.name] * weight_scheduled_rest[s.name] * weight_scheduled_work[s.name] * weight_ensure_rest[s.name] * weight_holiday_rest[s.name] *
                             1000 + 1) for s in staffs])
@@ -79,9 +86,16 @@ def calculate(staffs, demands):
                 if not demands[i].is_weekday:
                     weight_holiday_rest[s.name] -= 1
         for s in staffs:
-            if weight_workday[s.name] == -1 or weight_holiday_rest[s.name] == -1 or continuous_dict[s.name] == 7:
-                print('X', result[s.name], '| workday remain: ', weight_workday[s.name],
-                      '| continuous:', continuous_dict[s.name], '| holiday rest:', weight_holiday_rest[s.name])
+            cond1 = weight_workday[s.name] == -1
+            cond2 = weight_holiday_rest[s.name] == -1
+            cond3 = continuous_dict[s.name] == 7
+
+            if cond1 or cond2 or cond3:
+                print('X', result[s.name],
+                      '| workday remain: ',
+                      weight_workday[s.name],
+                      '| continuous:', continuous_dict[s.name],
+                      '| holiday rest:', weight_holiday_rest[s.name])
                 return None
     return result
 
