@@ -70,8 +70,8 @@
       <tr idx="{{shift.id}}">
         <td class="name">{{shift.name}}</td>
         <td>{{shift.shift_type}}</td>
-        <td>{{shift.show_start_hour}} : {{shift.show_start_min}}</td>
-        <td>{{shift.show_end_hour}} : {{shift.show_end_min}}</td>
+        <td>{{shift.start_time|time:'H:i'}}</td>
+        <td>{{shift.end_time|time:'H:i'}}</td>
         <td>{{shift.department}}</td>
         <td>{{shift.work_hours}}</td>
         {% if user.role in "admin,manager" or user.is_superuser %}

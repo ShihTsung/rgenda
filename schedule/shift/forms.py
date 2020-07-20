@@ -46,18 +46,8 @@ class ShiftCreationForm(forms.ModelForm):
         max_length=100,
         label=_('ShiftType'),
         widget=forms.widgets.Select(choices=TYPE_CHOICES))
-    start_hour = forms.IntegerField(
-        label=_('StartHour'),
-        widget=forms.widgets.Select(choices=START_HOUR_CHOICES))
-    start_min = forms.IntegerField(
-        label=_('StartMin'),
-        widget=forms.widgets.Select(choices=START_MIN_CHOICES))
-    end_hour = forms.IntegerField(
-        label=_('EndHour'),
-        widget=forms.widgets.Select(choices=END_HOUR_CHOICES))
-    end_min = forms.IntegerField(
-        label=_('EndMin'),
-        widget=forms.widgets.Select(choices=END_MIN_CHOICES))
+    start_time = forms.TimeField(label=_('StartTime'))
+    end_time = forms.TimeField(label=_('EndTime'))
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         label=_('Department'))
@@ -65,8 +55,8 @@ class ShiftCreationForm(forms.ModelForm):
 
     class Meta:
         model = Shift
-        fields = ['name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'department', 'work_hours']
+        fields = ['name', 'shift_type', 'start_time',
+                  'end_time', 'department', 'work_hours']
 
 
 START_HOUR_CHOICES = (
@@ -100,18 +90,12 @@ class ShiftEditForm(forms.ModelForm):
         max_length=100,
         label=_('ShiftType'),
         widget=forms.widgets.Select(choices=TYPE_CHOICES))
-    start_hour = forms.IntegerField(
-        label=_('StartHour'),
-        widget=forms.widgets.Select(choices=START_HOUR_CHOICES))
-    start_min = forms.IntegerField(
-        label=_('StartMin'),
-        widget=forms.widgets.Select(choices=START_MIN_CHOICES))
-    end_hour = forms.IntegerField(
-        label=_('EndHour'),
-        widget=forms.widgets.Select(choices=END_HOUR_CHOICES))
-    end_min = forms.IntegerField(
-        label=_('EndMin'),
-        widget=forms.widgets.Select(choices=END_MIN_CHOICES))
+    start_time = forms.TimeField(label=_('StartTime'),
+                                 widget=forms.TimeInput(
+                                    attrs={'type': 'time'}))
+    end_time = forms.TimeField(label=_('EndTime'),
+                               widget=forms.TimeInput(
+                                    attrs={'type': 'time'}))
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         label=_('Department'))
@@ -119,5 +103,5 @@ class ShiftEditForm(forms.ModelForm):
 
     class Meta:
         model = Shift
-        fields = ['name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'department', 'work_hours']
+        fields = ['name', 'shift_type', 'start_time',
+                  'end_time', 'department', 'work_hours']

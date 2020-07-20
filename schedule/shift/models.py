@@ -23,10 +23,8 @@ class Shift(models.Model):
         verbose_name=_('ShiftType'),
         null=True,
         choices=TYPE_CHOICES,)
-    start_hour = models.IntegerField(verbose_name=_('StartHour'), null=True)
-    start_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
-    end_hour = models.IntegerField(verbose_name=_('StartHour'), null=True)
-    end_min = models.IntegerField(verbose_name=_('StartHour'), null=True)
+    start_time = models.TimeField(verbose_name=_('StartTime'), null=True)
+    end_time = models.TimeField(verbose_name=_('EndTime'), null=True)
     department = models.ForeignKey(Department, verbose_name=_('Department'),
                                    on_delete=models.CASCADE, null=True)
     work_hours = models.FloatField(verbose_name=_('WorkHours'), null=True)

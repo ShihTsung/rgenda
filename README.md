@@ -39,3 +39,8 @@ control + C 跳出，再重新 docker-compose up 就行了
 | station     | 工作站管理      |
 | template    | 前端頁面        |
 
+docker 指令：
+    1.重開程式： docker-compose restart
+    2.啟動： docker-compose up
+    3.啟動並重新建立容器： docker-compose up --build
+    4.關閉：docker-compose down

@@ -24,6 +24,7 @@ def calculate(staffs, demands):
     continuous_dict = dict([(s.name, s.continuous) for s in staffs])
 
     # Start calculate
+
     for i in range(len(demands)):
         # Weight continuous
         weight_continuous = dict()
