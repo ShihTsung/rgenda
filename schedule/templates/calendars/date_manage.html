@@ -158,7 +158,9 @@
                     info.el.appendChild(x);
                   }
                 },
-                events: '/api/dates'
+                events: {
+                  'url': '/api/dates',
+                },
             });
             if ("{{LANG}}" == 'zh-hant') {
                 calendar.setOption('locale', 'zh-tw');

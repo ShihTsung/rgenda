@@ -75,13 +75,13 @@ class GetShiftSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer()
 
     def get_start_time(self, obj):
-        hour = str(obj.start_hour)
-        minute = str(obj.start_min)
+        hour = str(obj.start_time.hour)
+        minute = str(obj.start_time.minute)
         return ('0'+hour)[-2:]+':'+('0'+minute)[-2:]
 
     def get_end_time(self, obj):
-        hour = str(obj.end_hour)
-        minute = str(obj.end_min)
+        hour = str(obj.end_time.hour)
+        minute = str(obj.end_time.minute)
         return ('0'+hour)[-2:]+':'+('0'+minute)[-2:]
 
     class Meta:
@@ -96,8 +96,8 @@ class GetShiftSerializer(serializers.ModelSerializer):
 class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_hour', 'start_min',
-                  'end_hour', 'end_min', 'department', 'work_hours')
+        fields = ('id', 'name', 'shift_type', 'start_time', 'end_time',
+                  'department', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get

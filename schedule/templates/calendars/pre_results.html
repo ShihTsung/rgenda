@@ -199,6 +199,7 @@
       },
       eventRender: function(info) {
         let prop = info.event.extendedProps
+        $(info.el).after("<td>Extra column 1 here</td>");
         $(info.el).tooltip({
           html:true, 
           title: '<h3>'+prop.station_name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
