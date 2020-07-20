@@ -11,26 +11,25 @@ LEVEL_CHOICES = (
 )
 
 START_HOUR_CHOICES = (
-    (i, i) for i in range(1, 25)
+    (i, i) for i in range(24)
 )
 
 END_HOUR_CHOICES = (
-    (i, i) for i in range(1, 25)
+    (i, i) for i in range(24)
 )
 
 START_MIN_CHOICES = (
-    (i, i) for i in range(0, 61, 5)
+    (i, i) for i in range(0, 60, 5)
 )
 
 END_MIN_CHOICES = (
-    (i, i) for i in range(0, 61, 5)
+    (i, i) for i in range(0, 60, 5)
 )
 
 TYPE_CHOICES = (
     ('白班', '白班'),
     ('小夜', '小夜'),
     ('大夜', '大夜'),
-    ('休假', '休假'),
     ('公假', '公假'),
     ('oncall', 'oncall')
 )
@@ -67,31 +66,6 @@ class ShiftCreationForm(forms.ModelForm):
         model = Shift
         fields = ['name', 'shift_type', 'start_hour', 'start_min',
                   'end_hour', 'end_min', 'department', 'work_hours']
-
-
-START_HOUR_CHOICES = (
-    (i, i) for i in range(1, 25)
-)
-
-END_HOUR_CHOICES = (
-    (i, i) for i in range(1, 25)
-)
-
-START_MIN_CHOICES = (
-    (i, i) for i in range(0, 61, 5)
-)
-
-END_MIN_CHOICES = (
-    (i, i) for i in range(0, 61, 5)
-)
-TYPE_CHOICES = (
-    ('白班', '白班'),
-    ('小夜', '小夜'),
-    ('大夜', '大夜'),
-    ('休假', '休假'),
-    ('公假', '公假'),
-    ('oncall', 'oncall')
-)
 
 
 class ShiftEditForm(forms.ModelForm):
