@@ -6,7 +6,7 @@ from .models import DemandOfStation
 
 class DemandOfStationAdmin(admin.ModelAdmin):
     model = DemandOfStation
-    list_display = ['id', 'level', 'shift', 'weekday', 'holiday']
+    list_display = ['id', 'level', 'shift', 'workday', 'holiday']
 
 
 admin.site.register(DemandOfStation, DemandOfStationAdmin)

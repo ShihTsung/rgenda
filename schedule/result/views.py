@@ -5,11 +5,13 @@ from account.models import Department
 from account.views import cycle_analysis, get_cycle
 from django.contrib.auth.decorators import login_required
 from scripts.get_date_range import *
-from datetime import time, datetime, timedelta
+from datetime import time, datetime, timedelta, date
 from collections import defaultdict
 from date.views import attr_list
 from .forms import TimeAdjustmentCreateForm, TimeAdjustmentSearchForm, ExchangeApplicationCreateForm, ExchangeApplicationRefuseForm
 from date.models import Oneday
+from demand.views import get_demands
+import json
 
 
 # 計算總工時
@@ -133,6 +135,7 @@ def check_result(d_id, month_to_check=None):
     """
     """
     invalid = defaultdict(list)
+    demand_unsatisfied = defaultdict()
     if month_to_check:
         results = Result.objects.filter(date__month=month_to_check).order_by('date')
     else:
@@ -147,8 +150,8 @@ def check_result(d_id, month_to_check=None):
         check_rest_day(department, results, invalid)
         check_rest_hour(results, invalid)
         if User.objects.get(id=user_id).pregnant:
-            check_hour_pregnant(results)
-    return invalid
+            check_hour_pregnant(results, invalid)
+    return invalid,
 
 
 def check_cycle(department, results, invalid):
@@ -265,21 +268,33 @@ def check_rest_hour(results, invalid):
     last_result = Result.objects.filter(user=results[0].user, date=results[0].date - timedelta(days=1))
     last_off_time = datetime.combine(last_result.date, time(hour=0, minute=0, second=0))
     if last_result.shift.shift_type in ['白班', '小夜', '大夜']:
-        last_off_time = datetime.combine(last_result.date,
-                                         time(hour=last_result.shift.end_hour, minute=last_result.shift.end_min))
+        if last_result.shift.start_time > last_result.shift.end_time:
+            last_off_time = datetime.combine(last_result.date, last_result.shift.end_time) + timedelta(days=1)
+        else:
+            last_off_time = datetime.combine(last_result.date, last_result.shift.end_time)
     for result in results:
         if result.shift.shift_type in ['白班', '小夜', '大夜']:
-            start_time = datetime.combine(result.date, time(hour=result.shift.start_hour, minute=result.shift.start_min))
+            start_time = datetime.combine(result.date, result.shift.start_time)
             if start_time - last_off_time < timedelta(hours=11):
                 invalid[result.id].append('rest time less than 11 hours')
-            last_off_time = datetime.combine(result.date, time(hour=result.shift.end_hour, minute=result.shift.end_min))
+            if result.shift.start_time > result.shift.end_time:
+                last_off_time = datetime.combine(result.date, result.shift.end_time) + timedelta(days=1)
+            else:
+                last_off_time = datetime.combine(result.date, result.shift.end_time)
     return None
 
 
-def check_hour_pregnant(results):
+def check_hour_pregnant(results, invalid):
+    """
+    檢查孕婦上班時間是否早於6點或下班時間晚於22點，是的話增加 pregnant woman work between 22 PM to 6 AM
+    :param results:
+    :param invalid:
+    :return:
+    """
     for result in results:
-        if result.shift.shift_type in ['白班', '小夜', '大夜'] and (result.shift.start_hour >= 6 and result.shift.end_hour <= 22):
-            pass
+        if result.shift.shift_type in ['白班', '小夜', '大夜'] and not (
+                result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
+            invalid[result.id].append('pregnant woman work between 22 PM to 6 AM')
     return None
 
 
@@ -427,3 +442,25 @@ def exchange_application_archive(request, ea_id):
     application.application_status += 2
     application.save()
     return redirect('/result/exchange_application_list')
+
+
+def calculate(request):
+    department = Department.objects.get(id=1)
+    #
+    demands = get_demands(department, date(year=2020, month=7, day=1), date(year=2020, month=7, day=31), True)
+    #
+    shift_type_proportion = {
+        '白班': 0,
+        '小夜': 0,
+        '大夜': 0,
+    }
+
+    for d in demands:
+        shift_type_proportion['白班'] = max(shift_type_proportion['白班'], sum(demands[d]['白班'].values()))
+        shift_type_proportion['小夜'] = max(shift_type_proportion['小夜'], sum(demands[d]['小夜'].values()))
+        shift_type_proportion['大夜'] = max(shift_type_proportion['大夜'], sum(demands[d]['大夜'].values()))
+    context = {
+        'demands': json.dumps(demands),
+        'shift_type_proportion': json.dumps(shift_type_proportion),
+    }
+    return render(request, 'test.html', context=context)

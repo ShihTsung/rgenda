@@ -10,22 +10,6 @@ LEVEL_CHOICES = (
     (1, _('Junior'))
 )
 
-START_HOUR_CHOICES = (
-    (i, i) for i in range(24)
-)
-
-END_HOUR_CHOICES = (
-    (i, i) for i in range(24)
-)
-
-START_MIN_CHOICES = (
-    (i, i) for i in range(0, 60, 5)
-)
-
-END_MIN_CHOICES = (
-    (i, i) for i in range(0, 60, 5)
-)
-
 TYPE_CHOICES = (
     ('白班', '白班'),
     ('小夜', '小夜'),

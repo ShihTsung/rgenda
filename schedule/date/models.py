@@ -9,9 +9,9 @@ class Oneday(models.Model):
         max_length=100,
         verbose_name=_('Attr'),
         choices=(
-            ('weekday', 'weekday'),
-            ('weekend', 'weekend'),
+            ('workday', 'workday'),
             ('holiday', 'holiday'),
+            ('closed_day', 'closed_day'),
         ),
     )
     locked = models.BooleanField(verbose_name=_('Locked'), default=False)

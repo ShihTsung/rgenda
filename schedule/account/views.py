@@ -19,6 +19,7 @@ import openpyxl
 from station.models import Station
 from shift.models import Shift
 from notifications.signals import notify
+from datetime import time
 
 
 """
@@ -278,37 +279,29 @@ def departmentCreate(request):
                 shift = Shift.objects.create(
                     name=names[i],
                     shift_type=types[i],
-                    start_hour=0,
-                    start_min=0,
-                    end_hour=0,
-                    end_min=0,
+                    start_time=time(hour=0, minute=0),
+                    end_time=time(hour=0, minute=0),
                     department=department,
                     work_hours=hours[i])
             shift = Shift.objects.create(
                     name='白班',
                     shift_type='白班',
-                    start_hour=7,
-                    start_min=0,
-                    end_hour=16,
-                    end_min=0,
+                    start_time=time(hour=7, minute=0),
+                    end_time=time(hour=16, minute=0),
                     department=department,
                     work_hours=8)
             shift = Shift.objects.create(
                     name='小夜',
                     shift_type='小夜',
-                    start_hour=15,
-                    start_min=0,
-                    end_hour=0,
-                    end_min=0,
+                    start_time=time(hour=15, minute=0),
+                    end_time=time(hour=0, minute=0),
                     department=department,
                     work_hours=8)
             shift = Shift.objects.create(
                     name='大夜',
                     shift_type='大夜',
-                    start_hour=23,
-                    start_min=0,
-                    end_hour=8,
-                    end_min=0,
+                    start_time=time(hour=23, minute=0),
+                    end_time=time(hour=8, minute=0),
                     department=department,
                     work_hours=8)
             messages.success(
