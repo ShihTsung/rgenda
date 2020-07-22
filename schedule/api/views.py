@@ -139,6 +139,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             if self.request.query_params.get('all') == "True":
                 return queryset
+            else:
+                return queryset.filter(department=user.department)
         else:
             return queryset.filter(department=user.department)
 

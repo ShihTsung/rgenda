@@ -9,3 +9,4 @@ openpyxl==3.0.3
 django-notifications-hq==1.6.0
 numpy==1.19.0
 django-cors-headers==3.4.0
+drf-yasg==1.17.1

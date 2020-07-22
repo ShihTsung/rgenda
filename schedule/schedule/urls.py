@@ -20,18 +20,42 @@ from django.conf.urls.static import static
 from django.urls import path, include, re_path
 from django.utils.translation import gettext_lazy as _
 from account.views import departmentList, departmentEdit, departmentCreate, departmentDelete, departmentDetail
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+# other modules
 from . import mail
 from . import initial
-# other modules
 import notifications.urls
 import notice.urls
 
 handler404 = 'mainpage.views.handler404'
 handler500 = 'mainpage.views.handler500'
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Rgenda API",
+        default_version='v1',
+        description="API 文件",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="lyle.lai@redfalcon-hpc.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
 urlpatterns = [
     path('api/', include('api.urls')),
-    ] + i18n_patterns(
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
+            schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^swagger/$',
+            schema_view.with_ui('swagger',
+                                cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^redoc/$',
+            schema_view.with_ui('redoc',
+                                cache_timeout=0), name='schema-redoc')
+] + i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),

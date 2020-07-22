@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'date',
     'reservation',
     'notifications',
-    'notice'
+    'notice',
+    'drf_yasg'
 ]
 
 
