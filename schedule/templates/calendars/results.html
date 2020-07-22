@@ -27,7 +27,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="">
+        <form action="" id="addEvent">
           <select name="shift" id="shift" class="form-control">
 
           </select>
@@ -89,7 +89,7 @@
         shift: selectedId,
         date: currInfo.dateStr
       }
-      fetch('/{{LANG}}/api/results/',
+      fetch('/api/results/',
       {
         method: "POST",
         headers:{
@@ -110,7 +110,7 @@
     save_btn = document.getElementById('save');
     save_btn.addEventListener('click', sendData);
     // 加入班別選項
-    fetch('/{{LANG}}/api/shifts')
+    fetch('/api/shifts')
     .then(res=>{
       return res.json();
     })
@@ -186,6 +186,7 @@
         if(calendar.getOption('editable')){
           currInfo = info;
           $('#myModal').modal('show');
+          $('#addEvent').reset();
         }
       },
       eventClick:function(info){
@@ -215,7 +216,7 @@
         if(info.newResource){
           update_body.user = info.newResource.id
         }
-        fetch('/{{LANG}}/api/results/'+info.event.id+'/',
+        fetch('/api/results/'+info.event.id+'/',
               {
               method: "PATCH",
               headers:{
@@ -230,7 +231,7 @@
       },
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/{{LANG}}/api/users/?mode=resource/')
+        fetch('/api/users/?mode=resource/')
         .then(res=>{
           return res.json();
         })
@@ -242,7 +243,7 @@
         });
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/{{LANG}}/api/results/?start='
+        let url = '/api/results/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{
@@ -264,7 +265,7 @@
     document.getElementById('edit-delete').addEventListener('click', 
       function(){
         let target = currInfo.event.id
-        fetch('/{{LANG}}/api/results/'+target,
+        fetch('/api/results/'+target,
         {
         method: "DELETE",
         headers:{

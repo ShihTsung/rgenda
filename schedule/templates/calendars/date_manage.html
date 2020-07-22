@@ -75,7 +75,7 @@
             'locked': locked
         }
         // TODO: 修改PUT 內容
-        fetch('/{{LANG}}/api/dates/' + target + '/', {
+        fetch('/api/dates/' + target + '/', {
           method: "PUT",
           headers:{
             'X-CSRFToken': '{{ csrf_token }}',

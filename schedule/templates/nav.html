@@ -25,9 +25,9 @@
             
            
         </ul>
+        
             <div class="dropdown">
-                <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a role="button" href="#" type="button" class="nav-link dark" data-toggle="dropdown"> 
                     <i class="fa fa-globe-americas" aria-hidden="true"></i>
                 </a>
                 <ul id="language-list" class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -51,7 +51,7 @@
         {% if user.is_authenticated %}
         <!-- <a class="btn btn-danger" href=""> Logout</a> -->
         <div class="dropdown">
-            <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown"
+            <a class="nav-link dark" href="#" id="navbarDropdown"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-bell" aria-hidden="true"></i>
                 {% if unread_count %}
@@ -64,7 +64,7 @@
         </div>
        
             <div class="dropdown rightest">
-                <a class="nav-link dropdown-toggle bg-dark" href="#" id="navbarDropdown" role="button"
+                <a class="nav-link dark" href="#" id="navbarDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-user" aria-hidden="true"></i>
                 </a>
@@ -108,9 +108,10 @@ nav{
 .dropdown-toggle{
     color:white;
 }
-.dropdown-toggle:hover{
+
+.nav-link:hover{
     color:white;
-    box-shadow: 1px 1px 5px 0px #000;
+    background-color: blanchedalmond;
 }
 
 .dropdown:hover{
@@ -118,11 +119,14 @@ nav{
 }
 
 .btn{
-    box-shadow: 1px 1px 3px 0px #000;
     margin: .25rem;
 }
-.bg-dark{
-    background-color: #84C0E9 !important;
+a.dark{
+    background-color: #84C0E9;
+    color: white;
+}
+a.dark:hover{
+    background-color: #74B0C9;
 }
 </style>
 <script>

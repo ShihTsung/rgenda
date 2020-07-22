@@ -54,7 +54,7 @@
       ],
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/{{LANG}}/api/users/?mode=resource/')
+        fetch('/api/users/?mode=resource/')
         .then(res=>{
           return res.json();
         })
@@ -76,7 +76,7 @@
         $(info.el).tooltip('dispose');
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/{{LANG}}/api/{{results}}/?start='
+        let url = '/api/{{results}}/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{

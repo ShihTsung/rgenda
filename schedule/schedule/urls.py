@@ -29,11 +29,12 @@ import notice.urls
 handler404 = 'mainpage.views.handler404'
 handler500 = 'mainpage.views.handler500'
 
-urlpatterns = i18n_patterns(
+urlpatterns = [
+    path('api/', include('api.urls')),
+    ] + i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),
-    path('api/', include('api.urls')),
     path('departments/create', departmentCreate),
     path('departments/update/<int:id>', departmentEdit),
     path('departments/list', departmentList, name="departmentList"),
@@ -52,7 +53,7 @@ urlpatterns = i18n_patterns(
             include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
     # path('results', include('result.urls')),
-    prefix_default_language=True,
+    # prefix_default_language=True,
 )
 
 admin.site.site_header = 'Redfalcon'
