@@ -93,6 +93,14 @@
     let nav = document.querySelector('.navbar');
     nav.classList.add('invisible');
     nav.style.display = "none"
+    let sidebar = document.querySelector('#sidebar-wrapper');
+    sidebar.classList.add('invisible');
+    sidebar.style.display = "none";
+    $.cookie("showSidebar", 'hide', { path: "/" })
+    let wrapper = document.getElementById("wrapper")
+    if (! wrapper.classList.contains('toggled')){
+      wrapper.classList.add('toggled')
+    }
   })
 
 </script>
