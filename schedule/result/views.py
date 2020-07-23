@@ -5,10 +5,13 @@ from account.models import Department
 from account.views import cycle_analysis, get_cycle
 from django.contrib.auth.decorators import login_required
 from scripts.get_date_range import *
-from datetime import time, datetime, timedelta
+from datetime import time, datetime, timedelta, date
 from collections import defaultdict
 from date.views import attr_list
 from .forms import TimeAdjustmentCreateForm, TimeAdjustmentSearchForm, ExchangeApplicationCreateForm, ExchangeApplicationRefuseForm
+from date.models import Oneday
+from demand.views import get_demands
+import json
 
 
 # 計算總工時
@@ -132,6 +135,7 @@ def check_result(d_id, month_to_check=None):
     """
     """
     invalid = defaultdict(list)
+    demand_unsatisfied = defaultdict()
     if month_to_check:
         results = Result.objects.filter(date__month=month_to_check).order_by('date')
     else:
@@ -143,14 +147,24 @@ def check_result(d_id, month_to_check=None):
     department = Department.objects.get(id=d_id)
     for user_id, results in to_check.items():
         check_cycle(department, results, invalid)
-        chech_time()
-    return invalid
+        check_rest_day(department, results, invalid)
+        check_rest_hour(results, invalid)
+        if User.objects.get(id=user_id).pregnant:
+            check_hour_pregnant(results, invalid)
+    return invalid,
 
 
 def check_cycle(department, results, invalid):
-    # 單週同班種
+    """
+    檢查 單週/單月/三月 內班種是否相同，增加 unique shift type in a week
+    :param department:
+    :param results:
+    :param invalid:
+    :return:
+    """
     date0 = results[0].date
     user = results[0].user
+    # 單週同班種
     if department.schedule_rule == 0:
         temp_results = results.copy()
         ca = cycle_analysis(department.id, date0)
@@ -165,7 +179,7 @@ def check_cycle(department, results, invalid):
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
                 current_shift_type = result.shift.shift_type
-            elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type:
+            elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type and result in results:
                 invalid[result.id].append('unique shift type in a week')
         return None
     # 單月/三月同班種
@@ -188,51 +202,99 @@ def check_cycle(department, results, invalid):
     return None
 
 
-def check_rest(department, results, invalid):
-    last_result = Result.objects.filter(user=results[0].user, date=results[0].date - timedelta(days=1))
-    
-    return None
-
-
-# 檢查剩餘假日休假
-
-@login_required
-def check_holiday_rest(data, attrs, holiday_rest_num, output):
-    for i in range(len(data)):
-        # 等於的值需再檢查
-        if data[i]['type'] in ['休假', 'oncall'] and attrs[i] == 'holiday':
-            holiday_rest_num -= 1
-            if holiday_rest_num < 0:
-                output[data[i]['class'] + '-' +
-                       data[i]['id']].append('可休假假日數已用完')
-    return None
-
-# 檢查法規
-
-
-@login_required
-def check_law_rule(data, rule, output):
-    continuous = 0
-    work_list = list()
-    end = None
-    min_rest = 2 ** (rule + 1)
-    days_length = 7 * (2 ** rule)
-    for d in data:
-        if d['type'] in ['休假', 'oncall']:
-            work_list.append(1)
-            continuous = 0
+def check_rest_day(department, results, invalid):
+    """
+    檢查
+    1. 連續工作超過6天，增加 continue working over 6 days
+    2. 單一週期內休假數目不足，增加 workday too much in the cycle
+    3. 週末/國定假日休假額度用完，增加 holiday rest out of limit
+    :param department:
+    :param results:
+    :param invalid:
+    :return:
+    """
+    user = results[0].user
+    holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
+    date0 = results[0].date
+    ca = cycle_analysis(department.id, date0)
+    temp_results = results.copy()
+    # add previous results to make a complete cycle
+    for i, d in enumerate(get_cycle(department.id, ca['cycle_no'])):
+        if d < date0:
+            temp_results.insert(i, Result.objects.filter(date=d, user=user))
         else:
-            continuous += 1
-            work_list.append(0)
-            if continuous > 6:
-                output[d['class'] + '-' + d['id']].append('連續上班超過六天')
-            start = d['start']
-            if start and end and start < end + timedelta(hours=11):
-                output[d['class'] + '-' + d['id']].append('值班間隔不足11小時')
-            end = d['end']
-        if len(work_list) == days_length and sum(work_list) < min_rest:
-            output[d['class'] + '-' + d['id']].append('不符合勞基法工時規則')
-        work_list.pop(0)
+            break
+    # get continue workday number
+    last_week_results = Result.objects.filter(date__in=[date0 - timedelta(days=i) for i in range(1, 8)],
+                                              user=user).order_by('date')
+    continue_workday = 0
+    for result in last_week_results:
+        if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+            continue_workday += 1
+        else:
+            continue_workday = 0
+    # start checking
+    work_days_limit = 5 * 2 ** department.law_rule
+    work_days = 0
+    for ind, result in enumerate(temp_results):
+        if ind % (5 * 2 ** department.law_rule) == 0:
+            work_days_limit = 5 * 2 ** department.law_rule
+            work_days = 0
+        if Oneday.objects.filter(date=result.date)[0].attribute == 'holiday':
+            work_days_limit -= 1
+        if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+            continue_workday += 1
+            work_days += 1
+        else:
+            continue_workday = 0
+            if Oneday.objects.filter(date=result.date)[0].attribute in ['weekend', 'holiday']:
+                holiday_rest_remain -= 1
+        if continue_workday > 6 and result in results:
+            invalid[result.id].append('continue working over 6 days')
+        if work_days > work_days_limit and result in results:
+            invalid[result.id].append('workday too much in the cycle')
+        if holiday_rest_remain < 0:
+            invalid[result.id].append('holiday rest out of limit')
+    return None
+
+
+def check_rest_hour(results, invalid):
+    """
+    檢查兩班之間休息是否過11小時，不足的話增加 rest time less than 11 hours
+    :param results:
+    :param invalid:
+    :return:
+    """
+    last_result = Result.objects.filter(user=results[0].user, date=results[0].date - timedelta(days=1))
+    last_off_time = datetime.combine(last_result.date, time(hour=0, minute=0, second=0))
+    if last_result.shift.shift_type in ['白班', '小夜', '大夜']:
+        if last_result.shift.start_time > last_result.shift.end_time:
+            last_off_time = datetime.combine(last_result.date, last_result.shift.end_time) + timedelta(days=1)
+        else:
+            last_off_time = datetime.combine(last_result.date, last_result.shift.end_time)
+    for result in results:
+        if result.shift.shift_type in ['白班', '小夜', '大夜']:
+            start_time = datetime.combine(result.date, result.shift.start_time)
+            if start_time - last_off_time < timedelta(hours=11):
+                invalid[result.id].append('rest time less than 11 hours')
+            if result.shift.start_time > result.shift.end_time:
+                last_off_time = datetime.combine(result.date, result.shift.end_time) + timedelta(days=1)
+            else:
+                last_off_time = datetime.combine(result.date, result.shift.end_time)
+    return None
+
+
+def check_hour_pregnant(results, invalid):
+    """
+    檢查孕婦上班時間是否早於6點或下班時間晚於22點，是的話增加 pregnant woman work between 22 PM to 6 AM
+    :param results:
+    :param invalid:
+    :return:
+    """
+    for result in results:
+        if result.shift.shift_type in ['白班', '小夜', '大夜'] and not (
+                result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
+            invalid[result.id].append('pregnant woman work between 22 PM to 6 AM')
     return None
 
 
@@ -380,3 +442,44 @@ def exchange_application_archive(request, ea_id):
     application.application_status += 2
     application.save()
     return redirect('/result/exchange_application_list')
+
+
+def calculate(request):
+    department = Department.objects.get(id=1)
+    #
+    demands = get_demands(department, date(year=2020, month=7, day=1), date(year=2020, month=7, day=31), True)
+    #
+    shift_type_proportion = {
+        '白班': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
+        '小夜': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
+        '大夜': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
+    }
+    for d in demands:
+        for st in ['白班', '小夜', '大夜']:
+            for i in range(1, 5):
+                shift_type_proportion[st][i] = max(shift_type_proportion[st][i], demands[d][st][i])
+    for st in shift_type_proportion:
+        shift_type_proportion[st]['sum'] = sum(shift_type_proportion[st].values())
+    context = {
+        'demands': json.dumps(demands),
+        'shift_type_proportion': json.dumps(shift_type_proportion),
+    }
+    return render(request, 'test.html', context=context)

@@ -50,7 +50,7 @@ def shift_list(request):
     global int_to_time_str
 
     shifts = Shift.objects.all()
-    field_names = [(0, 'name'), (1, 'shift_type'), (4, 'station')]
+    field_names = [(0, 'name'), (1, 'shift_type'), (4, 'department')]
 
     context = {'shifts': shifts, 'field_names': field_names}
 

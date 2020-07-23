@@ -12,7 +12,7 @@ TYPE_CHOICES = (
     ('大夜', '大夜'),
     ('休假', '休假'),
     ('公假', '公假'),
-    ('oncall', 'oncall')
+    ('on-call', 'on-call')
 )
 
 
