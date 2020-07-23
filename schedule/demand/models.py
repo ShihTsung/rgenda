@@ -15,7 +15,7 @@ class DemandOfStation(models.Model):
     station = models.ForeignKey(Station, verbose_name=_('Station'),
                                 on_delete=models.CASCADE, null=True)
     level = models.IntegerField(verbose_name=_('Level'), default=1, null=True)
-    weekday = models.IntegerField(verbose_name=_('WeekdayDemand'), default=0)
+    workday = models.IntegerField(verbose_name=_('WorkdayDemand'), default=0)
     holiday = models.IntegerField(verbose_name=_('HolidayDemand'), default=0)
 
     def __str__(self):

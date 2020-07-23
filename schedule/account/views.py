@@ -12,7 +12,7 @@ from .models import CustomUser, Department
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from django.http import FileResponse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from django.templatetags.static import static
 from collections import defaultdict
 import openpyxl
@@ -287,37 +287,29 @@ def departmentCreate(request):
                 shift = Shift.objects.create(
                     name=names[i],
                     shift_type=types[i],
-                    start_hour=24,
-                    start_min=0,
-                    end_hour=24,
-                    end_min=0,
+                    start_time=time(hour=0, minute=0),
+                    end_time=time(hour=0, minute=0),
                     department=department,
                     work_hours=hours[i])
             shift = Shift.objects.create(
                 name='白班',
                 shift_type='白班',
-                start_hour=8,
-                start_min=0,
-                end_hour=17,
-                end_min=0,
+                start_time=time(hour=7, minute=0),
+                end_time=time(hour=16, minute=0),
                 department=department,
                 work_hours=8)
             shift = Shift.objects.create(
                 name='小夜',
                 shift_type='小夜',
-                start_hour=12,
-                start_min=0,
-                end_hour=19,
-                end_min=0,
+                start_time=time(hour=15, minute=0),
+                end_time=time(hour=0, minute=0),
                 department=department,
                 work_hours=8)
             shift = Shift.objects.create(
                 name='大夜',
                 shift_type='大夜',
-                start_hour=23,
-                start_min=0,
-                end_hour=8,
-                end_min=0,
+                start_time=time(hour=23, minute=0),
+                end_time=time(hour=8, minute=0),
                 department=department,
                 work_hours=8)
             messages.success(
@@ -414,3 +406,12 @@ def get_cycle(d_id, cycle_no):
 
     return [date_first + timedelta(days=i) for i in range(
         7 * 2 ** department.law_rule)]
+
+
+def assign_user(proportion):
+    users = CustomUser.objects.filter(can_be_schedule=True).order_by('-level')
+    output = {
+        '白班': list(),
+        '小夜': list(),
+        '大夜': list(),
+    }

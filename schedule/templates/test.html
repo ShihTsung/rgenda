@@ -9,4 +9,10 @@
     <h1>{{ k }}: {{ v }}</h1>
     {% endfor %}
 </body>
+<script>
+    let demands = {{ demands | safe }};
+    console.log(demands);
+    let shift_type_proportion = {{ shift_type_proportion | safe }};
+    console.log(shift_type_proportion);
+</script>
 </html>

@@ -6,6 +6,8 @@ from .forms import (DemandCreationForm, DemandEditForm)
 from collections import defaultdict
 from shift.models import Shift
 from station.models import Station
+from datetime import datetime, timedelta
+from date.views import attr_list
 import json
 
 """
@@ -49,8 +51,8 @@ def demand_list(request):
         cond1 = demand.station.department == request.user.department
         cond2 = request.user.role == 'admin'
         if cond1 or cond2 or is_super:
-            demand_dict[demand.station.name][str(demand.shift)][demand.level] = {
-                'weekday': demand.weekday,
+            demand_dict[demand.station.department.name + '-' + demand.station.name][demand.shift.name][demand.level] = {
+                'weekday': demand.workday,
                 'holiday': demand.holiday,
             }
     field_names = [(0, 'station')]
@@ -70,7 +72,7 @@ def demand_edit(request):
             if key != 'csrfmiddlewaretoken':
                 demand = DemandOfStation.objects.get(pk=int(key[:-1]))
                 if key[-1] == 'w':
-                    demand.weekday = val
+                    demand.workday = val
                 if key[-1] == 'h':
                     demand.holiday = val
                 demand.save()
@@ -83,7 +85,7 @@ def demand_edit(request):
         if cond1 or cond2 or is_super:
             demand_dict[demand.station.name][str(demand.shift)][demand.level] = {
                 'id': demand.id,
-                'weekday': demand.weekday,
+                'weekday': demand.workday,
                 'holiday': demand.holiday,
                 'LANG': request.LANGUAGE_CODE
             }
@@ -105,3 +107,93 @@ def demand_delete(request, id=None):
         return redirect("/demands/list")
     else:
         return redirect("/demands/list")
+
+
+def get_demands(department, start_date, end_date, group_by_level=False):
+    date_list = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+    attrs = attr_list(start_date, end_date)
+    output = dict()
+    demands_d = DemandOfStation.objects.filter(shift__department=department, shift__shift_type='白班')
+    demands_e = DemandOfStation.objects.filter(shift__department=department, shift__shift_type='小夜')
+    demands_n = DemandOfStation.objects.filter(shift__department=department, shift__shift_type='大夜')
+    if group_by_level:
+        for i, d in enumerate(date_list):
+            output[str(d)] = {
+                '白班': {
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                },
+                '小夜': {
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                },
+                '大夜': {
+                    1: 0,
+                    2: 0,
+                    3: 0,
+                    4: 0,
+                }
+            }
+            for demand in demands_d:
+                if attrs[i] == 'workday':
+                    output[str(d)]['白班'][demand.level] += demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['白班'][demand.level] += demand.holiday
+            for demand in demands_e:
+                if attrs[i] == 'workday':
+                    output[str(d)]['小夜'][demand.level] += demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['小夜'][demand.level] += demand.holiday
+            for demand in demands_n:
+                if attrs[i] == 'workday':
+                    output[str(d)]['大夜'][demand.level] += demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['大夜'][demand.level] += demand.holiday
+    else:
+        for i, d in enumerate(date_list):
+            output[str(d)] = {
+                '白班': {
+                    1: dict(),
+                    2: dict(),
+                    3: dict(),
+                    4: dict(),
+                },
+                '小夜': {
+                    1: dict(),
+                    2: dict(),
+                    3: dict(),
+                    4: dict(),
+                },
+                '大夜': {
+                    1: dict(),
+                    2: dict(),
+                    3: dict(),
+                    4: dict(),
+                }
+            }
+            for demand in demands_d:
+                if attrs[i] == 'workday':
+                    output[str(d)]['白班'][demand.level][str(demand.station)] = demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['白班'][demand.level][str(demand.station)] = demand.holiday
+                else:
+                    output[str(d)]['白班'][demand.level][str(demand.station)] = 0
+            for demand in demands_e:
+                if attrs[i] == 'workday':
+                    output[str(d)]['小夜'][demand.level][str(demand.station)] = demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['小夜'][demand.level][str(demand.station)] = demand.holiday
+                else:
+                    output[str(d)]['白班'][demand.level][str(demand.station)] = 0
+            for demand in demands_n:
+                if attrs[i] == 'workday':
+                    output[str(d)]['大夜'][demand.level][str(demand.station)] = demand.workday
+                elif attrs[i] == 'holiday':
+                    output[str(d)]['大夜'][demand.level][str(demand.station)] = demand.holiday
+                else:
+                    output[str(d)]['白班'][demand.level][str(demand.station)] = 0
+    return output

@@ -41,6 +41,9 @@
               <option value="holiday">
                 holiday
               </option>
+              <option value="closed_day">
+                closed day
+              </option>
             </select>
           </div>
           <br>
@@ -115,7 +118,7 @@
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-        
+
 
         calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],

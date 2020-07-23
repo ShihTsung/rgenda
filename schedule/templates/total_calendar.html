@@ -70,14 +70,13 @@
         start: "{{start}}",
         end: "{{end}}"
       },
-      resourceAreaWidth: "15rem",
+      resourceAreaWidth: "18rem",
       defaultView: 'resourceTimelineWeek',
       defaultDate: "{{default}}",
       slotLabelInterval:{day:1},
       slotLabelFormat: [
           {weekday: 'short', day:'numeric'},
       ],
-      resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
         fetch('/api/users/?mode=resource/')
         .then(res=>{

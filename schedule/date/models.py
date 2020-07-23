@@ -5,7 +5,15 @@ from django.utils.translation import gettext_lazy as _
 
 class Oneday(models.Model):
     date = models.DateField(verbose_name=_('Date'))
-    attribute = models.CharField(max_length=100, verbose_name=_('Attr'))
+    attribute = models.CharField(
+        max_length=100,
+        verbose_name=_('Attr'),
+        choices=(
+            ('workday', 'workday'),
+            ('holiday', 'holiday'),
+            ('closed_day', 'closed_day'),
+        ),
+    )
     locked = models.BooleanField(verbose_name=_('Locked'), default=False)
 
     def __str__(self):
