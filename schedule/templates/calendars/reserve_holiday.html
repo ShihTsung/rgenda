@@ -75,7 +75,7 @@
         let days = {}
         let max = parseInt("{{max}}")
         
-        fetch('/{{LANG}}/api/users/curr')
+        fetch('/api/users/curr')
         .then(response=>{
           return response.json()
         })
@@ -118,7 +118,7 @@
                     year: info.dateStr.split('-')[0],
                     date: info.dateStr.split('T')[0]
                     }
-                    fetch('/{{LANG}}/api/reservations/', 
+                    fetch('/api/reservations/', 
                           {
                             method: "POST",
                             headers:{
@@ -159,7 +159,7 @@
             eventSources:[{
               // 每天的資訊
               events: function(fetchInfo, successCallback, failureCallback){
-              let url = '/{{LANG}}/api/dates/'
+              let url = '/api/dates/'
               start_str = fetchInfo.startStr
               end_str = fetchInfo.endStr
               url += '?start=' + start_str + '&end=' + end_str
@@ -191,7 +191,7 @@
               // 已經預定的資料
               events: function(fetchInfo, successCallback, failureCallback){
                 choosed_days = new Array()
-                let url = '/{{LANG}}/api/reservations/'
+                let url = '/api/reservations/'
                 start_str = fetchInfo.startStr
                 end_str = fetchInfo.endStr
                 url += '?start=' + start_str + '&end=' + end_str
@@ -213,7 +213,7 @@
               }
             }],
             eventClick:function(info){
-              fetch('/{{LANG}}/api/reservations/' + info.event.id + '/', {
+              fetch('/api/reservations/' + info.event.id + '/', {
                     method: "DELETE",
                     headers:{
                       'X-CSRFToken': '{{ csrf_token }}',  

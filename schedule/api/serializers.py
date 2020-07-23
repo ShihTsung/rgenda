@@ -96,8 +96,8 @@ class GetShiftSerializer(serializers.ModelSerializer):
 class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_time',
-                  'end_time', 'department', 'work_hours')
+        fields = ('id', 'name', 'shift_type', 'start_time', 'end_time',
+                  'department', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get

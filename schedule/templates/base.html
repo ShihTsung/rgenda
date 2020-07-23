@@ -6,10 +6,11 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
+    
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
@@ -29,8 +30,8 @@
         <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
         <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
         <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
         <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
+        <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
         <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
@@ -40,32 +41,31 @@
     <main>
         
         <div class="d-flex toggled" id="wrapper">
-
             <!-- Sidebar -->
-            <div class="bg-dark" id="sidebar-wrapper">
-              <a id="side-redfalcon" class="bg-dark list-group-item sidebar-heading" href="{% url 'home' %}" styles="border:None">Redfalcon</a>
+            <div class="sidebar" id="sidebar-wrapper">
+              <a id="side-redfalcon" class="dark list-group-item sidebar-heading" href="{% url 'home' %}" styles="border:None"></a>
               <div class="list-group list-group-flush">
                 {% if user.role == 'admin' or user.is_superuser %}
                 <a id="side-department" href="/departments/list" class="list-group-item list-group-item-action 
-                bg-dark">Department</a>
+                dark">Department</a>
                 {% endif %}
                 {% if user.role in 'admin, manager' or user.is_superuser %}
-                <a id="side-shifts" href="/shifts/list" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-shifts" href="/shifts/list" class="list-group-item list-group-item-action dark">
                     Shifts</a>
-                <a id="side-stations" href="/stations/list" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-stations" href="/stations/list" class="list-group-item list-group-item-action dark">
                     Stations</a>
-                <a id="side-demands" href="/demands/list" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-demands" href="/demands/list" class="list-group-item list-group-item-action dark">
                     Demands</a>
-                <a id="side-dates" href="/dates/date_management" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-dates" href="/dates/date_management" class="list-group-item list-group-item-action dark">
                     Dates</a>
-                <a id="side-results" href="/results/" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-results" href="/results/" class="list-group-item list-group-item-action dark">
                     Results</a>
-                <a id="side-promises" href="/reserves/promises" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-promises" href="/reserves/promises" class="list-group-item list-group-item-action dark">
                     Promises</a>
                 {% endif %}
-                <a id="side-userResults" href="/results/read_only" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-userResults" href="/results/read_only" class="list-group-item list-group-item-action dark">
                     User Results</a>
-                <a id="side-reservation" href="/reserves/reserve" class="list-group-item list-group-item-action bg-dark">
+                <a id="side-reservation" href="/reserves/reserve" class="list-group-item list-group-item-action dark">
                     Reservation</a>
               </div>
             </div>
@@ -89,7 +89,7 @@
         <style>
             #wrapper #sidebar-wrapper {
                 position:fixed;
-                box-shadow: 0 0 2px 0 #000;
+                box-shadow: 0 0 1px 0 #000;
                 min-height: 100vh;
                 z-index: 10;
             }
@@ -110,13 +110,13 @@
                 /* min-height: 90vh; */
             }
             .clicked{
-                background-color: #212529 !important; 
+                background-color: #4185A9 !important; 
             }
-             #wrapper .rightest{
+            #wrapper .rightest{
                 margin-right: 20rem;
             }
             #wrapper.toggled .rightest{
-                margin-right: 5rem;
+                margin-right: 20rem;
             }
             #wrapper .navbar-toggler{
                 margin-right: -15rem;
@@ -128,33 +128,50 @@
                 margin-left: -15rem;
             } 
             #wrapper.toggled #page-content-wrapper {
-            margin-left: 0;
+                margin-left: 0;
             }
             #sidebar-wrapper a{
                 color:white;
                 text-decoration: none;
             }
             #sidebar-wrapper .sidebar-heading {
-            padding: 0.875rem 1.25rem;
-            font-size: 2rem;
-            height: 5rem;
-            margin-bottom: 1rem;
+                padding: 0.875rem 1.25rem;
+                font-size: 2rem;
+                /* height: 5rem; */
+                height: 60px;
+                /* margin-bottom: 1rem; */
+                background-color: #37419A;
+                border-radius: 0%;
+                background-image: url("{% static 'logo/redfalcon_hor_white.png' %}");
+                background-repeat: no-repeat;
+                background-size: 150px 60px;
+                border: none;
+                background-position: left;
             }
+            
             #sidebar-wrapper .list-group {
-            width: 15rem;
+                width: 15rem;
             }
             #page-content-wrapper {
-            min-width: 100vw;
-            width: 100%;
-            margin-left: 15rem;
-            overflow-x: hidden;
+                min-width: 100vw;
+                width: 100%;
+                margin-left: 11.3rem;
+                overflow-x: hidden;
             }
+            
             /* .rightest, .navbar-toggler{
             -webkit-transition: margin .25s ease-out;
             -moz-transition: margin .25s ease-out;
             -o-transition: margin .25s ease-out;
             transition: margin .25s ease-out;
             } */
+            .dark{
+                background-color: #84C0E9;
+                width: 180px;
+            }
+            a.dark:hover{
+                background-color: #74B0D9;
+            }
         </style>
 
         {% block scripts %}
@@ -197,10 +214,12 @@
                 
                 $(".list-group-item").click((e)=>{
                     $.cookie("sideClicked", e.target.id, { path: "/" });
+                    console.log(e.target.id);
                 });
 
                 let sideClicked = $.cookie("sideClicked");
                 if(sideClicked != null){
+                    console.log(sideClicked);
                     $("#" + sideClicked).addClass("clicked");
                 };
                 

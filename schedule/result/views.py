@@ -450,15 +450,34 @@ def calculate(request):
     demands = get_demands(department, date(year=2020, month=7, day=1), date(year=2020, month=7, day=31), True)
     #
     shift_type_proportion = {
-        '白班': 0,
-        '小夜': 0,
-        '大夜': 0,
+        '白班': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
+        '小夜': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
+        '大夜': {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            'sum': 0,
+        },
     }
-
     for d in demands:
-        shift_type_proportion['白班'] = max(shift_type_proportion['白班'], sum(demands[d]['白班'].values()))
-        shift_type_proportion['小夜'] = max(shift_type_proportion['小夜'], sum(demands[d]['小夜'].values()))
-        shift_type_proportion['大夜'] = max(shift_type_proportion['大夜'], sum(demands[d]['大夜'].values()))
+        for st in ['白班', '小夜', '大夜']:
+            for i in range(1, 5):
+                shift_type_proportion[st][i] = max(shift_type_proportion[st][i], demands[d][st][i])
+    for st in shift_type_proportion:
+        shift_type_proportion[st]['sum'] = sum(shift_type_proportion[st].values())
     context = {
         'demands': json.dumps(demands),
         'shift_type_proportion': json.dumps(shift_type_proportion),

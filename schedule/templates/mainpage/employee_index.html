@@ -15,6 +15,11 @@
         {% endif %}
 
     </div>
+    <div class="dash">
+      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        ==
+      </button>
+    </div>
     <div id="calendar">
     </div>
         
@@ -84,17 +89,11 @@
   #calendar{
     background-color: white!important;
     padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 5px 5px 1px #000!important;
+    max-width: 900px;
+    margin: 20px auto;
 }
   .fc-unthemed td.fc-today{
     background: #888;
-  }
-
-  #calendar {
-    max-width: 900px;
-    margin: 20px auto;
-    
   }
   .table-bordered{
       top: 100px;

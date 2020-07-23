@@ -398,3 +398,12 @@ def get_cycle(d_id, cycle_no):
 
     return [date_first + timedelta(days=i) for i in range(
         7 * 2 ** department.law_rule)]
+
+
+def assign_user(proportion):
+    users = CustomUser.objects.filter(can_be_schedule=True).order_by('-level')
+    output = {
+        '白班': list(),
+        '小夜': list(),
+        '大夜': list(),
+    }

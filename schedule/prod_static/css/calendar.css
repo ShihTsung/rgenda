@@ -5,8 +5,8 @@
 #calendar{
     background-color: white;
     padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0px 0px 3px 0px;
+    box-shadow: 0px 0px 1px 0px;
+    border-radius: .3rem;
 }
 .fc-content{
     font-size: 1rem;

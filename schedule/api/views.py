@@ -22,14 +22,16 @@ GetAfterResultSerializer
 from account.models import CustomUser, Department
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from datetime import datetime, timedelta
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from datetime import datetime, timedelta
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult, TimeAdjustment
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -80,6 +82,13 @@ DemandViewSet         |人力需求 api
 PromiseShiftViewSet   |管理者排班 api
 """
 
+get_all = openapi.Parameter('all', openapi.IN_QUERY,
+                            description="全部或是單一部門", type=openapi.TYPE_BOOLEAN)
+start_date = openapi.Parameter('start', openapi.IN_QUERY,
+                               description="開始日期", type=openapi.TYPE_STRING)
+end_date = openapi.Parameter('end', openapi.IN_QUERY,
+                             description="結束日期", type=openapi.TYPE_STRING)
+
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('username')
@@ -116,6 +125,48 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                 return queryset(can_be_scheduled=True)
         return queryset
 
+    @swagger_auto_schema(
+        operation_summary='獲得使用者清單',
+        operation_description='GET 的說明',
+    )
+    def list(self, request):
+        return super().list(request)
+
+    @swagger_auto_schema(
+        operation_summary='新增使用者',
+        operation_description='POST 的說明',
+    )
+    def create(self, request):
+        return super().create(request)
+
+    @swagger_auto_schema(
+        operation_summary='獲得個別使用者',
+        operation_description='GET 單一個體的說明',
+    )
+    def retrieve(self, request, pk=None):
+        return super().retrieve(request)
+
+    @swagger_auto_schema(
+        operation_summary='更新使用者資料',
+        operation_description='PUT 的說明',
+    )
+    def update(self, request, pk=None):
+        return super().update(request, pk)
+
+    @swagger_auto_schema(
+        operation_summary='部分更新',
+        operation_description='PATCH 的說明',
+    )
+    def partial_update(self, request, pk=None):
+        return super().partial_update(request, pk)
+
+    @swagger_auto_schema(
+        operation_summary='刪除使用者',
+        operation_description='DELETE 的說明',
+    )
+    def destroy(self, request, pk=None):
+        return super().destroy(request, pk)
+
 
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
@@ -139,6 +190,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             if self.request.query_params.get('all') == "True":
                 return queryset
+            else:
+                return queryset.filter(department=user.department)
         else:
             return queryset.filter(department=user.department)
 
@@ -146,6 +199,14 @@ class ShiftViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetShiftSerializer
         return ShiftSerializer
+
+    @swagger_auto_schema(
+        operation_summary='獲得班別清單',
+        operation_description='GET 的說明',
+        manual_parameters=[get_all]
+    )
+    def list(self, request):
+        return super().list(request)
 
 
 class StationViewSet(viewsets.ModelViewSet):
@@ -197,6 +258,14 @@ class ResultViewSet(viewsets.ModelViewSet):
                 end = start
             return Result.objects.filter(date__range=[start[:10], end[:10]])
         return Result.objects.all()
+
+    @swagger_auto_schema(
+        operation_summary='獲得排班結果清單',
+        operation_description='GET 的說明',
+        manual_parameters=[start_date, end_date]
+    )
+    def list(self, request):
+        return super().list(request)
 
 
 class PreResultViewSet(viewsets.ModelViewSet):

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}exchange application{% endblock %}
+
+{% block content %}
+<div class="container">
+    {{processing}}
+    {{complete}}
+    <form action="">
+        {{form|crispy}}
+    </form>
+    <div class="card">
+        <table class="table">
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+        </table>
+    </div>
+    <div class="card">
+        <table class="table">
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+        </table>
+    </div>
+    <div class="card">
+        <table class="table">
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<style>
+
+</style>
+{% endblock %}

@@ -41,11 +41,33 @@
         start:"{{start}}",
         end: "{{end}}"
       },
+      resourceColumns: [
+        {
+          labelText: '員工',
+          field: 'title'
+        },
+        {
+          labelText: '排班',
+          field: 'id'
+        },
+        {
+          labelText: '特休',
+          field: 'id'
+        },
+        {
+          labelText: '加班',
+          field: 'id'
+        },
+        {
+          labelText: '差額',
+          field: 'id'
+        }
+      ],
       validRange: {
         start: "{{start}}",
         end: "{{end}}"
       },
-      resourceAreaWidth: "6rem",
+      resourceAreaWidth: "15rem",
       defaultView: 'resourceTimelineWeek',
       defaultDate: "{{default}}",
       slotLabelInterval:{day:1},
@@ -54,7 +76,7 @@
       ],
       resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/{{LANG}}/api/users/?mode=resource/')
+        fetch('/api/users/?mode=resource/')
         .then(res=>{
           return res.json();
         })
@@ -76,7 +98,7 @@
         $(info.el).tooltip('dispose');
       },
       events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/{{LANG}}/api/{{results}}/?start='
+        let url = '/api/{{results}}/?start='
         url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
         fetch(url)
         .then(res=>{
@@ -99,7 +121,6 @@
     }
     calendar.render();
     });
-
 </script>
 <style>
     .container{
@@ -107,5 +128,8 @@
     }
     .fc-custom1-button, .fc-custom2-button{
         width: 5rem;
+    }
+    .num .fc-cell-text{
+      min-width: 3rem;
     }
 </style>
