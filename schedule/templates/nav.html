@@ -6,7 +6,7 @@
 {% load notifications_tags %}
 {% notifications_unread as unread_count %}
 <nav class="navbar navbar-expand-lg navbar-fixed-top navbar-dark">
-    <div class="nav_btn">
+    <div class="nav_btn" data-toggle="collapse">
         <svg class="icon_color" id="nav_bt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M24 6h-24v-4h24v4zm0 4h-24v4h24v-4zm0 8h-24v4h24v-4z"/></svg>
     </div>
     
@@ -150,66 +150,14 @@ a.dark:hover{
     fill: white;
 }
 .btns{
-    position: absolute;
-    right: 250px;
+    position: fixed;
+    right: 70px;
 }
 .dropdown{
     display: inline-block;
 }
 </style>
 <script>
-    let nav_fold = true;
-    const onav = document.querySelector('.navbar');
-    const obt = document.querySelector('.nav_btn');
-    const osidebar = document.querySelector('.sidebar');
-    const oside_sh = document.querySelector('.side_shrink');
-    const olist_group = document.getElementsByClassName('list-group-item');
-    const oside_s = document.getElementsByClassName('side_s');
-    // const obtns = document.querySelector('.btns');
-
-    function spread_ev(){
-        nav_fold = !nav_fold;
-
-        $("#arra_fold").addClass("fold");
-        $("#arr_fold").addClass("fold");
-        $("#wm_fold").addClass("fold");
-        
-        if(nav_fold){
-            onav.style.left = '200px';
-            osidebar.style.transform = 'translateX(0px)';
-            oside_sh.style.display = 'none';
-            
-            for(var i = 0; i < olist_group.length; i++){
-                olist_group[i].style.display = 'block';
-            };
-            for(var i = 0; i < oside_s.length; i++){
-                oside_s[i].style.display = 'none';
-            };
-        }else{
-            onav.style.left = '65px';
-            osidebar.style.transform = 'translateX(-135px)';
-            oside_sh.style.display = 'block';
-
-            for(var i = 0; i < olist_group.length; i++){
-                olist_group[i].style.display = 'none';
-            };
-            for(var i = 0; i < oside_s.length; i++){
-                oside_s[i].style.display = 'block';
-            };
-        }
-    };
-
-    obt.addEventListener('click', (event)=>{
-        spread_ev();
-    });
-
-    $(".side_shrink").click((e)=>{
-        spread_ev();
-    });
-
-    $(".side_s").click((e)=>{
-        spread_ev();
-    });
-
+   
 </script>
 {% endblock %}
