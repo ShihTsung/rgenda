@@ -5,6 +5,56 @@
 {% block content %}
 
 <div class="container">
+    <!-- modal begin -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">new event</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form action="" id="addEvent">
+                <div class="form-group row">
+                    <label for="liscen-name" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceName'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscence-name" type="text" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="liscence-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDate'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscence-date" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="liscence-due-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDueDate'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscence-due-date" type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="liscence-due-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDueDate'%}</label>
+                    <div class="col-sm-7">
+                        
+                        <input name="liscence-due-date" type="date" class="form-control">
+                    </div>
+                </div>
+                
+
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+              <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- modal end -->
     <div class="row">
         <div class="col-6">
             <div class="d-flex">
@@ -123,7 +173,12 @@
                     <div>無待簽核表單</div>
                 {% endif %}
             </div>
-            <h3>證照管理</h3>
+            <div>
+                <h3>證照管理</h3>
+                <a href="#" id="newLiscense"><i class="fas fa-pen"></i> 新增</a>
+                
+            </div>
+           
             <div class="card liscense-card">
                 {% if liscense %}
                     {% for app in applications %}
@@ -152,6 +207,7 @@
     }
     .right h3{
         margin-top: 2.5rem;
+        display: inline-block;
     }
     .audit-card{
         padding: 1rem;
@@ -166,6 +222,18 @@
         min-height: 10rem;
         box-shadow: 0 0 1px 0;
     }
+    .right a{
+        float: right;
+        margin-top: 2.8rem;
+    }
 </style>
+
+<script>
+    let newLiscenseBtn = document.querySelector('#newLiscense');
+    newLiscenseBtn.addEventListener('click', function(){
+        $('#myModal').modal();
+    });
+
+</script>
 
 {% endblock %}
