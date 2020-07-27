@@ -13,57 +13,230 @@
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 
 <div class="container">
-    <form method="POST">
-        {% csrf_token %}
-        {{ search_form.date_start | as_crispy_field }}
-        {{ search_form.date_end | as_crispy_field }}
-        {{ search_form.adjustment_type | as_crispy_field }}
-        {{ search_form.adjustment_item | as_crispy_field }}
-        {{ search_form.name | as_crispy_field }}
-        <button class="btn" type="submit">Search</button>
-    </form>
-    <button id="create-time-adjustment" class="btn btn-primary" type="button">Create</button>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Item</th>
-                <th>Hours</th>
-                <th>Remark</th>
+    <h3>調班紀錄</h3>
+    <hr/>
+    <h4>待簽核表單</h4>
+    <div class="record_item">
+        <table width="1000" border="1" cellspacing="0">
+            <tr class="record_title">
+                <th>單據編號</th>
+                <th>起始日期</th>
+                <th>結束日期</th>
+                <th>原排班別</th>
+                <th>調換班別</th>
+                <th>調班人員</th>
+                <th>流程狀態</th>
+                <th>事由</th>
+                <th>動作</th>
             </tr>
-        </thead>
-    </table>
-</div>
+            <tr>
+                <td>S20200724001</td>
+                <td>2020/06/24</td>
+                <td>2020/06/24</td>
+                <td>白班</td>
+                <td>休息日</td>
+                <td>阿花</td>
+                <td>審核中</td>
+                <td></td>
+                <td>
+                    <button class="record_btn">
+                        撤回申請
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>S20200724002</td>
+                <td>2020/06/20</td>
+                <td>2020/06/20</td>
+                <td>阿花</td>
+                <td>小夜班</td>
+                <td>休息日</td>
+                <td>未通過</td>
+                <td>無法調班</td>
+                <td>
+                    <button class="record_btn">
+                        歸檔確認
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-<div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% for field in create_form %}
-                    {{ field | as_crispy_field }}
-                    {% endfor %}
-                    <div class="row">
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="submit" class="submit-btn btn btn-primary">Submit</button>
-                        </div>
-                    </div>
-                </form>
+    <hr/>
+
+    <h4>紀錄查詢</h4>
+    <div class="ta_wrapper">
+        日期
+        <input type="date"/>
+        至
+        <input type="date"/>
+        <div class="re-wrapper">
+            <label for="process_status">流程狀態</label>
+            <div id="process_status">
+                <ul class="dropdown_menu" style="visibility: hidden;">
+                    <li>審核中</li>
+                    <li>未通過</li>
+                    <li>已生效</li>
+                </ul>
+                <div class="down-arrow">
+                    <svg fill="#525aa8" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"/></svg>
+                </div>
             </div>
         </div>
+        <button class="record_btn" style="float: right; margin-left: 380px; padding: 2px 10px">
+            查詢
+        </button>
+    </div>
+    <div class="record_item" style="margin-top: 20px;">
+        <table width="1000" border="1" cellspacing="0">
+            <tr class="record_title">
+                <th>單據編號</th>
+                <th>起始日期</th>
+                <th>結束日期</th>
+                <th>原排班別</th>
+                <th>調換班別</th>
+                <th>調班人員</th>
+                <th>流程狀態</th>
+                <th>事由</th>
+            </tr>
+            <tr>
+                <td>S20200724001</td>
+                <td>2020/06/24</td>
+                <td>2020/06/24</td>
+                <td>白班</td>
+                <td>休息日</td>
+                <td>阿花</td>
+                <td>審核中</td>
+                <td></td>
+                
+            </tr>
+            <tr>
+                <td>S20200724002</td>
+                <td>2020/06/20</td>
+                <td>2020/06/20</td>
+                <td>阿花</td>
+                <td>小夜班</td>
+                <td>休息日</td>
+                <td>未通過</td>
+                <td>無法調班</td>
+                
+            </tr>
+        </table>
     </div>
 </div>
 
+
 <script>
-    $(document).ready(function(){
-        $("#create-time-adjustment").click(function(){
-            $("#modal-form").modal();
-        });
+    // $(document).ready(function(){
+    //     $("#create-time-adjustment").click(function(){
+    //         $("#modal-form").modal();
+    //     });
+    // });
+    let isShow = false;
+    let odropdown = document.querySelector(".dropdown_menu");
+    let oprocess_status = document.querySelector("#process_status");
+    let odefault = document.createTextNode("");
+               
+    oprocess_status.appendChild(odefault);
+
+    $(".down-arrow").click((e)=>{
+        isShow = !isShow;
+        if(isShow === true){
+            odropdown.style.visibility = 'visible';
+        }else{
+            odropdown.style.visibility = 'hidden';
+        }
+    });
+    $(".dropdown_menu").click((e)=>{
+        let ovisited = document.createTextNode(e.target.innerHTML);
+        oprocess_status.replaceChild(ovisited, odefault);
+        odefault = ovisited;
+                    
+        isShow = false;
+        odropdown.style.visibility = 'hidden';
     });
 </script>
 
 <style>
+    table{
+        text-align: center;
+        border: 1px solid #c6c6c6;
+        background: white;
+    }
+    hr{
+        border: 1px solid #e2e2e2;
+        margin-bottom: 30px;
+    }
+    h4{
+        color: #38449a;
+    }
+    label{
+        margin-left: 40px;
+        margin-top: 2px;
+        float: left;
+        height: 25px;
+        width: 80px;
+    }
+    div{
+        display: inline-block;
+    }
+    .record_title{
+        background: #d9d9d9;
+    }
+    .record_btn{
+        background: #38449a;
+        border: none;
+        border-radius: 3px;
+        color: white;
+        font-weight: 300;
+    }
+    .re-wrapper{
+        height: 28px;
+        width: 400px;
+        position: absolute;
+    }
+    #process_status{
+        margin-left: 8px;
+        border: 1px solid #e2e2e2;
+        border-radius: 3px;
+        width: 170px;
+        height: 28px;
+        color: #ababab;
+        text-align: center;
+        background-color: white;
+        display: inline-block;
+    }
+    .dropdown_menu{
+        list-style: none;
+        position: absolute;
+        top: 28px;
+        border: 1px solid #e1e1e1;
+        border-radius: 3px;
+        width: 170px;
+        text-align: center;
+        background: white;
+        padding-left: 0px;
+    }
+    .dropdown_menu li{
+        height: 24px;
+        width: 170px;
+        border-bottom: 1px solid #e1e1e1;
+        
+    }
+    .dropdown_menu li:hover{
+        background: #6871b3cc;
+        color: white;
+        cursor: pointer;
+    }
+    .down-arrow{
+        float: right;
+        /* margin-right: 5px; */
+        cursor: pointer;
+        height: 28px;
+        width: 30px;
+    }
+    svg{
+        pointer-events: none;
+    }
 </style>
 {% endblock %}

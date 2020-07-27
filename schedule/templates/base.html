@@ -234,11 +234,11 @@
                     </div>
 
                     <div id="arr_fold" class="fold arr">
-                        <a id="arr-check" style="color: #37419A;" href="/" class="fold_obj sidebar_w">
+                        <a id="arr-check" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
                             調班審核</a>
-                        <a id="arr_applr" style="color: #37419A;" href="/" class="fold_obj sidebar_w">
+                        <a id="arr_applr" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
                             調班申請</a>   
-                        <a id="arr_record" style="color: #37419A;" href="/" class="fold_obj sidebar_w">
+                        <a id="arr_record" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
                             調班紀錄</a>
                     </div>
                     
@@ -427,7 +427,55 @@
                         }
                     }  
                 })
+
+                // 調班申請頁面，下拉選單操作
+                let isShow = false;
+                let isAppear = false;
+                let odropdown = document.querySelector(".dropdown_menu");
+                let odropdowns = document.querySelector(".dropdown_menu_staff");
+                let oexchange_shift = document.querySelector("#exchange_shift");
+                let oexchange_staff = document.querySelector("#exchange_staff");
+                let odefault = document.createTextNode("");
+                let odefaults = document.createTextNode("");
+               
+                oexchange_shift.appendChild(odefault);
+                oexchange_staff.appendChild(odefaults);
+
+                $(".down-arrow").click((e)=>{
+                    isShow = !isShow;
+                    if(isShow === true){
+                        odropdown.style.visibility = 'visible';
+                    }else{
+                        odropdown.style.visibility = 'hidden';
+                    }
+                });
+                $(".dropdown_menu").click((e)=>{
+                    let ovisited = document.createTextNode(e.target.innerHTML);
+                    oexchange_shift.replaceChild(ovisited, odefault);
+                    odefault = ovisited;
+                    
+                    isShow = false;
+                    odropdown.style.visibility = 'hidden';
+                });
+
+                $(".down-arrow-staff").click((e)=>{
+                    isAppear = !isAppear;
+                    if(isAppear === true){
+                        odropdowns.style.visibility = 'visible';
+                    }else{
+                        odropdowns.style.visibility = 'hidden';
+                    }
+                });
+                $(".dropdown_menu_staff").click((e)=>{
+                    let ovisited = document.createTextNode(e.target.innerHTML);
+                    oexchange_staff.replaceChild(ovisited, odefaults);
+                    odefaults = ovisited;
+                    
+                    isAppear = false;
+                    odropdowns.style.visibility = 'hidden';
+                });
             }
+            
             
         </script>
         
