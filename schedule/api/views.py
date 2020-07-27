@@ -1,25 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions, status
 from .serializers import *
-"""
-CustomUserSerializer
-ShiftSerializer
-StationSerializer
-DepartmentSerializer
-GetStationSerializer
-GetShiftSerializer
-GetCustomUserSerializer
-OnedaySerializer
-ReservationSerializer
-GetReservationSerializer
-ResultSerializer
-GetResultSerializer
-PreResultSerializer
-GetPreResultSerializer
-AfterResultSerializer
-GetAfterResultSerializer
-"""
-from account.models import CustomUser, Department
+from account.models import CustomUser, Department, Liscense
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import BasePermission, SAFE_METHODS
@@ -406,3 +388,9 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
                 date__range=[start[:10], end[:10]])
         else:
             return PromiseShift.objects.all()
+
+
+class LiscenseViewSet(viewsets.ModelViewSet):
+    queryset = Liscense.objects.all()
+    serializer_class = LiscenseSerializer
+    permission_classes = (permissions.IsAuthenticated,)

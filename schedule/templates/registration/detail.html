@@ -5,6 +5,86 @@
 {% block content %}
 
 <div class="container">
+    <!-- modal begin -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">new event</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="addLiscense" method="post">
+                <div class="form-group row">
+                    <label for="liscenseName" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseName'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscenseName" type="text" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="liscenseDate" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseDate'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscenseDate" type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="liscenseDueDate" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseDueDate'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscenseDueDate" type="date" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="liscenseSource" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseSource'%}</label>
+                    <div class="col-sm-7">
+                        <input name="liscenseSource" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6 offset-1">
+                        <label for="liscensePicture" class="btn btn-info">
+                            <input name="liscensePicture"
+                            id="liscensePicture"
+                            type="file"
+                            targetID="preview-window"
+                            style="display: none;"
+                            onchange="readURL(this)"
+                            accept="image/gif, image/jpeg, image/png"/>
+                            {%trans 'LiscensePicture'%}
+                        </label>
+                    </div>
+                    <div class="col-sm-4" id="preview-window">證照正面</div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-6 offset-1">
+                        <label for="liscensePicture2" class="btn btn-info">
+                            <input name="liscensePicture2"
+                            id="liscensePicture2"
+                            type="file"
+                            targetID="preview-window-2"
+                            style="display: none;"
+                            onchange="readURL(this)"
+                            accept="image/gif, image/jpeg, image/png"/>
+                            {%trans 'LiscensePicture_2'%}
+                        </label>
+                    </div>
+                    <div class="col-sm-4" id="preview-window-2">證照背面</div>
+                </div>
+
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+              <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
+            </div>
+        </form>
+          </div>
+        </div>
+      </div>
+      <!-- modal end -->
     <div class="row">
         <div class="col-6">
             <div class="d-flex">
@@ -70,9 +150,6 @@
                             {{target_user.special_rest_num}}
                         </td>
                     </tr>
-
-
-
                 </tbody>
             </table>
             <br>
@@ -123,7 +200,13 @@
                     <div>無待簽核表單</div>
                 {% endif %}
             </div>
-            <h3>證照管理</h3>
+            <div>
+                <h3>證照管理</h3>
+                {% if target_user == user%}
+                <a href="#" id="newLiscense"><i class="fas fa-pen"></i> 新增</a>
+                {% endif %}
+            </div>
+           
             <div class="card liscense-card">
                 {% if liscense %}
                     {% for app in applications %}
@@ -152,6 +235,7 @@
     }
     .right h3{
         margin-top: 2.5rem;
+        display: inline-block;
     }
     .audit-card{
         padding: 1rem;
@@ -166,6 +250,66 @@
         min-height: 10rem;
         box-shadow: 0 0 1px 0;
     }
+    .right a{
+        float: right;
+        margin-top: 2.8rem;
+    }
+    .preview{
+        width: 100%;
+    }
 </style>
+
+<script>
+    let newLiscenseBtn = document.querySelector('#newLiscense');
+    newLiscenseBtn.addEventListener('click', function(){
+        $('#myModal').modal();
+    });
+    function readURL(input){
+        if(input.files && input.files[0]){
+        var imageTagID = input.getAttribute("targetID");
+        console.log(input.files)
+        let img = document.createElement('img');
+        img.classList.add('preview');
+        let prewin = document.getElementById(imageTagID);
+        prewin.innerHTML = '';
+        prewin.appendChild(img);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            img.setAttribute("src", e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+        }
+    }
+    // 送出表單
+    let form = document.querySelector('#addLiscense');
+    // form.addEventListener('submit', function(ev){
+    //     ev.preventDefault();
+    //     let uploadData = new FormData();
+    //     let file = form.elements.liscensePicture.files[0]
+    //     uploadData.append('liscense_name', form.elements.liscenseName)
+    //     uploadData.append('liscense_date', form.elements.liscenseDate)
+    //     uploadData.append('liscense_due_date', form.elements.liscenseDueDate)
+    //     // uploadData.append('liscense_picture', file, file.name);
+    //     // file = form.elements.liscensePicture2.files[0]
+    //     // uploadData.append('liscense_picture2', file, file.name);
+    //     console.log(uploadData)
+        
+    // });
+    document.getElementById('save').addEventListener('click', function(e){
+        // e.preventDefault();
+        user = "{{user.id}}";
+        let form = document.querySelector('#addLiscense');
+        let uploadData = new FormData();
+        uploadData.append('name', form.elements.liscenseName);
+        uploadData.append('user', user);
+        uploadData.append('date', form.elements.liscenseDate);
+        uploadData.append('due', form.elements.liscenseDueDate);
+        console.log(form.liscenseName.value)
+        
+    });
+    
+    
+
+</script>
 
 {% endblock %}
