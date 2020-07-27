@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
-from result.models import Result, PreResult, AfterResult, TimeAdjustment
+from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 from drf_yasg.utils import swagger_auto_schema
@@ -394,3 +394,7 @@ class LiscenseViewSet(viewsets.ModelViewSet):
     queryset = Liscense.objects.all()
     serializer_class = LiscenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class ExchangeApplicationViewSet(viewsets.ModelViewSet):
+    queryset = ExchangeApplication.objects.all()
