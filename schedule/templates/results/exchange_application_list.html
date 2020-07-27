@@ -71,6 +71,59 @@
     
 </div>
 
+
+<script>
+    // 調班申請頁面，下拉選單操作
+    document.addEventListener('DOMContentLoaded', function(){
+        let isShow = false;
+        let isAppear = false;
+        let odropdown = document.querySelector(".dropdown_menu");
+        let odropdowns = document.querySelector(".dropdown_menu_staff");
+        let oexchange_shift = document.querySelector("#exchange_shift");
+        let oexchange_staff = document.querySelector("#exchange_staff");
+        let odefault = document.createTextNode("");
+        let odefaults = document.createTextNode("");
+        
+        oexchange_shift.appendChild(odefault);
+        oexchange_staff.appendChild(odefaults);
+
+        $(".down-arrow").click((e)=>{
+            isShow = !isShow;
+            if(isShow === true){
+                odropdown.style.visibility = 'visible';
+            }else{
+                odropdown.style.visibility = 'hidden';
+            }
+        });
+        $(".dropdown_menu").click((e)=>{
+            let ovisited = document.createTextNode(e.target.innerHTML);
+            oexchange_shift.replaceChild(ovisited, odefault);
+            odefault = ovisited;
+            
+            isShow = false;
+            odropdown.style.visibility = 'hidden';
+        });
+
+        $(".down-arrow-staff").click((e)=>{
+            isAppear = !isAppear;
+            if(isAppear === true){
+                odropdowns.style.visibility = 'visible';
+            }else{
+                odropdowns.style.visibility = 'hidden';
+            }
+        });
+        $(".dropdown_menu_staff").click((e)=>{
+            let ovisited = document.createTextNode(e.target.innerHTML);
+            oexchange_staff.replaceChild(ovisited, odefaults);
+            odefaults = ovisited;
+            
+            isAppear = false;
+            odropdowns.style.visibility = 'hidden';
+        });
+    })
+    
+
+</script>
 {% endblock %}
 {% block styles %}
 <style>
