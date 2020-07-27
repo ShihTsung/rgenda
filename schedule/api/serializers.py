@@ -1,4 +1,3 @@
-from schedule.result.models import ExchangeApplication
 from rest_framework import serializers
 from rest_framework.decorators import action
 from account.models import CustomUser, Department, Liscense
@@ -6,7 +5,9 @@ from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
 from date.models import Oneday
-from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
+from result.models import (Result, PreResult,
+                           AfterResult, TimeAdjustment,
+                           ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 
 # 部門/科別
