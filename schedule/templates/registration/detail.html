@@ -16,41 +16,71 @@
               </button>
             </div>
             <div class="modal-body">
-              <form action="" id="addEvent">
+              <form id="addLiscense" method="post">
                 <div class="form-group row">
-                    <label for="liscen-name" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceName'%}</label>
+                    <label for="liscenseName" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseName'%}</label>
                     <div class="col-sm-7">
-                        <input name="liscence-name" type="text" class="form-control">
+                        <input name="liscenseName" type="text" class="form-control">
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="liscence-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDate'%}</label>
+                    <label for="liscenseDate" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseDate'%}</label>
                     <div class="col-sm-7">
-                        <input name="liscence-date" type="text" class="form-control">
+                        <input name="liscenseDate" type="date" class="form-control">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="liscence-due-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDueDate'%}</label>
+                    <label for="liscenseDueDate" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseDueDate'%}</label>
                     <div class="col-sm-7">
-                        <input name="liscence-due-date" type="date" class="form-control">
+                        <input name="liscenseDueDate" type="date" class="form-control">
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="liscence-due-date" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenceDueDate'%}</label>
+                    <label for="liscenseSource" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseSource'%}</label>
                     <div class="col-sm-7">
-                        
-                        <input name="liscence-due-date" type="date" class="form-control">
+                        <input name="liscenseSource" type="text" class="form-control">
                     </div>
                 </div>
-                
+                <div class="form-group row">
+                    <div class="col-sm-6 offset-1">
+                        <label for="liscensePicture" class="btn btn-info">
+                            <input name="liscensePicture"
+                            id="liscensePicture"
+                            type="file"
+                            targetID="preview-window"
+                            style="display: none;"
+                            onchange="readURL(this)"
+                            accept="image/gif, image/jpeg, image/png"/>
+                            {%trans 'LiscensePicture'%}
+                        </label>
+                    </div>
+                    <div class="col-sm-4" id="preview-window">證照正面</div>
+                </div>
 
-              </form>
+                <div class="form-group row">
+                    <div class="col-sm-6 offset-1">
+                        <label for="liscensePicture2" class="btn btn-info">
+                            <input name="liscensePicture2"
+                            id="liscensePicture2"
+                            type="file"
+                            targetID="preview-window-2"
+                            style="display: none;"
+                            onchange="readURL(this)"
+                            accept="image/gif, image/jpeg, image/png"/>
+                            {%trans 'LiscensePicture_2'%}
+                        </label>
+                    </div>
+                    <div class="col-sm-4" id="preview-window-2">證照背面</div>
+                </div>
+
+              
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
               <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
             </div>
+        </form>
           </div>
         </div>
       </div>
@@ -120,9 +150,6 @@
                             {{target_user.special_rest_num}}
                         </td>
                     </tr>
-
-
-
                 </tbody>
             </table>
             <br>
@@ -175,8 +202,9 @@
             </div>
             <div>
                 <h3>證照管理</h3>
+                {% if target_user == user%}
                 <a href="#" id="newLiscense"><i class="fas fa-pen"></i> 新增</a>
-                
+                {% endif %}
             </div>
            
             <div class="card liscense-card">
@@ -226,6 +254,9 @@
         float: right;
         margin-top: 2.8rem;
     }
+    .preview{
+        width: 100%;
+    }
 </style>
 
 <script>
@@ -233,6 +264,51 @@
     newLiscenseBtn.addEventListener('click', function(){
         $('#myModal').modal();
     });
+    function readURL(input){
+        if(input.files && input.files[0]){
+        var imageTagID = input.getAttribute("targetID");
+        console.log(input.files)
+        let img = document.createElement('img');
+        img.classList.add('preview');
+        let prewin = document.getElementById(imageTagID);
+        prewin.innerHTML = '';
+        prewin.appendChild(img);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            img.setAttribute("src", e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+        }
+    }
+    // 送出表單
+    let form = document.querySelector('#addLiscense');
+    // form.addEventListener('submit', function(ev){
+    //     ev.preventDefault();
+    //     let uploadData = new FormData();
+    //     let file = form.elements.liscensePicture.files[0]
+    //     uploadData.append('liscense_name', form.elements.liscenseName)
+    //     uploadData.append('liscense_date', form.elements.liscenseDate)
+    //     uploadData.append('liscense_due_date', form.elements.liscenseDueDate)
+    //     // uploadData.append('liscense_picture', file, file.name);
+    //     // file = form.elements.liscensePicture2.files[0]
+    //     // uploadData.append('liscense_picture2', file, file.name);
+    //     console.log(uploadData)
+        
+    // });
+    document.getElementById('save').addEventListener('click', function(e){
+        // e.preventDefault();
+        user = "{{user.id}}";
+        let form = document.querySelector('#addLiscense');
+        let uploadData = new FormData();
+        uploadData.append('name', form.elements.liscenseName);
+        uploadData.append('user', user);
+        uploadData.append('date', form.elements.liscenseDate);
+        uploadData.append('due', form.elements.liscenseDueDate);
+        console.log(form.liscenseName.value)
+        
+    });
+    
+    
 
 </script>
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.decorators import action
-from account.models import CustomUser, Department
+from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
@@ -255,3 +255,10 @@ class TimeAdjustmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeAdjustment
         fields = ('id', 'hour', 'adjustment_type', 'remark')
+
+
+class LiscenseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Liscense
+        fields = '__all__'

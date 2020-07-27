@@ -215,8 +215,10 @@ LOGIN_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/images/'
 AUTH_USER_MODEL = 'account.CustomUser'  # self defined user model
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+MEDIA_ROOT = '/code/schedule/prod_static/images'
 STATIC_ROOT = '/code/schedule/prod_static/'

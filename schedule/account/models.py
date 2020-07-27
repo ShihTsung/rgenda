@@ -196,16 +196,35 @@ class CustomUser(AbstractUser):
 
 
 # # 證照模型
-# class Liscense(models.Model):
-#     user = models.ForeignKey(
-#         CustomUser,
-#         on_delete=models.CASCADE,
-#         verbose_name=_('Owner'),
-#         null=True)
-#     name = models.CharField(
-#         max_length=20,
-#         verbose_name=_('Name'),
-#         default="")
-#     due = models.DateField(
-#         verbose_name=_('DueDate')
-#     )
+class Liscense(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name=_('Owner'),
+        null=True)
+    name = models.CharField(
+        max_length=25,
+        verbose_name=_('Name'),
+        default="")
+    date = models.DateField(
+        verbose_name=_('LiscenseDate')
+    )
+    due = models.DateField(
+        verbose_name=_('DueDate')
+    )
+    source = models.CharField(
+        max_length=25,
+        verbose_name=_('Source'),
+    )
+    liscense_pic = models.ImageField(
+        verbose_name=_('LiscensePic'),
+        upload_to='liscense',
+        null=True,
+        blank=True
+    )
+    liscense_pic_2 = models.ImageField(
+        verbose_name=_('LiscensePic2'),
+        upload_to='liscense',
+        null=True,
+        blank=True
+    )
