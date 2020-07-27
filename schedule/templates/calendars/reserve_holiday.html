@@ -14,7 +14,7 @@
     {% endif%}
   </div>
   <!-- 警告訊息 -->
-  <div class="alert" role="alert" style="visibility:hidden;" id="message">
+  <div class="alert" role="alert" id="message">
     選擇這天的人數已經超過上限，請考慮別天
   </div>
 
@@ -52,6 +52,10 @@
       height: 3rem;
       font-size: 2rem;
       text-align: center;
+    }
+
+    .alert {
+      display: none;
     }
 
 </style>

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.decorators import action
-from account.models import CustomUser, Department
+from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
@@ -201,7 +201,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ('id', 'user', 'year', 'date')
+        fields = ('id', 'user', 'date')
 
 
 class GetReservationSerializer(serializers.ModelSerializer):
@@ -210,7 +210,7 @@ class GetReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ('id', 'user', 'year', 'date')
+        fields = ('id', 'user', 'date')
 
 # 人力需求
 
@@ -218,7 +218,7 @@ class GetReservationSerializer(serializers.ModelSerializer):
 class DemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'weekday', 'holiday', 'station')
+        fields = ('id', 'shift', 'level', 'workday', 'holiday', 'station')
 
 
 class GetDemandSerializer(serializers.ModelSerializer):
@@ -227,7 +227,7 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'weekday', 'holiday', 'station')
+        fields = ('id', 'shift', 'level', 'workday', 'holiday', 'station')
 
 # 保證假/班 Get
 
@@ -238,7 +238,7 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'year', 'date', 'shift')
+        fields = ('id', 'user', 'date', 'shift_type')
 
 # 保證假/班
 
@@ -247,7 +247,7 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'year', 'date', 'shift')
+        fields = ('id', 'user', 'date', 'shift_type')
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):
@@ -255,3 +255,10 @@ class TimeAdjustmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeAdjustment
         fields = ('id', 'hour', 'adjustment_type', 'remark')
+
+
+class LiscenseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Liscense
+        fields = '__all__'

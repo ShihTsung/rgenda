@@ -28,7 +28,12 @@
       </div>
       <div class="modal-body">
         <form action="" id="addEvent">
+          <label for="shift">{%trans 'Shift'%}</label>
           <select name="shift" id="shift" class="form-control">
+
+          </select>
+          <label for="station">{%trans 'Station'%}</label>
+          <select name="station" id="station" class="form-control">
 
           </select>
         </form>
@@ -54,7 +59,12 @@
       </div>
       <div class="modal-body">
         <form action="">
+          <label for="shift">{%trans 'Shift'%}</label>
           <select name="shift" id="edit-shift" class="form-control">
+
+          </select>
+          <label for="station">{%trans 'Station'%}</label>
+          <select name="station" id="edit-station" class="form-control">
 
           </select>
         </form>
@@ -84,9 +94,12 @@
       let e = document.getElementById('shift')
       let title = e.options[e.selectedIndex].innerText
       let selectedId = e.options[e.selectedIndex].value
+      e = document.getElementById('station')
+      let station = e.options[e.selectedIndex].value
       let n = {
         user: currInfo.resource.id,
         shift: selectedId,
+        station: station,
         date: currInfo.dateStr
       }
       fetch('/api/results/',
@@ -127,6 +140,24 @@
       });
     });
 
+    // 加入工作站選項
+    fetch('/api/stations')
+    .then(res=>{
+      return res.json();
+    })
+    .then(data=>{
+      data.forEach(e=>{
+        option = document.createElement('option');
+        option.text = e.name;
+        option.value = e.id;
+        document.getElementById('station').add(option);
+        option = document.createElement('option');
+        option.text = e.name;
+        option.value = e.id;
+        document.getElementById('edit-station').add(option);
+      });
+    });
+
     // fullcalendar 
     calendar = new FullCalendar.Calendar(calendarEl, {
       timeZone: 'UTC',
@@ -141,8 +172,8 @@
       columnHeaderFormat: {
         weekday: 'short',
       },
-      aspectRatio: 1.5,
-      resourceAreaWidth: "6rem",
+      aspectRatio: 2,
+      resourceAreaWidth: "18rem",
       defaultView: 'resourceTimelineWeek',
       defaultDate:"{{start}}",
       validRange:{
@@ -153,6 +184,28 @@
       slotLabelFormat: [
           {weekday: 'short', day:'numeric'},
       ], 
+      resourceColumns: [
+        {
+          labelText: '員工',
+          field: 'title'
+        },
+        {
+          labelText: '排班',
+          field: 'id'
+        },
+        {
+          labelText: '特休',
+          field: 'id'
+        },
+        {
+          labelText: '加班',
+          field: 'id'
+        },
+        {
+          labelText: '差額',
+          field: 'id'
+        }
+      ],
       customButtons: {
       custom1: {
         text: 'save',
@@ -228,7 +281,7 @@
           return res.json();
         });
       },
-      resourceLabelText: '員工列表',
+      // resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
         fetch('/api/users/?mode=resource/')
         .then(res=>{
@@ -280,8 +333,26 @@
       function(){
         let e = document.getElementById('edit-shift');
         currInfo.event.setProp("title", e.options[e.selectedIndex].innerText);
-        currInfo.event.setProp("shift", e.options[e.selectedIndex].value);
+        currInfo.event.setExtendedProp("shift", e.options[e.selectedIndex].value);
+        e = document.getElementById('edit-station');
+        currInfo.event.setExtendedProp("station", e.options[e.selectedIndex].value);
+        console.log(currInfo.event)
         $('#editModal').modal('hide');
+        let update_body = {
+          id: currInfo.event.id,
+          date: currInfo.event.start.toISOString().split('T')[0],
+          shift: currInfo.event.extendedProps.shift,
+          station: (currInfo.event.extendedProps.station ||null)
+        }
+        fetch('/api/results/'+currInfo.event.id+'/',
+              {
+              method: "PATCH",
+              headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify(update_body)
+            })
       });
     });
 

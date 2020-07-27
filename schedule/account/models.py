@@ -195,15 +195,36 @@ class CustomUser(AbstractUser):
         super(CustomUser, self).save(*args, **kwargs)
 
 
-# class DepartmentManager(models.Model):
-#     department = models.ForeignKey(
-#         Department,
-#         on_delete=models.CASCADE,
-#         verbose_name=_('Department'),
-#     )
-#     user = models.ForeignKey(
-#         CustomUser,
-#         on_delete=models.CASCADE,
-#         verbose_name=_('User'),
-#         null=True
-#     )
+# # 證照模型
+class Liscense(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name=_('Owner'),
+        null=True)
+    name = models.CharField(
+        max_length=25,
+        verbose_name=_('Name'),
+        default="")
+    date = models.DateField(
+        verbose_name=_('LiscenseDate')
+    )
+    due = models.DateField(
+        verbose_name=_('DueDate')
+    )
+    source = models.CharField(
+        max_length=25,
+        verbose_name=_('Source'),
+    )
+    liscense_pic = models.ImageField(
+        verbose_name=_('LiscensePic'),
+        upload_to='liscense',
+        null=True,
+        blank=True
+    )
+    liscense_pic_2 = models.ImageField(
+        verbose_name=_('LiscensePic2'),
+        upload_to='liscense',
+        null=True,
+        blank=True
+    )

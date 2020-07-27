@@ -5,10 +5,260 @@
 
 {% block content %}
 <div class="container">
-    {{processing}}
+    <!-- {{processing}}
     {{complete}}
-    {{form}}
+    {{form}} -->
+    <h3>調班審核</h3>
+    <hr/>
+    <div class="audit_items">
+        <table width="1000" border="1" cellspacing="0">
+            <tr>
+                <th>單據編號</th>
+                <th>起始日期</th>
+                <th>結束日期</th>
+                <th>申請人</th>
+                <th>原排班別</th>
+                <th>調換班別</th>
+                <th>提供換回日期</th>
+                <th>動作</th>
+                <th>事由</th>
+            </tr>
+            <tr class="audit_items_body">
+                <td>S20200724001</td>
+                <td>2020/06/24</td>
+                <td>2020/06/24</td>
+                <td>阿花</td>
+                <td>
+                    <div class="ex-wrapper">
+                        <div id="origin_schedule">
+                            <h4 class="os_title">D</h4>
+                            <div class="os_content" style="width: 40px; padding-left: 4px;">
+                                7a-4p
+                            </div>
+                            <div class="os_content">
+                                工作站1
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="ex-wrapper">
+                        <div id="origin_schedule" style="width: 100px; background: white; border: 1px solid #cbcbcb;">
+                            <h6 class="os_title" style="color: #cbcbcb; font-weight: 300; margin-top: 2px;">休息日</h6>
+                        </div>
+                    </div>
+                </td>
+                <td>-</td>
+                <td>
+                    <button class="audit_btn">同意</button>
+                    <button class="audit_btn">退回</button>
+                </td>
+                <td class="last_one">退回請填寫事由</td>
+            </tr>
+            <tr class="audit_items_body">
+                <td>S20200724002</td>
+                <td>2020/06/20</td>
+                <td>2020/06/20</td>
+                <td>阿花</td>
+                <td>
+                    <div class="ex-wrapper">
+                        <div id="origin_schedule" style="background: #84B1ED;">
+                            <h4 class="os_title">E</h4>
+                            <div class="os_content" style="width: 45px; padding-left: 1px; color: #84B1ED;">
+                                11a-8p
+                            </div>
+                            <div class="os_content" style="color: #84B1ED;">
+                                工作站1
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="ex-wrapper">
+                        <div id="origin_schedule" style="width: 100px; background: white; border: 1px solid #cbcbcb;">
+                            <h6 class="os_title" style="color: #cbcbcb; font-weight: 300; margin-top: 2px;">休息日</h6>
+                        </div>
+                    </div>
+                </td>
+                <td>-</td>
+                <td>
+                    <button class="audit_btn">同意</button>
+                    <button class="audit_btn">退回</button>
+                </td>
+                <td class="last_one">退回請填寫事由</td>
+            </tr>
+        </table>
+    </div>
+    
+    <hr/>
+    <div id="calendar">
+
+    </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let Calendar = FullCalendar.Calendar;
+        let Draggable = FullCalendarInteraction.Draggable;
+        let calendarEl = document.getElementById('calendar');
+        let initialLocaleCode = 'en';
 
 
+        calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['interaction', 'dayGrid'],
+                selectable: false,
+                selectHelper: true,
+                theme: true,
+                editable: true,
+                themeSystem: 'bootstrap',
+                weekMode: 'liquid',
+                eventLimit: true, // when too many events in a day, show the popover
+                timeZone: 'UTC',
+                header: {
+                    left: '',
+                    center: 'prev,title,next',
+                    right: ''
+                },
+                contentHeight: 450,
+                showNonCurrentDates: false,
+                droppable: true,
+                views: {
+                    dayGridMonth: { 
+                        titleFormat: { year: 'numeric', month: '2-digit' }
+                    }
+                },
+                titleFormat: {
+                    month: 'yyyy年MMMM'
+                },
+                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                dayNames: ["週日", "週一", "週二", "週三", "週四", "週五", "週六"],
+                dayNamesShort: ["週日", "週一", "週二", "週三", "週四", "週五", "週六"],
+                eventClick: function(info){
+                    currInfo = info;
+                    $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
+                    $('#myModal').modal('show');
+                    $('#day').val(info.event.title);
+                    $('#locked').prop('checked',info.event.extendedProps.locked);
+                },
+                eventRender: function(info) {
+                  if (info.event.extendedProps.locked){
+                    x = document.createElement('div');
+                    x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
+                    info.el.appendChild(x);
+                  }
+                },
+                events: {
+                  'url': '/api/dates',
+                },
+            });
+            if ("{{LANG}}" == 'zh-hant') {
+                calendar.setOption('locale', 'zh-tw');
+            }
+            calendar.render();
+            
+        });
+</script>
+{% endblock %}
+{% block styles %}
+<style>
+.fc-unthemed .fc-content, .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-list-view, .fc-unthemed .fc-popover, .fc-unthemed .fc-row, .fc-unthemed tbody, .fc-unthemed td, .fc-unthemed th, .fc-unthemed thead{
+    border-color: #c8c8c8;
+    
+}
+.fc-unthemed .fc-disabled-day{
+    background: #f1f1f1;
+    opacity: 1;
+}
+.fc-past{
+    background: white;
+
+}
+.fc-future{
+    background: white;
+
+}
+h2{
+    display: inline-block;
+}
+.fc-button-primary {
+    color: black;
+    background: none;
+    border: none;
+}
+.fc-prev-button{
+    position: absolute;
+    left: 380px;
+}
+.fc-next-button{
+    position: absolute;
+    right: 380px;
+}
+table{
+    text-align: center;
+    border: 1px solid #c6c6c6;
+}
+th{
+    background-color: #d9d9d9;
+}
+.audit_items_body{
+    background: white;
+}
+.last_one{
+    color: #b5b5b5;
+    font-weight: 300;
+    font-size: 13px;
+}
+.ex-wrapper{
+    margin-top: 5px;
+    height: 28px;
+}
+#origin_schedule{
+    display: inline-block;
+    width: 135px;
+    height: 24px;
+    background: #EBC57C;
+    border-radius: 3px;
+}
+.os_title{
+    display: inline-block;
+    color: white;
+    margin-left: 5px;
+    font-weight: 400;
+    float: left;
+    margin-top: -2px;
+}
+.os_content{
+    display: inline-block;
+    background: white;
+    height: 20px;
+    width: 45px;
+    color: #EBC57C;
+    border-radius: 3px;
+    float: left;
+    margin-left: 5px;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 20px;
+    padding-left: 2px;
+}
+.audit_btn{
+    width: 50px;
+    border-radius: 3px;
+    background: #38449a;
+    border: none;
+    color: white;
+    font-weight: 300;
+    font-size: 12px;
+}
+#calendar{
+    width: 850px;
+    height: 700px;
+    margin: 10px auto;
+    overflow: hidden;
+}
+hr{
+    border: 1px solid #e2e2e2;
+    margin-bottom: 30px;
+}
+</style>
 {% endblock %}
