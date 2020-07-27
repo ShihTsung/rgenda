@@ -20,6 +20,7 @@ from station.models import Station
 from shift.models import Shift
 from notifications.signals import notify
 from datetime import time
+from numpy.random import choice
 
 
 """
@@ -380,8 +381,7 @@ def departmentDelete(request, id=None):
         return redirect("/departments/list")
 
 
-def cycle_analysis(d_id, input_date):
-    department = Department.objects.get(id=d_id)
+def cycle_analysis(department, input_date):
     date_start = department.date_start
     rule = department.law_rule
     date_diff = (input_date - date_start).days
@@ -391,8 +391,7 @@ def cycle_analysis(d_id, input_date):
     }
 
 
-def get_cycle(d_id, cycle_no):
-    department = Department.objects.get(id=d_id)
+def get_cycle(department, cycle_no):
     date_first = department.date_start + timedelta(
         days=7 * 2 ** department.law_rule * cycle_no)
 
@@ -400,10 +399,81 @@ def get_cycle(d_id, cycle_no):
         7 * 2 ** department.law_rule)]
 
 
-def assign_user(proportion):
-    users = CustomUser.objects.filter(can_be_schedule=True).order_by('-level')
-    output = {
-        '白班': list(),
-        '小夜': list(),
-        '大夜': list(),
+def assign_user(department, proportion):
+    """
+    依照比例分配白班/小夜/大夜值班名單並盡量符合人員分級
+    尚未加入部分人員不值特定班種的分配
+    待處理: 孕婦不值 pm 22:00 ~ am 6:00 的班
+    :param department:
+    :param proportion:
+    :return:
+    """
+    users = {
+        4: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=4),
+        3: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=3),
+        2: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=2),
+        1: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=1),
     }
+    users_nums = {
+        4: len(users[4]),
+        3: len(users[3]),
+        2: len(users[2]),
+        1: len(users[1]),
+        'sum': 0,
+    }
+    users_nums['sum'] = sum(users_nums.values())
+
+    proportion_sum = proportion['白班']['sum'] + proportion['小夜']['sum'] + proportion['大夜']['sum']
+    count_output = {
+        '白班': round(users_nums['sum'] * proportion['白班']['sum'] / proportion_sum),
+        '小夜': round(users_nums['sum'] * proportion['小夜']['sum'] / proportion_sum),
+        '大夜': round(users_nums['sum'] * proportion['大夜']['sum'] / proportion_sum),
+    }
+    output = {
+        '白班': {
+            1: list(),
+            2: list(),
+            3: list(),
+            4: list(),
+        },
+        '小夜': {
+            1: list(),
+            2: list(),
+            3: list(),
+            4: list(),
+        },
+        '大夜': {
+            1: list(),
+            2: list(),
+            3: list(),
+            4: list(),
+        },
+    }
+    user_pool = list()
+    for i in [4, 3, 2]:
+        user_pool += users[i]
+        quota = dict()
+        if proportion['白班'][i] + proportion['小夜'][i] + proportion['大夜'][i] > len(user_pool):
+            total = proportion['白班'][i] + proportion['小夜'][i] + proportion['大夜'][i]
+            quota['白班'] = min(round(len(user_pool) * proportion['白班'][i] / total), count_output['白班'])
+            quota['小夜'] = min(round(len(user_pool) * proportion['小夜'][i] / total), count_output['小夜'])
+            quota['大夜'] = min(round(len(user_pool) * proportion['大夜'][i] / total), count_output['大夜'])
+        else:
+            quota['白班'] = min(proportion['白班'][i], count_output['白班'])
+            quota['小夜'] = min(proportion['小夜'][i], count_output['小夜'])
+            quota['大夜'] = min(proportion['大夜'][i], count_output['大夜'])
+        for st in quota:
+            if quota[st]:
+                chosen_users = choice(user_pool, quota[st], replace=False)
+                for user in chosen_users:
+                    user_pool.remove(user)
+                    output[st][user.level].append(user)
+                    count_output[st] -= 1
+    user_pool += users[1]
+    for st in count_output:
+        if count_output[st]:
+            chosen_users = choice(user_pool, count_output[st], replace=False)
+            for user in chosen_users:
+                user_pool.remove(user)
+                output[st][user.level].append(user)
+    return output

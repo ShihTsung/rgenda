@@ -15,6 +15,10 @@ class Oneday(models.Model):
         ),
     )
     locked = models.BooleanField(verbose_name=_('Locked'), default=False)
+    red_day = models.BooleanField(
+        verbose_name=_('RedDay'),
+        default=False,
+    )
 
     def __str__(self):
         return str(self.date)

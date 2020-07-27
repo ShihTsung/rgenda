@@ -2,15 +2,16 @@ from django.shortcuts import render, redirect
 from .models import Result, AfterResult, PreResult, TimeAdjustment, ExchangeApplication
 from account.models import CustomUser as User
 from account.models import Department
-from account.views import cycle_analysis, get_cycle
+from account.views import cycle_analysis, get_cycle, assign_user
 from django.contrib.auth.decorators import login_required
 from scripts.get_date_range import *
 from datetime import time, datetime, timedelta, date
 from collections import defaultdict
-from date.views import attr_list
+from date.views import red_list
 from .forms import TimeAdjustmentCreateForm, TimeAdjustmentSearchForm, ExchangeApplicationCreateForm, ExchangeApplicationRefuseForm
 from date.models import Oneday
 from demand.views import get_demands
+from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave
 import json
 
 
@@ -448,7 +449,8 @@ def calculate(request):
     department = Department.objects.get(id=1)
     #
     demands = get_demands(department, date(year=2020, month=7, day=1), date(year=2020, month=7, day=31), True)
-    #
+    reds = red_list(date(year=2020, month=7, day=1), date(year=2020, month=7, day=31))
+    # 白班/小夜/大夜 人力需求比(依階級區分)
     shift_type_proportion = {
         '白班': {
             1: 0,
@@ -478,8 +480,135 @@ def calculate(request):
                 shift_type_proportion[st][i] = max(shift_type_proportion[st][i], demands[d][st][i])
     for st in shift_type_proportion:
         shift_type_proportion[st]['sum'] = sum(shift_type_proportion[st].values())
+    # 單月同班種
+    # if department.schedule_rule == 1:
+    #     # 一般
+    #     if department.law_rule == 0:
+    #         pass
+    #     elif department.law_rule == 1:
+    #         calculate_m_1(department, demands, shift_type_proportion)
+
+    continue_dict = get_continue_days(department, list(demands.keys())[0])
     context = {
-        'demands': json.dumps(demands),
         'shift_type_proportion': json.dumps(shift_type_proportion),
+        'continue_dict': json.dumps(continue_dict),
     }
+
     return render(request, 'test.html', context=context)
+
+
+def calculate_m_1(department, demands, user_proportion):
+    """
+    單月/三月同班種 雙週變形工時
+    :return:
+    """
+    results = {
+        '白班': dict(),
+        '小夜': dict(),
+        '大夜': dict(),
+    }
+    complete_d = False
+    complete_e = False
+    complete_n = False
+    # 切週期，存在cycle_list
+    date_start = list(demands.keys())[0]
+    date_end = list(demands.keys())[0]
+    ca = cycle_analysis(department, date_start)
+    cycle_no = ca['cycle_no']
+    cycle0 = get_cycle(cycle_no)
+    cycle = cycle0
+    cycle_list = [cycle]
+    while cycle[-1] < date_end:
+        cycle_no += 1
+        cycle = get_cycle(department, cycle_no)
+        cycle_list.append(cycle)
+    # 計算
+    # 1. 分配人
+    # 2. for 週期cycle
+    # 3. for 班別 D/E/N
+    # 4. for level 4/3/2/1
+    while not (complete_n and complete_e and complete_d):
+        user_distribution = assign_user(department, user_proportion)
+        continue_dict = get_continue_days(department, date_start)
+        for ind, cycle in enumerate(cycle_list):
+            if ind == 0:
+                workday_num = get_workday_num(department, cycle[0], cycle[-1], date_start)
+            else:
+                workday_num = get_workday_num(department, cycle[0], cycle[-1])
+            reserve_leave = get_reserve_leave(department, cycle[0], cycle[-1])
+            promise_leave = get_promise_leave(department, cycle[0], cycle[-1])
+            official_leave = get_official_leave(department, cycle[0], cycle[-1])
+            for st in ['白班', '小夜', '大夜']:
+                temp_result = None
+                count = 0
+                while temp_result is None and count < 100:
+                    temp_result = calculate_with_level(user_distribution[st], demands, workday_num, continue_dict,
+                                                       reserve_leave, promise_leave, official_leave)
+                    count += 1
+
+
+def get_continue_days(department, date0):
+    """
+    取得department中所有可排班user在date0之前的連續工作天數
+    :param department:
+    :param date0:
+    :return:
+    """
+    users = User.objects.filter(department=department, can_be_scheduled=True)
+    output = dict()
+    for user in users:
+        output[user.id] = 0
+        results = Result.objects.filter(user=user, date__gte=date0 - timedelta(days=7),
+                                        date__lte=date0 - timedelta(days=1)).order_by('date')
+        for result in results:
+            if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+                output[user.id] += 1
+            else:
+                output[user.id] = 0
+    return output
+
+
+def get_workday_num(department, date_start, date_end, date0=None):
+    """
+    取得指定部門中可工作員工在起訖日內的值班天數
+    若開始日期(每月一號)不是週期的第一天，則將每個員工該週期開始日前已排定的上班日數(同週期內上個月的班表)扣除
+    :param department: 部門
+    :param date_start: (週期的)起始日
+    :param date_end: (週期的)結束日
+    :param date0: 開始日
+    :return:
+    """
+    users = User.objects.filter(department=department, can_be_scheduled=True)
+    workdays = red_list(date_start, date_end).count(False)
+    output = dict()
+    for user in users:
+        output[user.id] = workdays
+    if date0:
+        for user in users:
+            results = Result.objects.filter(user=user, date__gte=date_start, date__lt=date0,
+                                            shift__shift_type__in=['白班', '小夜', '大夜', '公假'])
+            output[user.id] -= len(results)
+    return output
+
+
+def calculate_with_level(users, demands, workday, continue_day, reserve_leave, promise_leave, official_leave):
+    """"""
+    output = dict()
+    temp_users = {
+        1: list(),
+        2: list(),
+        3: list(),
+        4: list(),
+    }
+    for level in users:
+        for user in users[level]:
+            temp_users[level].append({
+                'id': user.id,
+                'workday': workday[user.id],
+                'holiday_rest': user.holiday_rest_num - user.holiday_rest_num_used,
+                'work_continuous': continue_day[user.id],
+                'reserve_leave': reserve_leave[user.id],
+                'promise_leave': promise_leave[user.id],
+                'official_leave': official_leave[user.id],
+            })
+    return output
