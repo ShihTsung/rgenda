@@ -92,9 +92,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         mode = self.request.query_params.get('mode', None)
         dep = self.request.query_params.get('department', None)
-        if dep:
-            target = Department.objects.get(id=dep)
-            return queryset.filter(department=target)
+
         if mode == 'onlyUser':
             return queryset.filter(is_staff=False)
         if mode == 'resource':
@@ -104,7 +102,10 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                     department=user.department,
                     can_be_scheduled=True)
             if user.role == 'admin' or user.is_superuser:
-                return queryset(can_be_scheduled=True)
+                return queryset.filter(can_be_scheduled=True)
+        if dep is not None:
+            target = Department.objects.get(id=dep)
+            return queryset.filter(department=target)
         return queryset
 
     @swagger_auto_schema(

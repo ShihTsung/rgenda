@@ -37,6 +37,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class GetCustomUserSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer()
+    # start_time = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -236,7 +237,6 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
 class GetPromiseShiftSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
-    shift = ShiftSerializer()
 
     class Meta:
         model = PromiseShift
