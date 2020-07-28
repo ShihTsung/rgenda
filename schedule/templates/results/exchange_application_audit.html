@@ -19,7 +19,6 @@
                 <th>申請人</th>
                 <th>原排班別</th>
                 <th>調換班別</th>
-                <th>提供換回日期</th>
                 <th>動作</th>
                 <th>事由</th>
             </tr>
@@ -48,7 +47,6 @@
                         </div>
                     </div>
                 </td>
-                <td>-</td>
                 <td>
                     <button class="audit_btn">同意</button>
                     <button class="audit_btn">退回</button>
@@ -80,7 +78,6 @@
                         </div>
                     </div>
                 </td>
-                <td>-</td>
                 <td>
                     <button class="audit_btn">同意</button>
                     <button class="audit_btn">退回</button>
@@ -126,13 +123,6 @@
                         titleFormat: { year: 'numeric', month: '2-digit' }
                     }
                 },
-                titleFormat: {
-                    month: 'yyyy年MMMM'
-                },
-                monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-                monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-                dayNames: ["週日", "週一", "週二", "週三", "週四", "週五", "週六"],
-                dayNamesShort: ["週日", "週一", "週二", "週三", "週四", "週五", "週六"],
                 eventClick: function(info){
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
