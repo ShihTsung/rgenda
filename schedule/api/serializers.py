@@ -116,14 +116,14 @@ class GetOnedaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Oneday
         fields = ('id', 'title', 'start', 'color',
-                  'className', 'extendedProps')
+                  'className', 'extendedProps', 'red_day')
         read_only_fields = ("id",)
 
     def get_className(self, obj):
         return 'bigEvent'
 
     def get_color(self, obj):
-        if obj.attribute == 'holiday':
+        if obj.red_day:
             return 'red'
         else:
             return ''
@@ -140,7 +140,7 @@ class GetOnedaySerializer(serializers.ModelSerializer):
 class OnedaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Oneday
-        fields = ('id',  'date', 'attribute', 'locked')
+        fields = ('id',  'date', 'attribute', 'locked', 'red_day')
         read_only_fields = ("id",)
 
 # 排班結果1

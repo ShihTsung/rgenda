@@ -190,13 +190,18 @@ def initial(request):
     print('create days')
     daystmp = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d')
     work_or_holiday = ""
+    redday = True
 
     for i in range(520):
         if daystmp.weekday() in [5, 6]:
             work_or_holiday = "holiday"
+            redday = True
         else:
             work_or_holiday = "workday"
-        newday = Oneday.objects.create(date=daystmp, attribute=work_or_holiday)
+            redday = False
+        newday = Oneday.objects.create(date=daystmp,
+                                       attribute=work_or_holiday,
+                                       red_day=redday)
         newday.save()
         daystmp += datetime.timedelta(days=1)
 
