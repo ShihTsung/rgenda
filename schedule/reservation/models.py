@@ -35,6 +35,7 @@ class PromiseShift(models.Model):
             (0, '休息日'),
             (1, '公假'),
         ),
+        default=0,
     )
 
     def __str__(self):
