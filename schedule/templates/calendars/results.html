@@ -370,7 +370,7 @@
       },
       // resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
-        fetch('/api/users/?mode=resource/')
+        fetch('/api/users/?mode=resource')
         .then(res=>{
           return res.json();
         })

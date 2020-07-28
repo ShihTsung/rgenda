@@ -159,6 +159,12 @@
                     x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
                     info.el.appendChild(x);
                   }
+                  if(info.event.title=="workday"){
+                    info.event.title = "工作日"
+                  }
+                  else{
+                    info.event.title = "假日"
+                  }
                 },
                 events: {
                   'url': '/api/dates',
