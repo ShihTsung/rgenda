@@ -5,7 +5,9 @@ from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
 from date.models import Oneday
-from result.models import Result, PreResult, AfterResult, TimeAdjustment
+from result.models import (Result, PreResult,
+                           AfterResult, TimeAdjustment,
+                           ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 
 # 部門/科別
@@ -261,4 +263,11 @@ class LiscenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Liscense
+        fields = '__all__'
+
+
+class ExchangeApplicationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExchangeApplication
         fields = '__all__'
