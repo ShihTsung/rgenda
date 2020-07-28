@@ -10,7 +10,7 @@
 
 <link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
-
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="container">
     <div id="calendar">
 
@@ -206,6 +206,7 @@
           field: 'id'
         }
       ],
+      
       customButtons: {
       custom1: {
         text: 'save',
@@ -223,6 +224,8 @@
       },
       custom2: {
         text: 'edit',
+        
+       
         click: function() {
           if (calendar.getOption('editable')==false){
             calendar.setOption('editable', true);
@@ -533,9 +536,12 @@
       color: white;
       font-weight: 300;
     }
-    .fc-custom2-button{
+    /* .fc-custom2-button{
+      width: 40px;
+      height: 35px;
+      border: 1px solid #ababab;
       background-size: 35px 30px;
       background: url(./../../static/icon/edit.svg) no-repeat;
-    }
+    } */
 </style>
 {% endblock %}
