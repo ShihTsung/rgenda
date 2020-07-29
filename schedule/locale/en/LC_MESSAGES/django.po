@@ -1,0 +1,755 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-29 13:07+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: schedule/account/admin.py:16
+msgid "Profile"
+msgstr ""
+
+#: schedule/account/forms.py:12 schedule/account/models.py:19
+msgid "admin"
+msgstr ""
+
+#: schedule/account/forms.py:13 schedule/account/models.py:20
+msgid "manager"
+msgstr ""
+
+#: schedule/account/forms.py:14 schedule/account/models.py:21
+msgid "user"
+msgstr ""
+
+#: schedule/account/forms.py:17 schedule/account/models.py:9
+msgid "N4"
+msgstr ""
+
+#: schedule/account/forms.py:18 schedule/account/models.py:10
+msgid "N3"
+msgstr ""
+
+#: schedule/account/forms.py:19 schedule/account/models.py:11
+msgid "N2"
+msgstr ""
+
+#: schedule/account/forms.py:20 schedule/account/models.py:12
+msgid "N, N1"
+msgstr ""
+
+#: schedule/account/forms.py:23 schedule/account/models.py:15
+msgid "Male"
+msgstr ""
+
+#: schedule/account/forms.py:24 schedule/account/models.py:16
+msgid "Female"
+msgstr ""
+
+#: schedule/account/forms.py:27 schedule/account/models.py:25
+msgid "Normal"
+msgstr ""
+
+#: schedule/account/forms.py:28
+msgid "Pragnant"
+msgstr ""
+
+#: schedule/account/forms.py:29 schedule/account/models.py:26
+msgid "Intern"
+msgstr ""
+
+#: schedule/account/forms.py:30 schedule/account/models.py:27
+msgid "PartTime"
+msgstr ""
+
+#: schedule/account/forms.py:42 schedule/account/forms.py:67
+#: schedule/account/models.py:35 schedule/account/models.py:112
+#: schedule/shift/forms.py:36 schedule/shift/forms.py:59
+#: schedule/shift/models.py:28 schedule/station/forms.py:30
+#: schedule/station/forms.py:41 schedule/station/models.py:15
+msgid "Department"
+msgstr ""
+
+#: schedule/account/forms.py:45 schedule/account/forms.py:130
+#: schedule/account/models.py:186
+msgid "OnboardDate"
+msgstr ""
+
+#: schedule/account/forms.py:69 schedule/account/models.py:121
+#: schedule/demand/models.py:17
+msgid "Level"
+msgstr ""
+
+#: schedule/account/forms.py:74 schedule/account/models.py:117
+msgid "FullName"
+msgstr ""
+
+#: schedule/account/forms.py:79 schedule/account/models.py:127
+msgid "Role"
+msgstr ""
+
+#: schedule/account/forms.py:84 schedule/account/models.py:133
+msgid "Gender"
+msgstr ""
+
+#: schedule/account/forms.py:91 schedule/account/models.py:138
+msgid "Type"
+msgstr ""
+
+#: schedule/account/forms.py:97 schedule/account/models.py:142
+msgid "Pregnant"
+msgstr ""
+
+#: schedule/account/forms.py:101 schedule/account/models.py:147
+msgid "CanBeScheduled"
+msgstr ""
+
+#: schedule/account/forms.py:107 schedule/account/models.py:152
+msgid "HolidayRestNum"
+msgstr ""
+
+#: schedule/account/forms.py:112 schedule/account/models.py:162
+msgid "SpecialRestNum"
+msgstr ""
+
+#: schedule/account/forms.py:117 schedule/account/models.py:177
+msgid "HourRequired"
+msgstr ""
+
+#: schedule/account/forms.py:122 schedule/account/models.py:181
+msgid "HourRealized"
+msgstr ""
+
+#: schedule/account/forms.py:127 schedule/account/models.py:173
+msgid "EmployeeId"
+msgstr ""
+
+#: schedule/account/forms.py:160 schedule/account/forms.py:176
+#: schedule/account/models.py:207 schedule/mainpage/forms.py:28
+#: schedule/mainpage/forms.py:60 schedule/shift/forms.py:27
+#: schedule/shift/forms.py:46 schedule/shift/models.py:20
+#: schedule/station/forms.py:27 schedule/station/forms.py:38
+#: schedule/station/models.py:12
+msgid "Name"
+msgstr ""
+
+#: schedule/account/forms.py:164 schedule/account/forms.py:181
+#: schedule/account/models.py:39
+msgid "Detail"
+msgstr ""
+
+#: schedule/account/forms.py:186 schedule/account/models.py:42
+msgid "LimitPreSchedule"
+msgstr ""
+
+#: schedule/account/forms.py:191 schedule/account/models.py:46
+msgid "DeadlinePreSchedule"
+msgstr ""
+
+#: schedule/account/forms.py:197 schedule/account/models.py:50
+msgid "Reset"
+msgstr ""
+
+#: schedule/account/forms.py:200
+msgid "PerYear(at 1/1)"
+msgstr ""
+
+#: schedule/account/forms.py:200
+msgid "PerMonth(at 1)"
+msgstr ""
+
+#: schedule/account/forms.py:203
+msgid "LawRules"
+msgstr ""
+
+#: schedule/account/forms.py:214
+msgid "RecalWorkHourDate"
+msgstr ""
+
+#: schedule/account/forms.py:224 schedule/account/models.py:73
+msgid "AdminInSchedule"
+msgstr ""
+
+#: schedule/account/forms.py:228 schedule/account/models.py:77
+msgid "PartTimeInHoliday"
+msgstr ""
+
+#: schedule/account/forms.py:232 schedule/account/models.py:81
+msgid "InternInHoliday"
+msgstr ""
+
+#: schedule/account/forms.py:236 schedule/account/models.py:85
+msgid "InternDOnly"
+msgstr ""
+
+#: schedule/account/forms.py:240 schedule/account/models.py:89
+msgid "SameDayNotice"
+msgstr ""
+
+#: schedule/account/forms.py:245
+msgid "BeginOfWeek"
+msgstr ""
+
+#: schedule/account/forms.py:249 schedule/templates/department/detail.html:107
+msgid "Monday"
+msgstr ""
+
+#: schedule/account/forms.py:250 schedule/templates/department/detail.html:109
+msgid "Sunday"
+msgstr ""
+
+#: schedule/account/forms.py:254 schedule/account/models.py:93
+#: schedule/result/models.py:159
+msgid "DateStart"
+msgstr ""
+
+#: schedule/account/models.py:54
+msgid "LawRule"
+msgstr ""
+
+#: schedule/account/models.py:57
+msgid "一般工時，7休2"
+msgstr ""
+
+#: schedule/account/models.py:58
+msgid "雙週變形工時，14休4"
+msgstr ""
+
+#: schedule/account/models.py:59
+msgid "四週變形工時，28休8"
+msgstr ""
+
+#: schedule/account/models.py:60
+msgid "八週變形工時，56休16"
+msgstr ""
+
+#: schedule/account/models.py:64
+msgid "ScheduleRule"
+msgstr ""
+
+#: schedule/account/models.py:67
+msgid "單週同班種"
+msgstr ""
+
+#: schedule/account/models.py:68
+msgid "單月同班種"
+msgstr ""
+
+#: schedule/account/models.py:69
+msgid "三月同班種"
+msgstr ""
+
+#: schedule/account/models.py:98
+msgid "MonthCycle"
+msgstr ""
+
+#: schedule/account/models.py:157
+msgid "HolidayRestNumUsed"
+msgstr ""
+
+#: schedule/account/models.py:167
+msgid "SpecialRestNumUsed"
+msgstr ""
+
+#: schedule/account/models.py:203
+msgid "Owner"
+msgstr ""
+
+#: schedule/account/models.py:210
+#: schedule/templates/registration/detail.html:28
+msgid "LiscenseDate"
+msgstr ""
+
+#: schedule/account/models.py:213
+msgid "DueDate"
+msgstr ""
+
+#: schedule/account/models.py:217
+msgid "Source"
+msgstr ""
+
+#: schedule/account/models.py:220
+msgid "LiscensePic"
+msgstr ""
+
+#: schedule/account/models.py:226
+msgid "LiscensePic2"
+msgstr ""
+
+#: schedule/date/models.py:7 schedule/reservation/models.py:16
+#: schedule/reservation/models.py:30 schedule/result/models.py:60
+#: schedule/result/models.py:92 schedule/result/models.py:124
+msgid "Date"
+msgstr ""
+
+#: schedule/date/models.py:10
+msgid "Attr"
+msgstr ""
+
+#: schedule/date/models.py:17
+msgid "Locked"
+msgstr ""
+
+#: schedule/date/models.py:19
+msgid "RedDay"
+msgstr ""
+
+#: schedule/demand/forms.py:15 schedule/demand/models.py:14
+#: schedule/result/models.py:55 schedule/result/models.py:87
+#: schedule/result/models.py:119
+#: schedule/templates/calendars/promise_shift.html:41
+#: schedule/templates/calendars/promise_shift.html:77
+#: schedule/templates/calendars/results.html:31
+#: schedule/templates/calendars/results.html:62
+msgid "Shift"
+msgstr ""
+
+#: schedule/demand/forms.py:19 schedule/demand/models.py:15
+#: schedule/mainpage/forms.py:45 schedule/mainpage/forms.py:72
+#: schedule/result/models.py:71 schedule/result/models.py:103
+#: schedule/result/models.py:135 schedule/templates/calendars/results.html:35
+#: schedule/templates/calendars/results.html:66
+msgid "Station"
+msgstr ""
+
+#: schedule/demand/models.py:18
+msgid "WorkdayDemand"
+msgstr ""
+
+#: schedule/demand/models.py:19
+msgid "HolidayDemand"
+msgstr ""
+
+#: schedule/mainpage/forms.py:8 schedule/shift/forms.py:8
+#: schedule/station/forms.py:8
+msgid "Leader"
+msgstr ""
+
+#: schedule/mainpage/forms.py:9 schedule/shift/forms.py:9
+#: schedule/station/forms.py:9
+msgid "Senior"
+msgstr ""
+
+#: schedule/mainpage/forms.py:10 schedule/shift/forms.py:10
+#: schedule/station/forms.py:10
+msgid "Junior"
+msgstr ""
+
+#: schedule/mainpage/forms.py:32 schedule/reservation/models.py:32
+#: schedule/shift/forms.py:30 schedule/shift/forms.py:49
+#: schedule/shift/models.py:23
+msgid "ShiftType"
+msgstr ""
+
+#: schedule/mainpage/forms.py:36 schedule/mainpage/forms.py:63
+#: schedule/shift/forms.py:32 schedule/shift/forms.py:51
+#: schedule/shift/models.py:26
+msgid "StartTime"
+msgstr ""
+
+#: schedule/mainpage/forms.py:40 schedule/mainpage/forms.py:67
+msgid "EndHour"
+msgstr ""
+
+#: schedule/mainpage/forms.py:48 schedule/mainpage/forms.py:75
+#: schedule/shift/forms.py:37 schedule/shift/forms.py:60
+#: schedule/shift/models.py:30
+msgid "WorkHours"
+msgstr ""
+
+#: schedule/reservation/models.py:13 schedule/reservation/models.py:27
+#: schedule/result/models.py:49 schedule/result/models.py:81
+#: schedule/result/models.py:113
+#: schedule/templates/calendars/promise_shift.html:38
+#: schedule/templates/calendars/promise_shift.html:72
+msgid "User"
+msgstr ""
+
+#: schedule/result/forms.py:7
+msgid "result_date"
+msgstr ""
+
+#: schedule/result/forms.py:12 schedule/result/forms.py:93
+#: schedule/templates/department/detail.html:17
+msgid "name"
+msgstr ""
+
+#: schedule/result/forms.py:17 schedule/result/forms.py:67
+msgid "adjustment_type"
+msgstr ""
+
+#: schedule/result/forms.py:21 schedule/result/forms.py:71
+msgid "增加時數"
+msgstr ""
+
+#: schedule/result/forms.py:22 schedule/result/forms.py:72
+msgid "減少時數"
+msgstr ""
+
+#: schedule/result/forms.py:27 schedule/result/forms.py:77
+msgid "adjustment_item"
+msgstr ""
+
+#: schedule/result/forms.py:31 schedule/result/forms.py:81
+#: schedule/result/models.py:26
+msgid "工作日加班"
+msgstr ""
+
+#: schedule/result/forms.py:32 schedule/result/forms.py:82
+#: schedule/result/models.py:27
+msgid "休息日出勤"
+msgstr ""
+
+#: schedule/result/forms.py:33 schedule/result/forms.py:83
+#: schedule/result/models.py:28
+msgid "國定假日出勤"
+msgstr ""
+
+#: schedule/result/forms.py:34 schedule/result/forms.py:84
+#: schedule/result/models.py:29
+msgid "空班出勤"
+msgstr ""
+
+#: schedule/result/forms.py:35 schedule/result/forms.py:85
+#: schedule/result/models.py:30
+msgid "On Call出勤"
+msgstr ""
+
+#: schedule/result/forms.py:36 schedule/result/forms.py:86
+#: schedule/result/models.py:31
+msgid "機構減班"
+msgstr ""
+
+#: schedule/result/forms.py:38 schedule/result/forms.py:88
+#: schedule/result/models.py:33
+msgid "員工自假"
+msgstr ""
+
+#: schedule/result/forms.py:43
+msgid "hours"
+msgstr ""
+
+#: schedule/result/forms.py:49 schedule/result/forms.py:137
+msgid "remark"
+msgstr ""
+
+#: schedule/result/forms.py:57
+msgid "date_start"
+msgstr ""
+
+#: schedule/result/forms.py:62
+msgid "date_end"
+msgstr ""
+
+#: schedule/result/forms.py:101 schedule/result/forms.py:106
+msgid "exchange_date"
+msgstr ""
+
+#: schedule/result/forms.py:111
+msgid "exchange_shift_type"
+msgstr ""
+
+#: schedule/result/forms.py:115 schedule/result/forms.py:126
+msgid "Select"
+msgstr ""
+
+#: schedule/result/forms.py:116
+msgid "白班"
+msgstr ""
+
+#: schedule/result/forms.py:117
+msgid "小夜"
+msgstr ""
+
+#: schedule/result/forms.py:118
+msgid "大夜"
+msgstr ""
+
+#: schedule/result/forms.py:123
+msgid "receive_user"
+msgstr ""
+
+#: schedule/result/models.py:18
+msgid "Hours"
+msgstr ""
+
+#: schedule/result/models.py:23
+msgid "AdjustmentType"
+msgstr ""
+
+#: schedule/result/models.py:38 schedule/result/models.py:180
+msgid "Remark"
+msgstr ""
+
+#: schedule/result/models.py:65 schedule/result/models.py:97
+#: schedule/result/models.py:129
+msgid "TimeAdjustment"
+msgstr ""
+
+#: schedule/result/models.py:146
+msgid "UserApply"
+msgstr ""
+
+#: schedule/result/models.py:153
+msgid "UserReceive"
+msgstr ""
+
+#: schedule/result/models.py:163
+msgid "DateEnd"
+msgstr ""
+
+#: schedule/result/models.py:167
+msgid "ApplicationStatus"
+msgstr ""
+
+#: schedule/schedule/settings.py:207
+msgid "English"
+msgstr ""
+
+#: schedule/schedule/settings.py:208
+msgid "Traditional Chinese"
+msgstr ""
+
+#: schedule/schedule/urls.py:91
+msgid "AdminSite"
+msgstr ""
+
+#: schedule/schedule/urls.py:92
+msgid "Administrator"
+msgstr ""
+
+#: schedule/shift/forms.py:33 schedule/shift/forms.py:54
+#: schedule/shift/models.py:27
+msgid "EndTime"
+msgstr ""
+
+#: schedule/templates/admin/change_form.html:5
+msgid "History"
+msgstr ""
+
+#: schedule/templates/admin/change_form.html:12
+msgid "View on site"
+msgstr ""
+
+#: schedule/templates/calendars/date_manage.html:56
+#: schedule/templates/calendars/pre_results.html:37
+#: schedule/templates/calendars/promise_shift.html:52
+#: schedule/templates/calendars/results.html:42
+#: schedule/templates/registration/detail.html:80
+msgid "Cancel"
+msgstr ""
+
+#: schedule/templates/calendars/date_manage.html:57
+#: schedule/templates/calendars/pre_results.html:38
+#: schedule/templates/calendars/pre_results.html:64
+#: schedule/templates/calendars/promise_shift.html:53
+#: schedule/templates/calendars/promise_shift.html:85
+#: schedule/templates/calendars/results.html:43
+#: schedule/templates/calendars/results.html:74
+#: schedule/templates/registration/detail.html:81
+msgid "Save"
+msgstr ""
+
+#: schedule/templates/calendars/history_results.html:4
+#: schedule/templates/calendars/pre_results.html:4
+#: schedule/templates/calendars/read_only_results.html:4
+#: schedule/templates/calendars/results.html:4
+#: schedule/templates/results/time_adjustment.html:5
+msgid "Result"
+msgstr ""
+
+#: schedule/templates/calendars/pre_results.html:63
+#: schedule/templates/calendars/promise_shift.html:84
+#: schedule/templates/calendars/results.html:73
+msgid "Delete"
+msgstr ""
+
+#: schedule/templates/calendars/promise_shift.html:4
+#: schedule/templates/calendars/promise_shift.html:13
+msgid "PromiseShift"
+msgstr ""
+
+#: schedule/templates/calendars/promise_shift.html:44
+msgid "Combo"
+msgstr ""
+
+#: schedule/templates/calendars/reserve_holiday.html:4
+#: schedule/templates/calendars/reserve_holiday.html:13
+msgid "ReservingHoliday"
+msgstr ""
+
+#: schedule/templates/department/detail.html:11
+msgid "field"
+msgstr ""
+
+#: schedule/templates/department/detail.html:12
+msgid "value"
+msgstr ""
+
+#: schedule/templates/department/detail.html:21
+msgid "detail"
+msgstr ""
+
+#: schedule/templates/department/detail.html:25
+msgid "managers"
+msgstr ""
+
+#: schedule/templates/department/detail.html:33
+msgid "limitPreSchedule"
+msgstr ""
+
+#: schedule/templates/department/detail.html:37
+msgid "deadlinePreSchedule"
+msgstr ""
+
+#: schedule/templates/department/detail.html:41
+msgid "reset"
+msgstr ""
+
+#: schedule/templates/department/detail.html:49
+msgid "lawRule"
+msgstr ""
+
+#: schedule/templates/department/detail.html:59
+msgid "scheduleRule"
+msgstr ""
+
+#: schedule/templates/department/detail.html:68
+msgid "adminInSchedule"
+msgstr ""
+
+#: schedule/templates/department/detail.html:76
+msgid "partTimeInHoliday"
+msgstr ""
+
+#: schedule/templates/department/detail.html:84
+msgid "internInHoliday"
+msgstr ""
+
+#: schedule/templates/department/detail.html:92
+msgid "internDOnly"
+msgstr ""
+
+#: schedule/templates/department/detail.html:100
+msgid "sameDayNotice"
+msgstr ""
+
+#: schedule/templates/department/detail.html:104
+msgid "beginOfWeek"
+msgstr ""
+
+#: schedule/templates/department/detail.html:116
+#: schedule/templates/registration/detail.html:226
+msgid "Edit"
+msgstr ""
+
+#: schedule/templates/nav.html:25
+msgid "Manager"
+msgstr ""
+
+#: schedule/templates/nav.html:56
+msgid "Logout"
+msgstr ""
+
+#: schedule/templates/nav.html:86
+msgid "Login"
+msgstr ""
+
+#: schedule/templates/notice/list.html:36
+msgid "ago"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:21
+msgid "LiscenseName"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:34
+msgid "LiscenseDueDate"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:40
+msgid "LiscenseSource"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:55
+msgid "LiscensePicture"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:71
+msgid "LiscensePicture_2"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:106
+msgid "username"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:110
+msgid "email"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:114
+msgid "Fullname"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:118
+msgid "level"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:122
+msgid "eid"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:126
+msgid "gender"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:130
+msgid "canSchedule"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:134
+msgid "role"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:141
+msgid "holidayRest"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:148
+msgid "specialRest"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:161
+msgid "type"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:167
+msgid "holidayRestUsed"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:173
+msgid "workhourRequired"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:179
+msgid "workhourRealized"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:185
+msgid "specialRestUsed"
+msgstr ""
+
+#: schedule/templates/registration/detail.html:223
+msgid "ChangePassword"
+msgstr ""

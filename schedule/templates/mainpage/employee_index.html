@@ -178,46 +178,66 @@
       }
     });
     // fullcalendar
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-
-      plugins: ['dayGrid'],
-      defaultView: 'dayGridMonth',
-      defaultDate: '2019-11-12',
-      header: {
-        left: 'prev,next',
-        center: 'title',
-        right: ''
-      },
-      eventRender: function (info) {
-        $(info.el).tooltip({
-          html:true,
-          title: info.event.extendedProps.station+'<br>'+info.event.extendedProps.description,
-          content:info.event.extendedProps.description,
-          placement: "top",
-          trigger: "hover",
-          container: "body"
-        });
-      },
-      events: 'api/schedule_result_table?mode=checkPersonal'
-
-    });
-
-    // get period
-    $.ajax({
-      type: "GET",
-      url: "/api/periods/next",
-      dataType: 'json',
-      success: function (data) {
-        nextPeriod = data;
-        calendar.gotoDate(nextPeriod.start_date);
-      },
-    });
-  
-
-    if ("{{LANG}}" == 'zh-hant') {
-      calendar.setOption('locale', 'zh-tw');
-    }
-    calendar.render();
+    calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['interaction', 'dayGrid'],
+                selectable: false,
+                selectHelper: true,
+                theme: true,
+                editable: true,
+                themeSystem: 'bootstrap',
+                weekMode: 'liquid',
+                eventLimit: true, // when too many events in a day, show the popover
+                timeZone: 'UTC',
+                header: {
+                    left: '',
+                    center: 'prev,title,next',
+                    right: ''
+                },
+                contentHeight: 450,
+                showNonCurrentDates: false,
+                droppable: true,
+                views: {
+                    dayGridMonth: { 
+                        titleFormat: { year: 'numeric', month: '2-digit' }
+                    }
+                },
+                eventClick: function(info){
+                    currInfo = info;
+                    $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
+                    $('#myModal').modal('show');
+                    $('#day').val(info.event.title);
+                    $('#locked').prop('checked',info.event.extendedProps.locked);
+                },
+                eventRender: function(info) {
+                    info.event.title = info.event.extendedProps.shift.name;
+                    if (info.event.extendedProps.locked){
+                        x = document.createElement('div');
+                        x.innerHTML = '<i class="fas fa-lock" margin-left:5px;font-size:1rem;"></i>';
+                        info.el.appendChild(x);
+                        console.log(info);
+                    }
+                },
+                events: function(fetchInfo, successCallback, failureCallback){
+                    let url = '/api/results/?mode=personal&start='
+                    url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
+                    fetch(url)
+                    .then(res=>{
+                    return res.json();
+                    })
+                    .then(data=>{
+                    data.forEach(e=>{
+                        e.title = e.shift.name;
+                        e.resourceId = e.user.id;
+                        e.color = '#EBC57C'
+                    });
+                    successCallback(data);
+                    });
+                },
+            });
+            if ("{{LANG}}" == 'zh-hant') {
+                calendar.setOption('locale', 'zh-tw');
+            }
+            calendar.render();
 
   });
 </script>
@@ -236,32 +256,116 @@
         max-width: 900px;
         margin: 20px auto;
       }
-      .fc-unthemed td.fc-today{
-        background: #888;
+      .fc-event{
+          display: inline-block;
+          width: 110px;
+          height: 24px;
+          background: white !important;
+          border-radius: 3px;
+          border: 1px solid #b5b5b5 !important;
+          color: #b5b5b5 !important;
       }
-      .table-bordered{
-          top: 100px;
+      .day_type{
+          display: inline-block;
+          color: white;
+          margin-left: 2px;
+          font-weight: 400;
+          float: left;
+          /* margin-top: -2px; */
       }
-      .blank{
-          height: 4rem;
+      .day_content{
+          display: inline-block;
+          background: white;
+          height: 20px;
+          width: 40px;
+          color: #EBC57C;
+          border-radius: 3px;
+          float: left;
+          margin-left: 15px;
+          /* margin-top: 2px; */
+          font-size: 12px;
+          line-height: 20px;
+          padding-left: 2px;
       }
-      .fc-title{
-          font-size: 1.2rem;
+      .fc-unthemed .fc-content, .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-list-view, .fc-unthemed .fc-popover, .fc-unthemed .fc-row, .fc-unthemed tbody, .fc-unthemed td, .fc-unthemed th, .fc-unthemed thead{
+          border-color: #c8c8c8;
       }
-      .fc-button{
-        background-color: #777;
+      .fc-unthemed .fc-disabled-day{
+          background: #f1f1f1;
+          opacity: 1;
       }
-      a, a:hover{
-        text-decoration: none;
+      .fc-past{
+          background: white;
+
       }
-  
-      /* .card-body{
-          padding: .25rem;
-          margin: .25rem;
-          width: 15vw;
-          min-width: 12rem;
-          max-width: 25rem;
-      } */
+      .fc-future{
+          background: white;
+
+      }
+      h2{
+          display: inline-block;
+      }
+      .fc-button-primary {
+          color: black;
+          background: none;
+          border: none;
+      }
+      .fc-prev-button{
+          position: absolute;
+          left: 380px;
+      }
+      .fc-next-button{
+          position: absolute;
+          right: 380px;
+      }
+      table{
+          text-align: center;
+          border: 1px solid #c6c6c6;
+      }
+      th{
+          background-color: #d9d9d9;
+      }
+      .audit_items_body{
+          background: white;
+      }
+      .last_one{
+          color: #b5b5b5;
+          font-weight: 300;
+          font-size: 13px;
+      }
+      .ex-wrapper{
+          margin-top: 5px;
+          height: 28px;
+      }
+      #origin_schedule{
+          display: inline-block;
+          width: 135px;
+          height: 24px;
+          background: #EBC57C;
+          border-radius: 3px;
+      }
+      .os_title{
+          display: inline-block;
+          color: white;
+          margin-left: 5px;
+          font-weight: 400;
+          float: left;
+          margin-top: -2px;
+      }
+      .os_content{
+          display: inline-block;
+          background: white;
+          height: 20px;
+          width: 45px;
+          color: #EBC57C;
+          border-radius: 3px;
+          float: left;
+          margin-left: 5px;
+          margin-top: 2px;
+          font-size: 12px;
+          line-height: 20px;
+          padding-left: 2px;
+      }
       #top {
         background: #eee;
         border-bottom: 1px solid #ddd;
