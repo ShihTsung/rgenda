@@ -29,7 +29,7 @@
     {% include "modal_form.html" %}
 
     <div class="title text-center">
-        <h1>User List</h1>
+        <h1>人員清單</h1>
     </div>
 
     {% for message in messages %}
@@ -37,9 +37,9 @@
         {{message}}
     </div>
     {% endfor %}
-    <a href="/accounts/register" class="btn btn-primary" id="register">Register</a>
-    <a href="/accounts/register" class="btn btn-primary" id="import-user" data-toggle="modal" data-target="#modal-form">Import</a>
-    <a href="/accounts/download/empty-excel" class="btn btn-primary" id="empty-excel">Empty Excel</a>
+    <a href="/accounts/register" class="btn btn-primary" id="register">新增人員</a>
+    <a href="/accounts/register" class="btn btn-primary" id="import-user" data-toggle="modal" data-target="#modal-form">匯入</a>
+    <a href="/accounts/download/empty-excel" class="btn btn-primary" id="empty-excel">下載模板</a>
 
     <!-- 搜尋欄 -->
     <span id="searchbar" class="d-flex">
@@ -56,15 +56,15 @@
         <thead class="thead-dark">
             <tr>
 
-                <th scope="col">username</th>
-                <th scope="col">name</th>
-                <th scope="col">email</th>
-                <th scope="col">role</th>
-                <th scope="col">department</th>
-                <th scope="col">level</th>
-                <th scope="col">hour_realized</th>
-                <th scope="col">on board</th>
-                <th scope="col">action</th>
+                <th scope="col">名稱</th>
+                <th scope="col">姓名</th>
+                <th scope="col">信箱</th>
+                <th scope="col">權限</th>
+                <th scope="col">科別</th>
+                <th scope="col">職級</th>
+                <th scope="col">實際工時</th>
+                <th scope="col">到職日</th>
+                <th scope="col">功能</th>
             </tr>
         </thead>
         <tbody>

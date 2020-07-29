@@ -486,3 +486,5 @@ def assign_user(department, proportion):
                 user_pool.remove(user)
                 output[st][user.level].append(user)
     return output
+def license_audit(request):
+    return render(request, 'registration/license.html');

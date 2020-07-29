@@ -254,10 +254,12 @@
       },
       eventRender: function(info) {
         let prop = info.event.extendedProps;
-        $(info.el).tooltip({
-          html:true, 
-          title: '<h3>'+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
-        });
+        if((prop.shift.shift_type!=="休假")&&(prop.shift.shift_type!=="公假")&&(prop.shift.shift_type!=="例假")){
+          $(info.el).tooltip({
+            html:true, 
+            title: "<h3 class='pop-up'>"+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
+          });
+        }
         info.el.innerHTML = "";
         
         if(info.view.type === "resourceTimelineWeek"){
@@ -463,6 +465,12 @@
 
 </script>
 <style>
+  .pop-up{
+    width: 100%;
+    height: 10%;
+    font-size: 17px;
+    text-align: center;
+  }
     #calendar{
       border-radius: 0%;
     }
