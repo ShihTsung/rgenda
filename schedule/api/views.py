@@ -240,8 +240,13 @@ class ResultViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
+            mode = self.request.query_params.get('mode', None)
             if not end:
                 end = start
+            if mode == 'personal':
+                return Result.objects.filter(
+                    date__range=[start[:10], end[:10]],
+                    user=self.request.user)
             return Result.objects.filter(date__range=[start[:10], end[:10]])
         return Result.objects.all()
 
