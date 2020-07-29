@@ -16,7 +16,7 @@
         <div class="card-header text-center"> 
           <button class="btn" id="toggle-btn">
             <i class="fa fa-bars"></i>
-          </button>班表分析
+          </button>人力分析<span class="unit">單位：人</span>
         </div>
         <div class="card-body DashCollapse" >
           <div class="left">
@@ -36,17 +36,34 @@
         </div>
        
        <div class="card">
-        <div class="card-header text-center">出勤分析</div>
+        <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
         <div class="card-body DashCollapse" >
           <div class="left">
             <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
+            <div class='data'><div class="label">on call</div><div class="nums">1</div></div>
             <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">On call</div><div class="nums">1</div></div>
             <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
             <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
           </div>
           <div class="right">
             <canvas  id='chart2'>
+            </canvas>
+          </div>
+        </div>
+       </div>
+
+       <div class="card">
+        <div class="card-header text-center">兼職人力出勤分析<span class="unit">單位：時</span></div>
+        <div class="card-body DashCollapse" >
+          <div class="left">
+            <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
+            <div class='data'><div class="label">on call</div><div class="nums">1</div></div>
+            <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
+            <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
+            <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
+          </div>
+          <div class="right">
+            <canvas  id='chart3'>
             </canvas>
           </div>
         </div>
@@ -73,23 +90,21 @@
   var myChart = new Chart(ctx, {
     type: 'horizontalBar',
     data: {
-        labels: ['白班', '小夜', '大夜', 'On call', '空班'],
+        labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
         datasets: [{
             barThickness: 30,
-            data: [12, 7, 5, 5, 2],
+            data: [12, 7, 5, 5],
             backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A'
             ],
             borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)'
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A'
             ],
             borderWidth: 1
         }]
@@ -133,16 +148,68 @@ var ctx = document.getElementById('chart2').getContext('2d');
             barThickness: 30,
             data: [12, 7, 5, 5],
             backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
             ],
             borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                },
+                gridLines: {
+                    offsetGridLines: false,
+                    display: false
+                }
+            }],
+            xAxes: [{
+                ticks: {
+                    beginAtZero: true
+                },
+                gridLines: {
+                offsetGridLines: false,
+              }
+            }]
+        },
+        legend:{
+          display: false,
+        },
+        aspectRatio: 1.6,
+        maintainAspectRatio: false
+    }
+});
+
+// 第三個圖
+var ctx = document.getElementById('chart3').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: {
+        labels: ['排班', '出勤', '公假', '自假'],
+        datasets: [{
+            barThickness: 30,
+            data: [12, 7, 5, 5],
+            backgroundColor: [
+              '#37419A',
+              '#37419A',
+              '#37419A',
+              '#37419A',
+            ],
+            borderColor: [
+              '#37419A',
+              '#37419A',
+              '#37419A',
+              '#37419A',
             ],
             borderWidth: 1
         }]
@@ -229,10 +296,15 @@ var ctx = document.getElementById('chart2').getContext('2d');
       },
       eventRender: function(info) {
         let prop = info.event.extendedProps
-        $(info.el).tooltip({
-          html:true, 
-          title: '<h3>'+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
-        });
+        if (prop.shift.shift_type=="休假"){
+          info.event.remove()
+        }else{
+          $(info.el).tooltip({
+            html:true, 
+            title: '<h3>'+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
+          });
+        }
+        
       },
       eventDestroy:function(info){
         $(info.el).tooltip('dispose');
@@ -275,6 +347,8 @@ var ctx = document.getElementById('chart2').getContext('2d');
     .container {
         /* background-color:green; */
         padding: auto;
+        margin-right:0;
+        max-width: 90vw;
     }
 
   
@@ -304,7 +378,7 @@ var ctx = document.getElementById('chart2').getContext('2d');
     }
 
     .card{
-      width: 48%;
+      width: 32%;
     }
     .card-header{
       font-size: 1.6rem;
@@ -336,7 +410,10 @@ var ctx = document.getElementById('chart2').getContext('2d');
       max-width: 25rem;
       position: relative;
     }
-
+    .unit{
+      float:right;
+      font-size: 14px;
+    }
     .left{
       width: 30%;
       height: 100%;

@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions, status
 from .serializers import *
 from account.models import CustomUser, Department, Liscense
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from datetime import datetime, timedelta
 from station.models import Station
@@ -407,3 +408,24 @@ class LiscenseViewSet(viewsets.ModelViewSet):
 
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+
+# class CheckResultView(APIView):
+#     """
+#     檢查排班結果
+#     * Requires token authentication.
+#     * Only admin users are able to access this view.
+#     """
+#     authentication_classes = [authentication.TokenAuthentication]
+#     permission_classes = [permissions.IsAdminUser]
+
+#     def get(self, request, format=None):
+#         """
+#         Return a list of all users.
+#         """
+#         usernames = [user.username for user in User.objects.all()]
+#         return Response(usernames)
+
+
+@api_view(['GET', 'POST'])
+def check_result(request):
+    return Response({"message": "Hello, world!"})
