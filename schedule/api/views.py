@@ -1,20 +1,29 @@
+# django
 from django.shortcuts import render
+
+# restframework
 from rest_framework import viewsets, generics, permissions, status
-from .serializers import *
-from account.models import CustomUser, Department, Liscense
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.parsers import JSONParser
+
+# others
 from datetime import datetime, timedelta
+from .check import *
+from .serializers import *
+
+# models
+from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -29,7 +38,7 @@ class IsOwnerOrReadOnly(BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.user == request.user or user.is_staff
+        return obj.user == request.user or obj.user.is_staff
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -427,5 +436,12 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET', 'POST'])
+@parser_classes([JSONParser])
 def check_result(request):
+    if request.query_params:
+        department = request.query_params.get('department')
+        month = request.query_params.get('month')
+
+        test = check_result(int(department), int(month))
+        print(test)
     return Response({"message": "Hello, world!"})

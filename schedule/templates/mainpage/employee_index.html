@@ -13,7 +13,7 @@
            <div class="card-header text-center"> 
              <button class="btn" id="toggle-btn">
                <i class="fa fa-bars"></i>
-             </button>班表分析
+             </button>班表分析<span class="unit">單位：日</span>
            </div>
            <div class="card-body DashCollapse" >
              <div class="left">
@@ -33,7 +33,7 @@
            </div>
           
           <div class="card">
-           <div class="card-header text-center">出勤分析</div>
+           <div class="card-header text-center">出勤分析<span class="unit">單位：時</span></div>
            <div class="card-body DashCollapse" >
              <div class="left">
                <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
@@ -396,7 +396,10 @@
         flex-wrap: nowrap;
         margin-bottom: 2rem;
         }
-
+        .unit{
+          float: right;
+          font-size: 14px;
+        }
         .DashCollapse{
           height: 20rem;
           display:inline-flex;
