@@ -191,19 +191,19 @@
         },
         {
           labelText: '排班',
-          field: 'id'
+          field: 'shift_num'
         },
         {
           labelText: '特休',
-          field: 'id'
+          field: 'special_rest'
         },
         {
           labelText: '加班',
-          field: 'id'
+          field: 'overtime'
         },
         {
           labelText: '差額',
-          field: 'id'
+          field: 'diff'
         }
       ],
       customButtons: {
@@ -373,7 +373,11 @@
         })
         .then(data=>{
           data.forEach(e=>{
-            e.title = e.full_name
+            e.title = e.full_name;
+            e.shift_num = e.shift_num.toString();
+            e.special_rest = e.special_rest.toString();
+            e.overtime = e.overtime.toString();
+            e.diff = e.diff.toString();
           });
           successCallback(data);
         });

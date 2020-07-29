@@ -78,6 +78,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
+            mode = self.request.query_params.get('mode', None)
+            if mode == 'resource':
+                return GetResourceUserSerializer
             return GetCustomUserSerializer
         return CustomUserSerializer
 
