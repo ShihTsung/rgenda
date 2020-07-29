@@ -131,6 +131,7 @@
                     $('#locked').prop('checked',info.event.extendedProps.locked);
                 },
                 eventRender: function(info) {
+                    let prop = info.event.extendedProps;
                     info.event.title = info.event.extendedProps.shift.name;
                     if (info.event.extendedProps.locked){
                         x = document.createElement('div');
@@ -138,6 +139,51 @@
                         info.el.appendChild(x);
                         console.log(info);
                     }
+                    console.log(info.event.extendedProps.shift.shift_type);
+                    info.el.innerHTML = "";
+                    info.el.classList.add("shift");
+                    switch(prop.shift.shift_type){
+                        case "白班":
+                        info.el.classList.add("day-shift");
+                        info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
+                        + "<div class='day-station'>7a-4p</div>"
+                        + "<div class='day-station'>手術1</div>";
+                        break;
+                        case "小夜":
+                        info.el.classList.add("night-shift");
+                        info.el.innerHTML += "<h5 class='shift-title'>E</h5>"
+                        + "<div class='night-station'>11a-8p</div>"
+                        + "<div class='night-station'>手術1</div>";
+                        break;
+                        case "大夜":
+                        info.el.classList.add("graveyard-shift");
+                        info.el.innerHTML += "<h5 class='shift-title'>N</h5>"
+                        + "<div class='graveyard-station'>14p-23p</div>"
+                        + "<div class='graveyard-station'>手術1</div>";
+                        break;
+                        case "休假":
+                        info.el.classList.add("rest");
+                        info.el.innerHTML += "<h6 class='rest-title'>休假日</h6>";
+                        break;
+                        case "例假":
+                        info.el.classList.add("rest");
+                        info.el.innerHTML += "<h6 class='rest-title'>例假日</h6>";
+                        break;
+                        case "公假":
+                        info.el.classList.add("rest");
+                        info.el.innerHTML += "<h6 class='rest-title'>公假日</h6>";
+                        break;
+                        case "onCall":
+                        info.el.classList.add("on-call");
+                        // info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
+                        info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>"
+                        + "<div class='on-call-station'>7a-4p</div>"
+                        + "<div class='on-call-station'>手術1</div>"
+                        break;
+                        default: 
+                        info.el.innerHTML += "<h6>ERROR</h6>";
+                        break;
+                    };
                 },
                 events: function(fetchInfo, successCallback, failureCallback){
                     let url = '/api/results/?mode=personal&start='
@@ -295,6 +341,99 @@ th{
 hr{
     border: 1px solid #e2e2e2;
     margin-bottom: 30px;
+}
+.shift{
+    border: none !important;
+}
+.shift-title{
+    float: left;
+    color: white;
+}
+.day-shift{
+    background: #EBC57C !important;
+}
+.day-station{
+    float: left;
+    background: white;
+    color: #EBC57C;
+    width: 38px;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    font-size: 10px;
+    line-height: 20px;
+}
+.night-shift{
+    background: #84B1ED !important;
+}
+.night-station{
+    float: left;
+    background: white;
+    color: #84B1ED;
+    width: 40px;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    font-size: 10px;
+    line-height: 20px;
+}
+.graveyard-shift{
+    background: #6B799E !important;
+}
+.graveyard-hr{
+    float: left;
+    background: white;
+    color: #6B799E;
+    width: 45px;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    font-size: 6px !important;
+    line-height: 20px;
+}
+.graveyard-station{
+    float: left;
+    background: white;
+    color: #6B799E;
+    width: 35px;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    font-size: 6px !important;
+    line-height: 20px;
+}
+.rest{
+    border: 1px solid #bfbfbf !important;
+}
+.rest-title{
+    font-weight: 300;
+    margin-top: 2px;
+}
+.on-call{
+    background: #9C8F96 !important;
+}
+.on-call-title{
+
+    color: white;
+    margin-top: 5px;
+    font-size: 6px;
+    float: left;
+}
+.on-call-station{
+    float: left;
+    background: white;
+    color: #9C8F96;
+    width: 33px;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 3px;
+    margin-top: 2px;
+    font-size: 9px;
+    line-height: 20px;
 }
 </style>
 {% endblock %}
