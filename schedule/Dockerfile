@@ -12,7 +12,7 @@ WORKDIR /code/schedule
 RUN pip install pip -U
 RUN pip install --upgrade setuptools
 RUN apt-get update
-RUN apt-get install python3-dev default-libmysqlclient-dev gcc cron vim -y
+RUN apt-get install python3-dev default-libmysqlclient-dev gcc cron vim gettext -y
 RUN pip install mysqlclient uwsgi
 ADD . /code/schedule
 COPY crontab /etc/cron.d/cjob
