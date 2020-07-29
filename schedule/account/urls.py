@@ -33,4 +33,5 @@ urlpatterns = [
     path('update/<int:id>', update, name="update"),
     path('<int:id>', userDetail, name="detail"),
     path('download/empty-excel', download_empty_excel, name='download_empty_excel'),
+    path('license/', license_audit, name="license"),
 ]

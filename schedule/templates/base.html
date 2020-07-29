@@ -76,16 +76,20 @@
         #sidebar-wrapper .list-group {
             width: 15rem;
         }
-        
         .sidebar_w{
             width: 200px;
             background-color: #84C0E9;
+            color: white;
         }
         .sidebar_w:hover{
             background:rgba(180, 230, 255, 0.2);
+            color: white;
         }
         .sidebar:hover{
             background: #84C0E9;
+        }
+        #side-account:hover{
+            cursor: pointer;
         }
         #side-arrange{
             color: white;
@@ -114,6 +118,10 @@
         }
         .fold{
             display: none;
+        }
+        .acc {
+            margin-left: 60px;
+            font-weight: 400;
         }
         .arr {
             margin-left: 60px;
@@ -147,6 +155,7 @@
         svg{
             pointer-events: none;
         }
+        
     </style>
     {% block heads %}{% endblock %}
        
@@ -192,15 +201,25 @@
 
                     {% endif %}
                     {% if user.role in "manager,admin" or user.is_superuser%}
-                    <a id="side-account" class="list-group-item list-group-item-action sidebar_w" href="/accounts/list">
+                    <div id="side-account" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" width="22" height="22" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M24 0v24h-24v-24h24zm-6.118 16.064c-2.293-.529-4.427-.993-3.394-2.945 3.146-5.942.834-9.119-2.488-9.119-3.388 0-5.643 3.299-2.488 9.119 1.064 1.963-1.15 2.427-3.394 2.945-2.048.473-2.124 1.49-2.118 3.269l.004.667h15.993l.003-.646c.007-1.792-.062-2.815-2.118-3.29z"/></svg>
-                        人員管理</a>
+                        人員管理
+                    </div>
                     <!-- sidebar shrink -->
-                    <div class="side_s" style="visibility: hidden;">
+                    <div class="side_s" id="acm" style="visibility: hidden;">
                         <svg class="icon_color icon" width="22" height="22" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M24 0v24h-24v-24h24zm-6.118 16.064c-2.293-.529-4.427-.993-3.394-2.945 3.146-5.942.834-9.119-2.488-9.119-3.388 0-5.643 3.299-2.488 9.119 1.064 1.963-1.15 2.427-3.394 2.945-2.048.473-2.124 1.49-2.118 3.269l.004.667h15.993l.003-.646c.007-1.792-.062-2.815-2.118-3.29z"/></svg>
                     </div>
-                    
+
+                    <div id="acc_fold" class="fold acc">
+                        {% if user.role in 'admin, manager' or user.is_superuser %}
+                        <a id="side-account" style="color: #37419A;" href="/accounts/list" class="fold_obj sidebar_w">
+                            人員清單</a>
+                        <a id="side-account" style="color: #37419A;" href="/accounts/license" class="fold_obj sidebar_w">
+                            證照管理</a>
+                        {% endif %}
+                    </div>
                     {% endif %}
+
                     <div id="side-arrange-add" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 2c1.654 0 3 1.346 3 3v14c0 1.654-1.346 3-3 3h-14c-1.654 0-3-1.346-3-3v-14c0-1.654 1.346-3 3-3h14zm5 3c0-2.761-2.238-5-5-5h-14c-2.762 0-5 2.239-5 5v14c0 2.761 2.238 5 5 5h14c2.762 0 5-2.239 5-5v-14zm-13 12h-2v3h-2v-3h-2v-3h6v3zm-2-13h-2v8h2v-8zm10 5h-6v3h2v8h2v-8h2v-3zm-2-5h-2v3h2v-3z"/></svg>
                         排班條件管理
@@ -211,23 +230,25 @@
                     </div>
 
                     <div id="arra_fold" class="fold arr">
-                        {% if user.role in 'admin, manager' or user.is_superuser %}
-                        <a id="side-shifts" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
-                            班別管理</a>
-                        <a id="side-stations" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
-                            工作站管理</a>   
-                        <a id="side-demands" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
-                            人力管理</a>
-                        {% endif %}
                         {% if user.role == 'admin' or user.is_superuser %}
-                        <a id="side-department" style="color: #37419A;" href="/departments/list" class="fold_obj sidebar_w">
+                        <a id="side-arrange-add" style="color: #37419A;" href="/departments/list" class="fold_obj sidebar_w">
                             科別管理</a>
                         {% endif %}
+                        {% if user.role in 'admin, manager' or user.is_superuser %}
+                        <a id="side-arrange-add" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
+                            工作站管理</a>  
+                        <a id="side-arrange-add" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
+                            人力管理</a>
+                        <a id="side-arrange-add" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
+                            班別管理</a>
+        
+                        {% endif %}
+                        
                     </div>
 
                     <div id="side-arrange" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 18c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm-14-3c-1.654 0-3 1.346-3 3s1.346 3 3 3h14c1.654 0 3-1.346 3-3s-1.346-3-3-3h-14zm19 3c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm0-12c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm-15 0c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2z"/></svg>
-                        調整排班
+                        調班管理
                     </div>
                     <!-- sidebar shrink -->
                     <div class="side_s" id="arrange" style="visibility: hidden;">
@@ -235,11 +256,11 @@
                     </div>
 
                     <div id="arr_fold" class="fold arr">
-                        <a id="arr-check" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
+                        <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
                             調班審核</a>
-                        <a id="arr_applr" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
+                        <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
                             調班申請</a>   
-                        <a id="arr_record" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
+                        <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
                             調班紀錄</a>
                     </div>
                     
@@ -254,9 +275,9 @@
                     </div>
 
                     <div id="wm_fold" class="fold arr">
-                        <a id="side-reservation" style="color: #37419A;" href="/reserves/reserve" class="fold_obj sidebar_w">
+                        <a id="side-work-manage" style="color: #37419A;" href="/reserves/reserve" class="fold_obj sidebar_w">
                             預排假勤</a>
-                        <a id="record_entry" style="color: #37419A;" href="/" class="fold_obj sidebar_w">
+                        <a id="side-work-manage" style="color: #37419A;" href="/reserves/reserve" class="fold_obj sidebar_w">
                             出缺勤補登</a>
                     </div>
                     {% if user.role in 'admin, manager' or user.is_superuser %}
@@ -268,13 +289,13 @@
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
                     </div>
                     {% endif %}
-                    <a id="side-data_analysis" href="/" class="list-group-item list-group-item-action sidebar_w">
+                    <!-- <a id="side-data_analysis" href="/" class="list-group-item list-group-item-action sidebar_w">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
-                        資料分析</a>
+                        資料分析</a> -->
                     <!-- sidebar shrink -->
-                    <div class="side_s" style="visibility: hidden;">
+                    <!-- <div class="side_s" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
-                    </div>
+                    </div> -->
               </div>
             </div>
             <!-- /#sidebar-wrapper -->
@@ -301,7 +322,7 @@
                 let unfold_aa = false;
                 let unfold_a = false;
                 let unfold_wm = false;
-
+                let unfold_ac = false;
                 //nav
                 let nav_fold = true;
                 const onav = document.querySelector('.navbar');
@@ -315,6 +336,7 @@
                 function spread_ev() {
                     nav_fold = !nav_fold;
 
+                    $("#acc_fold").addClass("fold");
                     $("#arra_fold").addClass("fold");
                     $("#arr_fold").addClass("fold");
                     $("#wm_fold").addClass("fold");
@@ -363,6 +385,10 @@
 
                 $(".side_s").click((e)=>{
                     switch(e.target.id){
+                        case "acm":
+                            spread_ev();
+                            $("#acc_fold").removeClass("fold");
+                            break;
                         case "arr-add":
                             spread_ev();
                             $("#arra_fold").removeClass("fold");
@@ -385,7 +411,7 @@
                     $.cookie("sideClicked", e.target.id, { path: "/" });
                     
                     $(".sidebar_w").removeClass("clicked");
-                    if(e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"){
+                    if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"){
                         document.getElementById(e.target.id).classList.add("clicked");
                     }
                     
@@ -393,7 +419,7 @@
                 let sideClicked = $.cookie("sideClicked");
 
                 if(sideClicked){
-                    if(!(sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon")){
+                    if(!(sideClicked==="acm"||sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon")){
                         document.getElementById(sideClicked).classList.add("clicked");
                     }
                 };
@@ -402,6 +428,7 @@
                     if(e.target.id == "side-arrange-add"){
                         unfold_aa = !unfold_aa;
                         if(unfold_aa === true){
+                            $("#acc_fold").addClass("fold");
                             $("#wm_fold").addClass("fold");
                             $("#arr_fold").addClass("fold");
                             $("#arra_fold").removeClass("fold");
@@ -411,6 +438,7 @@
                     }else if(e.target.id == "side-arrange"){
                         unfold_a = !unfold_a;
                         if(unfold_a === true){
+                            $("#acc_fold").addClass("fold");
                             $("#wm_fold").addClass("fold");
                             $("#arra_fold").addClass("fold");
                             $("#arr_fold").removeClass("fold");
@@ -420,11 +448,22 @@
                     }else if(e.target.id == "side-work-manage"){
                         unfold_wm = !unfold_wm;
                         if(unfold_wm === true){
+                            $("#acc_fold").addClass("fold");
                             $("#arr_fold").addClass("fold");
                             $("#arra_fold").addClass("fold");
                             $("#wm_fold").removeClass("fold");
                         }else{
                             $("#wm_fold").addClass("fold");
+                        }
+                    }else if(e.target.id == "side-account"){
+                        unfold_ac = !unfold_ac;
+                        if(unfold_ac === true){
+                            $("#acc_fold").removeClass("fold");
+                            $("#wm_fold").addClass("fold");
+                            $("#arr_fold").addClass("fold");
+                            $("#arra_fold").addClass("fold");
+                        }else{
+                            $("#acc_fold").addClass("fold");
                         }
                     }  
                 })
