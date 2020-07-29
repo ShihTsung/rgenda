@@ -167,7 +167,7 @@
       header: {
         left: 'title',
         center: '',
-        right: "custom2, custom1, prev, next, resourceTimelineWeek,resourceTimelineMonth"
+        right: "custom2, prev, next, resourceTimelineWeek,resourceTimelineMonth"
       },
       columnHeaderFormat: {
         weekday: 'short',
@@ -213,11 +213,11 @@
         click: function() {
           if (calendar.getOption('editable')==true){
             calendar.setOption('editable',false);
-            // calendar.setOption('header', {
-            //   left: 'prev,next, custom2',
-            //   center: 'title',
-            //   right: "resourceTimelineWeek,resourceTimelineMonth"
-            // });
+              calendar.setOption('header', {
+                left: 'title',
+                center: '',
+                right: "custom2, prev, next, resourceTimelineWeek,resourceTimelineMonth"
+              });
             }
           // window.location='/results'
           }
@@ -227,11 +227,11 @@
         click: function() {
           if (calendar.getOption('editable')==false){
             calendar.setOption('editable', true);
-            // calendar.setOption('header', {
-            //   left: 'prev,next, custom1',
-            //   center: 'title',
-            //   right: "resourceTimelineWeek,resourceTimelineMonth"
-            // });
+              calendar.setOption('header', {
+                left: 'title',
+                center: '',
+                right: "custom1, prev, next, resourceTimelineWeek,resourceTimelineMonth"
+              });
             }
           }
         }
@@ -263,21 +263,23 @@
           switch(prop.shift.shift_type){
             case "白班":
               info.el.classList.add("day-shift");
+      
               info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
-              + "<div class='day-station'>7a-4p</div>"
-              + "<div class='day-station'>手術1</div>";
+              + "<div class='day-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
+              + "<div class='day-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
+              
               break;
             case "小夜":
               info.el.classList.add("night-shift");
               info.el.innerHTML += "<h5 class='shift-title'>E</h5>"
-              + "<div class='night-station'>11a-8p</div>"
-              + "<div class='night-station'>手術1</div>";
+              + "<div class='night-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
+              + "<div class='night-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             case "大夜":
               info.el.classList.add("graveyard-shift");
               info.el.innerHTML += "<h5 class='shift-title'>N</h5>"
-              + "<div class='graveyard-station'>14-23p</div>"
-              + "<div class='graveyard-station'>手術1</div>";
+              + "<div class='graveyard-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
+              + "<div class='graveyard-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             case "休假":
               info.el.classList.add("rest");
@@ -293,9 +295,13 @@
               break;
             case "onCall":
               info.el.classList.add("on-call");
-              info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
+              info.el.innerHTML += "<h6 class='on-call-title1'>On</h6>"
+              + "<h6 class='on-call-title2'>Call</h6>"
+              + "<div class='on-call-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
+              + "<div class='on-call-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             default: 
+              info.el.classList.add("error");
               info.el.innerHTML += "<h6>ERROR</h6>";
               break;
           };
@@ -305,17 +311,17 @@
             case "白班":
               info.el.classList.add("day-shift");
               info.el.innerHTML += "<h5 class='shift-title' style='margin-top: 3px;'>D</h5>"
-              + "<div class='day-station' style='margin-top: 3px;'>手術1</div>";
+              + "<div class='day-station' style='margin-top: 3px;'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             case "小夜":
               info.el.classList.add("night-shift");
               info.el.innerHTML += "<h5 class='shift-title' style='margin-top: 3px;'>E</h5>"
-              + "<div class='night-station' style='margin-top: 3px;'>手術1</div>";
+              + "<div class='night-station' style='margin-top: 3px;'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             case "大夜":
               info.el.classList.add("graveyard-shift");
               info.el.innerHTML += "<h5 class='shift-title' style='margin-top: 3px;'>N</h5>"
-              + "<div class='graveyard-station' style='margin-top: 3px;'>手術1</div>";
+              + "<div class='graveyard-station' style='margin-top: 3px;'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
               break;
             case "休假":
               info.el.classList.add("rest");
@@ -331,10 +337,10 @@
               break;
             case "onCall":
               info.el.classList.add("on-call");
-              info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
+              info.el.innerHTML += "<h6 class='on-call-title-m'>OnCall</h6>";
               break;
             default: 
-              info.el.innerHTML += "<h6>ERROR</h6>";
+              info.el.innerHTML += "<h6 class='error-title'>ERROR</h6>";
               break;
           };
         }
@@ -537,16 +543,39 @@
       background: #9C8F96;
       
     }
-    .on-call-title{
+    .on-call-title-m{
       color: white;
       font-weight: 300;
     }
-    /* .fc-custom2-button{
-      width: 40px;
-      height: 35px;
-      border: 1px solid #ababab;
-      background-size: 35px 30px;
-      background: url(./../../static/icon/edit.svg) no-repeat;
-    } */
+    .on-call-title1{
+      color: white;
+      margin-top: 3px;
+      font-size: 3px !important;
+      position: absolute;
+    }
+    .on-call-title2{
+      color: white;
+      margin-top: 18px;
+      font-size: 3px !important;
+    }
+    .on-call-station{
+      float: left;
+      background: white;
+      color: #9C8F96;
+      width: 33px;
+      height: 20px;
+      border-radius: 3px;
+      margin-left: 1px;
+      margin-top: 6px;
+      font-size: 9px;
+      line-height: 20px;
+      text-align: center;
+    }
+    .error{
+      background: red;
+    }
+    .error-title{
+      color: white;
+    }
 </style>
 {% endblock %}
