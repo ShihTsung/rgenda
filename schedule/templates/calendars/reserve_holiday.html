@@ -8,13 +8,13 @@
 {% block content %}
 <div class="container">
   
-  <div class="greet text-center">
+  <!-- <div class="greet text-center">
     {% if user.is_authenticated %}
     <h1> {%trans 'ReservingHoliday'%}</h1>
     {% endif%}
-  </div>
+  </div> -->
   <!-- 警告訊息 -->
-  <div class="alert" role="alert" id="message">
+  <!-- <div class="alert" role="alert" id="message">
     選擇這天的人數已經超過上限，請考慮別天
   </div>
 
@@ -22,8 +22,8 @@
     <div id="calendar">
 
     </div>
-  </div>
-
+  </div> -->
+  <img style="margin-top: 10%; margin-left: 30%;" src="{% static 'logo/on-construction.png' %}"/>
 </div>
 {% endblock %}
 

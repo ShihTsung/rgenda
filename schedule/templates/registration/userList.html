@@ -158,7 +158,7 @@
             el.addEventListener('click', function(){
                 id = this.parentNode.parentNode.getAttribute('idx');
                 name = this.parentNode.parentNode.childNodes[1].innerText;
-                document.querySelector(".modal-body").querySelector("p").innerText = "Are you sure to delete user "+name+" ?";
+                document.querySelector(".modal-body").querySelector("p").innerText = "您確定要刪除 "+name+" 嗎?";
                 document.querySelector("#btn-delete").addEventListener('click', function(){
                     window.location.href = "/accounts/delete/" + id;
                 });

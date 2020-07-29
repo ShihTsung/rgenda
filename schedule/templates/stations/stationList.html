@@ -53,10 +53,10 @@
 <table class="table table-striped text-center" id="myTable">
     <thead class="thead-dark">
       <tr>
-        <th scope="col">{%trans 'Name'%}</th>
-        <th scope="col">{%trans 'Department'%}</th>
+        <th scope="col">名稱</th>
+        <th scope="col">科別</th>
         {% if user.role in "admin,manager" or user.is_superuser %}
-        <th scope="col">{%trans 'Action'%}</th>
+        <th scope="col">功能</th>
         {% endif %}
       </tr>
     </thead>
@@ -136,7 +136,7 @@
         el.addEventListener('click', function(){
           id = this.parentNode.parentNode.getAttribute('idx');
           name = this.parentNode.parentNode.childNodes[1].innerText;
-          document.querySelector(".modal-body").querySelector("p").innerText = "Are you sure to delete station "+name+" ?";
+          document.querySelector(".modal-body").querySelector("p").innerText = "您確定要刪除 "+name+" ?";
           document.querySelector("#btn-delete").addEventListener('click', function(){
               window.location.href = "/stations/delete/" + id;
           });

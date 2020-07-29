@@ -18,8 +18,8 @@
                 <div class="modal-body">
                     <p>Do you confirm to delete?</p>
                     <div class="row">
-                        <div class="col text-right"><button class="btn btn-primary" type="button" data-dismiss="modal">Cancel</button></div>
-                        <div class="col text-left"><button id="btn-delete" class="btn btn-danger" type="button">Delete</button></div>
+                        <div class="col text-right"><button class="btn btn-primary" type="button" data-dismiss="modal">取消</button></div>
+                        <div class="col text-left"><button id="btn-delete" class="btn btn-danger" type="button">刪除</button></div>
                     </div>
                 </div>
             </div>
@@ -28,7 +28,7 @@
     <!-- End modal -->
 
     <div class="title text-center">
-        <h1>部門清單</h1>
+        <h1>科別清單</h1>
     </div>
 
     {% for message in messages %}
@@ -36,7 +36,7 @@
         {{message}}
     </div>
     {% endfor %}
-    <a href="/departments/create" class="btn btn-primary" id="register"> {%trans 'Create'%} </a>
+    <a href="/departments/create" class="btn btn-primary" id="register"> 新增 </a>
 
     <!-- 搜尋欄 -->
     <span id="searchbar" class="d-flex">
@@ -53,11 +53,11 @@
     <table class="table table-striped text-center" id="myTable">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">name</th>
-                <th scope="col">detail</th>
-                <th scope="col">manager</th>
+                <th scope="col">名稱</th>
+                <th scope="col">說明</th>
+                <th scope="col">管理人</th>
                 {% if user.role in "admin,manager" or user.is_superuser %}
-                <th scope="col">actions</th>
+                <th scope="col">功能</th>
                 {% endif %}
             </tr>
         </thead>
@@ -149,7 +149,7 @@
             el.addEventListener('click', function(){
                 id = this.parentNode.parentNode.getAttribute('idx');
                 name = this.parentNode.parentNode.childNodes[1].innerText;
-                document.querySelector(".modal-body").querySelector("p").innerText = "Are you sure to delete department "+name+" ?";
+                document.querySelector(".modal-body").querySelector("p").innerText = "您確定要刪除  "+name+" ?";
                 document.querySelector("#btn-delete").addEventListener('click', function(){
                     window.location.href = "/departments/delete/" + id;
                 });
