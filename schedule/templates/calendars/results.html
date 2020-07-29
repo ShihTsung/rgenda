@@ -10,7 +10,7 @@
 
 <link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
-
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="container">
     <div id="calendar">
 
@@ -206,6 +206,7 @@
           field: 'diff'
         }
       ],
+      
       customButtons: {
       custom1: {
         text: 'save',
@@ -223,6 +224,8 @@
       },
       custom2: {
         text: 'edit',
+        
+       
         click: function() {
           if (calendar.getOption('editable')==false){
             calendar.setOption('editable', true);
@@ -256,11 +259,12 @@
           title: '<h3>'+prop.station_name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
         });
         
+        console.log(prop.shift.shift_type);
         info.el.innerHTML = "";
         
         if(info.view.type === "resourceTimelineWeek"){
           info.el.classList.add("week");
-          switch(info.event.title){
+          switch(prop.shift.shift_type){
             case "白班":
               info.el.classList.add("day-shift");
               info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
@@ -279,9 +283,9 @@
               + "<div class='graveyard-station'>14-23p</div>"
               + "<div class='graveyard-station'>手術1</div>";
               break;
-            case "休息":
+            case "休假":
               info.el.classList.add("rest");
-              info.el.innerHTML += "<h6 class='rest-title'>休息日</h6>";
+              info.el.innerHTML += "<h6 class='rest-title'>休假日</h6>";
               break;
             case "例假":
               info.el.classList.add("rest");
@@ -291,7 +295,7 @@
               info.el.classList.add("rest");
               info.el.innerHTML += "<h6 class='rest-title'>公假日</h6>";
               break;
-            case "on-call":
+            case "onCall":
               info.el.classList.add("on-call");
               info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
               break;
@@ -317,9 +321,9 @@
               info.el.innerHTML += "<h5 class='shift-title' style='margin-top: 3px;'>N</h5>"
               + "<div class='graveyard-station' style='margin-top: 3px;'>手術1</div>";
               break;
-            case "休息":
+            case "休假":
               info.el.classList.add("rest");
-              info.el.innerHTML += "<h6 class='rest-title'>休息日</h6>";
+              info.el.innerHTML += "<h6 class='rest-title'>休假日</h6>";
               break;
             case "例假":
               info.el.classList.add("rest");
@@ -329,7 +333,7 @@
               info.el.classList.add("rest");
               info.el.innerHTML += "<h6 class='rest-title'>公假日</h6>";
               break;
-            case "on-call":
+            case "onCall":
               info.el.classList.add("on-call");
               info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
               break;
@@ -537,9 +541,12 @@
       color: white;
       font-weight: 300;
     }
-    .fc-custom2-button{
+    /* .fc-custom2-button{
+      width: 40px;
+      height: 35px;
+      border: 1px solid #ababab;
       background-size: 35px 30px;
       background: url(./../../static/icon/edit.svg) no-repeat;
-    }
+    } */
 </style>
 {% endblock %}
