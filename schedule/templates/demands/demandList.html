@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
 	<div class="title text-center">
-		<h1>Demand List</h1>
+		<h1>人力需求清單</h1>
 	</div>
 
 	{% for message in messages %}
@@ -32,10 +32,10 @@
 	<table class="table table-striped text-center" id="myTable">
 		<thead class="thead-dark">
 			<tr>
-				<th rowspan="2" scope="col" id='station'>Station</th>
-				<th rowspan="2" scope="col">Shift</th>
-				<th colspan="4" scope="col">Weekday</th>
-				<th colspan="4" scope="col">Holiday</th>
+				<th rowspan="2" scope="col" id='station'>{%trans 'Station'%}</th>
+				<th rowspan="2" scope="col">{%trans 'Shift'%}</th>
+				<th colspan="4" scope="col">{%trans 'Weekday'%}</th>
+				<th colspan="4" scope="col">{%trans 'Holiday'%}</th>
 			</tr>
 			<tr>
 				<th>Level 4</th>

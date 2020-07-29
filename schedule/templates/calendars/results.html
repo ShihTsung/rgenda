@@ -209,7 +209,7 @@
       
       customButtons: {
       custom1: {
-        text: 'save',
+        text: '儲存',
         click: function() {
           if (calendar.getOption('editable')==true){
             calendar.setOption('editable',false);
@@ -223,9 +223,7 @@
           }
       },
       custom2: {
-        text: 'edit',
-        
-       
+        text: '編輯',
         click: function() {
           if (calendar.getOption('editable')==false){
             calendar.setOption('editable', true);
@@ -374,9 +372,6 @@
         .then(res=>{
           return res.json();
         })
-        .then(json=>{
-          console.log(json)
-        })
       },
       // resourceLabelText: '員工列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
@@ -437,7 +432,6 @@
         currInfo.event.setExtendedProp("shift", e.options[e.selectedIndex].value);
         e = document.getElementById('edit-station');
         currInfo.event.setExtendedProp("station", e.options[e.selectedIndex].value);
-        console.log(currInfo.event)
         $('#editModal').modal('hide');
         let update_body = {
           id: currInfo.event.id,
@@ -445,6 +439,7 @@
           shift: currInfo.event.extendedProps.shift,
           station: (currInfo.event.extendedProps.station ||null)
         }
+        currInfo.event.remove();
         fetch('/api/results/'+currInfo.event.id+'/',
               {
               method: "PATCH",
@@ -455,11 +450,9 @@
               body: JSON.stringify(update_body)
             })
         .then(res=>{
-          return res.json();
+          calendar.refetchEvents();
         })
-        .then(json=>{
-          console.log(json);
-        })
+        
       });
     });
 
