@@ -243,8 +243,8 @@ def initial(request):
 
 # station
     names = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
-             '2F場控', '健康秘書', ' 一般 ', ' 腹超 ', ' 理學', ' EKGX+ASIX ',
-             ' 聽力 ', ' 眼科+眼底攝影 ', ' 外檢']
+             '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
+             '聽力', '眼科+眼底攝影', '外檢']
 
     print('create station')
     for i in range(15):
@@ -274,7 +274,7 @@ def initial(request):
     # 班表假資料
     department = Department.objects.first()
     users = list(User.objects.filter(can_be_scheduled=True,
-                                department=department))
+                                     department=department))
     start = datetime.date(2020, 6, 1).strftime('%Y-%m-%d')
     end = datetime.date(2020, 7, 31).strftime('%Y-%m-%d')
     dates = list(Oneday.objects.filter(date__range=[start, end]))
