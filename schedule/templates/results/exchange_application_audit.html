@@ -139,50 +139,66 @@
                         info.el.appendChild(x);
                         console.log(info);
                     }
-                    console.log(info.event.extendedProps.shift.shift_type);
+                    // console.log(info.event.extendedProps.shift.shift_type);
                     info.el.innerHTML = "";
                     info.el.classList.add("shift");
+                    
                     switch(prop.shift.shift_type){
                         case "白班":
-                        info.el.classList.add("day-shift");
-                        info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
-                        + "<div class='day-station'>7a-4p</div>"
-                        + "<div class='day-station'>手術1</div>";
-                        break;
+                            info.el.classList.add("day-shift");
+                            info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
+                            + "<div class='day-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>";
+                            if(prop.station.name.split('')[2] == 'R'){
+                                let station = prop.station.name.split('')[0] + prop.station.name.split('')[1] + prop.station.name.split('')[2];
+                                info.el.innerHTML +=  "<div class='day-station'>" + station + "</div>";
+                            }else{
+                                info.el.innerHTML += "<div class='day-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
+                            };
+                            break;
                         case "小夜":
-                        info.el.classList.add("night-shift");
-                        info.el.innerHTML += "<h5 class='shift-title'>E</h5>"
-                        + "<div class='night-station'>11a-8p</div>"
-                        + "<div class='night-station'>手術1</div>";
-                        break;
+                            info.el.classList.add("night-shift");
+                            info.el.innerHTML += "<h5 class='shift-title'>E</h5>"
+                            + "<div class='night-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>";
+                            if(prop.station.name.split('')[2] == 'R'){
+                                let station = prop.station.name.split('')[0] + prop.station.name.split('')[1] + prop.station.name.split('')[2];
+                                info.el.innerHTML +=  "<div class='night-station'>" + station + "</div>";
+                            }else{
+                                info.el.innerHTML += "<div class='night-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
+                            };
+                            break;
                         case "大夜":
-                        info.el.classList.add("graveyard-shift");
-                        info.el.innerHTML += "<h5 class='shift-title'>N</h5>"
-                        + "<div class='graveyard-station'>14p-23p</div>"
-                        + "<div class='graveyard-station'>手術1</div>";
-                        break;
+                            info.el.classList.add("graveyard-shift");
+                            info.el.innerHTML += "<h5 class='shift-title'>N</h5>"
+                            + "<div class='graveyard-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>";
+                            if(prop.station.name.split('')[2] == 'R'){
+                                let station = prop.station.name.split('')[0] + prop.station.name.split('')[1] + prop.station.name.split('')[2];
+                                info.el.innerHTML +=  "<div class='graveyard-station'>" + station + "</div>";
+                            }else{
+                                info.el.innerHTML += "<div class='graveyard-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
+                            }
+                            break;
                         case "休假":
-                        info.el.classList.add("rest");
-                        info.el.innerHTML += "<h6 class='rest-title'>休假日</h6>";
-                        break;
+                            info.el.classList.add("rest");
+                            info.el.innerHTML += "<h6 class='rest-title'>休假日</h6>";
+                            break;
                         case "例假":
-                        info.el.classList.add("rest");
-                        info.el.innerHTML += "<h6 class='rest-title'>例假日</h6>";
-                        break;
+                            info.el.classList.add("rest");
+                            info.el.innerHTML += "<h6 class='rest-title'>例假日</h6>";
+                            break;
                         case "公假":
-                        info.el.classList.add("rest");
-                        info.el.innerHTML += "<h6 class='rest-title'>公假日</h6>";
-                        break;
+                            info.el.classList.add("rest");
+                            info.el.innerHTML += "<h6 class='rest-title'>公假日</h6>";
+                            break;
                         case "onCall":
-                        info.el.classList.add("on-call");
-                        // info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>";
-                        info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>"
-                        + "<div class='on-call-station'>7a-4p</div>"
-                        + "<div class='on-call-station'>手術1</div>"
-                        break;
+                            info.el.classList.add("on-call");
+                            info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>"
+                            + "<div class='on-call-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
+                            + "<div class='on-call-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
+                            
+                            break;
                         default: 
-                        info.el.innerHTML += "<h6>ERROR</h6>";
-                        break;
+                            info.el.innerHTML += "<h6>ERROR</h6>";
+                            break;
                     };
                 },
                 events: function(fetchInfo, successCallback, failureCallback){
@@ -417,7 +433,6 @@ hr{
     background: #9C8F96 !important;
 }
 .on-call-title{
-
     color: white;
     margin-top: 5px;
     font-size: 6px;
