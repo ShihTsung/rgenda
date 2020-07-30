@@ -437,11 +437,11 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET', 'POST'])
 @parser_classes([JSONParser])
-def check_result(request):
+def check_result_api(request):
     if request.query_params:
         department = request.query_params.get('department')
         month = request.query_params.get('month')
 
-        test = check_result(int(department), int(month))
+        test = check_result(department, int(month))
         print(test)
     return Response({"message": "Hello, world!"})

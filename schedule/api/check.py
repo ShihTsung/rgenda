@@ -16,6 +16,7 @@ def check_result(d_id, month_to_check=None):
     if month_to_check:
         results = Result.objects.filter(
             date__month=month_to_check).order_by('date')
+        print(results)
     else:
         results = Result.objects.order_by('date')
         month_to_check = results[0].date.month
@@ -45,15 +46,16 @@ def check_cycle(department, results, invalid):
     # 單週同班種
     if department.schedule_rule == 0:
         temp_results = results.copy()
-        ca = cycle_analysis(department.id, date0)
+        ca = cycle_analysis(department, date0)
         current_shift_type = None
-        for i, d in enumerate(get_cycle(department.id, ca['cycle_no'])):
+        for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
             if d < date0:
                 temp_results.insert(
                     i, Result.objects.filter(date=d, user=user))
             else:
                 break
-        for i, result in enumerate(temp_results):
+        for i, result in enumerate(list(temp_results)):
+            print(type(result))
             if i % 7 == 0:
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
@@ -96,10 +98,10 @@ def check_rest_day(department, results, invalid):
     user = results[0].user
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
-    ca = cycle_analysis(department.id, date0)
+    ca = cycle_analysis(department, date0)
     temp_results = results.copy()
     # add previous results to make a complete cycle
-    for i, d in enumerate(get_cycle(department.id, ca['cycle_no'])):
+    for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
         if d < date0:
             temp_results.insert(i, Result.objects.filter(date=d, user=user))
         else:
