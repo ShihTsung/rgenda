@@ -25,8 +25,6 @@ GENDER_CHOICES = (
 )
 TYPE_CHOICES = (
     ('Normal', _('Normal')),
-    ('Pragnant', _('Pragnant')),
-    ('Intern', _('Intern')),
     ('PartTime', _('PartTime'))
 )
 
@@ -44,6 +42,11 @@ class CustomUserCreationForm(UserCreationForm):
     onboard_date = forms.DateField(
         label=_('OnboardDate'),
         widget=DateInput(attrs={'type': 'date'}))
+
+    can_be_scheduled = forms.BooleanField(
+        label='是否可排班',
+        required=False,
+    )
 
     class Meta:
         model = CustomUser

@@ -13,7 +13,7 @@
            <div class="card-header text-center"> 
              <button class="btn" id="toggle-btn">
                <i class="fa fa-bars"></i>
-             </button>班表分析
+             </button>班表分析<span class="unit">單位：日</span>
            </div>
            <div class="card-body DashCollapse" >
              <div class="left">
@@ -33,7 +33,7 @@
            </div>
           
           <div class="card">
-           <div class="card-header text-center">出勤分析</div>
+           <div class="card-header text-center">出勤分析<span class="unit">單位：時</span></div>
            <div class="card-body DashCollapse" >
              <div class="left">
                <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
@@ -81,18 +81,18 @@
             barThickness: 30,
             data: [12, 7, 5, 5, 2],
             backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
             ],
             borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)'
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
             ],
             borderWidth: 1
         }]
@@ -136,16 +136,16 @@
               barThickness: 30,
               data: [12, 7, 5, 5],
               backgroundColor: [
-                  'rgba(255, 99, 132, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  'rgba(255, 206, 86, 0.2)',
-                  'rgba(75, 192, 192, 0.2)',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
               ],
               borderColor: [
-                  'rgba(255, 99, 132, 1)',
-                  'rgba(54, 162, 235, 1)',
-                  'rgba(255, 206, 86, 1)',
-                  'rgba(75, 192, 192, 1)',
+                '#37419A',
+                '#37419A',
+                '#37419A',
+                '#37419A',
               ],
               borderWidth: 1
           }]
@@ -253,7 +253,7 @@
       #calendar{
         background-color: white!important;
         padding: 2rem;
-        max-width: 900px;
+        max-width: 1140px;
         margin: 20px auto;
       }
       .fc-event{
@@ -396,7 +396,10 @@
         flex-wrap: nowrap;
         margin-bottom: 2rem;
         }
-
+        .unit{
+          float: right;
+          font-size: 14px;
+        }
         .DashCollapse{
           height: 20rem;
           display:inline-flex;
