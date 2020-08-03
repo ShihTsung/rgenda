@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block title %} Accounts {% endblock %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+<style>
+    .li-wrapper{
+        margin-top: 10px;
+    }
+    hr{
+        border: 1px solid #e2e2e2;
+        margin-bottom: 30px;
+    }
+    h4{
+        color: rgb(26, 26, 207);
+        display: inline-block;
+    }
+    .unchecked-license{
+        width: 180px;
+        height: 40px;
+        float: right;
+    }
+    .li-search{
+        width: 170px;
+        display: inline-block;
+    }
+    .search-text{
+        position: absolute;
+        border: 1px solid #c2c0c0;
+        border-radius: 3px;
+        height: 32px;
+        right: 225px;
+        top: 195px;
+    }
+    .batch-agree-btn{
+        border: none;
+        border-radius: 5px;
+        background: #38449a;
+        color: white;
+        width: 130px;
+        height: 35px;
+        position: absolute;
+        top: 193px;
+        right: 50px;
+    }
+    button:hover{
+        background: #5769ec;
+    }
+    .search-icon{
+        position: absolute;
+        right: 230px;
+        top: 200px;
+        fill: #a3a2a2;
+    }
+    svg{
+        pointer-events: none;
+    }
+    table{
+        margin-top: 15px;
+        text-align: center;
+        border: 1px solid #c6c6c6;
+        background: white;
+    }
+    .first-row{
+        background: #d9d9d9;
+    }
+    .lookup-btn{
+        border: none;
+        border-radius: 5px;
+        background: #38449a;
+        color: white;
+        width: 80px;
+        font-weight: 300;
+        margin-top: 3px;
+        margin-bottom: 3px;
+    }
+    label{
+        margin-left: 20px;
+        margin-top: 2px;
+        float: left;
+        height: 25px;
+        width: 50px;
+    }
+    .staff{
+        position: absolute;
+        left: 15px;
+    }
+    #agent{
+        margin-top: 20px;
+        margin-left: 70px;
+        border: 1px solid #e2e2e2;
+        border-radius: 3px;
+        width: 200px;
+        height: 28px;
+        color: #ababab;
+        text-align: center;
+        background-color: white;
+    }
+    .dropdown_menu_staff{
+        list-style: none;
+        position: absolute;
+        left: 85px;
+        top: 596px;
+        border: 1px solid #e1e1e1;
+        border-radius: 3px;
+        width: 200px;
+        text-align: center;
+        background: white;
+        padding-left: 0px;
+    }
+    .dropdown_menu_staff li{
+        height: 24px;
+        width: 200px;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    .dropdown_menu_staff li:hover{
+        background: #6871b3cc;
+        color: white;
+        cursor: pointer;
+    }
+    .down-arrow-staff{
+        float: right;
+        margin-right: 5px;
+        cursor: pointer;
+        height: 28px;
+        width: 30px;
+    }
+    #license-list{
+        margin-top: 20px;
+        margin-left: 70px;
+        border: 1px solid #e2e2e2;
+        border-radius: 3px;
+        width: 200px;
+        height: 28px;
+        color: #ababab;
+        text-align: center;
+        background-color: white;
+    }
+    .dropdown_menu{
+        list-style: none;
+        position: absolute;
+        left: 85px;
+        top: 548px;
+        border: 1px solid #e1e1e1;
+        border-radius: 3px;
+        width: 200px;
+        text-align: center;
+        background: white;
+        padding-left: 0px;
+        height: 120px;
+        overflow: scroll;
+    }
+    .dropdown_menu li{
+        height: 24px;
+        width: 200px;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    .dropdown_menu li:hover{
+        background: #6871b3cc;
+        color: white;
+        cursor: pointer;
+    }
+    .down-arrow{
+        float: right;
+        margin-right: 5px;
+        cursor: pointer;
+        height: 28px;
+        width: 30px;
+    }
+    .search-btn{
+        border: none;
+        border-radius: 5px;
+        background: #38449a;
+        color: white;
+        width: 90px;
+        font-weight: 300;
+        margin-top: 50px;
+        margin-left: 100px;
+    }
+</style>
+<div class="container">
+    <h3>證照管理</h3>
+    <hr>
+    <div class="li-wrapper">
+        <h4>待審核證照</h4>
+        <div class="unchecked-license">
+            <div class="li-search">
+                <input class="search-text" type="text"/>
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M21.172 24l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7z"/></svg>
+            </div>
+            <button class="batch-agree-btn">批次同意</button>
+        </div>
+    </div>
+    <div class="li-wrapper">
+        <table width="1000" border="1" cellspacing="0">
+            <tr class="first-row">
+                <th>編號</th>
+                <th></th>
+                <th>提出日期</th>
+                <th>申請人員</th>
+                <th>證照名稱</th>
+                <th>發證日期</th>
+                <th>證照期限</th>
+                <th>發證單位</th>
+                <th>功能</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>
+                    <input type="checkbox"/>
+                </td>
+                <td>2020/07/01</td>
+                <td>阿花</td>
+                <td>新生兒高級救命術(NRP)</td>
+                <td>109/01/01</td>
+                <td>112/01/01</td>
+                <td>ＯＯ單位</td>
+                <td>
+                    <button class="lookup-btn">
+                        查看
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>
+                    <input type="checkbox"/>
+                </td>
+                <td>2020/07/01</td>
+                <td>阿朱</td>
+                <td>高級小兒救命術(PALS)</td>
+                <td>109/01/01</td>
+                <td>112/01/01</td>
+                <td>ＸＸ單位</td>
+                <td>
+                    <button class="lookup-btn">
+                        查看
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>
+                    <input type="checkbox"/>
+                </td>
+                <td>2020/07/02</td>
+                <td>阿紫</td>
+                <td>成人心肺復甦術(CPR)</td>
+                <td>109/01/01</td>
+                <td>111/01/01</td>
+                <td>ＯＯ單位</td>
+                <td>
+                    <button class="lookup-btn">
+                        查看
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+    
+    <h4>證照查詢</h4>
+    <div class="li-wrapper">
+        <label for="search-time">時間</label>
+        <div id="search-time">
+            <input type="date"/>
+            至
+            <input type="date"/>
+        </div>
+    </div>
+    <div class="li-wrapper">
+        <label for="license-list">名稱</label>
+        <div>
+            <div id="license-list">
+                <ul class="dropdown_menu" style="visibility: hidden;">
+                    <li>全選</li>
+                    <li>普考護士執照</li>
+                    <li>護理師執照</li>
+                    <li>專科護理師執照</li>
+                    <li>基本救命術</li>
+                    <li>基本創傷救命術</li>
+                    <li>高級心臟救命術</li>
+                    <li>急診外傷訓練課程</li>
+                    <li>外傷護理訓練課程</li>
+                    <li>高級小兒救命術</li>
+                    <li>新生兒高級救命術</li>
+                    <li>血液透析</li>
+                    <li>腹膜透析</li>
+                    <li>腎臟照護</li>
+                    <li>糖尿病衛教師</li>
+                    <li>成人心肺復甦術</li>
+                    <li>普考助產士</li>
+                    <li>高考助產師</li>
+                    <li>高考呼吸治療師</li>
+                    <li>特考呼吸治療師</li>
+                    <li>高考醫事檢驗師</li>
+                    <li>高考醫事放射師</li>
+                    <li>普考物理治療生</li>
+                    <li>高考物理治療師</li>
+                </ul>
+                <div class="down-arrow">
+                    <svg fill="#525aa8" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="li-wrapper">
+        <label class="staff" for="agent">人員</label>
+        <div id="agent">
+            <ul class="dropdown_menu_staff" style="visibility: hidden;">
+                <li>全選</li>
+                <li>阿花</li>
+                <li>小朱</li>
+                <li>大黃</li>
+            </ul>
+            <div class="down-arrow-staff">
+                <svg fill="#525aa8" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"/></svg>
+            </div>
+        </div>
+    </div>
+    <button class="search-btn">查詢</button>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        let isShow = false;
+        let isAppear = false;
+        let odropdown = document.querySelector(".dropdown_menu");
+        let olicenseList = document.querySelector("#license-list");
+        let odropdowns = document.querySelector(".dropdown_menu_staff");
+        let oagent = document.querySelector("#agent");
+
+        let odefault = document.createTextNode("");
+        let odefaults = document.createTextNode("");
+
+        olicenseList.appendChild(odefault);
+        oagent.appendChild(odefaults);
+
+        $(".down-arrow").click((e)=>{
+            isShow = !isShow;
+            if(isShow === true){
+                odropdown.style.visibility = 'visible';
+            }else{
+                odropdown.style.visibility = 'hidden';
+            }
+        });
+        $(".dropdown_menu").click((e)=>{
+            let ovisited = document.createTextNode(e.target.innerHTML);
+            olicenseList.replaceChild(ovisited, odefault);
+            odefault = ovisited;
+            
+            isShow = false;
+            odropdown.style.visibility = 'hidden';
+        });
+        $(".down-arrow-staff").click((e)=>{
+            isAppear = !isAppear;
+            if(isAppear === true){
+                odropdowns.style.visibility = 'visible';
+            }else{
+                odropdowns.style.visibility = 'hidden';
+            }
+        });
+        $(".dropdown_menu_staff").click((e)=>{
+            let ovisited = document.createTextNode(e.target.innerHTML);
+            oagent.replaceChild(ovisited, odefaults);
+            odefaults = ovisited;
+            
+            isAppear = false;
+            odropdowns.style.visibility = 'hidden';
+        });
+    });
+</script>
+{% endblock %}

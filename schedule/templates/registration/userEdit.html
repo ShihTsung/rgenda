@@ -8,7 +8,7 @@
         <div class="card-body">
             <form method="post">
                 <div class="title text-center">
-                    <h2>Edit User</h2>
+                    <h2>編輯使用者</h2>
                 </div>
                 {% csrf_token %}
                 {% for field in form%}
@@ -17,8 +17,8 @@
                     {% endif %}
                 {% endfor %}
             <div class="d-flex justify-content-around text-center">
-                <a href="/accounts/list" class="btn btn-secondary btn-lg col-3">Cancel</a>
-                <button class='btn-primary btn-lg col-md-3' type="submit">update</button>
+                <a href="/accounts/list" class="btn btn-secondary btn-lg col-3">取消</a>
+                <button class='btn-primary btn-lg col-md-3' type="submit">儲存</button>
             </div>
             </form>
         </div>

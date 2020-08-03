@@ -1,109 +1,168 @@
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
-<div class="container">
-  <div class="card">
-    <div class="card-title text-center">
-      <h2>User Login</h2>
-    </div>
-    <div class="card-body">
-      <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <div class="input-group-text"> &nbsp<i class="fa fa-envelope" aria-hidden="true"></i> &nbsp</div>
-          </div>
-          <input type="text" class="form-control form-control-lg" id="username"  name="username" placeholder="Username">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+      body{
+        background-color: #84C0E9 !important;
+        font-family: arial,"Microsoft JhengHei","微軟正黑體",sans-serif !important;
+      }
+      .form-check-label{
+        color: #848584;
+      }
+      .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 90vh;
+      }
+      .forgetPassword{
+        color: #38449a;
+        margin-left: 41%;
+        transform: translateX(-50%);
+      }
+      .form-control{
+        font-weight: 300;
+        
+      }
+        .card {
+            background-color: #fff;
+            padding: 3rem 2rem;
+            box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
+            width: 25rem;
+            min-width: 25rem;
+            color: rgb(5, 7, 50);
+            border-radius: 3px;
+            
+        }
+        .card-title h2{
+          width: 50%;
+          margin-left: 75%;
+          transform: translateX(-75%);
+        }
+        .card-title h3{
+          width: 50%;
+          margin-left: 73%;
+          transform: translateX(-70%);
+        }
+        #username{
+          margin-left: 50%;
+          transform: translateX(-50%);
+          border: 1px solid #dcdcdc;
+          width: 50%;
+          height: 30px;
+          border-radius: 3px;
+        }
+        #password{
+          margin-left: 50%;
+          transform: translateX(-50%);
+          border: 1px solid #dcdcdc;
+          width: 50%;
+          height: 30px;
+          border-radius: 3px;
+        }
+        .form-check{
+          margin-top: 2%;
+        }
+        .form-check-input{
+          margin-left: 25%;
+        }
+        .form-check-label{
+          font-weight: 300;
+        }
+        .btn-primary {
+            background: #38449a;
+            border: none;
+            font-weight: 300;
+            width: 20%;
+            height: 40px;
+            color: white;
+            border-radius: 5px;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            margin-top: 3%;
+            font-size: 17px;
+        }
+    
+        @media(max-width:600px) {
+          .card{
+            width:90vw;
+          }
+        }
+        
+        .copyright{
+          font-weight: 400;
+          margin-left: 200px;
+          margin-top: 45px;
+          font-size: 18px;
+        }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded",function(){
+    
+        let nav = document.querySelector('.navbar');
+        nav.classList.add('invisible');
+        nav.style.display = "none"
+        let sidebar = document.querySelector('#sidebar-wrapper');
+        sidebar.classList.add('invisible');
+        sidebar.style.display = "none";
+        $.cookie("showSidebar", 'hide', { path: "/" })
+        let wrapper = document.getElementById("wrapper")
+        if (! wrapper.classList.contains('toggled')){
+          wrapper.classList.add('toggled')
+        }
+        document.querySelector('#footer').classList.add('invisible');
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="card-title text-center">
+          <h2>睿驊醫院</h3>
+          <h3>AI智慧排班</h3>
         </div>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <div class="input-group-text"> &nbsp<i class="fa fa-lock" aria-hidden="true"></i> &nbsp</div>
+        <div class="card-body">
+          <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text"> &nbsp<i class="fa fa-envelope" aria-hidden="true"></i> &nbsp</div>
+              </div>
+              <input type="text" class="form-control form-control-lg" id="username"  name="username" placeholder="電子郵件">
+            </div>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text"> &nbsp<i class="fa fa-lock" aria-hidden="true"></i> &nbsp</div>
+              </div>
+              <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="密碼">
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="autoSizingCheck">
+              <label class="form-check-label" for="autoSizingCheck">
+                自動登入
+              </label>
+            </div>
           </div>
-          <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Password">
-        </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" id="autoSizingCheck">
-          <label class="form-check-label" for="autoSizingCheck">
-            Remember me
-          </label>
+          {% if form.errors %}
+          <p class=" label label-danger">
+              Your username and password didn't match. 
+              Please try again.
+          </p>
+          {% endif %}
+            <div class="col-12 text-center">
+              <input class='btn-primary btn-lg' type="submit" value="登入">
+              <input type="hidden" name="next" value="{{ next }}" />
+              <br>
+              <br>
+              <a class="forgetPassword" href="{% url 'password_reset' %}">忘記密碼?</a>
+          
+            </div>
+          </form>
         </div>
       </div>
-      {% if form.errors %}
-      <p class=" label label-danger">
-          Your username and password didn't match. 
-          Please try again.
-      </p>
-      {% endif %}
-        <div class="col-12 text-center">
-          <input class='btn-primary btn-lg' type="submit" value="Login">
-          <input type="hidden" name="next" value="{{ next }}" />
-          <br>
-          <br>
-          <small><b><a href="{% url 'password_reset' %}">forgot password?</a></b></small>
       
-        </div>
-      </form>
     </div>
-  </div>
-
-</div>
-
-{%endblock%}
-
-{% block styles %}
-<style>
-  body{
-    background-color: #84C0E9 !important; 
-  }
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 90vh;
-    }
-
-    .card {
-        background-color: #fff;
-        padding: 3rem 2rem;
-        box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
-        width: 30rem;
-        min-width: 25rem;
-        color: rgb(5, 7, 50);
-    }
-    .card-title, h2{
-      margin: 0;
-    }
-    .btn-primary {
-        box-shadow: 0px 1px 3px #000;
-    }
-
-    @media(max-width:600px) {
-      .card{
-        width:90vw;
-      }
-    }
-    .input-group{
-      margin: 1rem 0;
-    }
-</style>
-
-<script>
-  document.addEventListener("DOMContentLoaded",function(){
-
-    let nav = document.querySelector('.navbar');
-    nav.classList.add('invisible');
-    nav.style.display = "none"
-    let sidebar = document.querySelector('#sidebar-wrapper');
-    sidebar.classList.add('invisible');
-    sidebar.style.display = "none";
-    $.cookie("showSidebar", 'hide', { path: "/" })
-    let wrapper = document.getElementById("wrapper")
-    if (! wrapper.classList.contains('toggled')){
-      wrapper.classList.add('toggled')
-    }
-    document.querySelector('#footer').classList.add('invisible');
-  })
-    
-
-</script>
-{% endblock %}
+  </body>
+</html>

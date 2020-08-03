@@ -37,6 +37,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 class GetCustomUserSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer()
+    # start_time = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -46,6 +47,32 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
+
+
+class GetResourceUserSerializer(serializers.ModelSerializer):
+    shift_num = serializers.SerializerMethodField()
+    special_rest = serializers.SerializerMethodField()
+    overtime = serializers.SerializerMethodField()
+    diff = serializers.SerializerMethodField()
+
+    def get_shift_num(self, obj):
+        return 0
+
+    def get_special_rest(self, obj):
+        return 0
+
+    def get_overtime(self, obj):
+        return 0
+
+    def get_diff(self, obj):
+        return 0
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'email', 'department', 'can_be_scheduled',
+            'full_name', 'shift_num', 'special_rest', 'overtime', 'diff'
+        )
 
 # 工作站Get
 
@@ -106,7 +133,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class GetOnedaySerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source="attribute")
+    title = serializers.SerializerMethodField()
     start = serializers.CharField(source="date")
     id = serializers.CharField()
     extendedProps = serializers.SerializerMethodField()
@@ -116,8 +143,16 @@ class GetOnedaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Oneday
         fields = ('id', 'title', 'start', 'color',
-                  'className', 'extendedProps')
+                  'className', 'extendedProps', 'red_day')
         read_only_fields = ("id",)
+
+    def get_title(self, obj):
+        if obj.attribute == 'holiday':
+            return '假日'
+        elif obj.attribute == 'workday':
+            return '平日'
+        else:
+            return '休診日'
 
     def get_className(self, obj):
         return 'bigEvent'
@@ -125,8 +160,10 @@ class GetOnedaySerializer(serializers.ModelSerializer):
     def get_color(self, obj):
         if obj.attribute == 'holiday':
             return 'red'
-        else:
+        elif obj.attribute == 'workday':
             return ''
+        else:
+            return '#C1C0C0'
 
     def get_extendedProps(self, obj):
 
@@ -140,7 +177,7 @@ class GetOnedaySerializer(serializers.ModelSerializer):
 class OnedaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Oneday
-        fields = ('id',  'date', 'attribute', 'locked')
+        fields = ('id',  'date', 'attribute', 'locked', 'red_day')
         read_only_fields = ("id",)
 
 # 排班結果1
@@ -236,7 +273,6 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
 class GetPromiseShiftSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
-    shift = ShiftSerializer()
 
     class Meta:
         model = PromiseShift

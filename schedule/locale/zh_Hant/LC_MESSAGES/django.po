@@ -1,0 +1,805 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-29 13:52+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: schedule/account/admin.py:16
+msgid "Profile"
+msgstr "檔案"
+
+#: schedule/account/forms.py:12 schedule/account/models.py:19
+msgid "admin"
+msgstr "系統管理者"
+
+#: schedule/account/forms.py:13 schedule/account/models.py:20
+msgid "manager"
+msgstr "管理員"
+
+#: schedule/account/forms.py:14 schedule/account/models.py:21
+msgid "user"
+msgstr "使用者"
+
+#: schedule/account/forms.py:17 schedule/account/models.py:9
+msgid "N4"
+msgstr ""
+
+#: schedule/account/forms.py:18 schedule/account/models.py:10
+msgid "N3"
+msgstr ""
+
+#: schedule/account/forms.py:19 schedule/account/models.py:11
+msgid "N2"
+msgstr ""
+
+#: schedule/account/forms.py:20 schedule/account/models.py:12
+msgid "N, N1"
+msgstr ""
+
+#: schedule/account/forms.py:23 schedule/account/models.py:15
+msgid "Male"
+msgstr "男"
+
+#: schedule/account/forms.py:24 schedule/account/models.py:16
+msgid "Female"
+msgstr "女"
+
+#: schedule/account/forms.py:27 schedule/account/models.py:25
+msgid "Normal"
+msgstr "一般"
+
+#: schedule/account/forms.py:28
+msgid "Pragnant"
+msgstr "懷孕"
+
+#: schedule/account/forms.py:29 schedule/account/models.py:26
+msgid "Intern"
+msgstr "實習"
+
+#: schedule/account/forms.py:30 schedule/account/models.py:27
+msgid "PartTime"
+msgstr "工讀生"
+
+#: schedule/account/forms.py:42 schedule/account/forms.py:67
+#: schedule/account/models.py:35 schedule/account/models.py:112
+#: schedule/shift/forms.py:36 schedule/shift/forms.py:59
+#: schedule/shift/models.py:28 schedule/station/forms.py:30
+#: schedule/station/forms.py:41 schedule/station/models.py:15
+#: schedule/templates/registration/userList.html:63
+#: schedule/templates/shifts/shiftList.html:61
+#: schedule/templates/stations/stationList.html:57
+msgid "Department"
+msgstr "部門(科別)"
+
+#: schedule/account/forms.py:45 schedule/account/forms.py:130
+#: schedule/account/models.py:186
+#: schedule/templates/registration/userList.html:66
+msgid "OnboardDate"
+msgstr "到職日"
+
+#: schedule/account/forms.py:69 schedule/account/models.py:121
+#: schedule/demand/models.py:17
+#: schedule/templates/registration/userList.html:64
+msgid "Level"
+msgstr "職級"
+
+#: schedule/account/forms.py:74 schedule/account/models.py:117
+#: schedule/templates/registration/userList.html:60
+msgid "FullName"
+msgstr "姓名"
+
+#: schedule/account/forms.py:79 schedule/account/models.py:127
+#: schedule/templates/registration/userList.html:62
+msgid "Role"
+msgstr "權限"
+
+#: schedule/account/forms.py:84 schedule/account/models.py:133
+msgid "Gender"
+msgstr "性別"
+
+#: schedule/account/forms.py:91 schedule/account/models.py:138
+msgid "Type"
+msgstr "類型"
+
+#: schedule/account/forms.py:97 schedule/account/models.py:142
+msgid "Pregnant"
+msgstr "懷孕"
+
+#: schedule/account/forms.py:101 schedule/account/models.py:147
+msgid "CanBeScheduled"
+msgstr "是否可排班"
+
+#: schedule/account/forms.py:107 schedule/account/models.py:152
+msgid "HolidayRestNum"
+msgstr "假日休息數"
+
+#: schedule/account/forms.py:112 schedule/account/models.py:162
+msgid "SpecialRestNum"
+msgstr "特休剩餘"
+
+#: schedule/account/forms.py:117 schedule/account/models.py:177
+msgid "HourRequired"
+msgstr "應上工時"
+
+#: schedule/account/forms.py:122 schedule/account/models.py:181
+#: schedule/templates/registration/userList.html:65
+msgid "HourRealized"
+msgstr "實際工時"
+
+#: schedule/account/forms.py:127 schedule/account/models.py:173
+msgid "EmployeeId"
+msgstr "工號"
+
+#: schedule/account/forms.py:160 schedule/account/forms.py:176
+#: schedule/account/models.py:207 schedule/mainpage/forms.py:28
+#: schedule/mainpage/forms.py:60 schedule/shift/forms.py:27
+#: schedule/shift/forms.py:46 schedule/shift/models.py:20
+#: schedule/station/forms.py:27 schedule/station/forms.py:38
+#: schedule/station/models.py:12 schedule/templates/shifts/shiftList.html:57
+#: schedule/templates/stations/stationList.html:56
+msgid "Name"
+msgstr "名稱"
+
+#: schedule/account/forms.py:164 schedule/account/forms.py:181
+#: schedule/account/models.py:39
+msgid "Detail"
+msgstr "內容"
+
+#: schedule/account/forms.py:186 schedule/account/models.py:42
+msgid "LimitPreSchedule"
+msgstr "最多排休數"
+
+#: schedule/account/forms.py:191 schedule/account/models.py:46
+msgid "DeadlinePreSchedule"
+msgstr "排休截止日"
+
+#: schedule/account/forms.py:197 schedule/account/models.py:50
+msgid "Reset"
+msgstr "重置"
+
+#: schedule/account/forms.py:200
+msgid "PerYear(at 1/1)"
+msgstr "每年(1/1)"
+
+#: schedule/account/forms.py:200
+msgid "PerMonth(at 1)"
+msgstr "每月(1日)"
+
+#: schedule/account/forms.py:203
+msgid "LawRules"
+msgstr "法規規則"
+
+#: schedule/account/forms.py:214
+msgid "RecalWorkHourDate"
+msgstr "工時重置日期"
+
+#: schedule/account/forms.py:224 schedule/account/models.py:73
+msgid "AdminInSchedule"
+msgstr "管理者是否排班"
+
+#: schedule/account/forms.py:228 schedule/account/models.py:77
+msgid "PartTimeInHoliday"
+msgstr "工讀生假日排班"
+
+#: schedule/account/forms.py:232 schedule/account/models.py:81
+msgid "InternInHoliday"
+msgstr "實習生假日排班"
+
+#: schedule/account/forms.py:236 schedule/account/models.py:85
+msgid "InternDOnly"
+msgstr "實習生只排白班"
+
+#: schedule/account/forms.py:240 schedule/account/models.py:89
+msgid "SameDayNotice"
+msgstr "同日排休警告"
+
+#: schedule/account/forms.py:245
+msgid "BeginOfWeek"
+msgstr "週起始日"
+
+#: schedule/account/forms.py:249 schedule/templates/department/detail.html:107
+msgid "Monday"
+msgstr "週一"
+
+#: schedule/account/forms.py:250 schedule/templates/department/detail.html:109
+msgid "Sunday"
+msgstr "週二"
+
+#: schedule/account/forms.py:254 schedule/account/models.py:93
+#: schedule/result/models.py:159
+msgid "DateStart"
+msgstr "起算日期"
+
+#: schedule/account/models.py:54
+msgid "LawRule"
+msgstr "法規規則"
+
+#: schedule/account/models.py:57
+msgid "一般工時，7休2"
+msgstr ""
+
+#: schedule/account/models.py:58
+msgid "雙週變形工時，14休4"
+msgstr ""
+
+#: schedule/account/models.py:59
+msgid "四週變形工時，28休8"
+msgstr ""
+
+#: schedule/account/models.py:60
+msgid "八週變形工時，56休16"
+msgstr ""
+
+#: schedule/account/models.py:64
+msgid "ScheduleRule"
+msgstr "排班規則"
+
+#: schedule/account/models.py:67
+msgid "單週同班種"
+msgstr ""
+
+#: schedule/account/models.py:68
+msgid "單月同班種"
+msgstr ""
+
+#: schedule/account/models.py:69
+msgid "三月同班種"
+msgstr ""
+
+#: schedule/account/models.py:98
+msgid "MonthCycle"
+msgstr "月週期"
+
+#: schedule/account/models.py:157
+msgid "HolidayRestNumUsed"
+msgstr "假日已使用休假數"
+
+#: schedule/account/models.py:167
+msgid "SpecialRestNumUsed"
+msgstr "已休特休數"
+
+#: schedule/account/models.py:203
+msgid "Owner"
+msgstr "擁有者"
+
+#: schedule/account/models.py:210
+#: schedule/templates/registration/detail.html:28
+msgid "LiscenseDate"
+msgstr "發證日期"
+
+#: schedule/account/models.py:213
+msgid "DueDate"
+msgstr "到期日"
+
+#: schedule/account/models.py:217
+msgid "Source"
+msgstr "發證單位"
+
+#: schedule/account/models.py:220
+msgid "LiscensePic"
+msgstr "證照正面"
+
+#: schedule/account/models.py:226
+msgid "LiscensePic2"
+msgstr "證照背面"
+
+#: schedule/date/models.py:7 schedule/reservation/models.py:16
+#: schedule/reservation/models.py:30 schedule/result/models.py:60
+#: schedule/result/models.py:92 schedule/result/models.py:124
+msgid "Date"
+msgstr "日期"
+
+#: schedule/date/models.py:10
+msgid "Attr"
+msgstr "性質"
+
+#: schedule/date/models.py:17
+msgid "Locked"
+msgstr "鎖定"
+
+#: schedule/date/models.py:19
+msgid "RedDay"
+msgstr "休假"
+
+#: schedule/demand/forms.py:15 schedule/demand/models.py:14
+#: schedule/result/models.py:55 schedule/result/models.py:87
+#: schedule/result/models.py:119
+#: schedule/templates/calendars/promise_shift.html:41
+#: schedule/templates/calendars/promise_shift.html:77
+#: schedule/templates/calendars/results.html:31
+#: schedule/templates/calendars/results.html:62
+#: schedule/templates/demands/demandList.html:36
+msgid "Shift"
+msgstr "班別"
+
+#: schedule/demand/forms.py:19 schedule/demand/models.py:15
+#: schedule/mainpage/forms.py:45 schedule/mainpage/forms.py:72
+#: schedule/result/models.py:71 schedule/result/models.py:103
+#: schedule/result/models.py:135 schedule/templates/calendars/results.html:35
+#: schedule/templates/calendars/results.html:66
+#: schedule/templates/demands/demandList.html:35
+msgid "Station"
+msgstr "工作站"
+
+#: schedule/demand/models.py:18
+msgid "WorkdayDemand"
+msgstr "平日需求"
+
+#: schedule/demand/models.py:19
+msgid "HolidayDemand"
+msgstr "假日需求"
+
+#: schedule/mainpage/forms.py:8 schedule/shift/forms.py:8
+#: schedule/station/forms.py:8
+msgid "Leader"
+msgstr "四級"
+
+#: schedule/mainpage/forms.py:9 schedule/shift/forms.py:9
+#: schedule/station/forms.py:9
+msgid "Senior"
+msgstr "三級"
+
+#: schedule/mainpage/forms.py:10 schedule/shift/forms.py:10
+#: schedule/station/forms.py:10
+msgid "Junior"
+msgstr "二級"
+
+#: schedule/mainpage/forms.py:32 schedule/reservation/models.py:32
+#: schedule/shift/forms.py:30 schedule/shift/forms.py:49
+#: schedule/shift/models.py:23 schedule/templates/shifts/shiftList.html:58
+msgid "ShiftType"
+msgstr "班別類型"
+
+#: schedule/mainpage/forms.py:36 schedule/mainpage/forms.py:63
+#: schedule/shift/forms.py:32 schedule/shift/forms.py:51
+#: schedule/shift/models.py:26 schedule/templates/shifts/shiftList.html:59
+msgid "StartTime"
+msgstr "開始時間"
+
+#: schedule/mainpage/forms.py:40 schedule/mainpage/forms.py:67
+msgid "EndHour"
+msgstr "結束時"
+
+#: schedule/mainpage/forms.py:48 schedule/mainpage/forms.py:75
+#: schedule/shift/forms.py:37 schedule/shift/forms.py:60
+#: schedule/shift/models.py:30 schedule/templates/shifts/shiftList.html:62
+msgid "WorkHours"
+msgstr "工時"
+
+#: schedule/reservation/models.py:13 schedule/reservation/models.py:27
+#: schedule/result/models.py:49 schedule/result/models.py:81
+#: schedule/result/models.py:113
+#: schedule/templates/calendars/promise_shift.html:38
+#: schedule/templates/calendars/promise_shift.html:72
+msgid "User"
+msgstr "使用者"
+
+#: schedule/result/forms.py:7
+msgid "result_date"
+msgstr "日期"
+
+#: schedule/result/forms.py:12 schedule/result/forms.py:93
+#: schedule/templates/department/detail.html:17
+msgid "name"
+msgstr "名稱"
+
+#: schedule/result/forms.py:17 schedule/result/forms.py:67
+msgid "adjustment_type"
+msgstr "類型"
+
+#: schedule/result/forms.py:21 schedule/result/forms.py:71
+msgid "增加時數"
+msgstr ""
+
+#: schedule/result/forms.py:22 schedule/result/forms.py:72
+msgid "減少時數"
+msgstr ""
+
+#: schedule/result/forms.py:27 schedule/result/forms.py:77
+msgid "adjustment_item"
+msgstr "選項"
+
+#: schedule/result/forms.py:31 schedule/result/forms.py:81
+#: schedule/result/models.py:26
+msgid "工作日加班"
+msgstr ""
+
+#: schedule/result/forms.py:32 schedule/result/forms.py:82
+#: schedule/result/models.py:27
+msgid "休息日出勤"
+msgstr ""
+
+#: schedule/result/forms.py:33 schedule/result/forms.py:83
+#: schedule/result/models.py:28
+msgid "國定假日出勤"
+msgstr ""
+
+#: schedule/result/forms.py:34 schedule/result/forms.py:84
+#: schedule/result/models.py:29
+msgid "空班出勤"
+msgstr ""
+
+#: schedule/result/forms.py:35 schedule/result/forms.py:85
+#: schedule/result/models.py:30
+msgid "On Call出勤"
+msgstr ""
+
+#: schedule/result/forms.py:36 schedule/result/forms.py:86
+#: schedule/result/models.py:31
+msgid "機構減班"
+msgstr ""
+
+#: schedule/result/forms.py:38 schedule/result/forms.py:88
+#: schedule/result/models.py:33
+msgid "員工自假"
+msgstr ""
+
+#: schedule/result/forms.py:43
+msgid "hours"
+msgstr "時"
+
+#: schedule/result/forms.py:49 schedule/result/forms.py:137
+msgid "remark"
+msgstr "備註"
+
+#: schedule/result/forms.py:57
+msgid "date_start"
+msgstr "起始日"
+
+#: schedule/result/forms.py:62
+msgid "date_end"
+msgstr "結束日"
+
+#: schedule/result/forms.py:101 schedule/result/forms.py:106
+msgid "exchange_date"
+msgstr "交換日期"
+
+#: schedule/result/forms.py:111
+msgid "exchange_shift_type"
+msgstr "交換班別"
+
+#: schedule/result/forms.py:115 schedule/result/forms.py:126
+msgid "Select"
+msgstr "選擇"
+
+#: schedule/result/forms.py:116
+msgid "白班"
+msgstr ""
+
+#: schedule/result/forms.py:117
+msgid "小夜"
+msgstr ""
+
+#: schedule/result/forms.py:118
+msgid "大夜"
+msgstr ""
+
+#: schedule/result/forms.py:123
+msgid "receive_user"
+msgstr "接收人"
+
+#: schedule/result/models.py:18
+msgid "Hours"
+msgstr "小時"
+
+#: schedule/result/models.py:23
+msgid "AdjustmentType"
+msgstr "加減班類型"
+
+#: schedule/result/models.py:38 schedule/result/models.py:180
+msgid "Remark"
+msgstr "備註"
+
+#: schedule/result/models.py:65 schedule/result/models.py:97
+#: schedule/result/models.py:129
+msgid "TimeAdjustment"
+msgstr "時間"
+
+#: schedule/result/models.py:146
+msgid "UserApply"
+msgstr "發起人"
+
+#: schedule/result/models.py:153
+msgid "UserReceive"
+msgstr "接收人"
+
+#: schedule/result/models.py:163
+msgid "DateEnd"
+msgstr "結束日"
+
+#: schedule/result/models.py:167
+msgid "ApplicationStatus"
+msgstr "狀態"
+
+#: schedule/schedule/settings.py:207
+msgid "English"
+msgstr "英文"
+
+#: schedule/schedule/settings.py:208
+msgid "Traditional Chinese"
+msgstr "繁體中文"
+
+#: schedule/schedule/urls.py:91
+msgid "AdminSite"
+msgstr "後台頁面"
+
+#: schedule/schedule/urls.py:92
+msgid "Administrator"
+msgstr "系統管理者"
+
+#: schedule/shift/forms.py:33 schedule/shift/forms.py:54
+#: schedule/shift/models.py:27 schedule/templates/shifts/shiftList.html:60
+msgid "EndTime"
+msgstr "結束時間"
+
+#: schedule/templates/admin/change_form.html:5
+msgid "History"
+msgstr "歷史紀錄"
+
+#: schedule/templates/admin/change_form.html:12
+msgid "View on site"
+msgstr ""
+
+#: schedule/templates/calendars/date_manage.html:56
+#: schedule/templates/calendars/pre_results.html:37
+#: schedule/templates/calendars/promise_shift.html:52
+#: schedule/templates/calendars/results.html:42
+#: schedule/templates/registration/detail.html:80
+#: schedule/templates/registration/userList.html:20
+#: schedule/templates/stations/stationList.html:20
+msgid "Cancel"
+msgstr "取消"
+
+#: schedule/templates/calendars/date_manage.html:57
+#: schedule/templates/calendars/pre_results.html:38
+#: schedule/templates/calendars/pre_results.html:64
+#: schedule/templates/calendars/promise_shift.html:53
+#: schedule/templates/calendars/promise_shift.html:85
+#: schedule/templates/calendars/results.html:43
+#: schedule/templates/calendars/results.html:74
+#: schedule/templates/registration/detail.html:81
+msgid "Save"
+msgstr "儲存"
+
+#: schedule/templates/calendars/history_results.html:4
+#: schedule/templates/calendars/pre_results.html:4
+#: schedule/templates/calendars/read_only_results.html:4
+#: schedule/templates/calendars/results.html:4
+#: schedule/templates/results/time_adjustment.html:5
+msgid "Result"
+msgstr "排班結果"
+
+#: schedule/templates/calendars/pre_results.html:63
+#: schedule/templates/calendars/promise_shift.html:84
+#: schedule/templates/calendars/results.html:73
+#: schedule/templates/registration/userList.html:21
+#: schedule/templates/stations/stationList.html:21
+msgid "Delete"
+msgstr "刪除"
+
+#: schedule/templates/calendars/promise_shift.html:4
+#: schedule/templates/calendars/promise_shift.html:13
+msgid "PromiseShift"
+msgstr "保證班"
+
+#: schedule/templates/calendars/promise_shift.html:44
+msgid "Combo"
+msgstr "連續"
+
+#: schedule/templates/calendars/reserve_holiday.html:4
+#: schedule/templates/calendars/reserve_holiday.html:13
+msgid "ReservingHoliday"
+msgstr "預排假日"
+
+#: schedule/templates/demands/demandList.html:37
+msgid "Weekday"
+msgstr "平日需求"
+
+#: schedule/templates/demands/demandList.html:38
+#, fuzzy
+#| msgid "HolidayDemand"
+msgid "Holiday"
+msgstr "假日需求"
+
+#: schedule/templates/department/departmentList.html:39
+#: schedule/templates/stations/stationList.html:38
+msgid "Create"
+msgstr "新增"
+
+#: schedule/templates/department/detail.html:11
+msgid "field"
+msgstr "欄位"
+
+#: schedule/templates/department/detail.html:12
+msgid "value"
+msgstr "值"
+
+#: schedule/templates/department/detail.html:21
+msgid "detail"
+msgstr "內容"
+
+#: schedule/templates/department/detail.html:25
+msgid "managers"
+msgstr "管理者"
+
+#: schedule/templates/department/detail.html:33
+msgid "limitPreSchedule"
+msgstr "最多預排假數"
+
+#: schedule/templates/department/detail.html:37
+msgid "deadlinePreSchedule"
+msgstr "預排假截止日"
+
+#: schedule/templates/department/detail.html:41
+msgid "reset"
+msgstr "重置"
+
+#: schedule/templates/department/detail.html:49
+msgid "lawRule"
+msgstr "法規規則"
+
+#: schedule/templates/department/detail.html:59
+msgid "scheduleRule"
+msgstr "排班規則"
+
+#: schedule/templates/department/detail.html:68
+msgid "adminInSchedule"
+msgstr "管理者排班"
+
+#: schedule/templates/department/detail.html:76
+msgid "partTimeInHoliday"
+msgstr "工讀生上假日班"
+
+#: schedule/templates/department/detail.html:84
+msgid "internInHoliday"
+msgstr "實習生上假日班"
+
+#: schedule/templates/department/detail.html:92
+msgid "internDOnly"
+msgstr "實習生只上白班"
+
+#: schedule/templates/department/detail.html:100
+msgid "sameDayNotice"
+msgstr "同日排休警告"
+
+#: schedule/templates/department/detail.html:104
+msgid "beginOfWeek"
+msgstr "週起始日"
+
+#: schedule/templates/department/detail.html:116
+#: schedule/templates/registration/detail.html:226
+msgid "Edit"
+msgstr "編輯"
+
+#: schedule/templates/nav.html:25
+msgid "Manager"
+msgstr "管理者"
+
+#: schedule/templates/nav.html:56
+msgid "Logout"
+msgstr "登出"
+
+#: schedule/templates/nav.html:86
+msgid "Login"
+msgstr "登入"
+
+#: schedule/templates/notice/list.html:36
+msgid "ago"
+msgstr "前"
+
+#: schedule/templates/registration/detail.html:21
+msgid "LiscenseName"
+msgstr "證照名稱"
+
+#: schedule/templates/registration/detail.html:34
+msgid "LiscenseDueDate"
+msgstr "證照到期日"
+
+#: schedule/templates/registration/detail.html:40
+msgid "LiscenseSource"
+msgstr "發證單位"
+
+#: schedule/templates/registration/detail.html:55
+msgid "LiscensePicture"
+msgstr "證照正面"
+
+#: schedule/templates/registration/detail.html:71
+msgid "LiscensePicture_2"
+msgstr "證照背面"
+
+#: schedule/templates/registration/detail.html:106
+msgid "username"
+msgstr "使用者名稱"
+
+#: schedule/templates/registration/detail.html:110
+msgid "email"
+msgstr "信箱"
+
+#: schedule/templates/registration/detail.html:114
+msgid "Fullname"
+msgstr "姓名"
+
+#: schedule/templates/registration/detail.html:118
+msgid "level"
+msgstr "職級"
+
+#: schedule/templates/registration/detail.html:122
+msgid "eid"
+msgstr "工號"
+
+#: schedule/templates/registration/detail.html:126
+msgid "gender"
+msgstr "性別"
+
+#: schedule/templates/registration/detail.html:130
+msgid "canSchedule"
+msgstr "可排班"
+
+#: schedule/templates/registration/detail.html:134
+msgid "role"
+msgstr "權限"
+
+#: schedule/templates/registration/detail.html:141
+msgid "holidayRest"
+msgstr "假日休息"
+
+#: schedule/templates/registration/detail.html:148
+msgid "specialRest"
+msgstr "特休"
+
+#: schedule/templates/registration/detail.html:161
+msgid "type"
+msgstr "類型"
+
+#: schedule/templates/registration/detail.html:167
+msgid "holidayRestUsed"
+msgstr "已休假日休息數"
+
+#: schedule/templates/registration/detail.html:173
+msgid "workhourRequired"
+msgstr "應上工時"
+
+#: schedule/templates/registration/detail.html:179
+msgid "workhourRealized"
+msgstr "實際工時"
+
+#: schedule/templates/registration/detail.html:185
+msgid "specialRestUsed"
+msgstr "已休特休數"
+
+#: schedule/templates/registration/detail.html:223
+msgid "ChangePassword"
+msgstr "更改密碼"
+
+#: schedule/templates/registration/userList.html:59
+
+#| msgid "Name"
+msgid "UserName"
+msgstr "名稱"
+
+#: schedule/templates/registration/userList.html:61
+
+#| msgid "email"
+msgid "Email"
+msgstr "信箱"
+
+#: schedule/templates/registration/userList.html:67
+#: schedule/templates/stations/stationList.html:59
+
+#| msgid "Station"
+msgid "Action"
+msgstr "工作站"

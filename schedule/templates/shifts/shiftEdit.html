@@ -8,7 +8,7 @@
         <div class="card-body">
             <form method="post">
                 <div class="title text-center">
-                    <h2>Edit Shift</h2>
+                    <h2>編輯班別</h2>
                 </div>
                 {% csrf_token %}
                 
@@ -20,8 +20,8 @@
                 {{ form.work_hours |as_crispy_field }}
                     
             <div class="col-12 text-center">
-                <a href="/shifts/list" class="btn btn-secondary btn-lg col-3">Cancel</a>
-                <button class='btn btn-primary btn-lg col-md-3' type="submit">update</button>
+                <a href="/shifts/list" class="btn btn-secondary btn-lg col-3">取消</a>
+                <button class='btn btn-primary btn-lg col-md-3' type="submit">儲存</button>
             </div>
             </form>
         </div>

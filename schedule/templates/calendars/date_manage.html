@@ -32,16 +32,16 @@
       <div class="modal-body">
         <form action="">
           <div class="form-grounp">
-            <label for="day">type</label>
+            <label for="day">類型</label>
             <select name="day" id="day" class="form-control">
               <option value="workday">
-                workday
+                平日
               </option>
               <option value="holiday">
-                holiday
+                假日
               </option>
               <option value="closed_day">
-                closed day
+                休診日
               </option>
             </select>
           </div>
@@ -130,7 +130,7 @@
                 timeZone: 'UTC',
                 customButtons: {
                     submitButton: {
-                        text: '  back  ',
+                        text: '  返回  ',
                         click: function () {
                             window.location = "/";
                         }
@@ -159,6 +159,20 @@
                     x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
                     info.el.appendChild(x);
                   }
+                  console.log(info.event.title);
+                  info.el.innerHTML = "";
+                  
+                  if(info.event.title === "平日"){
+                    info.el.classList.add("workday");
+                    info.el.innerHTML += "<div style='font-size: 14px;'>平日</div>";
+                  }
+                  else if(info.event.title === "假日"){
+                    info.el.classList.add("holiday");
+                    info.el.innerHTML += "<div style='font-size: 14px;'>假日</div>";
+                  }else{
+                    info.el.classList.add("closed-day");
+                    info.el.innerHTML += "<div>休診日</div>";
+                  }
                 },
                 events: {
                   'url': '/api/dates',
@@ -173,7 +187,42 @@
         saveButton = document.getElementById('save');
         saveButton.addEventListener('click',sendData);
         
-
-
 </script>
+<style>
+  .container{
+    padding-top: 80px;
+  }
+  .fc-event.fc-draggable{
+    color: white;
+  }
+  .workday{
+    background: #4a95bb;
+    border: none;
+    
+  }
+  .workday:hover{
+    background: #387594;
+    color: white !important;
+  }
+  .holiday{
+    background: #70bb8d !important;
+    border: none;
+  }
+  .holiday:hover{
+    background: #538a68 !important;
+    color: white !important;
+  }
+  .closed-day{
+    color: #b5b5b5 !important;
+    background: white !important;
+    border: 1px solid #b5b5b5;
+    height: 46px;
+    width: 106px;
+    font-size: 15px;
+  }
+  .closed-day:hover{
+    color:#838080 !important;
+    border-color: #838080;
+  }
+</style>
 {% endblock %}

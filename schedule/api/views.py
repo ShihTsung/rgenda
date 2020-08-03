@@ -1,19 +1,29 @@
+# django
 from django.shortcuts import render
+
+# restframework
 from rest_framework import viewsets, generics, permissions, status
-from .serializers import *
-from account.models import CustomUser, Department, Liscense
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, parser_classes
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.parsers import JSONParser
+
+# others
 from datetime import datetime, timedelta
+from .check import *
+from .serializers import *
+
+# models
+from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from date.models import Oneday
 from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -28,7 +38,7 @@ class IsOwnerOrReadOnly(BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return obj.user == request.user or user.is_staff
+        return obj.user == request.user or obj.user.is_staff
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -78,6 +88,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
+            mode = self.request.query_params.get('mode', None)
+            if mode == 'resource':
+                return GetResourceUserSerializer
             return GetCustomUserSerializer
         return CustomUserSerializer
 
@@ -92,9 +105,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         mode = self.request.query_params.get('mode', None)
         dep = self.request.query_params.get('department', None)
-        if dep:
-            target = Department.objects.get(id=dep)
-            return queryset.filter(department=target)
+
         if mode == 'onlyUser':
             return queryset.filter(is_staff=False)
         if mode == 'resource':
@@ -104,7 +115,10 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                     department=user.department,
                     can_be_scheduled=True)
             if user.role == 'admin' or user.is_superuser:
-                return queryset(can_be_scheduled=True)
+                return queryset.filter(can_be_scheduled=True)
+        if dep is not None:
+            target = Department.objects.get(id=dep)
+            return queryset.filter(department=target)
         return queryset
 
     @swagger_auto_schema(
@@ -236,8 +250,13 @@ class ResultViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
+            mode = self.request.query_params.get('mode', None)
             if not end:
                 end = start
+            if mode == 'personal':
+                return Result.objects.filter(
+                    date__range=[start[:10], end[:10]],
+                    user=self.request.user)
             return Result.objects.filter(date__range=[start[:10], end[:10]])
         return Result.objects.all()
 
@@ -398,3 +417,31 @@ class LiscenseViewSet(viewsets.ModelViewSet):
 
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+
+# class CheckResultView(APIView):
+#     """
+#     檢查排班結果
+#     * Requires token authentication.
+#     * Only admin users are able to access this view.
+#     """
+#     authentication_classes = [authentication.TokenAuthentication]
+#     permission_classes = [permissions.IsAdminUser]
+
+#     def get(self, request, format=None):
+#         """
+#         Return a list of all users.
+#         """
+#         usernames = [user.username for user in User.objects.all()]
+#         return Response(usernames)
+
+
+@api_view(['GET', 'POST'])
+@parser_classes([JSONParser])
+def check_result_api(request):
+    if request.query_params:
+        department = request.query_params.get('department')
+        month = request.query_params.get('month')
+
+        test = check_result(department, int(month))
+        print(test)
+    return Response({"message": "Hello, world!"})

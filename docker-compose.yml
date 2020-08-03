@@ -35,6 +35,7 @@ services:
       - |
         python3 manage.py crontab add
         python3 manage.py collectstatic --noinput
+        django-admin compilemessages
         python3 manage.py makemigrations
         python3 manage.py migrate
         uwsgi --ini /code/schedule/uwsgi_conf.ini

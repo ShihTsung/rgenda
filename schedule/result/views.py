@@ -374,7 +374,9 @@ def exchange_application_list(request):
         'complete': complete,
         'form': form,
     }
-    return render(request, 'results/exchange_application_list.html', context=context)
+    return render(request,
+                  'results/exchange_application_list.html',
+                  context=context)
 
 
 @login_required
