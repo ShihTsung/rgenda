@@ -9,7 +9,7 @@ from datetime import time, datetime, timedelta, date
 from collections import defaultdict
 from date.views import red_list
 from .forms import TimeAdjustmentCreateForm, TimeAdjustmentSearchForm, ExchangeApplicationCreateForm, ExchangeApplicationRefuseForm
-from date.models import Oneday
+from date.models import H_Calendar
 from demand.views import get_demands
 from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave
 import json
@@ -241,14 +241,14 @@ def check_rest_day(department, results, invalid):
         if ind % (5 * 2 ** department.law_rule) == 0:
             work_days_limit = 5 * 2 ** department.law_rule
             work_days = 0
-        if Oneday.objects.filter(date=result.date)[0].attribute == 'holiday':
+        if H_Calendar.objects.filter(date=result.date)[0].attribute == 'holiday':
             work_days_limit -= 1
         if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
             continue_workday += 1
             work_days += 1
         else:
             continue_workday = 0
-            if Oneday.objects.filter(date=result.date)[0].attribute in ['weekend', 'holiday']:
+            if H_Calendar.objects.filter(date=result.date)[0].attribute in ['weekend', 'holiday']:
                 holiday_rest_remain -= 1
         if continue_workday > 6 and result in results:
             invalid[result.id].append('continue working over 6 days')

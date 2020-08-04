@@ -15,12 +15,13 @@ from rest_framework.parsers import JSONParser
 from datetime import datetime, timedelta
 from .check import *
 from .serializers import *
+from notifications.models import Notification
 
 # models
 from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
-from date.models import Oneday
+from date.models import H_Calendar
 from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
@@ -65,7 +66,7 @@ CustomUserViewSet     |帳號 api
 DepartmentViewSet     |部門 api
 ShiftViewSet          |班別 api
 StationViewSet        |工站 api
-OnedayViewSet         |日期 api
+HCalendarViewSet      |日期 api
 ResultViewSet         |已發布排班結果 api
 PreResultViewSet      |未發布排班結果 api
 AfterResultViewSet    |已執行排班結果 api
@@ -216,14 +217,14 @@ class StationViewSet(viewsets.ModelViewSet):
         return StationSerializer
 
 
-class OnedayViewSet(viewsets.ModelViewSet):
-    serializer_class = OnedaySerializer
-    queryset = Oneday.objects.all()
+class HCalendarViewSet(viewsets.ModelViewSet):
+    serializer_class = HCalendarSerializer
+    queryset = H_Calendar.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return GetOnedaySerializer
-        return OnedaySerializer
+            return GetHCalendarSerializer
+        return HCalendarSerializer
 
     def get_queryset(self):
         if self.request.query_params:
@@ -231,9 +232,9 @@ class OnedayViewSet(viewsets.ModelViewSet):
             end = self.request.query_params.get('end')
             if not end:
                 end = start
-            return Oneday.objects.filter(date__range=[start[:10], end[:10]])
+            return H_Calendar.objects.filter(date__range=[start[:10], end[:10]])
         else:
-            return Oneday.objects.all()
+            return H_Calendar.objects.all()
 
 
 class ResultViewSet(viewsets.ModelViewSet):
@@ -438,10 +439,19 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 @api_view(['GET', 'POST'])
 @parser_classes([JSONParser])
 def check_result_api(request):
+    res_data = {}
     if request.query_params:
         department = request.query_params.get('department')
         month = request.query_params.get('month')
 
         test = check_result(department, int(month))
-        print(test)
-    return Response({"message": "Hello, world!"})
+
+        res_data = dict(test[0])
+        res_data['message'] = "Hello, world!"
+    return Response(res_data)
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = (permissions.IsAuthenticated,)

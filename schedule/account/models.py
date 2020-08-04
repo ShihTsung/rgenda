@@ -121,6 +121,11 @@ class CustomUser(AbstractUser):
         choices=LEVEL_CHOICES,
         null=True)
 
+    is_senior = models.BooleanField(
+        verbose_name=_('IsSenior'),
+        null=True
+    )
+
     role = models.CharField(
         max_length=100,
         verbose_name=_('Role'),

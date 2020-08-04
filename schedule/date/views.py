@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Oneday
+from .models import H_Calendar
 
 
 @login_required
@@ -17,7 +17,7 @@ def attr_list(start, end):
     :param end: 結束日期
     :return:
     """
-    days = Oneday.objects.filter(date__gte=start, date__lte=end).order_by('date')
+    days = H_Calendar.objects.filter(date__gte=start, date__lte=end).order_by('date')
     return [day.attribute for day in days]
 
 
@@ -28,5 +28,5 @@ def red_list(start, end):
     :param end: 結束日期
     :return:
     """
-    days = Oneday.objects.filter(date__gte=start, date__lte=end).order_by('date')
+    days = H_Calendar.objects.filter(date__gte=start, date__lte=end).order_by('date')
     return [day.red_day for day in days]

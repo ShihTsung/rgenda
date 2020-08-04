@@ -1,10 +1,11 @@
+from notifications.models import Notification
 from rest_framework import serializers
 from rest_framework.decorators import action
 from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation
-from date.models import Oneday
+from date.models import H_Calendar
 from result.models import (Result, PreResult,
                            AfterResult, TimeAdjustment,
                            ExchangeApplication)
@@ -27,7 +28,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'gender', 'role', 'type_of_user', 'can_be_scheduled',
+            'is_senior', 'gender', 'role', 'type_of_user', 'can_be_scheduled',
             'holiday_rest_num', 'special_rest_num', 'hour_required',
             'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
@@ -43,7 +44,7 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'gender', 'role', 'is_superuser', 'type_of_user',
+            'is_senior', 'gender', 'role', 'is_superuser', 'type_of_user',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
@@ -71,7 +72,8 @@ class GetResourceUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'department', 'can_be_scheduled',
-            'full_name', 'shift_num', 'special_rest', 'overtime', 'diff'
+            'is_senior', 'full_name', 'shift_num', 'special_rest',
+            'overtime', 'diff'
         )
 
 # 工作站Get
@@ -132,7 +134,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 # 日期Get
 
 
-class GetOnedaySerializer(serializers.ModelSerializer):
+class GetHCalendarSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     start = serializers.CharField(source="date")
     id = serializers.CharField()
@@ -141,7 +143,7 @@ class GetOnedaySerializer(serializers.ModelSerializer):
     className = serializers.SerializerMethodField()
 
     class Meta:
-        model = Oneday
+        model = H_Calendar
         fields = ('id', 'title', 'start', 'color',
                   'className', 'extendedProps', 'red_day')
         read_only_fields = ("id",)
@@ -174,9 +176,9 @@ class GetOnedaySerializer(serializers.ModelSerializer):
 # 日期
 
 
-class OnedaySerializer(serializers.ModelSerializer):
+class HCalendarSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Oneday
+        model = H_Calendar
         fields = ('id',  'date', 'attribute', 'locked', 'red_day')
         read_only_fields = ("id",)
 
@@ -257,7 +259,8 @@ class GetReservationSerializer(serializers.ModelSerializer):
 class DemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'workday', 'holiday', 'station')
+        fields = ('id', 'shift', 'level', 'config1', 'config2',
+                  'station', 'is_senior')
 
 
 class GetDemandSerializer(serializers.ModelSerializer):
@@ -266,7 +269,8 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'workday', 'holiday', 'station')
+        fields = ('id', 'shift', 'level', 'config1', 'config2',
+                  'station', 'is_senior')
 
 # 保證假/班 Get
 
@@ -306,4 +310,32 @@ class ExchangeApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExchangeApplication
+        fields = '__all__'
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """
+        FIELDS_INCLUDED
+
+        id :                        INT
+        level:                      VARCHAR
+        unread:                     TINYINT
+        actor_object_id:            VARCHAR
+        verb:                       VARCHAR
+        description:                LONGTEXT
+        target_object_id:           VARCHAR
+        action_object_object_id:    INT
+        timestamp:                  DATETIME
+        public:                     TINYINT
+        deleted:                    TINYINT
+        emailed:                    TINYINT
+        data:                       LONGTEXT
+        recipient_id:               INT
+        actor_content_type:         INT
+        target_content_type:        INT
+        action_object_content_type: INT
+    """
+
+    class Meta:
+        model = Notification
         fields = '__all__'

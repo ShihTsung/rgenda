@@ -270,10 +270,10 @@ var ctx = document.getElementById('chart3').getContext('2d');
         start:"{{start}}",
         end: "{{end}}"
       },
-      validRange: {
-        start: "{{start}}",
-        end: "{{end}}"
-      },
+      // validRange: {
+      //   start: "{{start}}",
+      //   end: "{{end}}"
+      // },
       resourceAreaWidth: "15rem",
       defaultView: 'resourceTimelineWeek',
       defaultDate: "{{default}}",
@@ -281,7 +281,7 @@ var ctx = document.getElementById('chart3').getContext('2d');
       slotLabelFormat: [
           {weekday: 'short', day:'numeric'},
       ],
-      resourceLabelText: '員工列表',
+      resourceLabelText: '工作站列表',
       resources: function(fetchInfo, successCallback, failureCallback) {
         fetch('/api/stations/?mode=resource/')
         .then(res=>{
@@ -301,7 +301,7 @@ var ctx = document.getElementById('chart3').getContext('2d');
         }else{
           $(info.el).tooltip({
             html:true, 
-            title: '<h3>'+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
+            title: prop.shift.start_time+"~"+prop.shift.end_time,
           });
         }
         
