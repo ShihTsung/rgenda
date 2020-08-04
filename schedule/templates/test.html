@@ -10,9 +10,11 @@
     {% endfor %}
 </body>
 <script>
+    let demands = {{ demands | safe }};
+    console.log(demands);
     let shift_type_proportion = {{ shift_type_proportion | safe }};
     console.log(shift_type_proportion);
-    let continue_dict = {{ continue_dict | safe }};
-    console.log(continue_dict);
+    let results = {{ results | safe }};
+    console.log(results);
 </script>
 </html>

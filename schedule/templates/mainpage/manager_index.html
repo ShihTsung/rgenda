@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 <div class="container">
     <div class="dash">
-       <div class="card">
+      <div class="card" style="margin-left: 50px;">
         <div class="card-header text-center"> 
           <button class="btn" id="toggle-btn">
             <i class="fa fa-bars"></i>
@@ -33,9 +33,9 @@
           
         </div>
 
-        </div>
+      </div>
        
-       <div class="card">
+      <div class="card" style="margin-right: 50px;">
         <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
         <div class="card-body DashCollapse" >
           <div class="left">
@@ -50,26 +50,26 @@
             </canvas>
           </div>
         </div>
-       </div>
+      </div>
 
-       <div class="card">
+      <!-- <div class="card">
         <div class="card-header text-center">兼職人力出勤分析<span class="unit">單位：時</span></div>
-        <div class="card-body DashCollapse" >
-          <div class="left">
-            <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">on call</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
-          </div>
-          <div class="right">
-            <canvas  id='chart3'>
-            </canvas>
+          <div class="card-body DashCollapse" >
+            <div class="left">
+              <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
+              <div class='data'><div class="label">on call</div><div class="nums">1</div></div>
+              <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
+              <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
+              <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
+            </div>
+            <div class="right">
+              <canvas  id='chart3'>
+              </canvas>
+            </div>
           </div>
         </div>
-       </div>
+      </div> -->
     </div>
-     
     <div id="calendar"></div>
 </div> <!-- end container -->
 <!-- chart.js CDN -->
@@ -191,56 +191,56 @@ var ctx = document.getElementById('chart2').getContext('2d');
 });
 
 // 第三個圖
-var ctx = document.getElementById('chart3').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'horizontalBar',
-    data: {
-        labels: ['排班', '出勤', '公假', '自假'],
-        datasets: [{
-            barThickness: 30,
-            data: [12, 7, 5, 5],
-            backgroundColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A',
-            ],
-            borderColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A',
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                },
-                gridLines: {
-                    offsetGridLines: false,
-                    display: false
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    beginAtZero: true
-                },
-                gridLines: {
-                offsetGridLines: false,
-              }
-            }]
-        },
-        legend:{
-          display: false,
-        },
-        aspectRatio: 1.6,
-        maintainAspectRatio: false
-    }
-});
+// var ctx = document.getElementById('chart3').getContext('2d');
+//   var myChart = new Chart(ctx, {
+//     type: 'horizontalBar',
+//     data: {
+//         labels: ['排班', '出勤', '公假', '自假'],
+//         datasets: [{
+//             barThickness: 30,
+//             data: [12, 7, 5, 5],
+//             backgroundColor: [
+//               '#37419A',
+//               '#37419A',
+//               '#37419A',
+//               '#37419A',
+//             ],
+//             borderColor: [
+//               '#37419A',
+//               '#37419A',
+//               '#37419A',
+//               '#37419A',
+//             ],
+//             borderWidth: 1
+//         }]
+//     },
+//     options: {
+//         scales: {
+//             yAxes: [{
+//                 ticks: {
+//                     beginAtZero: true
+//                 },
+//                 gridLines: {
+//                     offsetGridLines: false,
+//                     display: false
+//                 }
+//             }],
+//             xAxes: [{
+//                 ticks: {
+//                     beginAtZero: true
+//                 },
+//                 gridLines: {
+//                 offsetGridLines: false,
+//               }
+//             }]
+//         },
+//         legend:{
+//           display: false,
+//         },
+//         aspectRatio: 1.6,
+//         maintainAspectRatio: false
+//     }
+// });
 
 // calendar
     var Calendar = FullCalendar.Calendar;
@@ -259,7 +259,7 @@ var ctx = document.getElementById('chart3').getContext('2d');
       header: {
         left: 'prev,next, custom2',
         center: 'title',
-        right: "resourceTimelineWeek,resourceTimelineMonth"
+        right: ""
       },
       columnHeaderFormat: {
         weekday: 'short',
@@ -295,15 +295,171 @@ var ctx = document.getElementById('chart3').getContext('2d');
         });
       },
       eventRender: function(info) {
-        let prop = info.event.extendedProps
+        let prop = info.event.extendedProps;
+        
         if (prop.shift.shift_type=="休假"){
-          info.event.remove()
+          info.event.remove();
+        }else if(prop.shift.shift_type=="公假"){
+          info.event.remove();
         }else{
           $(info.el).tooltip({
             html:true, 
             title: prop.shift.start_time+"~"+prop.shift.end_time,
           });
+        };
+
+        info.el.innerHTML = "";
+        switch(prop.user.level) {
+          case 1:
+            switch(prop.shift.shift_type){
+              case "白班":
+                info.el.classList.add("day-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level1'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "小夜":
+                info.el.classList.add("night-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level1'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "大夜":
+                info.el.classList.add("graveyard-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level1'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "onCall":
+                info.el.classList.add("on-call-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level1'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+            };
+            break;
+          case 2:
+            switch(prop.shift.shift_type){
+              case "白班":
+                info.el.classList.add("day-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level2'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "小夜":
+                info.el.classList.add("night-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level2'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "大夜":
+                info.el.classList.add("graveyard-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level2'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "onCall":
+                info.el.classList.add("on-call-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level2'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+            };
+            break;
+          case 3:
+            switch(prop.shift.shift_type){
+              case "白班":
+                info.el.classList.add("day-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level3'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "小夜":
+                info.el.classList.add("night-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level3'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "大夜":
+                info.el.classList.add("graveyard-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level3'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "onCall":
+                info.el.classList.add("on-call-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level3'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+            };
+            break;
+          case 4:
+            switch(prop.shift.shift_type){
+              case "白班":
+                info.el.classList.add("day-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level4'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "小夜":
+                info.el.classList.add("night-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level4'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "大夜":
+                info.el.classList.add("graveyard-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level4'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+              case "onCall":
+                info.el.classList.add("on-call-shift");
+                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
+                + "<div class='user-wrapper'>"
+                + "<span class='level-group level4'></span>"
+                + "<span class='username'>" + prop.user.full_name + "</span>"
+                + "</div>";
+                break;
+            };
+            break;
+          default:
+            info.el.innerHTML += "<span class='level-group err'></span>"
+            + "<span class='username'>" + prop.user.full_name + "</span>";
+            break;
         }
+        
         
       },
       eventDestroy:function(info){
@@ -362,12 +518,12 @@ var ctx = document.getElementById('chart3').getContext('2d');
     }
 
     .dash{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    margin-bottom: 2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      margin-bottom: 2rem;
     }
 
     .DashCollapse{
@@ -378,27 +534,29 @@ var ctx = document.getElementById('chart3').getContext('2d');
     }
 
     .card{
-      width: 32%;
+      width: 40%;
+      float: left;
     }
     .card-header{
       font-size: 1.6rem;
     }
 
-    .card-header>.btn{
+    .card-header .btn{
       margin: 0;
       float:left;
     }
 
-    .calendar{
-    width: 100%;
-    height: 50%;
+    #calendar{
+      width: 100%;
+      height: 100%;
+      
     }
     
     .content{
-    width: 100%;
-    height: 30rem;
-    display: flex;
-    justify-content: space-around;
+      width: 100%;
+      height: 30rem;
+      display: flex;
+      justify-content: space-around;
     }
     
     .right{
@@ -432,6 +590,69 @@ var ctx = document.getElementById('chart3').getContext('2d');
     }
     .card-header .fa-bars::before{
       color: #666;
+    }
+    .user-wrapper {
+      width: 75px;
+      height: 30px;
+      background: white;
+      border-radius: 5px;
+      margin-left: 3px;
+      margin-top: 1px;
+    }
+    .level-group {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin: 10px 5px 0px 5px;
+    }
+    .level1 {
+      background: #eaeaea;
+    }
+    .level2 {
+      background: #A6C2CE;
+    }
+    .level3 {
+      background: #84B1ED;
+    }
+    .level4 {
+      background: #37419A;
+    }
+    .day-shift {
+      background: #EBC57C;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 2px;
+      line-height: 31px;
+    }
+    .night-shift {
+      background: #84B1ED;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 2px;
+      line-height: 31px;
+    }
+    .graveyard-shift {
+      background: #6B799E;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 2px;
+      line-height: 31px;
+    }
+    .on-call-shift {
+      background: #9C8F96;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 2px;
+      line-height: 31px;
+    }
+    .shift-title {
+      color: white;
+      margin-top: 6px;
+      margin-left: 3px;
+    }
+    .username {
+      font-size: 15px;
     }
 </style>
 {% endblock %}
