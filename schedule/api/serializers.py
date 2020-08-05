@@ -247,6 +247,8 @@ class GetResultSerializer(serializers.ModelSerializer):
             return '補'
         elif obj.shift.shift_type == '病假':
             return '病'
+        elif obj.shift.shift_type == '公假':
+            return '公'
         else:
             return ''
 
