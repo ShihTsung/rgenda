@@ -36,8 +36,8 @@ def initial(request):
 
 # departments
     print('create departments')
-    names = ['休息', '例假', '公假', 'onCall']
-    types = ['休假', '休假', '公假', 'onCall']
+    names = ['休息', '例假', '公假', 'oncall']
+    types = ['休息', '例假', '公假', 'oncall']
     hours = [0, 0, 8, 0]
     department = Department.objects.create(name='D1', detail='健檢診所')
     for i in range(4):
