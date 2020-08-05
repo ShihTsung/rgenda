@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from station.models import Station
 from shift.models import Shift
+from account.models import CustomUser
 
 # Create your models here.
 """
@@ -15,8 +16,20 @@ class DemandOfStation(models.Model):
     station = models.ForeignKey(Station, verbose_name=_('Station'),
                                 on_delete=models.CASCADE, null=True)
     level = models.IntegerField(verbose_name=_('Level'), default=1, null=True)
-    workday = models.IntegerField(verbose_name=_('WorkdayDemand'), default=0)
-    holiday = models.IntegerField(verbose_name=_('HolidayDemand'), default=0)
+    config1 = models.IntegerField(verbose_name=_('Config1'), default=0)
+    config2 = models.IntegerField(verbose_name=_('Config2'), default=0)
+    is_senior = models.BooleanField(verbose_name=_('IsSenior'), default=False)
 
     def __str__(self):
         return self.shift.name + '-' + self.station.name
+
+
+class DemandUserTable(models.Model):
+    demand = models.ForeignKey(
+        DemandOfStation, verbose_name=_('DemandOfStation'),
+        on_delete=models.CASCADE, null=True
+            )
+    user = models.ForeignKey(
+        CustomUser, verbose_name=_('User'),
+        on_delete=models.CASCADE, null=True
+    )

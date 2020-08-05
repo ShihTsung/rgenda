@@ -52,8 +52,9 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         help_texts = {}
         fields = ['username', 'email', 'password1', 'password2', 'full_name',
-                  'department', 'level', 'gender', 'role', 'type_of_user',
-                  'can_be_scheduled', 'eid', 'onboard_date']
+                  'department', 'level', 'is_senior', 'gender', 'role',
+                  'type_of_user', 'can_be_scheduled', 'eid',
+                  'onboard_date', 'is_senior']
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
@@ -71,6 +72,8 @@ class CustomUserChangeForm(UserChangeForm):
 
     level = forms.IntegerField(label=_('Level'), widget=forms.widgets.Select(
         choices=LEVEL_CHOICES))
+
+    is_senior = forms.BooleanField(label=_('IsSenior'))
 
     full_name = forms.CharField(
         max_length=100,
@@ -142,7 +145,7 @@ class CustomUserChangeForm(UserChangeForm):
                                              })
         }
         fields = ('username', 'full_name', 'email', 'department',
-                  'level', 'gender', 'role', 'type_of_user',
+                  'level', 'is_senior', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
                   'special_rest_num', 'hour_required',
                   'hour_realized', 'eid', 'onboard_date')

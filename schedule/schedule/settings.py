@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'reservation',
     'notifications',
     'notice',
-    'drf_yasg'
+    'drf_yasg',
+    'django_mysql',
 ]
 
 

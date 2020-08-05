@@ -1,9 +1,10 @@
+from date.models import H_Calendar
 from account.models import CustomUser as User
 from account.models import Department
 from scripts.get_date_range import *
 from datetime import time, datetime, timedelta, date
 from collections import defaultdict
-from date.models import Oneday
+from date.models import H_Calendar
 from result.models import Result
 from account.views import cycle_analysis, get_cycle, assign_user
 
@@ -16,20 +17,20 @@ def check_result(d_id, month_to_check=None):
     if month_to_check:
         results = Result.objects.filter(
             date__month=month_to_check).order_by('date')
-        print(results)
     else:
         results = Result.objects.order_by('date')
         month_to_check = results[0].date.month
     to_check = defaultdict(list)
     for result in results:
+        # print('check_result', type(result))
         to_check[result.user.id].append(result)
     department = Department.objects.get(id=d_id)
-    for user_id, results in to_check.items():
-        check_cycle(department, results, invalid)
-        check_rest_day(department, results, invalid)
-        check_rest_hour(results, invalid)
+    for user_id, schedule in to_check.items():
+        check_cycle(department, schedule, invalid)
+        check_rest_day(department, schedule, invalid)
+        check_rest_hour(schedule, invalid)
         if User.objects.get(id=user_id).pregnant:
-            check_hour_pregnant(results, invalid)
+            check_hour_pregnant(schedule, invalid)
     return invalid,
 
 
@@ -43,25 +44,29 @@ def check_cycle(department, results, invalid):
     """
     date0 = results[0].date
     user = results[0].user
+    results = [x for x in results]
+
     # 單週同班種
     if department.schedule_rule == 0:
-        temp_results = results.copy()
+        # temp_results = results.copy()
+        temp_results = [result for result in results]
         ca = cycle_analysis(department, date0)
         current_shift_type = None
         for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
             if d < date0:
                 temp_results.insert(
-                    i, Result.objects.filter(date=d, user=user))
+                    i, Result.objects.get(date=d, user=user))
             else:
                 break
-        for i, result in enumerate(list(temp_results)):
-            print(type(result))
+        i = 0
+        for result in temp_results:
             if i % 7 == 0:
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
                 current_shift_type = result.shift.shift_type
             elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type and result in results:
                 invalid[result.id].append('unique shift type in a week')
+            i += 1
         return None
     # 單月/三月同班種
     current_shift_type = None
@@ -99,16 +104,18 @@ def check_rest_day(department, results, invalid):
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
     ca = cycle_analysis(department, date0)
-    temp_results = results.copy()
+    temp_results = [x for x in results]
     # add previous results to make a complete cycle
     for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
         if d < date0:
-            temp_results.insert(i, Result.objects.filter(date=d, user=user))
+            temp_results.insert(i, Result.objects.get(
+                date=d, user=user))
         else:
             break
     # get continue workday number
-    last_week_results = Result.objects.filter(date__in=[date0 - timedelta(days=i) for i in range(1, 8)],
-                                              user=user).order_by('date')
+    last_week_results = Result.objects.filter(
+        date__in=[date0 - timedelta(days=i) for i in range(1, 8)],
+        user=user).order_by('date')
     continue_workday = 0
     for result in last_week_results:
         if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
@@ -122,14 +129,14 @@ def check_rest_day(department, results, invalid):
         if ind % (5 * 2 ** department.law_rule) == 0:
             work_days_limit = 5 * 2 ** department.law_rule
             work_days = 0
-        if Oneday.objects.filter(date=result.date)[0].attribute == 'holiday':
+        if H_Calendar.objects.filter(date=result.date).first().attribute == 'holiday':
             work_days_limit -= 1
         if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
             continue_workday += 1
             work_days += 1
         else:
             continue_workday = 0
-            if Oneday.objects.filter(date=result.date)[0].attribute in ['weekend', 'holiday']:
+            if H_Calendar.objects.filter(date=result.date).first().attribute in ['weekend', 'holiday']:
                 holiday_rest_remain -= 1
         if continue_workday > 6 and result in results:
             invalid[result.id].append('continue working over 6 days')
@@ -147,7 +154,7 @@ def check_rest_hour(results, invalid):
     :param invalid:
     :return:
     """
-    last_result = Result.objects.filter(
+    last_result = Result.objects.get(
         user=results[0].user, date=results[0].date - timedelta(days=1))
     last_off_time = datetime.combine(
         last_result.date, time(hour=0, minute=0, second=0))

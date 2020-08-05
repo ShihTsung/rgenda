@@ -1,9 +1,9 @@
 # models
 from datetime import timedelta
-from shift.models import *
+from shift.models import Shift
 from result.models import *
-from demand.models import *
-from date.models import *
+from demand.models import DemandOfStation
+from date.models import H_Calendar
 from reservation.models import *
 from station.models import *
 from account.models import CustomUser, Department
@@ -87,7 +87,7 @@ def get_dates(department):
 
     new_start = last_day + timedelta(days=1)
 
-    days = Oneday.objects.filter(
+    days = H_Calendar.objects.filter(
         date__range=(new_start,
                      new_start+timedelta(days=41))
     )

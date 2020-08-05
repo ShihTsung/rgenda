@@ -17,7 +17,7 @@ def initial(request):
     django.setup()
     from account.models import CustomUser as User
     from account.models import Department
-    from date.models import Oneday
+    from date.models import H_Calendar
     from station.models import Station
     from shift.models import Shift
     from demand.models import DemandOfStation
@@ -28,7 +28,7 @@ def initial(request):
     User.objects.all().delete()
     Station.objects.all().delete()
     Shift.objects.all().delete()
-    Oneday.objects.all().delete()
+    H_Calendar.objects.all().delete()
     Result.objects.all().delete()
     PreResult.objects.all().delete()
     AfterResult.objects.all().delete()
@@ -212,6 +212,7 @@ def initial(request):
         user.role = 'user'
         user.full_name = names[i]
         user.level = 1
+        user.is_senior = False
         user.gender = 'female'
         user.holiday_rest_num = 40
         user.special_rest_num = 10
@@ -235,9 +236,8 @@ def initial(request):
         else:
             work_or_holiday = "workday"
             redday = False
-        newday = Oneday.objects.create(date=daystmp,
-                                       attribute=work_or_holiday,
-                                       red_day=redday)
+        newday = H_Calendar.objects.create(date=daystmp,
+                                           red_day=redday)
         newday.save()
         daystmp += datetime.timedelta(days=1)
 
@@ -263,13 +263,14 @@ def initial(request):
     for i in range(15):
         shifts = ['B1', 'B10', 'B15', 'B2', 'B3', 'B31', 'B4', 'B6', 'B8']
         pick_shift = random.choice(shifts)
-        for j in range(4):
+        for j in range(2):
             DemandOfStation.objects.create(
                 shift=Shift.objects.get(name=pick_shift),
                 station=Station.objects.get(name=stations[i]),
                 level=j+1,
-                workday=workday[i] if j == 0 else 0,
-                holiday=holiday[i] if j == 0 else 0
+                is_senior=True if j == 0 else False, 
+                config1=workday[i] if j == 0 else 0,
+                config2=holiday[i] if j == 0 else 0
             )
     # 班表假資料
     department = Department.objects.first()
@@ -277,7 +278,7 @@ def initial(request):
                                      department=department))
     start = datetime.date(2020, 6, 1).strftime('%Y-%m-%d')
     end = datetime.date(2020, 7, 31).strftime('%Y-%m-%d')
-    dates = list(Oneday.objects.filter(date__range=[start, end]))
+    dates = list(H_Calendar.objects.filter(date__range=[start, end]))
     shifts = list(Shift.objects.filter(department=department))
     stations = list(Station.objects.filter(department=department))
 

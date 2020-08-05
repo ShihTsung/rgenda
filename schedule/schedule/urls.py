@@ -60,7 +60,8 @@ urlpatterns = [
     re_path(r'^redoc/$',
             schema_view.with_ui('redoc',
                                 cache_timeout=0), name='schema-redoc')
-] + i18n_patterns(
+]
+urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('mainpage.urls')),
     path('accounts/', include('account.urls')),
