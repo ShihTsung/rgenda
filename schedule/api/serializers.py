@@ -177,6 +177,8 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
 
 
 class HCalendarSerializer(serializers.ModelSerializer):
+    attribute = serializers.JSONField()
+
     class Meta:
         model = H_Calendar
         fields = ('id',  'date', 'attribute', 'locked', 'red_day')
@@ -197,6 +199,7 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+
 
 # 排班結果3
 
@@ -221,10 +224,36 @@ class GetResultSerializer(serializers.ModelSerializer):
     user = GetCustomUserSerializer()
     shift = GetShiftSerializer()
     station = StationSerializer()
+    shift_type = serializers.SerializerMethodField()
+
+    def get_shift_type(self, obj):
+        if obj.shift.shift_type == '白班':
+            return 'A'
+        elif obj.shift.shift_type == '小夜':
+            return 'E'
+        elif obj.shift.shift_type == '大夜':
+            return 'N'
+        elif obj.shift.shift_type == '休息':
+            return '休'
+        elif obj.shift.shift_type == '例假':
+            return '例'
+        elif obj.shift.shift_type == 'oncall':
+            return 'On'
+        elif obj.shift.shift_type == '空班':
+            return '空'
+        elif obj.shift.shift_type == '特休':
+            return '特'
+        elif obj.shift.shift_type == '補休':
+            return '補'
+        elif obj.shift.shift_type == '病假':
+            return '病'
+        else:
+            return ''
 
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station',
+                  'shift_type')
 
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
