@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-        
+
         {% load static %}
         {% load i18n %}
 <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
-    
+
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
+
+    <script src="{% static 'assets/common.bundle.js' %}" defer></script>
+
     {% block styles %}
     {% endblock %}
     <style>
@@ -39,7 +42,7 @@
             padding-bottom: 3rem;
         }
         .clicked{
-            background-color: #6b7991 !important; 
+            background-color: #6b7991 !important;
         }
 
         #page-content-wrapper {
@@ -51,7 +54,7 @@
         #sidebar-wrapper a{
             color:white;
             text-decoration: none;
-        }  
+        }
         #sidebar-wrapper .sidebar-heading {
             padding: 0.875rem 1.25rem;
             font-size: 2rem;
@@ -155,10 +158,10 @@
         svg{
             pointer-events: none;
         }
-        
+
     </style>
     {% block heads %}{% endblock %}
-       
+
 </head>
 
 <body>
@@ -166,7 +169,7 @@
             src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
-        
+
         <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
         <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
         <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
@@ -175,13 +178,13 @@
         <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
         <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
         <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
-        
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
-        
+
         <!-- custom filter module -->
         {% load i18n_switcher %}
     <main>
-        
+
         <div class="d-flex toggled" id="wrapper">
             <!-- Sidebar -->
             <div class="sidebar sidebar_w" id="sidebar-wrapper">
@@ -214,12 +217,12 @@
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
                             調班審核</a>
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
-                            調班申請</a>   
+                            調班申請</a>
                         <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
                             調班紀錄</a>
                     </div>
-                    
-                    
+
+
                     <div id="side-work-manage" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M6.914 2.741l15.557 15.556-4.243 4.243-15.556-15.557 4.242-4.242zm-.707-.707l-2.033-2.034-4.174 4.243 1.965 2.034 4.242-4.243zm12.821 21.119l4.972.847-.918-4.901-4.054 4.054zm-4.567-15.694l.389-.388.707.707.707-.707-.707-.707.707-.707.707.707.708-.708-.707-.706 2.121-2.121 2.121 2.121-4.631 4.631 1.393 1.393 6.024-6.024-4.908-4.95-6.045 6.045 1.414 1.414zm-4.949 9.193l-4.562 4.561-2.121-2.121.707-.708.707.707.707-.707-.707-.707.707-.707.707.707.707-.707-.707-.707.707-.707.707.707.707-.707-.707-.706.319-.319-1.415-1.415-5.975 5.976 4.95 4.908 5.955-5.955-1.393-1.393zm9.934-11.349c.195-.195.195-.512 0-.707s-.512-.195-.707 0-.195.512 0 .707.512.196.707 0z"/></svg>
                         出勤管理
@@ -290,27 +293,27 @@
                         {% endif %}
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-arrange-add" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
-                            工作站管理</a>  
+                            工作站管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
                             人力管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
                             班別管理</a>
-        
+
                         {% endif %}
-                        
+
                     </div>
 
-                    
-                    
-                    
+
+
+
               </div>
             </div>
             <!-- /#sidebar-wrapper -->
-            
+
 
             <!-- Page Content -->
             <div id="page-content-wrapper">
-        
+
                 {% include 'nav.html' %}
                 {% block content %}
                 {% endblock %}
@@ -318,9 +321,9 @@
             </div>
             <!-- /#page-content-wrapper -->
         </div>
-        
+
     </main>
-    
+
 
         {% block scripts %}
         {% endblock %}
@@ -347,14 +350,14 @@
                     $("#arra_fold").addClass("fold");
                     $("#arr_fold").addClass("fold");
                     $("#wm_fold").addClass("fold");
-                
+
                     if(nav_fold){
                         onav.style.left = '200px';
                         osidebar.style.transform = 'translateX(0px)';
                         oside_sh.style.visibility = 'hidden';
                         oside_sh.style.position = 'absolute';
                         owrapper.style.left = '230px';
-                        
+
                         for(var i = 0; i < olist_group.length; i++){
                             olist_group[i].style.visibility = 'visible';
                             olist_group[i].style.position = 'static';
@@ -413,15 +416,15 @@
                             break;
                     }
                 });
-    
+
                 $(".sidebar_w").click((e)=>{
                     $.cookie("sideClicked", e.target.id, { path: "/" });
-                    
+
                     $(".sidebar_w").removeClass("clicked");
                     if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"){
                         document.getElementById(e.target.id).classList.add("clicked");
                     }
-                    
+
                 });
                 let sideClicked = $.cookie("sideClicked");
 
@@ -472,12 +475,12 @@
                         }else{
                             $("#acc_fold").addClass("fold");
                         }
-                    }  
+                    }
                 })
             }
-            
+
         </script>
-        
+
 </body>
 
 </html>

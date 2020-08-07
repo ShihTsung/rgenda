@@ -1,0 +1,46 @@
+{
+  "name": "rgenda",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "scripts": {
+    "dev": "npm run development",
+    "development": "cross-env NODE_ENV=development webpack --progress --hide-modules --config webpack.dev.js",
+    "watch": "npm run development -- --watch",
+    "watch-poll": "npm run watch -- --watch-poll",
+    "prod": "npm run production",
+    "production": "cross-env NODE_ENV=production webpack --no-progress --hide-modules --config webpack.prod.js",
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "axios": "^0.19",
+    "babel-loader": "^8.1.0",
+    "bootstrap": "^4.0.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^7.0",
+    "css-loader": "^4.2.1",
+    "file-loader": "^6.0.0",
+    "html-webpack-plugin": "^4.3.0",
+    "jquery": "^3.2",
+    "lodash": "^4.17.13",
+    "mini-css-extract-plugin": "^0.9.0",
+    "popper.js": "^1.16.1",
+    "resolve-url-loader": "^2.3.1",
+    "sass": "^1.20.1",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.2.1",
+    "vue": "^2.5.17",
+    "vue-loader": "^15.9.3",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-merge": "^5.1.1"
+  },
+  "dependencies": {
+    "sweetalert2": "^9.17.1",
+    "vue-toasted": "^1.1.28"
+  }
+}
