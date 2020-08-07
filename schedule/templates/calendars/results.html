@@ -80,7 +80,6 @@
 </div> -->
 
 
-
   <div id='app'>
     <div class='master'>
       <div class='calendar'>
@@ -123,16 +122,79 @@
               </div>
           </div>
           <div class="c-body">
-            <div class="month_table" v-if="!month_week_bt">    
+            <div class="month_table" v-if="!month_week_bt">   
               <table class="days" width="100%" height="70" border="1" cellspacing="0" bordercolor="#bfbfbf">
-                <tr class="day-num title-row">
-                  <td rowspan='2' style='width: 5vw'></td>
-                  <td style='width: 1vw' v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">[[day]]</td>
-                  <td rowspan='2' style='width: 1vw; text-align: center;'>備註</td>
-                </tr>
-                <tr class="day-of-the-week title-row">
-                  <td v-for="wday in getYear(this.year, this.month)" :key="wday" class="day-grid">[[toWeekofDay(wday)]]</td>
-                </tr>
+                  <tr class="day-num title-row">
+                    <td rowspan='3'>員工編號</td>
+                    <td rowspan='3'>職級</td>
+                    <td rowspan='3'>姓名</td>
+                    <td rowspan='3'>前月排班</td>
+                    <td rowspan='2' v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid" :class="{todayMark: isToday(day)}">
+                      <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                        [[day]]
+                      </div>
+                    </td>
+                    <td rowspan='2' style='width: 1vw; text-align: center;'>備註</td>
+                    <td rowspan='2'>排班</td>
+                    <td colspan="4">出勤</td>
+                    <td colspan="4">不出勤</td>
+                    <td rowspan='2'>當月差額</td>
+                    <td rowspan='2'>剩餘補休</td>
+                    <td rowspan='2'>剩餘年假</td>
+                  </tr>
+                  <tr class="title-row">
+                    <td>總計</td>
+                    <td>加班</td>
+                    <td>減班</td>
+                    <td>公假</td>
+                    <td>總計</td>
+                    <td>例休國</td>
+                    <td>計薪請假</td>
+                    <td>扣薪請假</td>
+                  </tr>
+                  <tr class="day-of-the-week title-row">
+                    <td v-for="wday in getYear(this.year, this.month)" :key="wday" class="day-grid">[[toWeekofDay(wday)]]</td>
+                    <td></td>
+                    <td>時</td>
+                    <td>時</td>
+                    <td>時</td>
+                    <td>時</td>
+                    <td>天</td>
+                    <td>天</td>
+                    <td>天</td>
+                    <td>天</td>
+                    <td>天</td>
+                    <td>時</td>
+                    <td>時</td>
+                    <td>天</td>
+                  </tr>
+                
+                
+                  <!-- <tr class="user-row" v-for="u in userData" :key="u">
+                      <td class="futureDay">[[getUser(u.id).user.eid]]</td>
+                      <td class="futureDay">N[[getUser(u.id).user.level]]</td>
+                      <td class="user-first-col futureDay">[[u.full_name]]</td>
+                      <td class="pastDay">-</td>
+                      <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
+                        <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                          [[userShift.shift_type]]
+                        </div>
+                      </td>
+                      <td class="user-last-col futureDay">&nbsp;</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                  
+                  </tr> -->
                 
               </table>
             </div>
@@ -150,14 +212,37 @@
             </div> -->
             <div class="user-content">
               <table class="users" width="100%" height="35" border="1" cellspacing="0" bordercolor="#bfbfbf">
-                <tr class="user-row" v-for="u in userData" :key="u">
-                  <td class="user-first-col">[[u.full_name]]</td>
-                  <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift">[[userShift.shift.shift_type]]</td>
-                  <td class="user-last-col">&nbsp;</td>
-                </tr>
+                  <tr class="user-row" v-for="u in userData" :key="u">
+                      <td class="futureDay" style="width: 75px">[[getUser(u.id).user.eid]]</td>
+                      <td class="futureDay" style="width: 30px">N[[getUser(u.id).user.level]]</td>
+                      <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>
+                      <td class="pastDay" style="width: 45px">-</td>
+                      <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
+                        <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                          [[userShift.shift_type]]
+                        </div>
+                      </td>
+                      <td class="futureDay">-</td>
+                      <td>[[workhr(u.full_name, month, getYear(year, month), false)]]</td>
+                      <td>[[workhr(u.full_name, month, date, false)]]</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>[[workhr(u.full_name, month, date, true)]]</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                  
+                  </tr>
               </table>
             </div>
           </div>
+      </div>
+      <div class='changeShift' v-if="showEvent">
+        <svg class='cross' width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
       </div>
     </div>
   </div>
@@ -177,14 +262,15 @@
       date: new Date().getDate(),
       month_week_bt: false,
       userData: Object,
-      shiftData: Array
-      
+      shiftData: Array,
+      showEvent: false,
     },
     mounted(){
         fetch('/api/users/?mode=resource')
         .then(res=>{
           return res.json();
         }).then(data=>{
+          console.log(data);
           this.userData = data;
         }).catch(err=>{
           console.log(err);
@@ -195,6 +281,7 @@
         .then((res)=>{
           return res.json();
         }).then((data)=>{
+          console.log(data);
           this.shiftData = data;
         }).catch((err)=>{
           console.log(err);
@@ -224,6 +311,51 @@
       print(ev, u) {
         console.log(ev);
         console.log(u);
+        this.showEvent = !this.showEvent;
+      },
+      isToday(d) {
+        if(d === this.date) {
+          return true;
+        }else {
+          return false;
+        }
+      },
+      isPast(d) {
+        if(parseInt(d.date.split('-')[2]) < this.date){
+          return true;
+        }else {
+          return false;
+        }
+      },
+      getUser(u) {
+        return this.shiftData.find((item)=>{
+          if(item.user.id == u){
+            return item.user.eid;
+          }
+        });
+      },
+      workhr(u, m, today, bool) {
+        let total_hr = 0;
+        let pub_hr = 0;
+        let arr = this.shiftData.filter((userItem)=>{
+          if((userItem.user.full_name == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
+            return parseInt(userItem.date.split('-')[2]) <= today;
+          }
+        });
+        if(bool == "false") {
+          arr.forEach((i)=>{
+            total_hr += i.shift.work_hours;
+          });
+
+          return total_hr;
+        }else {
+          arr.forEach((i)=>{
+            if(i.shift_type == "公") {
+              pub_hr += i.shift.work_hours;
+            };
+          return pub_hr;
+        }
+        
       }
     },
       // getWeek(today) {
@@ -766,7 +898,9 @@
     .error-title{
       color: white;
     } */
-    
+    td {
+      text-align: center;
+    }
     .title {
         height: 70px;
         width: 85vw;
@@ -897,9 +1031,9 @@
         cursor: pointer;
     }
     .c-body{
-      /* background: green; */
       width: 85vw;
-      position: fixed;
+      /* position: fixed; */
+      position: absolute;
       top: 220px;
     }
     .day-grid{
@@ -914,7 +1048,7 @@
       background: #f2f2f2;
     }
     .todayMark {
-      border-top: 3px solid darkcyan;
+      border-top: 3px solid #37419A;
       box-sizing: border-box;
     }
     .user-content {
@@ -930,17 +1064,40 @@
       width: 20px;
     }
     .user-first-col {
-      width: 10.65vw;
+      width: 9.55vw;
       text-align: center;
       font-size: 1rem;
+      background: #f2f2f2;
     }
     .user-content-col {
       font-size: 0.7rem;
       text-align: center; 
+      width: 2.3vw;
     }
-    .user-last-col {
-      width: 1.5vw;
-      text-align: center;
+    .user-content-col:hover {
+      cursor: pointer;
+      background: rgba(185, 184, 184, 0.26);
     }
+    .pastDay {
+      background: #f2f2f2;
+    }
+    .futureDay {
+      background: white;
+    }
+    .changeShift {
+      width: 30vw;
+      height: 50vh;
+      background: pink;
+      position: absolute;
+      top: 15vh;
+      left: 25vw;
+      border-radius: 5px;
+    }
+    .cross:hover {
+      fill: rgb(126, 126, 126);
+      cursor: pointer;
+    }
+    
+    
 </style>
 {% endblock %}
