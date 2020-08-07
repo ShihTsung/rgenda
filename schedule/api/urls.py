@@ -17,6 +17,7 @@ router.register(r'demands', views.DemandViewSet)
 router.register(r'promises', views.PromiseShiftViewSet)
 router.register(r'liscenses', views.LiscenseViewSet)
 router.register(r'notifications', views.NotificationViewSet)
+router.register(r'time-ajustment', views.TimeAdjustmentViewSet)
 
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls',
                               namespace='rest_framework')),
     path('checkresult/', views.check_result_api),
+    path('total-per-day/', views.total_per_day_api),
 ]
