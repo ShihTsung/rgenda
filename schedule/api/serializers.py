@@ -141,11 +141,12 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
     extendedProps = serializers.SerializerMethodField()
     color = serializers.SerializerMethodField()
     className = serializers.SerializerMethodField()
+    attribute = serializers.JSONField()
 
     class Meta:
         model = H_Calendar
         fields = ('id', 'title', 'start', 'color',
-                  'className', 'extendedProps', 'red_day')
+                  'className', 'extendedProps', 'red_day', 'attribute')
         read_only_fields = ("id",)
 
     def get_title(self, obj):
@@ -233,20 +234,38 @@ class GetResultSerializer(serializers.ModelSerializer):
             return 'E'
         elif obj.shift.shift_type == '大夜':
             return 'N'
-        elif obj.shift.shift_type == '休息':
-            return '休'
-        elif obj.shift.shift_type == '例假':
-            return '例'
+        elif obj.shift.shift_type == '有薪假':
+            if obj.shift.name == "休息":
+                return '休'
+            if obj.shift.name == "例假":
+                return '例'
+            if obj.shift.name == "補休":
+                return "補"
+            if obj.shift.name == "特休":
+                return "特"
+            if obj.shift.name == "空班":
+                return "空"
+            if obj.shift.name == "公假":
+                return "公"
+            if obj.shift.name == "婚假":
+                return "婚"
+            if obj.shift.name == "喪假":
+                return "喪"
+            if obj.shift.name == "產假":
+                return "產"
+            if obj.shift.name == "生理假":
+                return "生"
+            if obj.shift.name == "國定假日":
+                return "國"
+        elif obj.shift.shift_type == '無薪假':
+            if obj.shift.name == "無薪病假":
+                return '病'
+            if obj.shift.name == "事假":
+                return '事'
+            if obj.shift.name == "家庭照顧假":
+                return '家'
         elif obj.shift.shift_type == 'oncall':
             return 'On'
-        elif obj.shift.shift_type == '空班':
-            return '空'
-        elif obj.shift.shift_type == '特休':
-            return '特'
-        elif obj.shift.shift_type == '補休':
-            return '補'
-        elif obj.shift.shift_type == '病假':
-            return '病'
         elif obj.shift.shift_type == '公假':
             return '公'
         else:
@@ -327,7 +346,7 @@ class TimeAdjustmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimeAdjustment
-        fields = ('id', 'hour', 'adjustment_type', 'remark')
+        fields = ('id', 'hours', 'adjustment_type', 'remark')
 
 
 class LiscenseSerializer(serializers.ModelSerializer):

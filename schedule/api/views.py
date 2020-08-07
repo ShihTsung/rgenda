@@ -311,6 +311,7 @@ class AfterResultViewSet(viewsets.ModelViewSet):
         return AfterResult.objects.all()
 
 
+# 預排假 api
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
@@ -358,6 +359,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return ReservationSerializer
 
 
+# 人力配置 api
 class DemandViewSet(viewsets.ModelViewSet):
     queryset = DemandOfStation.objects.all()
     serializer_class = DemandSerializer
@@ -368,6 +370,7 @@ class DemandViewSet(viewsets.ModelViewSet):
         return DemandSerializer
 
 
+# 保證班 api
 class PromiseShiftViewSet(viewsets.ModelViewSet):
     queryset = PromiseShift.objects.all()
     serializer_class = PromiseShiftSerializer
@@ -410,12 +413,14 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
             return PromiseShift.objects.all()
 
 
+# 證照管理 api
 class LiscenseViewSet(viewsets.ModelViewSet):
     queryset = Liscense.objects.all()
     serializer_class = LiscenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
+# 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
 
@@ -436,6 +441,11 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 #         return Response(usernames)
 
 
+# 排班檢查 api
+@swagger_auto_schema(
+    methods=['get', 'post'],
+    operation_summary='檢查排班結果，回傳有問題的班',
+)
 @api_view(['GET', 'POST'])
 @parser_classes([JSONParser])
 def check_result_api(request):
@@ -451,7 +461,42 @@ def check_result_api(request):
     return Response(res_data)
 
 
+# 通知的api
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+# 取得每天的白班，小夜，大夜總人數（總班表管理）
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='取得指定期間，每天三班的總人數',
+    manual_parameters=[start_date, end_date])
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def total_per_day_api(request):
+    results = {}
+    if request.query_params:
+        start = request.query_params.get('start')
+        end = request.query_params.get('end')
+
+        dates = H_Calendar.objects.filter(date__range=[start, end])
+        d = request.user.department
+        demands = DemandOfStation.objects.all()
+        for date in dates:
+            date_str = date.date.strftime('%Y-%m-%d')
+            results[date_str] = {'白班': 0, '小夜': 0, '大夜': 0}
+            config = 1
+            for demand in demands:
+                if demand.shift.department == d:
+                    s_type = demand.shift.shift_type
+                    if s_type in ['白班', '小夜', '大夜']:
+                        if config == 1:
+                            results[date_str][s_type] += demand.config1
+                        elif config == 2:
+                            results[date_str][s_type] += demand.config2
+                        else:
+                            results[date_str][s_type] = 0
+    return Response(results)

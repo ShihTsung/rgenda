@@ -22,6 +22,7 @@ class DemandCreationForm(forms.Form):
     )
     is_senior = forms.BooleanField(
         label=_('IsSenior'),
+        required=False
     )
 
 
