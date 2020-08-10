@@ -34,14 +34,12 @@
           <div class="form-grounp">
             <label for="day">類型</label>
             <select name="day" id="day" class="form-control">
-              <option value="workday">
+              <option value="" disabled selected hidden>平日/假日</option>
+              <option value=false>
                 平日
               </option>
-              <option value="holiday">
+              <option value=true>
                 假日
-              </option>
-              <option value="closed_day">
-                休診日
               </option>
             </select>
           </div>
@@ -73,12 +71,11 @@
         updateData = {
             'id': target,
             'date': date,
-            'attribute': WorkOrRest,
-            'locked': locked
+            'locked': locked,
+            'red_day': WorkOrRest
         }
-        // TODO: 修改PUT 內容
         fetch('/api/dates/' + target + '/', {
-          method: "PUT",
+          method: "PATCH",
           headers:{
             'X-CSRFToken': '{{ csrf_token }}',
             'content-type': 'application/json'
@@ -150,16 +147,22 @@
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
                     $('#myModal').modal('show');
-                    $('#day').val(info.event.title);
+                    let red = info.event.extendedProps.red_day;
+                    if (red){
+                      $("#day")[0].selectedIndex = 1
+                    }else{
+                      $("#day")[0].selectedIndex = 0
+                    }
                     $('#locked').prop('checked',info.event.extendedProps.locked);
                 },
                 eventRender: function(info) {
+                  info.el.innerHTML = "";
                   if (info.event.extendedProps.locked){
                     x = document.createElement('div');
                     x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
                     info.el.appendChild(x);
                   }
-                  info.el.innerHTML = "";
+
 
                   if(info.event.title === "平日"){
                     info.el.classList.add("workday");
@@ -170,7 +173,7 @@
                     info.el.innerHTML += "<div style='font-size: 14px;'>假日</div>";
                   }else{
                     info.el.classList.add("closed-day");
-                    info.el.innerHTML += "<div>休診日</div>";
+                    info.el.innerHTML += "<div></div>";
                   }
                 },
                 events: {

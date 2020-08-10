@@ -150,23 +150,19 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
     def get_title(self, obj):
-        if obj.attribute.dayType == '假日':
+        if obj.red_day:
             return '假日'
-        elif obj.attribute.dayType == '平日':
-            return '平日'
         else:
-            return '休診日'
+            return '平日'
 
     def get_className(self, obj):
         return 'bigEvent'
 
     def get_color(self, obj):
-        if obj.attribute == 'holiday':
+        if obj.red_day:
             return 'red'
-        elif obj.attribute == 'workday':
-            return ''
         else:
-            return '#C1C0C0'
+            return ''
 
     def get_extendedProps(self, obj):
 
