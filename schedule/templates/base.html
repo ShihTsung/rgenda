@@ -164,22 +164,15 @@
     </style>
     {% block heads %}{% endblock %}
 
-</head>
-
-<body>
-        <script
+    <script
             src="https://code.jquery.com/jquery-3.4.1.min.js"
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
 
-        <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
-        <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
+</head>
+
+<body>
+
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
 
@@ -326,162 +319,172 @@
 
     </main>
 
+    <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
+    <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
+    <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
+    <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
+    <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
+    <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
+    <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
+    <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
 
-        {% block scripts %}
-        {% endblock %}
-        <script>
-            window.onload = function(){
-                let unfold_aa = false;
-                let unfold_a = false;
-                let unfold_wm = false;
-                let unfold_ac = false;
-                //nav
-                let nav_fold = true;
-                const onav = document.querySelector('.navbar');
-                const obt = document.querySelector('.nav_btn');
-                const osidebar = document.querySelector('.sidebar');
-                const oside_sh = document.querySelector('.side_shrink');
-                const olist_group = document.getElementsByClassName('list-group-item');
-                const oside_s = document.getElementsByClassName('side_s');
-                const owrapper = document.querySelector('#page-content-wrapper');
+    {% block scripts %}
+    {% endblock %}
+    <script>
+      window.onload = function () {
+        let unfold_aa = false;
+        let unfold_a = false;
+        let unfold_wm = false;
+        let unfold_ac = false;
+        //nav
+        let nav_fold = true;
+        const onav = document.querySelector('.navbar');
+        const obt = document.querySelector('.nav_btn');
+        const osidebar = document.querySelector('.sidebar');
+        const oside_sh = document.querySelector('.side_shrink');
+        const olist_group = document.getElementsByClassName('list-group-item');
+        const oside_s = document.getElementsByClassName('side_s');
+        const owrapper = document.querySelector('#page-content-wrapper');
 
-                function spread_ev() {
-                    nav_fold = !nav_fold;
+        function spread_ev() {
+          nav_fold = !nav_fold;
 
-                    $("#acc_fold").addClass("fold");
-                    $("#arra_fold").addClass("fold");
-                    $("#arr_fold").addClass("fold");
-                    $("#wm_fold").addClass("fold");
+          $("#acc_fold").addClass("fold");
+          $("#arra_fold").addClass("fold");
+          $("#arr_fold").addClass("fold");
+          $("#wm_fold").addClass("fold");
 
-                    if(nav_fold){
-                        onav.style.left = '200px';
-                        osidebar.style.transform = 'translateX(0px)';
-                        oside_sh.style.visibility = 'hidden';
-                        oside_sh.style.position = 'absolute';
-                        owrapper.style.left = '230px';
+          if (nav_fold) {
+            onav.style.left = '200px';
+            osidebar.style.transform = 'translateX(0px)';
+            oside_sh.style.visibility = 'hidden';
+            oside_sh.style.position = 'absolute';
+            owrapper.style.left = '230px';
 
-                        for(var i = 0; i < olist_group.length; i++){
-                            olist_group[i].style.visibility = 'visible';
-                            olist_group[i].style.position = 'static';
-                        };
-                        for(var i = 0; i < oside_s.length; i++){
-                            oside_s[i].style.visibility = 'hidden';
-                            oside_s[i].style.position = 'absolute';
-                        };
-                    }else{
-                        onav.style.left = '65px';
-                        osidebar.style.transform = 'translateX(-135px)';
-                        oside_sh.style.visibility = 'visible';
-                        oside_sh.style.position = 'static';
-                        owrapper.style.left = '140px';
+            for (var i = 0; i < olist_group.length; i++) {
+              olist_group[i].style.visibility = 'visible';
+              olist_group[i].style.position = 'static';
+            };
+            for (var i = 0; i < oside_s.length; i++) {
+              oside_s[i].style.visibility = 'hidden';
+              oside_s[i].style.position = 'absolute';
+            };
+          } else {
+            onav.style.left = '65px';
+            osidebar.style.transform = 'translateX(-135px)';
+            oside_sh.style.visibility = 'visible';
+            oside_sh.style.position = 'static';
+            owrapper.style.left = '140px';
+            for (var i = 0; i < olist_group.length; i++) {
+              olist_group[i].style.visibility = 'hidden';
+              olist_group[i].style.position = 'absolute';
+            };
+            for (var i = 0; i <
+              oside_s.length; i++) {
+              oside_s[i].style.visibility = 'visible';
+              oside_s[i].style.position = 'static';
+            };
+          }
+        };
+        obt.addEventListener('click', (event) => {
+          spread_ev();
+        });
 
-                        for(var i = 0; i < olist_group.length; i++){
-                            olist_group[i].style.visibility = 'hidden';
-                            olist_group[i].style.position = 'absolute';
-                        };
-                        for(var i = 0; i < oside_s.length; i++){
-                            oside_s[i].style.visibility = 'visible';
-                            oside_s[i].style.position = 'static';
-                        };
-                    }
-                };
-
-                obt.addEventListener('click', (event)=>{
-                    spread_ev();
-                });
-
-                $(".side_shrink").click((e)=>{
-                    spread_ev();
-                });
+        $(".side_shrink").click((e) => {
+          spread_ev();
+        });
 
 
-                $(".side_s").click((e)=>{
-                    switch(e.target.id){
-                        case "acm":
-                            spread_ev();
-                            $("#acc_fold").removeClass("fold");
-                            break;
-                        case "arr-add":
-                            spread_ev();
-                            $("#arra_fold").removeClass("fold");
-                            break;
-                        case "arrange":
-                            spread_ev();
-                            $("#arr_fold").removeClass("fold");
-                            break;
-                        case "sw":
-                            spread_ev();
-                            $("#wm_fold").removeClass("fold");
-                            break;
-                        default:
-                            spread_ev();
-                            break;
-                    }
-                });
+        $(".side_s").click((e) => {
+          switch (e.target.id) {
+            case "acm":
+              spread_ev();
+              $("#acc_fold").removeClass("fold");
+              break;
+            case "arr-add":
+              spread_ev();
+              $("#arra_fold").removeClass("fold");
+              break;
+            case "arrange":
+              spread_ev();
+              $("#arr_fold").removeClass("fold");
+              break;
+            case "sw":
+              spread_ev();
+              $("#wm_fold").removeClass("fold");
+              break;
+            default:
+              spread_ev();
+              break;
+          }
+        });
 
-                $(".sidebar_w").click((e)=>{
-                    $.cookie("sideClicked", e.target.id, { path: "/" });
+        $(".sidebar_w").click((e) => {
+          $.cookie("sideClicked", e.target.id, {
+            path: "/"
+          });
 
-                    $(".sidebar_w").removeClass("clicked");
-                    if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"){
-                        document.getElementById(e.target.id).classList.add("clicked");
-                    }
+          $(".sidebar_w").removeClass("clicked");
+          if (e.target.id === "side-account" || e.target.id === "side-work-manage" || e.target.id ===
+            "side-arrange-add" || e.target.id === "side-arrange") {
+            document.getElementById(e.target.id).classList.add("clicked");
+          }
 
-                });
-                let sideClicked = $.cookie("sideClicked");
+        });
+        let sideClicked = $.cookie("sideClicked");
 
-                if(sideClicked){
-                    if(!(sideClicked==="acm"||sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon")){
-                        document.getElementById(sideClicked).classList.add("clicked");
-                    }
-                };
+        if (sideClicked) {
+          if (!(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange" || sideClicked ===
+              "sw" || sideClicked === "side-redfalcon")) {
+            document.getElementById(sideClicked).classList.add("clicked");
+          }
+        };
 
-                $(".fold_m").click((e)=>{
-                    if(e.target.id == "side-arrange-add"){
-                        unfold_aa = !unfold_aa;
-                        if(unfold_aa === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").removeClass("fold");
-                        }else{
-                            $("#arra_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-arrange"){
-                        unfold_a = !unfold_a;
-                        if(unfold_a === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#arr_fold").removeClass("fold");
-                        }else{
-                            $("#arr_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-work-manage"){
-                        unfold_wm = !unfold_wm;
-                        if(unfold_wm === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#wm_fold").removeClass("fold");
-                        }else{
-                            $("#wm_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-account"){
-                        unfold_ac = !unfold_ac;
-                        if(unfold_ac === true){
-                            $("#acc_fold").removeClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                        }else{
-                            $("#acc_fold").addClass("fold");
-                        }
-                    }
-                })
+        $(".fold_m").click((e) => {
+          if (e.target.id == "side-arrange-add") {
+            unfold_aa = !unfold_aa;
+            if (unfold_aa === true) {
+              $("#acc_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").removeClass("fold");
+            } else {
+              $("#arra_fold").addClass("fold");
             }
-
-        </script>
+          } else if (e.target.id == "side-arrange") {
+            unfold_a = !unfold_a;
+            if (unfold_a === true) {
+              $("#acc_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#arr_fold").removeClass("fold");
+            } else {
+              $("#arr_fold").addClass("fold");
+            }
+          } else if (e.target.id == "side-work-manage") {
+            unfold_wm = !unfold_wm;
+            if (unfold_wm === true) {
+              $("#acc_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#wm_fold").removeClass("fold");
+            } else {
+              $("#wm_fold").addClass("fold");
+            }
+          } else if (e.target.id == "side-account") {
+            unfold_ac = !unfold_ac;
+            if (unfold_ac === true) {
+              $("#acc_fold").removeClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+            } else {
+              $("#acc_fold").addClass("fold");
+            }
+          }
+        })
+      }
+    </script>
 
 </body>
 
