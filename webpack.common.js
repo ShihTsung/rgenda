@@ -6,9 +6,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  context: path.join(__dirname, '/schedule/resources'),
+  context: path.join(__dirname, '/schedule/resources/src'),
   entry: {
-    index: './index.js',
+    'account-list': './accounts/list.js',
   },
   output: {
     filename: '[name].bundle.js',
@@ -18,6 +18,7 @@ module.exports = {
   resolve: {
     alias: {
       common: path.join(__dirname, '/schedule/resources/common'),
+      components: path.join(__dirname, '/schedule/resources/components'),
     },
     extensions: ['.js', '.vue', '.json', '.css']
   },

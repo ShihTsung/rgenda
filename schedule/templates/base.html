@@ -6,6 +6,8 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+    <link rel="bookmark" href="{% static 'images/favicon.ico' %}" />
 
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
@@ -15,7 +17,7 @@
     <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
     <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
 
-    <script src="{% static 'assets/common.bundle.js' %}" defer></script>
+    <script src="{% static 'assets/common.bundle.js' %}"></script>
 
     {% block styles %}
     {% endblock %}
