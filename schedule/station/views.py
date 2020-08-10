@@ -59,3 +59,8 @@ def station_delete(request, id=None):
         return redirect("/stations/list")
     else:
         return redirect("/stations/list")
+
+
+def get_stations(department):
+    stations = Station.objects.filter(department=department)
+    return stations

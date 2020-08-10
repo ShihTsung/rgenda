@@ -81,3 +81,8 @@ def shift_delete(request, id=None):
         return redirect("/shifts/list")
     else:
         return redirect("/shifts/list")
+
+
+def get_shifts(department):
+    shifts = Shift.objects.filter(department=department, shift_type__in=['白班', '小夜', '大夜'])
+    return shifts
