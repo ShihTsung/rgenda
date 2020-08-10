@@ -1,63 +1,62 @@
 {% load static %}
 {% load i18n %}
-{% block nav%}
+{% block nav %}
 <!-- custom filter module -->
 {% load i18n_switcher %}
 {% load notifications_tags %}
 {% notifications_unread as unread_count %}
-<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-dark">
-    <div class="nav_btn" data-toggle="collapse">
-        <svg class="icon_color" id="nav_bt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M24 6h-24v-4h24v4zm0 4h-24v4h24v-4zm0 8h-24v4h24v-4z"/></svg>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-dark" id="navbar">
+  <div class="nav_btn" data-toggle="collapse">
+    <svg class="icon_color" id="nav_bt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <path d="M24 6h-24v-4h24v4zm0 4h-24v4h24v-4zm0 8h-24v4h24v-4z" /></svg>
+  </div>
 
-    <!-- <button class="btn" id="menu-toggle"><i class="fas fa-bars"></i></button>
+  <!-- <button class="btn" id="menu-toggle"><i class="fas fa-bars"></i></button>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button> -->
 
-    <div class="navbar-brand col-6 overflow-hidden">睿驊醫院排班</div>
+  <div class="navbar-brand col-6 overflow-hidden">睿驊醫院排班</div>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <!-- {% if user.is_superuser%}
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <!-- {% if user.is_superuser%}
             <li class="nav-item">
                 <a class="nav-link" href="/admin">{% trans 'Manager' %}</a>
             </li>
             {% endif %} -->
-        </ul>
+    </ul>
 
-        {% if user.is_authenticated %}
-        <div class="btns">
-            <a class="nav-link dark dropdown" href="{% url 'notice:list' %}"
-                aria-expanded="false">
-                <!-- <i class="fa fa-bell" aria-hidden="true"></i> -->
-                <svg class="icon_color" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M13 16h-2v-6h2v6zm-1-10.25c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25-1.25-.56-1.25-1.25.56-1.25 1.25-1.25zm0-2.75c5.514 0 10 3.592 10 8.007 0 4.917-5.145 7.961-9.91 7.961-1.937 0-3.383-.397-4.394-.644-1 .613-1.595 1.037-4.272 1.82.535-1.373.723-2.748.602-4.265-.838-1-2.025-2.4-2.025-4.872-.001-4.415 4.485-8.007 9.999-8.007zm0-2c-6.338 0-12 4.226-12 10.007 0 2.05.738 4.063 2.047 5.625.055 1.83-1.023 4.456-1.993 6.368 2.602-.47 6.301-1.508 7.978-2.536 1.418.345 2.775.503 4.059.503 7.084 0 11.91-4.837 11.91-9.961-.001-5.811-5.702-10.006-12.001-10.006z"/></svg>
-                {% if unread_count %}
-                <span class="badge badge-danger">{{unread_count}}</span>
-                    {% endif %}
-            </a>
+    {% if user.is_authenticated %}
+    <div class="btns">
+      <notice-list url="{% url 'notice:list' %}"></notice-list>
 
-            <div class="dropdown">
-                <a class="nav-link dark" href="#" id="navbarDropdown" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <!-- <i class="fa fa-user" aria-hidden="true"></i> -->
-                    <svg class="icon_color" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 7.001c0 3.865-3.134 7-7 7s-7-3.135-7-7c0-3.867 3.134-7.001 7-7.001s7 3.134 7 7.001zm-1.598 7.18c-1.506 1.137-3.374 1.82-5.402 1.82-2.03 0-3.899-.685-5.407-1.822-4.072 1.793-6.593 7.376-6.593 9.821h24c0-2.423-2.6-8.006-6.598-9.819z"/></svg>
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
-                    <!-- <a class="dropdown-item" href="#">個人班表</a> -->
-                    <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
-                </div>
-            </div>
+      <div class="dropdown">
+        <a class="nav-link dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <!-- <i class="fa fa-user" aria-hidden="true"></i> -->
+          <svg class="icon_color" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+            viewBox="0 0 24 24">
+            <path
+              d="M19 7.001c0 3.865-3.134 7-7 7s-7-3.135-7-7c0-3.867 3.134-7.001 7-7.001s7 3.134 7 7.001zm-1.598 7.18c-1.506 1.137-3.374 1.82-5.402 1.82-2.03 0-3.899-.685-5.407-1.822-4.072 1.793-6.593 7.376-6.593 9.821h24c0-2.423-2.6-8.006-6.598-9.819z" />
+          </svg>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item " href="{% url 'logout' %}">{% trans 'Logout' %}</a>
+          <!-- <a class="dropdown-item" href="#">個人班表</a> -->
+          <a class="dropdown-item" href="/accounts/{{user.id}}">個人資訊</a>
         </div>
-
-        {% else %}
-        <a class="btn btn-primary rightest" href="{% url 'login' %}">{% trans 'Login' %}</a>
-        {% endif %}
+      </div>
     </div>
+
+    {% else %}
+    <a class="btn btn-primary rightest" href="{% url 'login' %}">{% trans 'Login' %}</a>
+    {% endif %}
+  </div>
 
 </nav>
 
 <link rel="stylesheet" href="{% static 'css/nav.css' %}">
+<script src="{% static 'assets/notice-list.bundle.js' %}"></script>
 {% endblock %}

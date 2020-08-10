@@ -8,18 +8,15 @@ const ERROR_TYPE = {
   system: 'system'
 };
 
-class ApiError {
+class ApiError extends Error {
   constructor(title, message, errorType, innerError) {
+    super(message);
     this.name = 'ApiError';
     this.title = title || '';
-    this.message = message || 'Default Message';
     this.errorType = errorType || ERROR_TYPE.default;
     this.innerError = innerError;
-    this.stack = (new Error()).stack;
   }
 };
-ApiError.prototype = Object.create(Error.prototype);
-ApiError.prototype.constructor = ApiError;
 
 const httpClient = axios.create({
   baseURL: '',
