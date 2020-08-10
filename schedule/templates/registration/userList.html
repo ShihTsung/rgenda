@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-<div class="container">
+<div id="app" class="container">
     <!-- modal -->
     <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -52,6 +52,9 @@
         </select>
     </span>
     <!-- 搜尋欄end -->
+
+    <account-list></account-list>
+
     <table class="table table-striped" id="myTable">
         <thead class="thead-dark">
             <tr>
@@ -94,8 +97,7 @@
     </table>
 </div>
 
-
-<style>
+<style scoped>
     table{
         background-color: white;
         box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
@@ -111,9 +113,12 @@
         background: #f1f1f1;
     }
 </style>
+
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
 {% endblock %}
+
+<script src="{% static 'assets/account-list.bundle.js' %}"></script>
 
 <script>
     function searchFilter() {
