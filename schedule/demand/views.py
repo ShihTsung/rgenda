@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import DemandOfStation
+from .models import DemandOfStation, DemandUserTable
 from .forms import (DemandCreationForm, DemandEditForm)
 from collections import defaultdict
 from shift.models import Shift
 from station.models import Station
-from datetime import datetime, timedelta
-from date.views import attr_list, red_list
 import json
 
 """
@@ -28,12 +26,12 @@ def demand_create(request):
     if request.method == 'POST':
         form = DemandCreationForm(request.POST)
         if form.is_valid():
-            for is_senior in [True, False]:
+            for level in [0, 1]:
                 demend = DemandOfStation.objects.create(
                     shift=Shift.objects.get(id=request.POST.get('shift')),
                     station=Station.objects.get(
                         id=request.POST.get('station')),
-                    is_senior=is_senior,
+                    level=level,
                 )
             return redirect('/demands/list')
     context = {'form': form}
@@ -111,52 +109,29 @@ def demand_delete(request, id=None):
         return redirect("/demands/list")
 
 
-def get_demands(department, start_date, end_date, group_by_level=False):
-    date_list = [start_date + timedelta(days=i)
-                 for i in range((end_date - start_date).days + 1)]
-    attrs = attr_list(start_date, end_date)
+def get_demands(station, shift):
+    """
+    回傳某一station、某一shift的demands，可能分為多個level所以有多個demand物件
+    :param station:
+    :param shift:
+    :return: [
+        {
+            'demand': demand.object,
+            'user': [user1, user2, user3...],
+        }
+    ]
+    """
 
-    reds = red_list(start_date, end_date)
-    output = {
-        '白班': dict(),
-        '小夜': dict(),
-        '大夜': dict(),
-    }
-    demands = {
-        '白班': DemandOfStation.objects.filter(shift__department=department, shift__shift_type='白班'),
-        '小夜': DemandOfStation.objects.filter(shift__department=department, shift__shift_type='小夜'),
-        '大夜': DemandOfStation.objects.filter(shift__department=department, shift__shift_type='大夜'),
-    }
-    if group_by_level:
-        for st in ['白班', '小夜', '大夜']:
-            for i, d in enumerate(date_list):
-                output[st][str(d)] = {
-                    1: 0,
-                    2: 0,
-                    3: 0,
-                    4: 0,
-                }
-                output[st][str(d)]['red'] = reds[i]
-                for demand in demands[st]:
-                    if attrs[i] == 'workday':
-                        output[st][str(d)][demand.level] += demand.workday
-                    elif attrs[i] == 'holiday':
-                        output[st][str(d)][demand.level] += demand.holiday
-    else:
-        for st in ['白班', '小夜', '大夜']:
-            for i, d in enumerate(date_list):
-                output[st][str(d)] = {
-                    1: dict(),
-                    2: dict(),
-                    3: dict(),
-                    4: dict(),
-                }
+    output = list()
 
-                for demand in demands[st]:
-                    if attrs[i] == 'workday':
-                        output[st][str(d)][demand.level][str(demand.station)] = demand.workday
-                    elif attrs[i] == 'holiday':
-                        output[st][str(d)][demand.level][str(demand.station)] = demand.holiday
-                    else:
-                        output[st][str(d)][demand.level][str(demand.station)] = 0
+    demands = DemandOfStation.objects.filter(station=station, shift=shift).order_by('-level')
+    for demand in demands:
+        data = {
+            'demand': demand,
+            'users': list(),
+        }
+        relations = DemandUserTable.objects.filter(demand=demand)
+        for relation in relations:
+            data['users'].append(relation.user)
+        output.append(data)
     return output

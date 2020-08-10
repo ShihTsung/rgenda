@@ -1,0 +1,82 @@
+a:hover {
+  text-decoration: none;
+}
+
+nav {
+  /* box-shadow: 1px 0px 2px 0px; */
+  position: fixed;
+  top: 0;
+  font-size: 1.2rem;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 200px;
+  width: 100%;
+  height: 60px;
+  transition: all 0.5s ease-in-out;
+  z-index: 10;
+  background-color: #84C0E9 !important;
+  padding: 7px 0px;
+}
+
+.sidebar {
+  transition: all 0.5s ease-in-out;
+}
+
+.nav_btn {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  margin-left: 10px;
+  margin-top: 7px;
+  text-align: center;
+}
+
+.nav_btn:hover {
+  cursor: pointer;
+}
+
+.dropdown-toggle {
+  color: white;
+}
+
+.nav-link:hover {
+  color: white;
+  background-color: blanchedalmond;
+}
+
+.dropdown:hover {
+  color: white;
+}
+
+.fa-bars:before {
+  color: white;
+}
+
+.btn {
+  margin: .25rem;
+}
+
+a.dark {
+  background-color: #84C0E9;
+  color: white;
+}
+
+a.dark:hover {
+  background-color: #74B0C9;
+}
+
+.icon_color {
+  fill: white;
+}
+
+.btns {
+  position: fixed;
+  right: 70px;
+}
+
+.dropdown {
+  display: inline-block;
+}

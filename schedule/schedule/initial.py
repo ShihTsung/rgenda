@@ -37,7 +37,7 @@ def initial(request):
 # departments
     print('create departments')
     names = ['休息', '例假', '公假', 'oncall']
-    types = ['休息', '例假', '公假', 'oncall']
+    types = ['有薪假', '有薪假', '有薪假', 'oncall']
     hours = [0, 0, 8, 0]
     department = Department.objects.create(name='D1', detail='健檢診所')
     for i in range(4):
@@ -268,7 +268,7 @@ def initial(request):
                 shift=Shift.objects.get(name=pick_shift),
                 station=Station.objects.get(name=stations[i]),
                 level=j+1,
-                is_senior=True if j == 0 else False, 
+                is_senior=True if j == 0 else False,
                 config1=workday[i] if j == 0 else 0,
                 config2=holiday[i] if j == 0 else 0
             )

@@ -11,5 +11,4 @@ urlpatterns = [
    path('time_adjustment', time_adjustment_list),
    path('exchange_application_list', exchange_application_list),
    path('exchange_application_audit', exchange_application_audit),
-   path('test', calculate),
 ]

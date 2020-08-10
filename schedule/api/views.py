@@ -169,6 +169,13 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
     serializer_class = TimeAdjustmentSerializer
 
+    @swagger_auto_schema(
+        operation_summary='調班清單',
+        operation_description='列出所有調班清單',
+    )
+    def list(self, request):
+        return super().list(request)
+
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
