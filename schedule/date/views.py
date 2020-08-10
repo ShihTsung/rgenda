@@ -16,23 +16,25 @@ def config_manage(request):
     return render(request, 'calendars/config_manage.html', context)
 
 
-def attr_list(start, end):
+def attr_list(department_id, start, end):
     """
     取得醫院行事曆類別，分為workday(一般工作日)，holiday(休息工作日)，closed_day(休診日)
+    :param department_id:
     :param start: 開始日期
     :param end: 結束日期
     :return:
     """
-    days = H_Calendar.objects.filter(date__gte=start, date__lte=end).order_by('date')
-    return [day.attribute for day in days]
+    days = H_Calendar.objects.filter(
+        date__gte=start, date__lte=end).order_by('date')
+    return [day.attribute[department_id] for day in days]
 
 
-def red_list(start, end):
+def red_dict(start, end):
     """
     取得是否為假日，假日包含週休二日和國定假日
     :param start: 開始日期
     :param end: 結束日期
     :return:
     """
-    days = H_Calendar.objects.filter(date__gte=start, date__lte=end).order_by('date')
-    return [day.red_day for day in days]
+    days = H_Calendar.objects.filter(date__gte=start, date__lte=end)
+    return dict([(str(d.date), d.red_day) for d in days])
