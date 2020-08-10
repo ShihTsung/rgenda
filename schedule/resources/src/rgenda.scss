@@ -1,0 +1,44 @@
+$color-dark-blue: #37419A;
+$icon-color: #a6a6a6;
+
+.btn-outline-rgenda {
+  color: $color-dark-blue;
+  border-color: $color-dark-blue;
+}
+
+.btn-outline-rgenda:hover {
+  color: #FFF;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue;
+}
+
+.w-1p5 {
+  width: 1.5em;
+}
+
+.icon-bts {
+  display: inline-block;
+  font-weight: 400;
+  border: 1px solid $icon-color;
+  border-radius: .25rem;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: .25em;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.icon-bts:hover {
+  background-color: $icon-color;
+  border-color: $icon-color;
+}
+
+.icon-color {
+  fill: $icon-color;
+}
+
+.icon-bts:hover svg path {
+  fill: #fff;
+}
