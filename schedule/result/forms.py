@@ -1,12 +1,16 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from account.models import CustomUser
 
 
 class TimeAdjustmentCreateForm(forms.Form):
-    result_date = forms.DateField(
-        label=_('result_date'),
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True,
+    user = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(),
+        label=_('DemandOfStation')
+    )
+    date = forms.DateField(
+        label=_('date'),
+        required=False,
     )
     name = forms.CharField(
         label=_('name'),

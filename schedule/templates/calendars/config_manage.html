@@ -32,23 +32,15 @@
       <div class="modal-body">
         <form action="">
           <div class="form-grounp">
-            <label for="day">類型</label>
+            <label for="day">配置</label>
             <select name="day" id="day" class="form-control">
-              <option value="workday">
-                平日
+              <option value="config1">
+                配置一
               </option>
-              <option value="holiday">
-                假日
-              </option>
-              <option value="closed_day">
-                休診日
+              <option value="config2">
+                配置二
               </option>
             </select>
-          </div>
-          <br>
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="locked">
-            <label class="form-check-label" for="locked">locked</label>
           </div>
         </form>
       </div>
@@ -117,7 +109,16 @@
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-
+        let user;
+        let department;
+        fetch('/api/users/curr')
+        .then(res=>{
+          return res.json();
+        })
+        .then(data=>{
+          user = data;
+          department = user.department;
+        })
 
         calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],
@@ -161,16 +162,14 @@
                   }
                   info.el.innerHTML = "";
 
-                  if(info.event.title === "平日"){
-                    info.el.classList.add("workday");
-                    info.el.innerHTML += "<div style='font-size: 14px;'>平日</div>";
-                  }
-                  else if(info.event.title === "假日"){
-                    info.el.classList.add("holiday");
-                    info.el.innerHTML += "<div style='font-size: 14px;'>假日</div>";
-                  }else{
-                    info.el.classList.add("closed-day");
-                    info.el.innerHTML += "<div>休診日</div>";
+                  if(info.event.extendedProps.attribute.hasOwnProperty(department.id)){
+                    if (info.event.extendedProps.attribute[department.id.toString()]==1){
+                      info.el.innerHTML += "<div style='font-size: 14px;'>配置一</div>";
+                    }else if(info.event.extendedProps.attribute[department.id.toString()]==2){
+                      info.el.innerHTML += "<div style='font-size: 14px;'>配置二</div>";
+                    }else{
+                      info.el.innerHTML += "<div style='font-size: 14px;'>休診</div>";
+                    }
                   }
                 },
                 events: {

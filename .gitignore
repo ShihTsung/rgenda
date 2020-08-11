@@ -154,3 +154,6 @@ npm-debug.log
 
 # Nuxt generate
 dist
+
+# bundle
+schedule/static/assets/*

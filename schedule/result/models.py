@@ -13,13 +13,30 @@ from station.models import Station
 
 
 class TimeAdjustment(models.Model):
-
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name=_('User'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    date = models.DateField(
+        verbose_name=_('Date'),
+        null=True
+    )
     hours = models.IntegerField(
         verbose_name=_('Hours'),
         default=0,
         null=False,
     )
     adjustment_type = models.IntegerField(
+        verbose_name=_('adjustment_type'),
+        null=False,
+        choices=(
+                (0, _('增加時數')),
+                (1, _('減少時數')),
+        ),
+    )
+    adjustment_item = models.IntegerField(
         verbose_name=_('AdjustmentType'),
         default=0,
         choices=(
@@ -60,12 +77,6 @@ class PreResult(models.Model):
         verbose_name=_('Date'),
         null=True
     )
-    time_adjustment = models.ForeignKey(
-        TimeAdjustment,
-        verbose_name=_('TimeAdjustment'),
-        on_delete=models.CASCADE,
-        null=True
-    )
     station = models.ForeignKey(
         Station,
         verbose_name=_('Station'),
@@ -92,12 +103,6 @@ class Result(models.Model):
         verbose_name=_('Date'),
         null=True
     )
-    time_adjustment = models.ForeignKey(
-        TimeAdjustment,
-        verbose_name=_('TimeAdjustment'),
-        on_delete=models.CASCADE,
-        null=True
-    )
     station = models.ForeignKey(
         Station,
         verbose_name=_('Station'),
@@ -122,12 +127,6 @@ class AfterResult(models.Model):
     )
     date = models.DateField(
         verbose_name=_('Date'),
-        null=True
-    )
-    time_adjustment = models.ForeignKey(
-        TimeAdjustment,
-        verbose_name=_('TimeAdjustment'),
-        on_delete=models.CASCADE,
         null=True
     )
     station = models.ForeignKey(

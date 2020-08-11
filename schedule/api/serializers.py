@@ -150,9 +150,9 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
     def get_title(self, obj):
-        if obj.attribute == 'holiday':
+        if obj.attribute.dayType == '假日':
             return '假日'
-        elif obj.attribute == 'workday':
+        elif obj.attribute.dayType == '平日':
             return '平日'
         else:
             return '休診日'
@@ -191,7 +191,7 @@ class HCalendarSerializer(serializers.ModelSerializer):
 class PreResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station')
 
 # 排班結果2
 
@@ -199,7 +199,7 @@ class PreResultSerializer(serializers.ModelSerializer):
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station')
 
 
 # 排班結果3
@@ -208,7 +208,7 @@ class ResultSerializer(serializers.ModelSerializer):
 class AfterResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station')
 
 
 class GetPreResultSerializer(serializers.ModelSerializer):
@@ -218,7 +218,7 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station')
 
 
 class GetResultSerializer(serializers.ModelSerializer):
@@ -273,7 +273,7 @@ class GetResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Result
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station',
+        fields = ('id', 'user', 'shift', 'date', 'station',
                   'shift_type')
 
 
@@ -284,7 +284,7 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'time_adjustment', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station')
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -346,7 +346,9 @@ class TimeAdjustmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimeAdjustment
-        fields = ('id', 'hours', 'adjustment_type', 'remark')
+        fields = (
+            'id', 'user', 'date', 'hours', 'adjustment_type',
+            'adjustment_item', 'remark')
 
 
 class LiscenseSerializer(serializers.ModelSerializer):

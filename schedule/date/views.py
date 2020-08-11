@@ -10,6 +10,12 @@ def date_manage(request):
     return render(request, 'calendars/date_manage.html', context)
 
 
+@login_required
+def config_manage(request):
+    context = {'LANG': request.LANGUAGE_CODE}
+    return render(request, 'calendars/config_manage.html', context)
+
+
 def attr_list(department_id, start, end):
     """
     取得醫院行事曆類別，分為workday(一般工作日)，holiday(休息工作日)，closed_day(休診日)
@@ -18,7 +24,8 @@ def attr_list(department_id, start, end):
     :param end: 結束日期
     :return:
     """
-    days = H_Calendar.objects.filter(date__gte=start, date__lte=end).order_by('date')
+    days = H_Calendar.objects.filter(
+        date__gte=start, date__lte=end).order_by('date')
     return [day.attribute[department_id] for day in days]
 
 
