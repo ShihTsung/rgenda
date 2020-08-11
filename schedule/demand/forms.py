@@ -14,15 +14,15 @@ from shift.models import Shift
 class DemandCreationForm(forms.Form):
     shift = forms.ModelChoiceField(
         queryset=Shift.objects.all(),
-        label=_('Shift'),
+        label=_('班別'),
     )
     station = forms.ModelChoiceField(
         queryset=Station.objects.all(),
-        label=_('Station'),
+        label=_('工作站'),
     )
-    is_senior = forms.BooleanField(
-        label=_('IsSenior'),
-        required=False
+    level = forms.IntegerField(
+        label=_('分級'),
+        widget=forms.widgets.Select(choices=((1, 1), (2, 2)))
     )
 
 

@@ -15,12 +15,13 @@ class DemandOfStation(models.Model):
         'Shift'), on_delete=models.CASCADE, null=True)
     station = models.ForeignKey(Station, verbose_name=_('Station'),
                                 on_delete=models.CASCADE, null=True)
-    is_senior = models.BooleanField(
-        verbose_name=_('資深/一般'), default=False)
+    level = models.IntegerField(
+        verbose_name=_('分級'), default=1
+    )
     config1 = models.IntegerField(
-        verbose_name=_('Config1'), default=0)
+        verbose_name=_('配置1'), default=0)
     config2 = models.IntegerField(
-        verbose_name=_('Config2'), default=0)
+        verbose_name=_('配置2'), default=0)
 
     def __str__(self):
         return self.shift.name + '-' + self.station.name

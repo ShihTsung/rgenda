@@ -9,6 +9,8 @@ module.exports = {
   context: path.join(__dirname, '/schedule/resources/src'),
   entry: {
     'account-list': './accounts/list.js',
+    'notice-list': './navbar/notice-list.js',
+    'rgenda': './rgenda.scss',
   },
   output: {
     filename: '[name].bundle.js',
@@ -35,14 +37,12 @@ module.exports = {
         loader: 'vue-loader'
       },
       {
-        test: /\.(css|sass|scss)$/,
-        use: [
-          // 'style-loader',
-          // 'sass-loader',
-          {
-            loader: MiniCssExtractPlugin.loader
-          },
+      test: /\.(css|sass|scss)$/,
+      use: [
+          MiniCssExtractPlugin.loader,
           'css-loader',
+          // 'style-loader',
+          'sass-loader',
         ],
       },
       {
@@ -58,11 +58,11 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin(),
-    new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[id].css"
+      filename: "./css/[name].css",
+      // chunkFilename: "./css/[id].css",
     }),
+    new VueLoaderPlugin(),
   ],
   optimization: {
     splitChunks: {

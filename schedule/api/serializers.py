@@ -306,7 +306,7 @@ class DemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
         fields = ('id', 'shift', 'config1', 'config2',
-                  'station', 'is_senior')
+                  'station', 'level')
 
 
 class GetDemandSerializer(serializers.ModelSerializer):
@@ -316,7 +316,7 @@ class GetDemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
         fields = ('id', 'shift', 'config1', 'config2',
-                  'station', 'is_senior')
+                  'station', 'level')
 
 # 保證假/班 Get
 
