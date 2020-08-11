@@ -92,7 +92,12 @@
                     style="background-color:{{user_color}};width:4rem;height:4rem;border-radius:
                     1rem;" class="d-flex justify-content-center
                     align-items-center">
-                    <h3 style="color:white;">N{{user.level}}</h3>
+                    <h3 style="color:white;">
+                      {%if target_user.level > 4%}
+                      Nn
+                      {%else%}
+                      N{{target_user.level}}
+                      {%endif%}</h3>
                 </div>
                 <div class="col">
                     <h2>{{target_user.full_name}}</h2>

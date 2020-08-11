@@ -507,3 +507,18 @@ def total_per_day_api(request):
                         else:
                             results[date_str][s_type] = 0
     return Response(results)
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='把所有通知標為已讀',
+    manual_parameters=[start_date, end_date])
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def mark_all_notices_read(request):
+    notices = Notification.objects.all()
+    if request.user.role == 'admin' or request.user.is_superuser:
+        notices.mark_all_as_read()
+        return Response({'status': 'success'})
+    else:
+        return Response({'status': 'permission denied'})

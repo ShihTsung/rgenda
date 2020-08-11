@@ -18,7 +18,7 @@ LEVEL_CHOICES = (
     (3, _('N3')),
     (2, _('N2')),
     (1, _('N1')),
-    (0, _('Nn'))
+    (5, _('Nn'))
 )
 GENDER_CHOICES = (
     ('M', _('Male')),
@@ -78,7 +78,7 @@ class CustomUserChangeForm(UserChangeForm):
     level = forms.IntegerField(label=_('職級'), widget=forms.widgets.Select(
         choices=LEVEL_CHOICES))
 
-    is_senior = forms.BooleanField(label=_('資深'))
+    is_senior = forms.BooleanField(label=_('資深'), required=False)
 
     job_title = forms.CharField(
         max_length=100,
@@ -169,11 +169,11 @@ class CustomUserChangeForm(UserChangeForm):
 
 class DepartmentCreationForm(forms.ModelForm):
     name = forms.CharField(
-        label=_('Name'),
+        label=_('簡稱'),
         max_length=100, empty_value="Null",
         required=True)
     detail = forms.CharField(
-        label=_('Detail'),
+        label=_('科別名稱'),
         max_length=100, empty_value="Null",
         required=False)
 
@@ -185,34 +185,34 @@ class DepartmentCreationForm(forms.ModelForm):
 
 class DepartmentChangeForm(forms.ModelForm):
     name = forms.CharField(
-        label=_('Name'),
+        label=_('簡稱'),
         max_length=100,
         empty_value="Null",
         required=True)
     detail = forms.CharField(
-        label=_('Detail'),
+        label=_('科別名稱'),
         max_length=100,
         empty_value="Null",
         required=False)
     limit_pre_schedule = forms.IntegerField(
-        label=_("LimitPreSchedule"),
+        label=_("預約休假數量"),
         min_value=0,
         max_value=31,
     )
     deadline_pre_schedule = forms.ChoiceField(
-        label=_("DeadlinePreSchedule"),
+        label=_("預約休假期限"),
         required=True,
         widget=forms.Select,
         choices=[(i, i) for i in range(1, 29)],
     )
     reset = forms.ChoiceField(
-        label=_('Reset'),
+        label=_('時數重置規則'),
         required=True,
         widget=forms.Select,
         choices=[(0, _('PerYear(at 1/1)')), (1, _('PerMonth(at 1)'))],
     )
     law_rule = forms.ChoiceField(
-        label=_("LawRules"),
+        label=_("勞基法工時規則"),
         required=True,
         widget=forms.Select,
         choices=[
@@ -223,7 +223,7 @@ class DepartmentChangeForm(forms.ModelForm):
         ],
     )
     schedule_rule = forms.ChoiceField(
-        label=_("RecalWorkHourDate"),
+        label=_("班種設定"),
         required=True,
         widget=forms.Select,
         choices=[
@@ -233,37 +233,16 @@ class DepartmentChangeForm(forms.ModelForm):
         ],
     )
     admin_in_schedule = forms.BooleanField(
-        label=_("AdminInSchedule"),
-        required=False,
-    )
-    part_time_in_holiday = forms.BooleanField(
-        label=_("PartTimeInHoliday"),
-        required=False,
-    )
-    intern_in_holiday = forms.BooleanField(
-        label=_("InternInHoliday"),
-        required=False,
-    )
-    intern_d_only = forms.BooleanField(
-        label=_("InternDOnly"),
+        label=_("管理者是否排班"),
         required=False,
     )
     same_day_notice = forms.IntegerField(
-        label=_("SameDayNotice"),
+        label=_("預約休假日人數過多提示"),
         required=True,
         min_value=0,
     )
-    begin_of_week = forms.IntegerField(
-        label=_("BeginOfWeek"),
-        required=True,
-        widget=forms.Select(
-            choices=[
-                (0, _('Monday')),
-                (6, _('Sunday'))
-            ])
-    )
     date_start = forms.DateField(
-        label=_('DateStart'),
+        label=_('起算日期'),
         required=True,
         widget=DateInput,
         localize=False)
@@ -279,9 +258,8 @@ class DepartmentChangeForm(forms.ModelForm):
         }
         fields = ['name', 'detail', 'limit_pre_schedule',
                   'deadline_pre_schedule', 'reset', 'law_rule',
-                  'schedule_rule', 'admin_in_schedule', 'part_time_in_holiday',
-                  'intern_in_holiday', 'intern_d_only', 'same_day_notice',
-                  'begin_of_week', 'date_start']
+                  'schedule_rule', 'admin_in_schedule',
+                  'date_start']
 
 
 class ImportForm(forms.Form):

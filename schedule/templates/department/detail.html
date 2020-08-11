@@ -73,42 +73,8 @@
                 </td>
             </tr>
             <tr>
-                <td>{% trans 'partTimeInHoliday' %}</td>
-                <td>
-                    {% if department.part_time_in_holiday %}<i class="fas fa-check"></i>
-                    {% else %}<i class="fas fa-times"></i>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>{% trans 'internInHoliday' %}</td>
-                <td>
-                    {% if department.intern_in_holiday %}<i class="fas fa-check"></i>
-                    {% else %}<i class="fas fa-times"></i>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>{% trans 'internDOnly' %}</td>
-                <td>
-                    {% if department.intern_d_only %}<i class="fas fa-check"></i>
-                    {% else %}<i class="fas fa-times"></i>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
                 <td>{% trans 'sameDayNotice' %}</td>
                 <td>{{ department.same_day_notice }} 人</td>
-            </tr>
-            <tr>
-                <td>{% trans 'beginOfWeek' %}</td>
-                <td>
-                    {% if department.begin_of_week == 0 %}
-                        {% trans 'Monday' %}
-                    {% else %}
-                        {% trans 'Sunday' %}
-                    {% endif %}
-                </td>
             </tr>
         </tbody>
     </table>

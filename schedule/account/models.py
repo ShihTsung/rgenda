@@ -10,7 +10,7 @@ LEVEL_CHOICES = (
     (3, _('N3')),
     (2, _('N2')),
     (1, _('N1')),
-    (0, _('Nn'))
+    (5, _('Nn'))
 )
 GENDER_CHOICES = (
     ('M', _('Male')),
@@ -36,26 +36,26 @@ TYPE_CHOICES = (
 class Department(models.Model):
     name = models.CharField(
         max_length=100,
-        verbose_name=_('Department'),
+        verbose_name=_('簡稱'),
     )
     detail = models.CharField(
         max_length=100,
-        verbose_name=_('Detail'),
+        verbose_name=_('科別名稱'),
     )
     limit_pre_schedule = models.IntegerField(
-        verbose_name=_("LimitPreSchedule"),
+        verbose_name=_("預約休假數量"),
         default=3,
     )
     deadline_pre_schedule = models.IntegerField(
-        verbose_name=_("DeadlinePreSchedule"),
+        verbose_name=_("預約休假期限"),
         default=19,
     )
     reset = models.IntegerField(
-        verbose_name=_("Reset"),
+        verbose_name=_("時數重置規則"),
         default=0,
     )
     law_rule = models.IntegerField(
-        verbose_name=_("LawRule"),
+        verbose_name=_("勞基法工時規則"),
         default=0,
         choices=(
             (0, _('一般工時，7休2')),
@@ -65,7 +65,7 @@ class Department(models.Model):
         ),
     )
     schedule_rule = models.IntegerField(
-        verbose_name=_("ScheduleRule"),
+        verbose_name=_("班種設定"),
         default=0,
         choices=(
             (0, _('單週同班種')),
@@ -74,32 +74,20 @@ class Department(models.Model):
         ),
     )
     admin_in_schedule = models.BooleanField(
-        verbose_name=_("AdminInSchedule"),
+        verbose_name=_("管理者是否排班"),
         default=False,
-    )
-    part_time_in_holiday = models.BooleanField(
-        verbose_name=_("PartTimeInHoliday"),
-        default=False,
-    )
-    intern_in_holiday = models.BooleanField(
-        verbose_name=_("InternInHoliday"),
-        default=False,
-    )
-    intern_d_only = models.BooleanField(
-        verbose_name=_("InternDOnly"),
-        default=True,
     )
     same_day_notice = models.IntegerField(
-        verbose_name=_("SameDayNotice"),
+        verbose_name=_("預約休假日人數過多提示"),
         default=5,
     )
     date_start = models.DateField(
-        verbose_name=_('DateStart'),
+        verbose_name=_('起算日期'),
         null=False,
         default=date(2020, 6, 9),
     )
     month_cycle = models.IntegerField(
-        verbose_name=_('MonthCycle'),
+        verbose_name=_('月週期'),
         null=True,
         default=1,
     )
