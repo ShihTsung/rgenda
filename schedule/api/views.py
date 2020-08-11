@@ -81,6 +81,8 @@ start_date = openapi.Parameter('start', openapi.IN_QUERY,
                                description="開始日期", type=openapi.TYPE_STRING)
 end_date = openapi.Parameter('end', openapi.IN_QUERY,
                              description="結束日期", type=openapi.TYPE_STRING)
+mode = openapi.Parameter('mode', openapi.IN_QUERY,
+                         description="模式", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -127,6 +129,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='獲得使用者清單',
         operation_description='GET 的說明',
+        manual_parameters=[mode, ]
     )
     def list(self, request):
         return super().list(request)

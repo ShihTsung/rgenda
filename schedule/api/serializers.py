@@ -79,7 +79,7 @@ class CustomUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id', 'full_name', 'department',
+            'id', 'full_name', 'department', 'can_be_scheduled',
             'level', 'eid', 'type_of_user', 'pregnant', 'schedule_state'
 
         )
