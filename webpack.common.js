@@ -9,6 +9,7 @@ module.exports = {
   context: path.join(__dirname, '/schedule/resources/src'),
   entry: {
     'account-list': './accounts/list.js',
+    'notice-list': './navbar/notice-list.js',
     'rgenda': './rgenda.scss',
   },
   output: {
