@@ -92,6 +92,8 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             mode = self.request.query_params.get('mode', None)
             if mode == 'resource':
                 return GetResourceUserSerializer
+            if mode == 'table':
+                return CustomUserListSerializer
             return GetCustomUserSerializer
         return CustomUserSerializer
 

@@ -50,6 +50,42 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
 
+class CustomUserListSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer()
+    level = serializers.SerializerMethodField()
+    pregnant = serializers.SerializerMethodField()
+    schedule_state = serializers.SerializerMethodField()
+
+    def get_level(self, obj):
+        if obj.level <= 4:
+            return 'N' + str(obj.level)
+        elif obj.level == 5:
+            return 'Nn'
+        else:
+            return ''
+
+    def get_pregnant(self, obj):
+        if obj.pregnant:
+            return "妊娠/哺乳期"
+        else:
+            return ""
+
+    def get_schedule_state(self, obj):
+        if obj.can_be_scheduled:
+            return "正常排班"
+        else:
+            return "暫停排班"
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'full_name', 'department',
+            'level', 'eid', 'type_of_user', 'pregnant', 'schedule_state'
+
+        )
+        read_only_fields = ('id', )
+
+
 class GetResourceUserSerializer(serializers.ModelSerializer):
     shift_num = serializers.SerializerMethodField()
     special_rest = serializers.SerializerMethodField()
