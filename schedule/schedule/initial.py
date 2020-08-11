@@ -247,7 +247,6 @@ def initial(request):
                                            attribute=attribute)
         newday.save()
         daystmp += datetime.timedelta(days=1)
-
 # station
     names = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
              '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
