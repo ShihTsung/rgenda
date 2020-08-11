@@ -152,8 +152,8 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         operation_summary='更新使用者資料',
         operation_description='PUT 的說明',
     )
-    def update(self, request, pk=None):
-        return super().update(request, pk)
+    def update(self, request, pk=None, partial=False):
+        return super().update(request, pk, partial)
 
     @swagger_auto_schema(
         operation_summary='部分更新',

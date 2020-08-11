@@ -98,6 +98,7 @@ class Department(models.Model):
 
 # User 模型
 class CustomUser(AbstractUser):
+
     department = models.ForeignKey(
         Department,
         on_delete=models.CASCADE,
@@ -132,16 +133,19 @@ class CustomUser(AbstractUser):
         max_length=20,
         choices=GENDER_CHOICES,
         verbose_name=_('性別'),
-        default="Male")
+        default="Male",
+        null=True)
 
     type_of_user = models.CharField(
         max_length=20, choices=TYPE_CHOICES,
         verbose_name=_('排班身份'),
-        default="正職")
+        default="正職",
+        null=True)
 
     pregnant = models.BooleanField(
         verbose_name=_('其他'),
         default=False,
+        null=True
     )
 
     can_be_scheduled = models.BooleanField(
