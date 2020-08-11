@@ -1,20 +1,65 @@
 <template>
   <div>
-    <!-- <vue-good-table
+    <!-- modal - del user -->
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="true"
+    data-backdrop="static">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="exampleModalScrollableTitle">刪除使用者</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>確定刪除？</p>
+            <div class="row">
+              <div class="col text-right"><button class="btn btn-primary" type="button"
+                @click="cancelDeletion()"
+                data-dismiss="modal">取消</button></div>
+              <div class="col text-left"><button id="btn-delete" class="btn btn-danger"
+              @click="destory()"
+                type="button">刪除</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- \modal - del user -->
+
+    <!-- users table -->
+    <vue-good-table v-if="loading"
       :columns="columns"
       :rows="rows"
       :search-options="{
         enabled: true,
       }">
       <template slot="table-row" slot-scope="props">
-        <template v-if="props.column.field == 'functions'">
-          <a href="/accounts/update/">
-            <div class="btn icon-bts"><i class="fas fa-edit"></i></div>
+        <template v-if="props.column.field == 'can_be_scheduled'">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" :id="'can_be_scheduled_' + props.row.id"
+            @change="changeSchedule(props.row.id, props.row.username, !props.row.can_be_scheduled)"
+            :checked="props.row.can_be_scheduled">
+            <label class="form-check-label" :for="'can_be_scheduled_' + props.row.id">
+              正常排班
+            </label>
+        </div>
+        </template>
+        <template v-else-if="props.column.field == 'functions'">
+          <a :href="'/accounts/' + props.row.id" class="btn icon-bts" data-tooltip="tooltip" title="編輯">
+            <i class="fas fa-edit"></i>
           </a>
-          <button class="btn icon-bts" type="button" data-toggle="modal" data-target="#modal-delete" value=""><i class="fa fa-trash-alt"></i></button>
+          <button class="btn icon-bts" type="button" data-toggle="modal" data-target="#modalDelete"
+          data-tooltip="tooltip" title="刪除" @click="comfirmDeletion(props.row.id)"><i class="fa fa-trash-alt"></i></button>
         </template>
       </template>
-    </vue-good-table> -->
+    </vue-good-table>
+    <div v-if="noData">
+      <div class="row col-12 text-center">
+        <p class="form-control-plaintext">無資料</p>
+      </div>
+    </div>
+    <!-- \users table -->
   </div>
 </template>
 
@@ -39,51 +84,54 @@ export default {
       type: Number,
       default: 0,
     },
+    csrfToken: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
-      // columns: [
-      //   {
-      //     label: '部門',
-      //     field: 'department',
-      //   },
-      //   {
-      //     label: '員工編號',
-      //     field: 'username',
-      //   },
-      //   {
-      //     label: '姓名',
-      //     field: 'full_name',
-      //   },
-      //   {
-      //     label: '職級',
-      //     field: 'level',
-      //   },
-      //   {
-      //     label: '排班身份',
-      //     field: 'type_of_user'
-      //   },
-      //   {
-      //     label: '其他',
-      //     field: 'pregnant'
-      //   },
-      //   {
-      //     label: '排班狀況',
-      //     field: 'can_be_scheduled'
-      //   },
-      //   {
-      //     label: '功能',
-      //     field: 'functions'
-      //   },
-      // ],
-      // rows: [
-      //   { id:1, name:"John", age: 20, createdAt: '',score: 0.03343 },
-      //   { id:2, name:"Jane", age: 24, createdAt: '2011-10-31', score: 0.03343 },
-      //   { id:3, name:"Susan", age: 16, createdAt: '2011-10-30', score: 0.03343 },
-      //   { id:4, name:"Chris", age: 55, createdAt: '2011-10-11', score: 0.03343 },
-      //   { id:5, name:"Dan", age: 40, createdAt: '2011-10-21', score: 0.03343 },
-      //   { id:6, name:"John", age: 20, createdAt: '2011-10-31', score: 0.03343 },
-      // ],
+      loading: false,
+      noData: false,
+      deleteId: 0,
+      columns: [
+        {
+          label: '部門',
+          field: 'department',
+        },
+        {
+          label: '員工編號',
+          field: 'eid',
+        },
+        {
+          label: '姓名',
+          field: 'full_name',
+        },
+        {
+          label: '職級',
+          field: 'level',
+        },
+        {
+          label: '排班身份',
+          field: 'type_of_user',
+        },
+        {
+          label: '其他',
+          field: 'pregnant',
+          sortable: false,
+        },
+        {
+          label: '排班狀況',
+          field: 'can_be_scheduled',
+          sortable: false,
+        },
+        {
+          label: '功能',
+          field: 'functions',
+          sortable: false,
+        },
+      ],
+      rows: [],
     };
   },
   methods: {
@@ -92,31 +140,97 @@ export default {
     },
     getUsers() {
       let self = this;
-      let url = `/api/users`;
+      let url = `/api/users/?mode=table`;
       this.$httpClient.get(url)
         .then(function (response) {
-          // let flavors = response.data.result.data.flavors;
-          // if (flavors.length > 0) {
-          //   self.flavors = flavors;
-          // } else {
-          //   self.flavors = null;
-          // }
-          console.log(response.data);
+          let data = response.data;
+          if (data.length > 0) {
+            self.transformer(data);
+            self.loading = true;
+            self.noData = false;
+          } else {
+            self.rows = [];
+            self.noData = true;
+          }
         })
         .catch(function (error) {
           // handle error
           popup.error({
             title: error.title,
-            html: httpRep.messageJoin(error.message),
+            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+          });
+          console.log(error);
+        });
+    },
+    transformer(data) {
+      let newArr = [];
+      this.rows = data.map(function(obj) {
+        let element = {
+          id: obj.id,
+          username: obj.username,
+          department: obj.department.detail,
+          eid: obj.eid,
+          full_name: obj.full_name,
+          level: obj.level,
+          type_of_user: obj.type_of_user,
+          pregnant: obj.pregnant,
+          can_be_scheduled: obj.can_be_scheduled,
+        };
+        return element;
+      });
+    },
+    comfirmDeletion(id) {
+      this.deleteId = id;
+    },
+    destory() {
+      let self = this;
+
+      // self.rows.splice(self.deleteId, 1);
+      self.rows = self.rows.filter(function(obj) {
+        return obj.id !== self.deleteId;
+      });
+
+      $('#modalDelete').modal('hide')
+    },
+    cancelDeletion() {
+      this.deleteId = 0;
+    },
+    changeSchedule(id, username, bool) {
+      let self = this;
+      let url = `/api/users/${id}/`;
+      let params = {
+        username: username,
+        can_be_scheduled: bool,
+      };
+      const formConfig = {
+        headers: {
+          'X-CSRFToken': `${this.csrfToken}`
+        }
+      };
+
+      popup.loading({
+        title: "處理中...",
+      });
+
+      this.$httpClient.patch(url, params, formConfig)
+        .then(function (response) {
+          popup.success({
+            title: "更新排班狀況",
+            text: "請求成功",
+          });
+        })
+        .catch(function (error) {
+          // handle error
+          popup.error({
+            title: error.title,
+            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
           });
           console.log(error);
         });
     },
   },
   mounted() {
-    // console.log(this.role);
-    // console.log(this.isManager());
-    // console.log(this.isSuperuser);
+    this.getUsers();
   }
 }
 </script>
