@@ -17,15 +17,20 @@ LEVEL_CHOICES = (
     (4, _('N4')),
     (3, _('N3')),
     (2, _('N2')),
-    (1, _('N, N1'))
+    (1, _('N1')),
+    (0, _('Nn'))
 )
 GENDER_CHOICES = (
     ('M', _('Male')),
     ('F', _('Female'))
 )
 TYPE_CHOICES = (
-    ('Normal', _('Normal')),
-    ('PartTime', _('PartTime'))
+    ('正職', _('正職')),
+    ('資深正職', _('資深正職')),
+    ('行政職', _('行政職')),
+    ('新進人員', _('新進人員')),
+    ('兼職人員', _('兼職人員')),
+    ('實習生', _('實習生')),
 )
 
 
@@ -68,72 +73,73 @@ class CustomUserChangeForm(UserChangeForm):
 
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
-        label=_('Department'), required=False)
+        label=_('科別'), required=False)
 
-    level = forms.IntegerField(label=_('Level'), widget=forms.widgets.Select(
+    level = forms.IntegerField(label=_('職級'), widget=forms.widgets.Select(
         choices=LEVEL_CHOICES))
 
-    is_senior = forms.BooleanField(label=_('IsSenior'))
+    is_senior = forms.BooleanField(label=_('資深'))
+
+    job_title = forms.CharField(
+        max_length=100,
+        label=_('職稱'),
+        required=False
+    )
 
     full_name = forms.CharField(
         max_length=100,
-        label=_('FullName'),
+        label=_('姓名'),
         required=False)
 
     role = forms.CharField(
         max_length=100,
-        label=_('Role'),
+        label=_('權限'),
         widget=forms.widgets.Select(choices=ROLE_CHOICES)
     )
 
     gender = forms.CharField(
-        label=_('Gender'),
+        label=_('性別'),
         max_length=20,
         widget=forms.widgets.Select(
             choices=GENDER_CHOICES),
         required=False
     )
     type_of_user = forms.CharField(
-        label=_('Type'),
+        label=_('排班身份'),
         max_length=20,
         widget=forms.widgets.Select(
             choices=TYPE_CHOICES)
     )
     pregnant = forms.BooleanField(
-        label=_('Pregnant'),
+        label=_('其他'),
         required=False,
     )
     can_be_scheduled = forms.BooleanField(
-        label=_('CanBeScheduled'),
+        label=_('排班狀況'),
         required=False,
         initial=False
     )
 
     holiday_rest_num = forms.IntegerField(
-        label=_('HolidayRestNum'),
+        label=_('假日可休假日數'),
         disabled=True,
         required=False
     )
     special_rest_num = forms.IntegerField(
-        label=_('SpecialRestNum'),
+        label=_('特休'),
         disabled=True,
         required=False
     )
     hour_required = forms.IntegerField(
-        label=_('HourRequired'),
-        disabled=True,
-        required=False
-    )
-    hour_realized = forms.IntegerField(
-        label=_('HourRealized'),
+        label=_('應排班時數'),
         disabled=True,
         required=False
     )
 
-    eid = forms.CharField(label=_('EmployeeId'),
+    eid = forms.CharField(label=_('工號'),
                           max_length=100, empty_value="Null")
     onboard_date = forms.DateField(
-        label=_('OnboardDate'),
+        label=_('到職日'),
         widget=DateInput)
 
     class Meta:
@@ -144,11 +150,11 @@ class CustomUserChangeForm(UserChangeForm):
                                              'type': 'date'
                                              })
         }
-        fields = ('username', 'full_name', 'email', 'department',
+        fields = ('username', 'full_name', 'email', 'department', 'job_title',
                   'level', 'is_senior', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
                   'special_rest_num', 'hour_required',
-                  'hour_realized', 'eid', 'onboard_date')
+                  'eid', 'onboard_date')
 
 # 消除 help_text
 

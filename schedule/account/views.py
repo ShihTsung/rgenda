@@ -221,12 +221,17 @@ def userDetail(request, id):
     colors = ["#EAEAEA", '#A6C2CE', '#84B1ED', '#37419A']
     user_color = colors[user.level-1]
     applications = ExchangeApplication.objects.filter(user_receive=user)
-
+    unused = user.special_rest_num - user.special_rest_num_used
+    rules = ['一般工時，7休2', '雙週變形工時，14休4',
+             '四週變形工時，28休8', '八週變形工時，56休16']
+    rule = rules[user.department.law_rule]
     return render(request,
                   'registration/detail.html',
                   {'target_user': user,
                    'user_color': user_color,
-                   'applications': applications})
+                   'applications': applications,
+                   'unused': unused,
+                   'rule': rule})
 
 
 # 刪除使用者資料

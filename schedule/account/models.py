@@ -9,21 +9,26 @@ LEVEL_CHOICES = (
     (4, _('N4')),
     (3, _('N3')),
     (2, _('N2')),
-    (1, _('N, N1'))
+    (1, _('N1')),
+    (0, _('Nn'))
 )
 GENDER_CHOICES = (
     ('M', _('Male')),
     ('F', _('Female'))
 )
 ROLE_CHOICES = (
-    ('admin', _('admin')),
-    ('manager', _('manager')),
-    ('user', _('user'))
+    ('admin', _('Admin')),
+    ('manager', _('Manager')),
+    ('user', _('User'))
 )
 
 TYPE_CHOICES = (
-    ('Normal', _('Normal')),
-    ('PartTime', _('PartTime')),
+    ('正職', _('正職')),
+    ('資深正職', _('資深正職')),
+    ('行政職', _('行政職')),
+    ('新進人員', _('新進人員')),
+    ('兼職人員', _('兼職人員')),
+    ('實習生', _('實習生')),
 )
 
 
@@ -108,86 +113,90 @@ class CustomUser(AbstractUser):
     department = models.ForeignKey(
         Department,
         on_delete=models.CASCADE,
-        verbose_name=_('Department'),
+        verbose_name=_('科別'),
         null=True)
 
     full_name = models.CharField(
         max_length=100,
-        verbose_name=_('FullName'),
+        verbose_name=_('姓名'),
         null=True)
-
+    job_title = models.CharField(
+        max_length=100,
+        verbose_name=_('職稱'),
+        null=True
+    )
     level = models.IntegerField(
-        verbose_name=_('Level'),
+        verbose_name=_('職級'),
         choices=LEVEL_CHOICES,
         null=True)
 
     is_senior = models.BooleanField(
-        verbose_name=_('IsSenior'),
+        verbose_name=_('資深'),
         null=True
     )
 
     role = models.CharField(
         max_length=100,
-        verbose_name=_('Role'),
+        verbose_name=_('權限'),
         null=True, choices=ROLE_CHOICES)
 
     gender = models.CharField(
         max_length=20,
         choices=GENDER_CHOICES,
-        verbose_name=_('Gender'),
+        verbose_name=_('性別'),
         default="Male")
 
     type_of_user = models.CharField(
         max_length=20, choices=TYPE_CHOICES,
-        verbose_name=_('Type'),
-        default="Normal")
+        verbose_name=_('排班身份'),
+        default="正職")
 
     pregnant = models.BooleanField(
-        verbose_name=_('Pregnant'),
+        verbose_name=_('其他'),
         default=False,
     )
 
     can_be_scheduled = models.BooleanField(
-        verbose_name=_('CanBeScheduled'),
+        verbose_name=_('排班狀況'),
         null=True,
         default=True)
 
     holiday_rest_num = models.IntegerField(
-        verbose_name=_('HolidayRestNum'),
+        verbose_name=_('假日休假數'),
         null=True,
         default=10)
 
     holiday_rest_num_used = models.IntegerField(
-        verbose_name=_('HolidayRestNumUsed'),
+        verbose_name=_('已休假日休假數'),
         null=True,
         default=0)
 
     special_rest_num = models.IntegerField(
-        verbose_name=_('SpecialRestNum'),
+        verbose_name=_('特休'),
         null=True,
         default=10)
 
     special_rest_num_used = models.IntegerField(
-        verbose_name=_('SpecialRestNumUsed'),
+        verbose_name=_('累計已休特休'),
         null=True,
         default=0)
 
     eid = models.CharField(
         max_length=100,
-        verbose_name=_('EmployeeId'),
+        verbose_name=_('工號'),
         null=True)
 
     hour_required = models.FloatField(
-        verbose_name=_('HourRequired'),
+        verbose_name=_('應排班時數'),
         null=True,
         default=0.0)
     hour_realized = models.FloatField(
-        verbose_name=_('HourRealized'),
+        verbose_name=_('已排班時數'),
         null=True,
         default=0.0)
 
     onboard_date = models.DateField(
-        verbose_name=_('OnboardDate'),
+        verbose_name=_('到職日'),
         null=True)
 
     def __str__(self):

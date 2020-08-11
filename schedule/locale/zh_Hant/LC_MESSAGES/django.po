@@ -83,7 +83,7 @@ msgstr "工讀生"
 #: schedule/templates/shifts/shiftList.html:61
 #: schedule/templates/stations/stationList.html:57
 msgid "Department"
-msgstr "部門(科別)"
+msgstr "科別"
 
 #: schedule/account/forms.py:45 schedule/account/forms.py:130
 #: schedule/account/models.py:186
@@ -113,11 +113,11 @@ msgstr "性別"
 
 #: schedule/account/forms.py:91 schedule/account/models.py:138
 msgid "Type"
-msgstr "類型"
+msgstr "排班身份"
 
 #: schedule/account/forms.py:97 schedule/account/models.py:142
 msgid "Pregnant"
-msgstr "懷孕"
+msgstr "其他"
 
 #: schedule/account/forms.py:101 schedule/account/models.py:147
 msgid "CanBeScheduled"
@@ -763,7 +763,7 @@ msgstr "特休"
 
 #: schedule/templates/registration/detail.html:161
 msgid "type"
-msgstr "類型"
+msgstr "排班身份"
 
 #: schedule/templates/registration/detail.html:167
 msgid "holidayRestUsed"
@@ -789,7 +789,7 @@ msgstr "更改密碼"
 
 #| msgid "Name"
 msgid "UserName"
-msgstr "名稱"
+msgstr "帳號"
 
 #: schedule/templates/registration/userList.html:61
 

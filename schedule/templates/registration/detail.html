@@ -23,7 +23,7 @@
                         <input name="liscenseName" type="text" class="form-control">
                     </div>
                 </div>
-                
+
                 <div class="form-group row">
                     <label for="liscenseDate" class="col-sm-4 col-form-label offset-1">{%trans 'LiscenseDate'%}</label>
                     <div class="col-sm-7">
@@ -74,7 +74,7 @@
                     <div class="col-sm-4" id="preview-window-2">證照背面</div>
                 </div>
 
-              
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
@@ -96,14 +96,14 @@
                 </div>
                 <div class="col">
                     <h2>{{target_user.full_name}}</h2>
-                    <h5>{{target_user.department}}</h5>
+                    <h5>{{target_user.department}}-{{target_user.job_title}}</h5>
                 </div>
             </div>
 
             <table class="table table-striped table-bordered">
                 <tbody>
                     <tr>
-                        <td>{% trans 'username' %}</td>
+                        <td>帳號</td>
                         <td>{{target_user.username}}</td>
                     </tr>
                     <tr>
@@ -111,44 +111,24 @@
                         <td>{{target_user.email}}</td>
                     </tr>
                     <tr>
-                        <td>{% trans 'Fullname' %}</td>
-                        <td>{{target_user.full_name}}</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans 'level' %}</td>
-                        <td>{{target_user.level}}</td>
-                    </tr>
-                    <tr>
-                        <td>{% trans 'eid' %}</td>
+                        <td>員工編號</td>
                         <td>{{target_user.eid}}</td>
                     </tr>
                     <tr>
-                        <td>{% trans 'gender' %}</td>
+                        <td>性別</td>
                         <td>{{target_user.gender}}</td>
                     </tr>
                     <tr>
-                        <td>{% trans 'canSchedule' %}</td>
-                        <td>{{target_user.can_be_scheduled}}</td>
+                        <td>到職日</td>
+                        <td>{{target_user.onboard_date}}</td>
                     </tr>
                     <tr>
-                        <td>{% trans 'role' %}</td>
-                        <td>
-                            {{target_user.role}}
-                        </td>
+                        <td>特休(未休/可休)</td>
+                        <td>{{unused}}/{{target_user.special_rest_num}}</td>
                     </tr>
-
                     <tr>
-                        <td>{% trans 'holidayRest' %}</td>
-                        <td>
-                            {{target_user.holiday_rest_num}}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>{% trans 'specialRest' %}</td>
-                        <td>
-                            {{target_user.special_rest_num}}
-                        </td>
+                        <td>累計補休</td>
+                        <td>0</td>
                     </tr>
                 </tbody>
             </table>
@@ -158,35 +138,48 @@
             <table class="table table-striped table-bordered">
                 <tbody>
                     <tr>
-                        <td>{% trans 'type' %}</td>
+                        <td>排班狀況</td>
+                        <td>{%if target_user.can_be_scheduled%}
+                          一般排班
+                          {%else%}
+                          暫停排班
+                          {%endif%}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>排班身份</td>
                         <td>
                             {{target_user.type_of_user}}
                         </td>
                     </tr>
                     <tr>
-                        <td>{% trans 'holidayRestUsed' %}</td>
+                        <td>排班規則</td>
                         <td>
-                            {{target_user.holiday_rest_num_used}}
+                            {{rule}}
                         </td>
                     </tr>
                     <tr>
-                        <td>{% trans 'workhourRequired' %}</td>
+                        <td>包班</td>
                         <td>
-                            {{target_user.hour_required}}
+                            X
                         </td>
                     </tr>
                     <tr>
-                        <td>{% trans 'workhourRealized' %}</td>
+                        <td>其他</td>
                         <td>
-                            {{target_user.hour_realized}}
+                          {%if target_user.pregnant%}
+                          妊娠/哺乳期
+                          {%else%}
+                          無
+                          {%endif%}
                         </td>
                     </tr>
                     <tr>
-                        <td>{% trans 'specialRestUsed' %}</td>
-                        <td>
-                            {{target_user.special_rest_num_used}}
-                        </td>
-                    </tr>
+                      <td>已休週末及國定假日</td>
+                      <td>
+                          {{target_user.holiday_rest_num_used}}
+                      </td>
+                  </tr>
                 </tbody>
             </table>
         </div>
@@ -206,7 +199,7 @@
                 <a href="#" id="newLiscense"><i class="fas fa-pen"></i> 新增</a>
                 {% endif %}
             </div>
-           
+
             <div class="card liscense-card">
                 {% if liscense %}
                     {% for app in applications %}
@@ -293,7 +286,7 @@
     //     // file = form.elements.liscensePicture2.files[0]
     //     // uploadData.append('liscense_picture2', file, file.name);
     //     console.log(uploadData)
-        
+
     // });
     document.getElementById('save').addEventListener('click', function(e){
         // e.preventDefault();
@@ -305,10 +298,10 @@
         uploadData.append('date', form.elements.liscenseDate);
         uploadData.append('due', form.elements.liscenseDueDate);
         console.log(form.liscenseName.value)
-        
+
     });
-    
-    
+
+
 
 </script>
 
