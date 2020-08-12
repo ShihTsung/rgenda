@@ -568,6 +568,12 @@ def last_month_continue(request):
     month_head = request.GET.get('month_head')
     date0 = datetime.strptime(month_head, '%Y-%m-%d')
     output = dict()
+    type_dict = {
+        '白班': 'A',
+        '小夜': 'E',
+        '大夜': 'N',
+        '公假': '公'
+    }
     for user in users:
         output[user.id] = list()
         results = Result.objects.filter(
@@ -578,5 +584,9 @@ def last_month_continue(request):
                 output[user.id].append(result.shift.shift_type)
             else:
                 output[user.id] = list()
+        outstr = ''
+        for x in output[user.id]:
+            outstr += type_dict[x]
+        output[user.id] = outstr
 
     return Response(output)
