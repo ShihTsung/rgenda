@@ -299,9 +299,9 @@
       eventRender: function(info) {
         let prop = info.event.extendedProps;
 
-        if (prop.shift.shift_type=="休假"){
+        if (prop.shift.shift_type=="有薪假"||prop.shift.shift_type=="無薪假"){
           info.event.remove();
-        }else if(prop.shift.shift_type=="公假"){
+        }else if(prop.shift.shift_type=="oncall"){
           info.event.remove();
         }else{
           $(info.el).tooltip({

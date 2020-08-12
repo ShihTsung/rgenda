@@ -18,6 +18,9 @@ router.register(r'promises', views.PromiseShiftViewSet)
 router.register(r'liscenses', views.LiscenseViewSet)
 router.register(r'notifications', views.NotificationViewSet)
 router.register(r'time-ajustment', views.TimeAdjustmentViewSet)
+router.register(r'user-remarks', views.UserRemarkViewSet)
+router.register(r'remark-squares', views.RemarkSquareViewSet)
+router.register(r'result-remarks', views.ResultRemarkViewSet)
 
 
 urlpatterns = [

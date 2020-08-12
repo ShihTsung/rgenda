@@ -527,3 +527,21 @@ def mark_all_notices_read(request):
         return Response({'status': 'success'})
     else:
         return Response({'status': 'permission denied'})
+
+
+class UserRemarkViewSet(viewsets.ModelViewSet):
+    queryset = UserRemark.objects.all()
+    serializer_class = UserRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class RemarkSquareViewSet(viewsets.ModelViewSet):
+    queryset = RemarkSquare.objects.all()
+    serializer_class = RemarkSquareSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class ResultRemarkViewSet(viewsets.ModelViewSet):
+    queryset = ResultRemark.objects.all()
+    serializer_class = ResultRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
