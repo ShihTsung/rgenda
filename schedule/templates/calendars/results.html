@@ -120,13 +120,17 @@
                   <div class="icon-bts">
                       <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 24 24"><path d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z"/></svg>
                   </div>
-                  <div class="add_sub_wrapper">
-                      <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"/></svg>
-                          <div class="icon-bts" id="prev_next">
-                              <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
-                          </div>
-                      <svg class="icon-color right" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
-                  </div>
+                  <div @click="changeDate($event)" class="add_sub_wrapper">
+                      <div id="prev">
+                        <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"/></svg>
+                      </div>  
+                      <div class="icon-bts" id="prev_next">
+                          <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
+                      </div>
+                      <div id="next">
+                        <svg class="icon-color right" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"><path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z"/></svg>
+                      </div>
+                    </div>
                   <!-- <div class="switch_wrapper" @click="month_week_bt = !month_week_bt">
                       <div class="icon-bts" id="month_or_week">
                           <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
@@ -192,33 +196,33 @@
                   </tr>
                 
                 
-                  <tr v-if="!isReady" class="user-row" v-for="u in userNumber" :key="u">
-                      <td class="futureDay" style="width: 75px">-</td>
-                      <td class="futureDay" style="width: 30px">-</td>
-                      <td class="user-first-col futureDay" style="width: 140px">-</td>
-                      <td class="pastDay" style="width: 45px">-</td>
+                  <tr class="user-row" v-for="u in userData" :key="u">
+                      <td class="futureDay" style="width: 75px">-</td>  
+                      <td class="futureDay" style="width: 30px">-</td>                     
+                      <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>                     
+                      <td class="pastDay" style="width: 45px">-</td>                     
                       <td class="user-content-col"  v-for="d in getYear(year,month)" :key="d" :class="{pastDay: isPastF(d), futureDay: !isPastF(d)}">
                         <div style="font-size: 1rem; width: 1vw; display: inline-block;">
                           -
                         </div>
-                      </td>
-                      <td class="user-last-col pastDay">&nbsp;</td>
+                      </td>                      
+                      <td class="user-last-col pastDay">&nbsp;</td>                      
+                      <td class="futureDay">-</td>                      
+                      <td class="pastDay">-</td>                     
+                      <td class="futureDay">-</td>                      
+                      <td class="futureDay">-</td>                      
+                      <td class="futureDay">-</td>                      
+                      <td class="pastDay">-</td>                      
+                      <td class="futureDay">-</td>
+                      <td class="futureDay">-</td>
                       <td class="futureDay">-</td>
                       <td class="pastDay">-</td>
                       <td class="futureDay">-</td>
                       <td class="futureDay">-</td>
-                      <td class="futureDay">-</td>
-                      <td class="pastDay">-</td>
-                      <td class="futureDay">-</td>
-                      <td class="futureDay">-</td>
-                      <td class="futureDay">-</td>
-                      <td class="pastDay">-</td>
-                      <td class="futureDay">-</td>
-                      <td class="futureDay">-</td>
-                  
+
                   </tr>
                   
-                  <tr v-if="isReady" class="user-row" v-for="u in userData" :key="u">
+                  <!-- <tr v-if="isReady" class="user-row" v-for="u in userData" :key="u">
                     <td class="futureDay" style="width: 75px">[[getUser(u.id).user.eid]]</td>
                     <td class="futureDay" style="width: 30px">[[getLevel(getUser(u.id).user.level)]]</td>
                     <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>
@@ -228,7 +232,7 @@
                         [[userShift.shift_type]]
                       </div>
                     </td>
-                    <td class="pastDay">-</td>
+                    <td class="user-last-col pastDay">&nbsp;</td> 
                     <td class="futureDay">[[workhr(u.full_name, month, getYear(year, month), "false")]]</td>
                     <td class="pastDay">[[workhr(u.full_name, month, date, "false")]]</td>
                     <td class="futureDay">-</td>
@@ -241,7 +245,7 @@
                     <td class="pastDay">-</td>
                     <td class="futureDay">-</td>
                     <td class="futureDay">-</td>
-                </tr>
+                  </tr> -->
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
@@ -356,7 +360,7 @@
       month_normal : [0,31,28,31,30,31,30,31,31,30,31,30,31],//非閏年天數
       weekday: ["日", "一", "二", "三", "四", "五", "六"],
       year : new Date().getFullYear(),
-      month : new Date().getMonth(),//要+1
+      month : new Date().getMonth() + 1,
       date: new Date().getDate(),
       month_week_bt: false,
       userData: Object,
@@ -487,7 +491,26 @@
           return pub_hr;
         }
         
-      }
+      },
+      changeDate(ev) {
+        if(ev.target.id === "prev") {
+          this.month--;
+          if(this.month < 1) {
+            this.year--;
+            this.month = 12;
+          }
+        }else if(ev.target.id === "next") {
+          this.month++;
+          if(this.month > 12) {
+            this.year++;
+            this.month = 1;
+          }
+        }else {
+          this.year = new Date().getFullYear();
+          this.month = new Date().getMonth() + 1;
+        };
+      },
+      
     },
     
       // getWeek(today) {
@@ -1071,12 +1094,12 @@
     }
     .icon-color {
         fill: #a6a6a6;
-        margin-top: -3px;
+        margin-top: 2px;
     }
     .add_sub_wrapper{
         border: 1px solid #a6a6a6;
         border-radius: 3px;
-        width: 80px;
+        width: 90px;
         height: 30px;
         float: left;
         text-align: center;
@@ -1086,11 +1109,23 @@
     }
     #prev_next{
         margin-top: -1px;
-        margin-left: 7px;
+        margin-left: 0px;
         box-sizing: border-box;
         border: none;
         border-right:1px solid #a6a6a6;
         border-left: 1px solid #a6a6a6;
+        float: left;
+    }
+    #prev{
+      width: 28px;
+      height: 30px;
+      display: inline-block;
+      float: left;
+    }
+    #next{
+      width: 28px;
+      height: 30px;
+      display: inline-block;
     }
     .left{
         float: left;
@@ -1266,6 +1301,9 @@
       display: inline-block;
       border-left: 1px solid black;
       height: 29px;
+    }
+    svg{
+      pointer-events: none;
     }
 </style>
 {% endblock %}

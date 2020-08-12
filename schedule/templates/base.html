@@ -106,6 +106,9 @@
         #side-data-analysis:hover{
             cursor: pointer;
         }
+        #side-dates:hover{
+            cursor: pointer;
+        }
         .container{
             width: 82vw;
         }
@@ -268,18 +271,27 @@
                         <a id="side-account" style="color: #37419A;" href="/accounts/list" class="fold_obj sidebar_w">
                             人員清單</a>
                         <a id="side-account" style="color: #37419A;" href="/accounts/license" class="fold_obj sidebar_w">
-                            證照管理</a>
+                            證照審核</a>
                         {% endif %}
                     </div>
                     {% endif %}
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
-                    <a id="side-dates" href="/dates/date_management" class="list-group-item list-group-item-action sidebar_w">
+                    <div id="side-dates" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
-                        日曆設定</a>
+                        日曆設定</div>
                     <!-- sidebar shrink -->
-                    <div class="side_s" style="visibility: hidden;">
+                    <div class="side_s" id="d" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
+                    </div>
+
+                    <div id="d_fold" class="fold arr">
+                        {% if user.role in 'admin, manager' or user.is_superuser %}
+                        <a id="side-dates"style="color: #37419A;" href="/dates/date_management" class="fold_obj sidebar_w">
+                            日曆管理</a>
+                        <a id="side-dates" style="color: #37419A;" href="/dates/config_management" class="fold_obj sidebar_w">
+                            日曆配置</a>
+                        {% endif %}
                     </div>
                     {% endif %}
 
@@ -340,6 +352,7 @@
                 let unfold_wm = false;
                 let unfold_ac = false;
                 let unfold_da = false;
+                let unfold_d = false;
                 //nav
                 let nav_fold = true;
                 const onav = document.querySelector('.navbar');
@@ -358,6 +371,7 @@
                     $("#arr_fold").addClass("fold");
                     $("#wm_fold").addClass("fold");
                     $("#da_fold").addClass("fold");
+                    $("#d_fold").addClass("fold");
                 
                     if(nav_fold){
                         onav.style.left = '200px';
@@ -423,6 +437,10 @@
                             spread_ev();
                             $("#da_fold").removeClass("fold");
                             break;
+                        case "d":
+                            spread_ev();
+                            $("#d_fold").removeClass("fold");
+                            break;
                         default:
                             spread_ev();
                             break;
@@ -433,7 +451,7 @@
                     $.cookie("sideClicked", e.target.id, { path: "/" });
                     
                     $(".sidebar_w").removeClass("clicked");
-                    if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"||e.target.id ==="side-data-analysis"){
+                    if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"||e.target.id ==="side-data-analysis"||e.target.id==="side-dates"){
                         document.getElementById(e.target.id).classList.add("clicked");
                     }
                     
@@ -441,7 +459,7 @@
                 let sideClicked = $.cookie("sideClicked");
 
                 if(sideClicked){
-                    if(!(sideClicked==="acm"||sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon"||sideClicked==="da")){
+                    if(!(sideClicked==="acm"||sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon"||sideClicked==="da"||sideClicked==="d")){
                         document.getElementById(sideClicked).classList.add("clicked");
                     }
                 };
@@ -501,6 +519,18 @@
                             $("#wm_fold").addClass("fold");
                         }else{
                             $("#da_fold").addClass("fold");
+                        }
+                    }else if(e.target.id ==="side-dates"){
+                        unfold_d = !unfold_d;
+                        if(unfold_d === true){
+                            $("#d_fold").removeClass("fold");
+                            $("#da_fold").addClass("fold");
+                            $("#acc_fold").addClass("fold");
+                            $("#arr_fold").addClass("fold");
+                            $("#arra_fold").addClass("fold");
+                            $("#wm_fold").addClass("fold");
+                        }else{
+                            $("#d_fold").addClass("fold");
                         }
                     }
                 })
