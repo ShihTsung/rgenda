@@ -84,19 +84,21 @@ def userList(request):
         manager_num = defaultdict(int)
         for user in users:
             if user.role == 'manager':
-                manager_num[user.departmant.name] += 1
-        departments = [
-            department.name for department in Department.objects.all()]
+                manager_num[user.departmant.detail] += 1
+        departments = [department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
-        if row0 != ('Username', 'Email address', 'Full name', 'Department', 'Level', 'Gender', 'Role', 'Type', 'Employee ID', 'Onboard Date'):
+        if row0 != ('', '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
             messages.error(request, row0)
             return redirect('/accounts/list')
-        for row in ws.iter_rows(values_only=True, min_row=3):
-            error_message = check_excel(
-                row, usernames, departments, eids, manager_num, raw_data)
-            if error_message:
-                messages.error(request, error_message)
+        for row in ws.iter_rows(values_only=True, min_row=2):
+            if row[0] == '範例':
+                continue
+            error_message = check_excel(row, usernames, departments, eids, manager_num, raw_data)
+            if error_message == 'END':
+                break
+            elif error_message:
+                messages.error(request, '' + error_message)
                 return redirect('/accounts/list')
         for name in raw_data:
             user = CustomUser(
@@ -107,9 +109,12 @@ def userList(request):
                 level=raw_data[name]['level'],
                 role=raw_data[name]['role'],
                 gender=raw_data[name]['gender'],
-                type_of_user=raw_data[name]['type'],
+                type_of_user=raw_data[name]['user type'],
                 eid=raw_data[name]['employee id'],
                 onboard_date=raw_data[name]['onboard date'],
+                pregnant=raw_data[name]['pregnant'],
+                can_be_scheduled=raw_data[name]['can be scheduled'],
+                password=raw_data[name]['password'],
             )
             user.save()
             messages.success(request, 'Users import success')
@@ -137,17 +142,21 @@ def userList(request):
 def check_excel(row, users, departments, eids, manager_num, data):
     """
     :param row: (
-            0: Username,
-            1: Email Address,
-            2: Full name,
-            3: Department,
-            4: Level,
-            5: Gender,
-            6: Role,
-            7: Can Be Scheduled,
-            8: Type,
-            9: Employee ID,
-            10: Onboard Date,
+            0:
+            1: 帳號
+            2: 密碼
+            3: 電子信箱
+            4: 員工編號
+            5: 姓名
+            6: 科別
+            7: 職稱 TODO
+            8: 職級
+            9: 性別
+            10: 權限
+            11: 排班身份
+            12: 其他
+            13: 排班狀況
+            14: 到職日
         )
     :param users:
     :param departments:
@@ -155,55 +164,96 @@ def check_excel(row, users, departments, eids, manager_num, data):
     :param data:
     :return:
     """
-    if row[0] in users or row[0] in data:
-        return 'Repeat "username" ' + row[0]
-    if row[1] and '@' not in row[1]:
-        return 'Invalid "email address" for ' + row[0]
+    role_dict = {
+        'N1': 1,
+        'N2': 2,
+        'N3': 3,
+        'N4': 4,
+        'Nn': 5,
+    }
+    user_type_dict = {
+        '': '',
+    }
+    if not row[1]:
+        return 'END'
+    if row[1] in users:
+        return '第' + row[0] + '筆 "帳號"重複'
+    users.append(row[1])
+
     if not row[2]:
-        return '"Full name" is required for ' + row[0]
+        return '第' + row[0] + '筆 "密碼"不可空白'
+
     if not row[3]:
-        return '"Department" is required for ' + row[0]
-    if not row[3] in departments:
-        return 'Invalid "department" for ' + row[0]
+        return '第' + row[0] + '筆 "電子信箱"不可空白'
+    if '@' not in row[3]:
+        return '第' + row[0] + '筆 "電子信箱"格式不符'
+
     if not row[4]:
-        return '"Level" is required for ' + row[0]
-    if not row[4] in [1, 2, 3]:
-        return 'Invalid "level" for ' + row[0]
+        return '第' + row[0] + '筆 "員工編號"不可空白'
+    if row[4] in eids:
+        return '第' + row[0] + '筆 "員工編號"重複'
+    eids.append(row[4])
+
     if not row[5]:
-        return '"Gender" is required for ' + row[0]
-    if not row[5] in ['M', 'F']:
-        return 'Invalid "gender" for ' + row[0]
+        return '第' + row[0] + '筆 "姓名"不可空白'
+
     if not row[6]:
-        return '"Role" is required for ' + row[0]
-    if not row[6] in ['admin', 'manager', 'user']:
-        return 'Invalid "role" for ' + row[0]
-    if row[6] == 'manager':
-        manager_num[row[2]] += 1
-        if manager_num[row[2]] == 3:
-            return 'Manager of ' + row[2] + ' more than two'
-    if not row[7]:
-        return '"Type" is required for ' + row[0]
-    if not row[7] in ['Normal', 'Pregnant', 'PartTime', 'Intern']:
-        return 'Invalid "type" for ' + row[0]
+        return '第' + row[0] + '筆 "科別"不可空白'
+    if not row[6] in departments:
+        return '第' + row[0] + '筆 "科別"不存在'
+
     if not row[8]:
-        return '"Employee ID" is required for ' + row[0]
-    if str(row[8]) in eids:
-        return '"Employee ID" is repeat for ' + row[0]
-    eids.append(str(row[8]))
+        return '第' + row[0] + '筆 "職級"不可空白'
+    if not row[8] in ['N1', 'N2', 'N3', 'N4', 'Nn']:
+        return '第' + row[0] + '筆 "職級"格式不符'
+
     if not row[9]:
-        return '"Onboard date" is required for ' + row[0]
-    if not type(row[9]) is datetime:
-        return 'Invalid "onboard date" for ' + row[0]
-    data[row[0]] = {
-        'email address': row[1],
-        'full name': row[2],
-        'department': Department.objects.get(name=row[3]),
-        'level': row[4],
-        'gender': row[5],
-        'role': row[6],
-        'type': row[7],
-        'employee id': row[8],
-        'onboard date': row[9],
+        return '第' + row[0] + '筆 "性別"不可空白'
+    if not row[9] in ['男', '女']:
+        return '第' + row[0] + '筆 "性別"請填 男/女'
+
+    if not row[10]:
+        return '第' + row[0] + '筆 "權限"不可空白'
+    if not row[10] in ['管理員', '使用者']:
+        return '第' + row[0] + '筆 "權限"請填 管理員/使用者'
+    if row[10] == '管理員':
+        manager_num[row[6]] += 1
+        if manager_num[row[6]] > 2:
+            return '第' + row[0] + '筆 該科管理員人數超過2位'
+
+    if not row[11]:
+        return '第' + row[0] + '筆 "排班身份"不可空白'
+    if not row[11] in ['資深正職人員', '正職人員', '行政職人員', '新進人員', '兼職人員', '實習生']:
+        return '第' + row[0] + '筆 "排班身份"請填 資深正職人員/正職人員/行政職人員/新進人員/兼職人員/實習生'
+
+    if not row[12]:
+        return '第' + row[0] + '筆 "其他"不可空白'
+    if not row[12] in ['無', '妊娠、哺乳期']:
+        return '第' + row[0] + '筆 "其他"請填 無/妊娠、哺乳期'
+
+    if not row[13]:
+        return '第' + row[0] + '筆 "排班狀況"不可空白'
+    if not row[13] in ['正常排班', '暫停排班']:
+        return '第' + row[0] + '筆 "其他"請填 正常排班/暫停排班'
+
+    if not row[14]:
+        return '第' + row[0] + '筆 "到職日"不可空白'
+    if not type(row[14]) is datetime:
+        return '第' + row[0] + '筆 "到職日"格式不符'
+
+    data[row[1]] = {
+        'password': row[2],
+        'email address': row[3],
+        'employee id': row[4],
+        'full name': row[5],
+        'department': Department.objects.get(detail=row[6]),
+        'level': role_dict[row[8]],
+        'gender': 'M' if row[9] == '男' else 'F',
+        'role': 'manager' if row[10] == '管理員' else 'user',
+        'user type': user_type_dict[row[11]],
+        'pregnant': True if row[12] == '妊娠、哺乳期' else False,
+        'can be scheduled': True if row[13] == '正常排班' else False,
+        'onboard date': row[14],
     }
     return ''
 
@@ -221,12 +271,17 @@ def userDetail(request, id):
     colors = ["#EAEAEA", '#A6C2CE', '#84B1ED', '#37419A']
     user_color = colors[user.level-1]
     applications = ExchangeApplication.objects.filter(user_receive=user)
-
+    unused = user.special_rest_num - user.special_rest_num_used
+    rules = ['一般工時，7休2', '雙週變形工時，14休4',
+             '四週變形工時，28休8', '八週變形工時，56休16']
+    rule = rules[user.department.law_rule]
     return render(request,
                   'registration/detail.html',
                   {'target_user': user,
                    'user_color': user_color,
-                   'applications': applications})
+                   'applications': applications,
+                   'unused': unused,
+                   'rule': rule})
 
 
 # 刪除使用者資料
@@ -486,5 +541,7 @@ def assign_user(department, proportion):
                 user_pool.remove(user)
                 output[st][user.level].append(user)
     return output
+
+
 def license_audit(request):
-    return render(request, 'registration/license.html');
+    return render(request, 'registration/license.html')

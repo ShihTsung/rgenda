@@ -34,13 +34,21 @@
           <div class="form-grounp">
             <label for="day">配置</label>
             <select name="day" id="day" class="form-control">
-              <option value="config1">
+              <option value="" disabled selected hidden>選擇配置或休診</option>
+              <option value="1">
                 配置一
               </option>
-              <option value="config2">
+              <option value="2">
                 配置二
               </option>
+              <option value="0">
+                休診日
+              </option>
             </select>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="locked">
+            <label class="form-check-label" for="locked">locked</label>
           </div>
         </form>
       </div>
@@ -53,24 +61,31 @@
 </div>
 
 <script>
-    let currInfo = {}
-    let calendar = {}
-            // 送出修改某天的資料
+    let currInfo = {};
+    let calendar = {};
+    let user;
+
+    // 送出修改某天的資料
     let sendData = function(){
         let target = currInfo.event.id;
         let e = document.getElementById("day")
-        let WorkOrRest = e.options[e.selectedIndex].value;
+        let oldAttribute = currInfo.event.extendedProps.attribute
+        let newChoice = e.options[e.selectedIndex].value;
         let locked = document.getElementById("locked").checked;
         let date = currInfo.event.start.toISOString().split('T')[0];
+        d_id = user.department.id.toString()
+        if(typeof oldAttribute === typeof 'a'){
+          oldAttribute={}
+        }
+        oldAttribute[d_id] = newChoice
         updateData = {
             'id': target,
             'date': date,
-            'attribute': WorkOrRest,
+            'attribute': oldAttribute,
             'locked': locked
         }
-        // TODO: 修改PUT 內容
         fetch('/api/dates/' + target + '/', {
-          method: "PUT",
+          method: "PATCH",
           headers:{
             'X-CSRFToken': '{{ csrf_token }}',
             'content-type': 'application/json'
@@ -109,7 +124,6 @@
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-        let user;
         let department;
         fetch('/api/users/curr')
         .then(res=>{
@@ -151,17 +165,15 @@
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
                     $('#myModal').modal('show');
-                    $('#day').val(info.event.title);
                     $('#locked').prop('checked',info.event.extendedProps.locked);
                 },
                 eventRender: function(info) {
+                  info.el.innerHTML = "";
                   if (info.event.extendedProps.locked){
                     x = document.createElement('div');
                     x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
                     info.el.appendChild(x);
                   }
-                  info.el.innerHTML = "";
-
                   if(info.event.extendedProps.attribute.hasOwnProperty(department.id)){
                     if (info.event.extendedProps.attribute[department.id.toString()]==1){
                       info.el.innerHTML += "<div style='font-size: 14px;'>配置一</div>";

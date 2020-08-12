@@ -15,9 +15,13 @@ class DemandOfStation(models.Model):
         'Shift'), on_delete=models.CASCADE, null=True)
     station = models.ForeignKey(Station, verbose_name=_('Station'),
                                 on_delete=models.CASCADE, null=True)
-    level = models.IntegerField(verbose_name=_('Level'), default=1, null=True)
-    config1 = models.IntegerField(verbose_name=_('Config1'), default=0)
-    config2 = models.IntegerField(verbose_name=_('Config2'), default=0)
+    level = models.IntegerField(
+        verbose_name=_('分級'), default=1
+    )
+    config1 = models.IntegerField(
+        verbose_name=_('配置1'), default=0)
+    config2 = models.IntegerField(
+        verbose_name=_('配置2'), default=0)
 
     def __str__(self):
         return self.shift.name + '-' + self.station.name
@@ -27,7 +31,7 @@ class DemandUserTable(models.Model):
     demand = models.ForeignKey(
         DemandOfStation, verbose_name=_('DemandOfStation'),
         on_delete=models.CASCADE, null=True
-            )
+    )
     user = models.ForeignKey(
         CustomUser, verbose_name=_('User'),
         on_delete=models.CASCADE, null=True

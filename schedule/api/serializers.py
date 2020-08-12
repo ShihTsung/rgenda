@@ -50,6 +50,42 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
 
+class CustomUserListSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer()
+    level = serializers.SerializerMethodField()
+    pregnant = serializers.SerializerMethodField()
+    schedule_state = serializers.SerializerMethodField()
+
+    def get_level(self, obj):
+        if obj.level <= 4:
+            return 'N' + str(obj.level)
+        elif obj.level == 5:
+            return 'Nn'
+        else:
+            return ''
+
+    def get_pregnant(self, obj):
+        if obj.pregnant:
+            return "妊娠/哺乳期"
+        else:
+            return ""
+
+    def get_schedule_state(self, obj):
+        if obj.can_be_scheduled:
+            return "正常排班"
+        else:
+            return "暫停排班"
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'username', 'full_name', 'department', 'can_be_scheduled',
+            'level', 'eid', 'type_of_user', 'pregnant', 'schedule_state'
+
+        )
+        read_only_fields = ('id', )
+
+
 class GetResourceUserSerializer(serializers.ModelSerializer):
     shift_num = serializers.SerializerMethodField()
     special_rest = serializers.SerializerMethodField()
@@ -150,23 +186,19 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
     def get_title(self, obj):
-        if obj.attribute.dayType == '假日':
+        if obj.red_day:
             return '假日'
-        elif obj.attribute.dayType == '平日':
-            return '平日'
         else:
-            return '休診日'
+            return '平日'
 
     def get_className(self, obj):
         return 'bigEvent'
 
     def get_color(self, obj):
-        if obj.attribute == 'holiday':
+        if obj.red_day:
             return 'red'
-        elif obj.attribute == 'workday':
-            return ''
         else:
-            return '#C1C0C0'
+            return ''
 
     def get_extendedProps(self, obj):
 
@@ -309,8 +341,8 @@ class GetReservationSerializer(serializers.ModelSerializer):
 class DemandSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'config1', 'config2',
-                  'station', 'is_senior')
+        fields = ('id', 'shift', 'config1', 'config2',
+                  'station', 'level')
 
 
 class GetDemandSerializer(serializers.ModelSerializer):
@@ -319,8 +351,8 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DemandOfStation
-        fields = ('id', 'shift', 'level', 'config1', 'config2',
-                  'station', 'is_senior')
+        fields = ('id', 'shift', 'config1', 'config2',
+                  'station', 'level')
 
 # 保證假/班 Get
 

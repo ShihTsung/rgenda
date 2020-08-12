@@ -81,6 +81,8 @@ start_date = openapi.Parameter('start', openapi.IN_QUERY,
                                description="開始日期", type=openapi.TYPE_STRING)
 end_date = openapi.Parameter('end', openapi.IN_QUERY,
                              description="結束日期", type=openapi.TYPE_STRING)
+mode = openapi.Parameter('mode', openapi.IN_QUERY,
+                         description="模式", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -92,6 +94,8 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             mode = self.request.query_params.get('mode', None)
             if mode == 'resource':
                 return GetResourceUserSerializer
+            if mode == 'table':
+                return CustomUserListSerializer
             return GetCustomUserSerializer
         return CustomUserSerializer
 
@@ -125,44 +129,45 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(
         operation_summary='獲得使用者清單',
         operation_description='GET 的說明',
+        manual_parameters=[mode, ]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='新增使用者',
         operation_description='POST 的說明',
     )
-    def create(self, request):
-        return super().create(request)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='獲得個別使用者',
         operation_description='GET 單一個體的說明',
     )
-    def retrieve(self, request, pk=None):
-        return super().retrieve(request)
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='更新使用者資料',
         operation_description='PUT 的說明',
     )
-    def update(self, request, pk=None):
-        return super().update(request, pk)
+    def update(self, request, pk=None, partial=False, *args, **kwargs):
+        return super().update(request, pk, partial, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='部分更新',
         operation_description='PATCH 的說明',
     )
-    def partial_update(self, request, pk=None):
-        return super().partial_update(request, pk)
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        return super().partial_update(request, pk, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='刪除使用者',
         operation_description='DELETE 的說明',
     )
-    def destroy(self, request, pk=None):
-        return super().destroy(request, pk)
+    def destroy(self, request, pk=None, *args, **kwargs):
+        return super().destroy(request, pk, *args, **kwargs)
 
 
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
@@ -173,8 +178,8 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         operation_summary='調班清單',
         operation_description='列出所有調班清單',
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -209,8 +214,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
         operation_description='GET 的說明',
         manual_parameters=[get_all]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class StationViewSet(viewsets.ModelViewSet):
@@ -273,7 +278,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         operation_description='GET 的說明',
         manual_parameters=[start_date, end_date]
     )
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         return super().list(request)
 
 
@@ -325,7 +330,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     # 覆寫 create
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         max_reserve = request.user.department.same_day_notice
         serializer = ReservationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -507,3 +512,18 @@ def total_per_day_api(request):
                         else:
                             results[date_str][s_type] = 0
     return Response(results)
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='把所有通知標為已讀',
+    manual_parameters=[start_date, end_date])
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def mark_all_notices_read(request):
+    notices = Notification.objects.all()
+    if request.user.role == 'admin' or request.user.is_superuser:
+        notices.mark_all_as_read()
+        return Response({'status': 'success'})
+    else:
+        return Response({'status': 'permission denied'})

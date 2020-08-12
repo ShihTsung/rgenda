@@ -4,6 +4,7 @@ import random
 import sys
 import datetime
 import django
+import json
 from django.utils import timezone
 from django.shortcuts import render, redirect
 
@@ -228,19 +229,24 @@ def initial(request):
     daystmp = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d')
     work_or_holiday = ""
     redday = True
-
+    departments = Department.objects.all()
+    d_ids = [str(x.id) for x in departments]
     for i in range(520):
+        attribute = {}
         if daystmp.weekday() in [5, 6]:
-            work_or_holiday = "holiday"
+            work_or_holiday = "假日"
             redday = True
         else:
-            work_or_holiday = "workday"
+            work_or_holiday = "平日"
             redday = False
+        for d in d_ids:
+            attribute[d] = 1
+        attribute = json.dumps(attribute, indent=2)
         newday = H_Calendar.objects.create(date=daystmp,
-                                           red_day=redday)
+                                           red_day=redday,
+                                           attribute=attribute)
         newday.save()
         daystmp += datetime.timedelta(days=1)
-
 # station
     names = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
              '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
