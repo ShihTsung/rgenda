@@ -85,7 +85,8 @@ def userList(request):
         for user in users:
             if user.role == 'manager':
                 manager_num[user.departmant.detail] += 1
-        departments = [department.name for department in Department.objects.all()]
+        departments = [
+            department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
         if row0 != ('', '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
@@ -94,7 +95,8 @@ def userList(request):
         for row in ws.iter_rows(values_only=True, min_row=2):
             if row[0] == '範例':
                 continue
-            error_message = check_excel(row, usernames, departments, eids, manager_num, raw_data)
+            error_message = check_excel(
+                row, usernames, departments, eids, manager_num, raw_data)
             if error_message == 'END':
                 break
             elif error_message:
@@ -384,7 +386,12 @@ def departmentCreate(request):
 # 部門清單
 @login_required
 def departmentList(request):
-    departments = Department.objects.all()
+    if request.user.role == 'admin':
+        departments = Department.objects.all()
+    else:
+        departments = Department.objects.get(
+            id=request.user.department.id
+        )
     field_names = [
         (0, 'name'),
         (1, 'detail'),
@@ -487,7 +494,8 @@ def assign_user(department, proportion):
     }
     users_nums['sum'] = sum(users_nums.values())
 
-    proportion_sum = proportion['白班']['sum'] + proportion['小夜']['sum'] + proportion['大夜']['sum']
+    proportion_sum = proportion['白班']['sum'] + \
+        proportion['小夜']['sum'] + proportion['大夜']['sum']
     count_output = {
         '白班': round(users_nums['sum'] * proportion['白班']['sum'] / proportion_sum),
         '小夜': round(users_nums['sum'] * proportion['小夜']['sum'] / proportion_sum),
@@ -518,10 +526,14 @@ def assign_user(department, proportion):
         user_pool += users[i]
         quota = dict()
         if proportion['白班'][i] + proportion['小夜'][i] + proportion['大夜'][i] > len(user_pool):
-            total = proportion['白班'][i] + proportion['小夜'][i] + proportion['大夜'][i]
-            quota['白班'] = min(round(len(user_pool) * proportion['白班'][i] / total), count_output['白班'])
-            quota['小夜'] = min(round(len(user_pool) * proportion['小夜'][i] / total), count_output['小夜'])
-            quota['大夜'] = min(round(len(user_pool) * proportion['大夜'][i] / total), count_output['大夜'])
+            total = proportion['白班'][i] + \
+                proportion['小夜'][i] + proportion['大夜'][i]
+            quota['白班'] = min(
+                round(len(user_pool) * proportion['白班'][i] / total), count_output['白班'])
+            quota['小夜'] = min(
+                round(len(user_pool) * proportion['小夜'][i] / total), count_output['小夜'])
+            quota['大夜'] = min(
+                round(len(user_pool) * proportion['大夜'][i] / total), count_output['大夜'])
         else:
             quota['白班'] = min(proportion['白班'][i], count_output['白班'])
             quota['小夜'] = min(proportion['小夜'][i], count_output['小夜'])

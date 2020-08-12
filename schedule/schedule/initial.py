@@ -164,17 +164,16 @@ def initial(request):
              '聽力', '眼科+眼底攝影', '外檢', '公假', '休假']
 
     print('create station')
-    for i in range(15):
+    for i in range(17):
         station = Station.objects.create(
             department=Department.objects.first(),
             name=names[i]
         )
-        station.save()
 
 # demands
     stations = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
                 '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
-                '聽力', '眼科+眼底攝影', '外檢', '公假', '休假']
+                '聽力', '眼科+眼底攝影', '外檢']
     workday = [1, 1, 2, 2, 1, 1, 1, 7, 1, 1, 1, 3, 1, 1, 1]
     holiday = [1, 1, 1, 1, 1, 1, 1, 5, 1, 0, 0, 3, 1, 1, 1]
     for i in range(15):

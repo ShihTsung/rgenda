@@ -342,7 +342,6 @@ def time_adjustment_list(request):
             create_form = TimeAdjustmentCreateForm()
             search_form = TimeAdjustmentSearchForm()
     context = {
-        'results': results,
         'create_form': create_form,
         'search_form': search_form,
     }

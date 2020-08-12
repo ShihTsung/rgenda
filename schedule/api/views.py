@@ -84,6 +84,8 @@ end_date = openapi.Parameter('end', openapi.IN_QUERY,
                              description="結束日期", type=openapi.TYPE_STRING)
 mode = openapi.Parameter('mode', openapi.IN_QUERY,
                          description="模式", type=openapi.TYPE_STRING)
+month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
+                               description="月初日", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -154,14 +156,14 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         operation_description='PUT 的說明',
     )
     def update(self, request, pk=None, partial=False, *args, **kwargs):
-        return super().update(self, request, pk, partial, *args, **kwargs)
+        return super().update(request, pk, partial, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='部分更新',
         operation_description='PATCH 的說明',
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return super().partial_update(self, request, pk, *args, **kwargs)
+        return super().partial_update(request, pk, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='刪除使用者',
@@ -552,3 +554,39 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
     queryset = ResultRemark.objects.all()
     serializer_class = ResultRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='前月班表紀錄',
+    manual_parameters=[month_head])
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def last_month_continue(request):
+    department = request.user.department
+    users = User.objects.filter(department=department, can_be_scheduled=True)
+    month_head = request.GET.get('month_head')
+    date0 = datetime.strptime(month_head, '%Y-%m-%d')
+    output = dict()
+    type_dict = {
+        '白班': 'A',
+        '小夜': 'E',
+        '大夜': 'N',
+        '公假': '公'
+    }
+    for user in users:
+        output[user.id] = list()
+        results = Result.objects.filter(
+            user=user, date__gte=date0 - timedelta(days=7),
+            date__lte=date0 - timedelta(days=1)).order_by('date')
+        for result in results:
+            if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+                output[user.id].append(result.shift.shift_type)
+            else:
+                output[user.id] = list()
+        outstr = ''
+        for x in output[user.id]:
+            outstr += type_dict[x]
+        output[user.id] = outstr
+
+    return Response(output)
