@@ -51,11 +51,13 @@ INSTALLED_APPS = [
     'demand',
     'shift',
     'date',
+    'remarks',
     'reservation',
     'notifications',
     'notice',
     'drf_yasg',
     'django_mysql',
+
 ]
 
 
