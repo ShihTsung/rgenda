@@ -19,7 +19,7 @@ module.exports = merge(common, {
             if (stderr) process.stderr.write(stderr);
           });
         });
-      },
-    },
-  ],
+      }
+    }
+  ]
 });

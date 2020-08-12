@@ -10,6 +10,7 @@ module.exports = {
   entry: {
     'account-list': './accounts/list.js',
     'notice-list': './navbar/notice-list.js',
+    'department-list': './department/department-list.js',
     'rgenda': './rgenda.scss',
   },
   output: {

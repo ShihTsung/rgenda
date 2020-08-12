@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
+<div id="app" class="container">
     <!-- modal -->
     <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -27,8 +27,8 @@
     </div>
     <!-- End modal -->
 
-    <div class="title text-center">
-        <h1>科別清單</h1>
+    <div class="title text-left">
+        <h1>科別管理</h1>
     </div>
 
     {% for message in messages %}
@@ -36,128 +36,38 @@
         {{message}}
     </div>
     {% endfor %}
-    <a href="/departments/create" class="btn btn-primary" id="register"> 新增 </a>
 
-    <!-- 搜尋欄 -->
-    <span id="searchbar" class="d-flex">
+    <div class="row">
+      <div class="col-sm-12">
+        <a href="/departments/create" class="icon-bts float-right" data-tooltip="tooltip" title="新增班別">
+          <i class="fa fa-plus-square icon-color"></i>
+        </a>
+      </div>
+    </div>
 
-        <i class="fa fa-search"></i>
-        <input type="text" class="form-input" id="myInput" placeholder="Search by ">
-        <select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
-            {% for index, field in field_names %}
-            <option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
-            {% endfor %}
-        </select>
-    </span>
-    <!-- 搜尋欄end -->
-    <table class="table table-striped text-center" id="myTable">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">名稱</th>
-                <th scope="col">說明</th>
-                <th scope="col">管理人</th>
-                {% if user.role in "admin,manager" or user.is_superuser %}
-                <th scope="col">功能</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {{departments.first.fields.items}}
-            {% for field in departments.first.fields.items %}
-            {{field}}
-            {% endfor %}
-            {% for d in departments %}
-            <tr idx="{{d.id}}">
-                <td class="name"><a href="/departments/{{d.id}}">{{d.name}}</a></td>
-                <td>{{d.detail}}</td>
-                <td>
-                    {%for user in users%}
-                    {% if user.role == 'manager' and user.department == d %}
-                    <div> {{user.full_name}} </div>
-                    {% endif %}
-                    {% endfor %}
-                </td>
-                {% if user.role in "admin,manager" or user.is_superuser %}
-                <td>
-                    <a href="/departments/update/{{d.id}}">
-                        <div class="btn btn-success"><i class="fas fa-edit"></i></div>
-                    </a>
-                    <button class="btn btn-delete btn-danger" type="button" data-toggle="modal" data-target="#modal-delete" value="{{ d.id }}"><i class="fa fa-trash-alt"></i></button>
-                </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <department-list role="{{user.role}}" csrf-token="{{ csrf_token }}"></department-list>
 </div>
 
 
-<style>
-    table{
-        background-color: white;
-        box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
-    }
-    #myInput:focus{
-        outline: none;
-    }
+<style scoped>
+  table {
+    background-color: white;
+    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  #myInput:focus {
+    outline: none;
+  }
+
+  .create-btn {
+    width: 100%;
+  }
 </style>
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
 {% endblock %}
 
-<script>
-    function searchFilter() {
-        // Declare variables
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
+<script src="{% static 'assets/department-list.bundle.js' %}"></script>
 
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[sid];
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-    }
-    function printOption(){
-        let e = document.getElementById('condition');
-        sid = e.options[e.selectedIndex].value;
-        optiontext = e.options[e.selectedIndex].text;
-        searchFilter(sid);
-        document.getElementById('myInput').placeholder = "search by " + optiontext;
-    }
-
-    let sid = 0
-    let inputBox = document.getElementById("myInput");
-    inputBox.addEventListener('keyup',searchFilter);
-
-    document.addEventListener("DOMContentLoaded", function(event) {
-        // Your code to run since DOM is loaded and ready
-        let id = "#";
-        let name = "";
-        let cond = document.getElementById('condition');
-        document.querySelectorAll(".btn-delete").forEach(function(el){
-            el.addEventListener('click', function(){
-                id = this.parentNode.parentNode.getAttribute('idx');
-                name = this.parentNode.parentNode.childNodes[1].innerText;
-                document.querySelector(".modal-body").querySelector("p").innerText = "您確定要刪除  "+name+" ?";
-                document.querySelector("#btn-delete").addEventListener('click', function(){
-                    window.location.href = "/departments/delete/" + id;
-                });
-            });
-        });
-        sid = cond.options[cond.selectedIndex].value;
-        optiontext = cond.options[cond.selectedIndex].text;
-        document.getElementById('myInput').placeholder = "search by " + optiontext;
-    });
-</script>
 {% endblock %}
