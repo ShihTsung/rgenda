@@ -22,7 +22,8 @@ from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from date.models import H_Calendar
-from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
+from result.models import (Result, PreResult,
+                           AfterResult, TimeAdjustment, ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 
@@ -132,42 +133,48 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         manual_parameters=[mode, ]
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='新增使用者',
         operation_description='POST 的說明',
     )
     def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        return super().create(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='獲得個別使用者',
         operation_description='GET 單一個體的說明',
     )
     def retrieve(self, request, pk=None, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+        return super().retrieve(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='更新使用者資料',
         operation_description='PUT 的說明',
     )
     def update(self, request, pk=None, partial=False, *args, **kwargs):
-        return super().update(request, pk, partial, *args, **kwargs)
+        return super().update(self, request, pk, partial, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='部分更新',
         operation_description='PATCH 的說明',
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return super().partial_update(request, pk, *args, **kwargs)
+        return super().partial_update(self, request, pk, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='刪除使用者',
         operation_description='DELETE 的說明',
     )
     def destroy(self, request, pk=None, *args, **kwargs):
-        return super().destroy(request, pk, *args, **kwargs)
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
@@ -179,7 +186,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         operation_description='列出所有調班清單',
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -215,7 +222,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         manual_parameters=[get_all]
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)
 
 
 class StationViewSet(viewsets.ModelViewSet):
@@ -279,7 +286,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         manual_parameters=[start_date, end_date]
     )
     def list(self, request, *args, **kwargs):
-        return super().list(request)
+        return super().list(self, request, *args, **kwargs)
 
 
 class PreResultViewSet(viewsets.ModelViewSet):
