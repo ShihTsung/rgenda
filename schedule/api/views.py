@@ -183,9 +183,26 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
     serializer_class = TimeAdjustmentSerializer
 
+    def get_queryset(self):
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            mode = self.request.query_params.get('mode')
+            if mode == 'personal':
+                if start and end:
+                    return TimeAdjustment.objects.filter(
+                        date__range=[start[:10], end[:10]],
+                        user=self.request.user)
+                return TimeAdjustment.objects.filter(
+                    user=self.request.user)
+            return TimeAdjustment.objects.filter(
+                date__range=[start[:10], end[:10]])
+        return TimeAdjustment.objects.all()
+
     @swagger_auto_schema(
         operation_summary='調班清單',
         operation_description='列出所有調班清單',
+        manual_parameters=[start_date, end_date, mode]
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
