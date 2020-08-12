@@ -14,7 +14,7 @@
             </button>
           </div>
           <div class="modal-body text-center pt-0">
-            <h3 class="modal-title mb-4">刪除確認</h3>
+            <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
             <p class="mb-4">確認要刪除 人員-{{deleteUser.fullName}} 嗎？</p>
             <div class="row">
               <div class="col mb-2">
@@ -196,11 +196,37 @@ export default {
     destory() {
       let self = this;
 
-      self.rows = self.rows.filter(function(obj) {
-        return obj.id !== self.deleteUser.id;
+      $('#modalDelete').modal('hide');
+
+      popup.loading({
+        title: "處理中...",
       });
 
-      $('#modalDelete').modal('hide')
+      let url = `/api/users/${self.deleteUser.id}/`;
+      const formConfig = {
+        headers: {
+          'X-CSRFToken': `${this.csrfToken}`
+        }
+      }
+      self.$httpClient.delete(url, formConfig)
+        .then(function (response) {
+          self.rows = self.rows.filter(function(obj) {
+            return obj.id !== self.deleteUser.id;
+          });
+
+          popup.success({
+            title: "刪除人員",
+            text: "請求成功",
+          });
+        })
+        .catch(function (error) {
+          // handle error
+          popup.error({
+            title: error.title,
+            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+          });
+          console.log(error);
+        });
     },
     cancelDeletion() {
       this.deleteUser = {
