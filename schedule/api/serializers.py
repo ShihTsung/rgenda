@@ -110,7 +110,7 @@ class GetResourceUserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'department', 'can_be_scheduled',
             'is_senior', 'full_name', 'shift_num', 'special_rest',
-            'overtime', 'diff'
+            'overtime', 'diff', 'type_of_user'
         )
 
 # 工作站Get

@@ -288,9 +288,9 @@
                     <div id="d_fold" class="fold arr">
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-dates"style="color: #37419A;" href="/dates/date_management" class="fold_obj sidebar_w">
-                            日曆管理</a>
+                            全院行事曆</a>
                         <a id="side-dates" style="color: #37419A;" href="/dates/config_management" class="fold_obj sidebar_w">
-                            日曆配置</a>
+                            單科行事曆</a>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -473,6 +473,7 @@
                             $("#arr_fold").addClass("fold");
                             $("#da_fold").addClass("fold");
                             $("#arra_fold").removeClass("fold");
+                            $("#d_fold").addClass("fold");
                         }else{
                             $("#arra_fold").addClass("fold");
                         }
@@ -484,6 +485,7 @@
                             $("#arra_fold").addClass("fold");
                             $("#da_fold").addClass("fold");
                             $("#arr_fold").removeClass("fold");
+                            $("#d_fold").addClass("fold");
                         }else{
                             $("#arr_fold").addClass("fold");
                         }
@@ -495,6 +497,7 @@
                             $("#arra_fold").addClass("fold");
                             $("#da_fold").addClass("fold");
                             $("#wm_fold").removeClass("fold");
+                            $("#d_fold").addClass("fold");
                         }else{
                             $("#wm_fold").addClass("fold");
                         }
@@ -506,6 +509,7 @@
                             $("#arr_fold").addClass("fold");
                             $("#da_fold").addClass("fold");
                             $("#arra_fold").addClass("fold");
+                            $("#d_fold").addClass("fold");
                         }else{
                             $("#acc_fold").addClass("fold");
                         }
@@ -517,6 +521,7 @@
                             $("#arr_fold").addClass("fold");
                             $("#arra_fold").addClass("fold");
                             $("#wm_fold").addClass("fold");
+                            $("#d_fold").addClass("fold");
                         }else{
                             $("#da_fold").addClass("fold");
                         }

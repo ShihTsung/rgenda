@@ -149,14 +149,14 @@
           </div>
           <div class="c-body">
             <div class="month_table" v-if="!month_week_bt">   
-              <table class="days" width="100%" height="70" border="1" cellspacing="0" bordercolor="#bfbfbf">
+              <table class="days" width="100%" height="70" border="1" cellspacing="0" bordercolor="black">
                   <tr class="day-num title-row">
                     <td rowspan='3'>員工編號</td>
                     <td rowspan='3'>職級</td>
                     <td rowspan='3'>姓名</td>
                     <td rowspan='3'>前月排班</td>
-                    <td rowspan='2' v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid" :class="{todayMark: isToday(day)}">
-                      <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <td rowspan='2' v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid" :class="{todayMark: isToday(year, month, day)}">
+                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;">
                         [[day]]
                       </div>
                     </td>
@@ -196,12 +196,12 @@
                   </tr>
                 
                 
-                  <tr class="user-row" v-for="u in userData" :key="u">
+                  <tr v-if="!isReady" class="user-row" v-for="u in userData" :key="u">
                       <td class="futureDay" style="width: 75px">-</td>  
                       <td class="futureDay" style="width: 30px">-</td>                     
                       <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>                     
                       <td class="pastDay" style="width: 45px">-</td>                     
-                      <td class="user-content-col"  v-for="d in getYear(year,month)" :key="d" :class="{pastDay: isPastF(d), futureDay: !isPastF(d)}">
+                      <td class="user-content-col pastDay"  v-for="d in getYear(year,month)" :key="d">
                         <div style="font-size: 1rem; width: 1vw; display: inline-block;">
                           -
                         </div>
@@ -222,22 +222,25 @@
 
                   </tr>
                   
-                  <!-- <tr v-if="isReady" class="user-row" v-for="u in userData" :key="u">
+                  <tr v-if="isReady" class="user-row" v-for="u in userData" :key="u">
                     <td class="futureDay" style="width: 75px">[[getUser(u.id).user.eid]]</td>
                     <td class="futureDay" style="width: 30px">[[getLevel(getUser(u.id).user.level)]]</td>
                     <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
-                    <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
-                      <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, shiftColor(userShift.shift_type)]">
+                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;">
                         [[userShift.shift_type]]
+                      </div>
+                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 1.3rem; width: 1vw; display: inline-block;">
+                        [[isAdjust(userShift.user.id, userShift.date)]]
                       </div>
                     </td>
                     <td class="user-last-col pastDay">&nbsp;</td> 
-                    <td class="futureDay">[[workhr(u.full_name, month, getYear(year, month), "false")]]</td>
-                    <td class="pastDay">[[workhr(u.full_name, month, date, "false")]]</td>
-                    <td class="futureDay">-</td>
-                    <td class="futureDay">-</td>
-                    <td class="futureDay">[[workhr(u.full_name, month, date, "true")]]</td>
+                    <td class="futureDay">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
+                    <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
+                    <td class="futureDay">[[workhr(u.id, month, date, 3)]]</td>
+                    <td class="futureDay">[[workhr(u.id, month, date, 4)]]</td>
+                    <td class="futureDay">[[workhr(u.id, month, date, 2)]]</td>
                     <td class="pastDay">-</td>
                     <td class="futureDay">-</td>
                     <td class="futureDay">-</td>
@@ -245,7 +248,7 @@
                     <td class="pastDay">-</td>
                     <td class="futureDay">-</td>
                     <td class="futureDay">-</td>
-                  </tr> -->
+                  </tr>
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
@@ -360,7 +363,8 @@
       month_normal : [0,31,28,31,30,31,30,31,31,30,31,30,31],//非閏年天數
       weekday: ["日", "一", "二", "三", "四", "五", "六"],
       year : new Date().getFullYear(),
-      month : new Date().getMonth() + 1,
+      month : new Date().getMonth() ,//+1
+      monthString: String,
       date: new Date().getDate(),
       month_week_bt: false,
       userData: Object,
@@ -369,7 +373,8 @@
       url: String,
       userNumber: Number,
       isReady: false,
-      edit: false
+      edit: false,
+      adjustHr: Array
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -383,22 +388,17 @@
           console.log(err);
         });
         
-        
-        
-        this.url = "http://localhost/api/results/?start=" + this.year + "-" + this.month + "-" + 1
-                   + "&end=" + this.year + "-" + this.month + "-" + this.getYear(this.year, this.month);
+        this.getResults(this.month, this.year);
 
-        fetch(this.url)
-        .then((res)=>{
+        fetch('/api/time-adjustment')
+        .then(res=>{
           return res.json();
-        }).then((data)=>{
+        }).then(data=>{
           console.log(data);
-          this.shiftData = data;
-          this.isReady = true;
-        }).catch((err)=>{
+          this.adjustHr = data;
+        }).catch(err=>{
           console.log(err);
         });
-
     },
     methods : {
       getYear(y,m) {
@@ -420,31 +420,65 @@
           }
         });
       },
-      // print(ev, u) {
-      //   console.log(ev);
-      //   console.log(u);
-      //   this.showEvent = !this.showEvent;
-      // },
-      isToday(d) {
-        if(d === this.date) {
+      getResults(month, year) {
+        this.isReady = false;
+        this.url = "http://localhost/api/results/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
+                   + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString();
+        
+        fetch(this.url)
+        .then((res)=>{
+          return res.json();
+        }).then((data)=>{
+          console.log(data);
+          this.shiftData = data;
+          if(this.shiftData.length != 0){
+            this.isReady = true;
+          }
+        }).catch((err)=>{
+          console.log(err);
+        });
+      },
+      isToday(y, m, d) {
+        let year = new Date().getFullYear();
+        let month = new Date().getMonth() ;//+1
+        let date = new Date().getDate();
+
+        if((y == year) && (m == month) && (d == date)) {
           return true;
         }else {
           return false;
         }
       },
       isPast(d) {
-        if(parseInt(d.date.split('-')[2]) < this.date){
+        let year = new Date().getFullYear();
+        let month = new Date().getMonth() ;//+1
+        let date = new Date().getDate();
+
+        if(month < 10){
+          this.monthString = '0' + month.toString();
+        }else {
+          this.monthString = month.toString();
+        }
+
+        if((parseInt(d.date.split('-')[0]) < year)||(parseInt(d.date.split('-')[1]) < month)||(parseInt(d.date.split('-')[2]) < date)){
           return true;
         }else {
           return false;
         }
       },
-      isPastF(d) {
-        if(d < this.date){
-          return true;
+      isAdjust(id, time) {
+        let obj = this.adjustHr.find((item)=>{
+          return (item.user == id) && (item.date == time);
+        });
+        if(obj != undefined){
+          if(obj.adjustment_type == 0){
+            return '+' + obj.hours;
+          }else if(obj.adjustment_type == 1){
+            return '-' + obj.hours;
+          }
         }else {
-          return false;
-        }
+          return 0;
+        };
       },
       getLevel(l) {
         switch(l){
@@ -467,29 +501,69 @@
           }
         });
       },
-      workhr(u, m, today, bool) {
+      workhr(u, m, today, n) {//出勤時數
         let total_hr = 0;
         let pub_hr = 0;
+        let add_hr = 0;
+        let sub_hr = 0;
         let arr = this.shiftData.filter((userItem)=>{
-          if((userItem.user.full_name == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
+          if((userItem.user.id == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
             return parseInt(userItem.date.split('-')[2]) <= today;
-          }
+          };
         });
+        let adjust = this.adjustHr.filter((item)=>{
+          return (item.user == u)&&(parseInt(item.date.split('-')[2]) <= today);
+        })
         
-        if(bool == "false") {
-          arr.forEach((i)=>{
-            total_hr += i.shift.work_hours;
-          });
-
-          return total_hr;
-        }else {
-          arr.forEach((i)=>{
-            if(i.shift_type == "公") {
-              pub_hr += (i.shift.work_hours / 8);
-            };
-          });
-          return pub_hr;
+        
+        switch(n) {
+          case 0://排班
+            arr.forEach((i)=>{
+              total_hr += i.shift.work_hours;
+            });
+            return total_hr;
+          case 1://總計
+            arr.forEach((i)=>{
+              total_hr += i.shift.work_hours;
+            });
+            return total_hr;
+          case 2://公假
+            arr.forEach((i)=>{
+              if(i.shift_type == "公") {
+                pub_hr += (i.shift.work_hours / 8);
+              };
+            });
+            return pub_hr;
+          case 3://加班
+            adjust.forEach((i)=>{
+              if(i.adjustment_type == 0){
+                add_hr += i.hours;
+              }
+            });
+            return add_hr;
+          case 4://減班
+            adjust.forEach((i)=>{
+              if(i.adjustment_type == 1){
+                sub_hr += i.hours;
+              }
+            });
+            return sub_hr;
         }
+
+        // if(n == "false") {
+        //   arr.forEach((i)=>{
+        //     total_hr += i.shift.work_hours;
+        //   });
+
+        //   return total_hr;
+        // }else {
+        //   arr.forEach((i)=>{
+        //     if(i.shift_type == "公") {
+        //       pub_hr += (i.shift.work_hours / 8);
+        //     };
+        //   });
+        //   return pub_hr;
+        // }
         
       },
       changeDate(ev) {
@@ -498,17 +572,42 @@
           if(this.month < 1) {
             this.year--;
             this.month = 12;
-          }
+          };
+          this.getResults(this.month, this.year);
         }else if(ev.target.id === "next") {
           this.month++;
           if(this.month > 12) {
             this.year++;
             this.month = 1;
           }
+          this.getResults(this.month, this.year);
         }else {
           this.year = new Date().getFullYear();
           this.month = new Date().getMonth() + 1;
+          this.getResults(this.month, this.year);
         };
+      },
+      shiftColor(type) {
+        switch(type){
+          case "A":
+            return "dayShift";
+          case "E":
+            return "nightShift";
+          case "N":
+            return "graveyardShift";
+          case "公":
+            return "rest";
+          case "例":
+            return "rest";
+          case "休":
+            return "rest";
+          case "國":
+            return "rest";
+          case "On":
+            return "onCall";
+          case "B":
+            return "adminis";
+        }
       },
       
     },
@@ -1226,7 +1325,7 @@
     }
     .user-row {
       height: 35px;
-      border: 1px solid #a6a6a6;
+      border: 1px solid black;
     }
     .shift-grid {
       width: 20px;
@@ -1234,7 +1333,7 @@
     .user-first-col {
       width: 9.55vw;
       text-align: center;
-      font-size: 1rem;
+      font-size: 1.3rem;
       background: #f2f2f2;
     }
     .user-content-col {
@@ -1242,15 +1341,15 @@
       text-align: center; 
       width: 2.3vw;
     }
-    .user-content-col:hover {
-      cursor: pointer;
-      background: rgba(185, 184, 184, 0.26);
-    }
     .pastDay {
       background: #f2f2f2;
     }
     .futureDay {
       background: white;
+    }
+    .futureDay:hover {
+      cursor: pointer;
+      background: rgba(185, 184, 184, 0.26);
     }
     .changeShift {
       width: 30vw;
@@ -1305,5 +1404,31 @@
     svg{
       pointer-events: none;
     }
+    td {
+      font-size: 1.3rem;
+    }
+    .dayShift {
+      color: #EBC57C;
+    }
+    .nightShift {
+      color: #84B1ED;
+    }
+    .graveyardShift {
+      color: #6B799E;
+    }
+    .rest {
+      color: #c2c2c2;
+    }
+    .restR {
+      background: #adaaaa;
+      color: black;
+    }
+    .onCall {
+      color: #9C8F96;
+    }
+    .adminis {
+      color: #58B4AE;
+    }
+
 </style>
 {% endblock %}
