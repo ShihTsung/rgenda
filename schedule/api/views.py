@@ -154,14 +154,14 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         operation_description='PUT 的說明',
     )
     def update(self, request, pk=None, partial=False, *args, **kwargs):
-        return super().update(self, request, pk, partial, *args, **kwargs)
+        return super().update(request, pk, partial, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='部分更新',
         operation_description='PATCH 的說明',
     )
     def partial_update(self, request, pk=None, *args, **kwargs):
-        return super().partial_update(self, request, pk, *args, **kwargs)
+        return super().partial_update(request, pk, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='刪除使用者',
