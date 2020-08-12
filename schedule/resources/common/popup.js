@@ -3,8 +3,13 @@ import swal from 'sweetalert2'
 let config = {
   showCancelButton: false,
   showConfirmButton: true,
-  confirmButtonColor: '#3085d6',
-  cancelButtonColor: '#d33',
+  customClass: {
+    title: 'modal-title rgenda-text-dark-blue mb-4',
+    content: 'mb-4',
+    confirmButton: 'btn btn-rgenda',
+    cancelButton: 'btn btn-rgenda'
+  },
+  buttonsStyling: false,
   cancelButtonText: '取消',
   confirmButtonText: '確定',
   reverseButtons: true, // confirm button 在右側
