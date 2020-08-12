@@ -18,7 +18,11 @@ from remarks.models import UserRemark, RemarkSquare, ResultRemark
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('id', 'name', 'detail')
+        fields = (
+            'id', 'name', 'detail', 'limit_pre_schedule',
+            'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
+            'admin_in_schedule', 'same_day_notice', 'date_start'
+        )
         read_only_fields = ('id', )
 
 # 帳號
