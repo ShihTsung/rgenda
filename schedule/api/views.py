@@ -104,7 +104,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if pk == "curr":
             return self.request.user
 
-        return super(CustomUserViewSet, self).get_object()
+        return super().get_object()
 
     def get_queryset(self):
         queryset = self.queryset
@@ -112,19 +112,19 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         dep = self.request.query_params.get('department', None)
 
         if mode == 'onlyUser':
-            return queryset.filter(is_staff=False)
+            return CustomUser.objects.filter(is_staff=False)
         if mode == 'resource':
             user = self.request.user
             if user.role == 'manager':
-                return queryset.filter(
+                return CustomUser.objects.filter(
                     department=user.department,
                     can_be_scheduled=True)
             if user.role == 'admin' or user.is_superuser:
-                return queryset.filter(can_be_scheduled=True)
+                return CustomUser.objects.filter(can_be_scheduled=True)
         if dep is not None:
             target = Department.objects.get(id=dep)
-            return queryset.filter(department=target)
-        return queryset
+            return CustomUser.objects.filter(department=target)
+        return CustomUser.objects.all()
 
     @swagger_auto_schema(
         operation_summary='獲得使用者清單',
