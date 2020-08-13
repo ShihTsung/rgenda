@@ -6,56 +6,89 @@
 {% block content %}
 <div class="container">
   <div class="greet text-center">
-        <h1>使用者首頁</h1>
+    <h1>使用者首頁</h1>
   </div>
-        <div class="dash">
-          <div class="card">
-           <div class="card-header text-center"> 
-             <button class="btn" id="toggle-btn">
-               <i class="fa fa-bars"></i>
-             </button>班表分析<span class="unit">單位：日</span>
-           </div>
-           <div class="card-body DashCollapse" >
-             <div class="left">
-               <div class='data'><div class="label">工作日</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">休息日</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">例假日</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">國定假日</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">特休</div><div class="nums">1</div></div>
-             </div>
-             <div class="right">
-               <canvas  id='chart1'>
-               </canvas>
-             </div>
-             
-           </div>
-   
-           </div>
-          
-          <div class="card">
-           <div class="card-header text-center">出勤分析<span class="unit">單位：時</span></div>
-           <div class="card-body DashCollapse" >
-             <div class="left">
-               <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">On call</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
-               <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
-             </div>
-             <div class="right">
-               <canvas  id='chart2'>
-               </canvas>
-             </div>
-           </div>
+  <div class="dash">
+    <div class="card">
+      <div class="card-header text-center">
+        <button class="btn" id="toggle-btn">
+          <i class="fa fa-bars"></i>
+        </button>班表分析<span class="unit">單位：日</span>
+      </div>
+      <div class="card-body DashCollapse">
+        <div class="left">
+          <div class='data'>
+            <div class="label">工作日</div>
+            <div class="nums">1</div>
           </div>
-       </div>
-           
-          <div id="calendar"></div>
-    
-        
+          <div class='data'>
+            <div class="label">休息日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">例假日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">國定假日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">特休</div>
+            <div class="nums">1</div>
+          </div>
+        </div>
+        <div class="right">
+          <canvas id='chart1'>
+          </canvas>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-header text-center">出勤分析<span class="unit">單位：時</span></div>
+      <div class="card-body DashCollapse">
+        <div class="left">
+          <div class='data'>
+            <div class="label">排班</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">加班</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">On call</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">減班</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">差額</div>
+            <div class="nums">1</div>
+          </div>
+        </div>
+        <div class="right">
+          <canvas id='chart2'>
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="calendar"></div>
+
+
 
 </div>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+  integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+  crossorigin="anonymous"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var initialLocaleCode = 'en';
@@ -64,401 +97,535 @@
     var calendarEl = document.getElementById('calendar');
     var nextPeriod = {}
     let btn = document.getElementById('toggle-btn')
-    btn.addEventListener('click', function(){
-    let contents = document.querySelectorAll('.DashCollapse');
-    contents.forEach(e=>{
-      e.classList.toggle('collapse')
+    btn.addEventListener('click', function () {
+      let contents = document.querySelectorAll('.DashCollapse');
+      contents.forEach(e => {
+        e.classList.toggle('collapse')
       });
     });
 
-  // 第一個圖
-  var ctx = document.getElementById('chart1').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'horizontalBar',
-    data: {
+    // 第一個圖
+    var ctx = document.getElementById('chart1').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
         labels: ['白班', '小夜', '大夜', 'On call', '空班'],
         datasets: [{
-            barThickness: 30,
-            data: [12, 7, 5, 5, 2],
-            backgroundColor: [
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-            ],
-            borderColor: [
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-            ],
-            borderWidth: 1
+          barThickness: 30,
+          data: [12, 7, 5, 5, 2],
+          backgroundColor: [
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+          ],
+          borderColor: [
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+          ],
+          borderWidth: 1
         }]
-    },
-    options: {
+      },
+      options: {
         scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                },
-                gridLines: {
-                    offsetGridLines: false,
-                    display: false
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    beginAtZero: true
-                },
-                gridLines: {
-                offsetGridLines: false,
-              }
-            }]
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              offsetGridLines: false,
+              display: false
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              offsetGridLines: false,
+            }
+          }]
         },
-        legend:{
+        legend: {
           display: false,
         },
         aspectRatio: 1.6,
         maintainAspectRatio: false
-    }
-});
+      }
+    });
 
 
-// 第二個圖
-  var ctx = document.getElementById('chart2').getContext('2d');
+    // 第二個圖
+    var ctx = document.getElementById('chart2').getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'horizontalBar',
       data: {
-          labels: ['排班', '出勤', '公假', '自假'],
-          datasets: [{
-              barThickness: 30,
-              data: [12, 7, 5, 5],
-              backgroundColor: [
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-              ],
-              borderColor: [
-                '#37419A',
-                '#37419A',
-                '#37419A',
-                '#37419A',
-              ],
-              borderWidth: 1
-          }]
+        labels: ['排班', '出勤', '公假', '自假'],
+        datasets: [{
+          barThickness: 30,
+          data: [12, 7, 5, 5],
+          backgroundColor: [
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+          ],
+          borderColor: [
+            '#37419A',
+            '#37419A',
+            '#37419A',
+            '#37419A',
+          ],
+          borderWidth: 1
+        }]
       },
       options: {
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                      offsetGridLines: false,
-                      display: false
-                  }
-              }],
-              xAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                  offsetGridLines: false,
-                }
-              }]
-          },
-          legend:{
-            display: false,
-          },
-          aspectRatio: 1.6,
-          maintainAspectRatio: false
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              offsetGridLines: false,
+              display: false
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              offsetGridLines: false,
+            }
+          }]
+        },
+        legend: {
+          display: false,
+        },
+        aspectRatio: 1.6,
+        maintainAspectRatio: false
       }
     });
     // fullcalendar
+    var shiftColor = {
+      '白班': '#ebc57c',
+      '小夜': '#84b1ed',
+      '大夜': '#6b799e',
+      'oncall': '#9c8f96',
+      'default': '#c2c2c2',
+    };
+    var adjustColor = {
+      0: '#eb8f90',
+      1: '#3d313f',
+    };
     calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: ['interaction', 'dayGrid'],
-                selectable: false,
-                selectHelper: true,
-                theme: true,
-                editable: true,
-                themeSystem: 'bootstrap',
-                weekMode: 'liquid',
-                eventLimit: true, // when too many events in a day, show the popover
-                timeZone: 'UTC',
-                header: {
-                    left: '',
-                    center: 'prev,title,next',
-                    right: ''
-                },
-                contentHeight: 450,
-                showNonCurrentDates: false,
-                droppable: true,
-                views: {
-                    dayGridMonth: { 
-                        titleFormat: { year: 'numeric', month: '2-digit' }
-                    }
-                },
-                eventClick: function(info){
-                    currInfo = info;
-                    $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
-                    $('#myModal').modal('show');
-                    $('#day').val(info.event.title);
-                    $('#locked').prop('checked',info.event.extendedProps.locked);
-                },
-                eventRender: function(info) {
-                    info.event.title = info.event.extendedProps.shift.name;
-                    if (info.event.extendedProps.locked){
-                        x = document.createElement('div');
-                        x.innerHTML = '<i class="fas fa-lock" margin-left:5px;font-size:1rem;"></i>';
-                        info.el.appendChild(x);
-                        console.log(info);
-                    }
-                },
-                events: function(fetchInfo, successCallback, failureCallback){
-                    let url = '/api/results/?mode=personal&start='
-                    url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
-                    fetch(url)
-                    .then(res=>{
-                    return res.json();
-                    })
-                    .then(data=>{
-                    data.forEach(e=>{
-                        e.title = e.shift.name;
-                        e.resourceId = e.user.id;
-                        e.color = '#EBC57C'
-                    });
-                    successCallback(data);
-                    });
-                },
-            });
-            if ("{{LANG}}" == 'zh-hant') {
-                calendar.setOption('locale', 'zh-tw');
+      plugins: ['interaction', 'dayGrid'],
+      selectable: false,
+      selectHelper: true,
+      theme: true,
+      editable: true,
+      themeSystem: 'bootstrap',
+      weekMode: 'liquid',
+      eventLimit: true, // when too many events in a day, show the popover
+      timeZone: 'UTC',
+      header: {
+        left: '',
+        center: 'prev,title,next',
+        right: ''
+      },
+      contentHeight: 450,
+      showNonCurrentDates: false,
+      droppable: true,
+      views: {
+        dayGridMonth: {
+          titleFormat: { year: 'numeric', month: '2-digit' }
+        }
+      },
+      eventClick: function (info) {
+        currInfo = info;
+        $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
+        $('#myModal').modal('show');
+        $('#day').val(info.event.title);
+        $('#locked').prop('checked', info.event.extendedProps.locked);
+      },
+      eventOrder: 'sort,title',
+      eventRender: function (info) {
+        if (info.event.extendedProps.locked) {
+          x = document.createElement('div');
+          x.innerHTML = '<i class="fas fa-lock" margin-left:5px;font-size:1rem;"></i>';
+          info.el.appendChild(x);
+          console.log(info);
+        }
+        if (info.event.extendedProps.shift) {
+          if (['有薪假', '無薪假', '公假'].indexOf(info.event.extendedProps.shift.shift_type) < 0) {
+            let shiftTime = document.createElement('span');
+            shiftTime.innerHTML = moment(info.event.extendedProps.shift.start_time, 'HH:mm').format('hA') + '-' + moment(info.event.extendedProps.shift.end_time, 'HH:mm').format('hA');
+            shiftTime.className = 'shift-time';
+            let shiftStation = document.createElement('span');
+            shiftStation.innerHTML = info.event.extendedProps.station.name;
+            shiftStation.className = 'shift-station';
+            info.el.firstChild.appendChild(shiftTime);
+            info.el.firstChild.appendChild(shiftStation);
+          }
+        } else if (info.event.extendedProps.adjustment_type) {
+          let adjustItem = document.createElement('span');
+          adjustItem.innerHTML = info.event.extendedProps.adjustment_item;
+          adjustItem.className = 'adjust-item';
+          info.el.firstChild.appendChild(adjustItem);
+        }
+      },
+      events: function (fetchInfo, successCallback, failureCallback) {
+        const queryString = '?mode=personal&start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr;
+        const requests = [
+          {
+            url: '/api/results/' + queryString,
+            callback: processResult,
+          },
+          {
+            url: '/api/time-adjustment/' + queryString,
+            callback: processTimeAdjustment,
+          },
+        ];
+        Promise.all(requests.map(r =>
+          fetch(r.url).then(res => res.json()).then(r.callback)
+        )).then(dataArr => {
+          // flatten array of arrays
+          // ref: https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+          let allData = [].concat.apply([], dataArr);
+          successCallback(allData);
+        });
+
+        function processResult(data) {
+          if (!data || data.length === 0) {
+            return [];
+          }
+          data.forEach(e => {
+            if (['有薪假', '無薪假', '公假'].indexOf(e.shift.shift_type) < 0) {
+              e.title = e.shift_type;
+              e.sort = 1;
+            } else {
+              e.title = e.shift.name;
+              e.sort = 2;
             }
-            calendar.render();
+            e.resourceId = e.user.id;
+            if (shiftColor.hasOwnProperty(e.shift.shift_type)) {
+              e.className = 'shift-type';
+              e.backgroundColor = shiftColor[e.shift.shift_type];
+              e.borderColor = shiftColor[e.shift.shift_type];
+              e.textColor = shiftColor[e.shift.shift_type];
+            } else {
+              e.backgroundColor = '#ffffff';
+              e.borderColor = shiftColor['default'];
+              e.textColor = shiftColor['default'];
+            }
+          });
+          return data;
+        }
+
+        function processTimeAdjustment(data) {
+          if (!data || data.length === 0) {
+            return [];
+          }
+          data.forEach(e => {
+            e.title = (e.adjustment_type === 0 ? '+' : '-') + e.hours;
+            e.sort = 1;
+            e.resourceId = e.user.id;
+            e.className = 'adjust-hours';
+            e.backgroundColor = adjustColor[e.adjustment_type];
+            e.borderColor = adjustColor[e.adjustment_type];
+            e.textColor = adjustColor[e.adjustment_type];
+          });
+          return data;
+        }
+      },
+    });
+    if ("{{LANG}}" == 'zh-hant') {
+      calendar.setOption('locale', 'zh-tw');
+    }
+    calendar.render();
 
   });
 </script>
 {% endblock %}
 
 {% block styles %}
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: #333;
-      }
-      #calendar{
-        background-color: white!important;
-        padding: 2rem;
-        max-width: 1140px;
-        margin: 20px auto;
-      }
-      .fc-event{
-          display: inline-block;
-          width: 110px;
-          height: 24px;
-          background: white !important;
-          border-radius: 3px;
-          border: 1px solid #b5b5b5 !important;
-          color: #b5b5b5 !important;
-      }
-      .day_type{
-          display: inline-block;
-          color: white;
-          margin-left: 2px;
-          font-weight: 400;
-          float: left;
-          /* margin-top: -2px; */
-      }
-      .day_content{
-          display: inline-block;
-          background: white;
-          height: 20px;
-          width: 40px;
-          color: #EBC57C;
-          border-radius: 3px;
-          float: left;
-          margin-left: 15px;
-          /* margin-top: 2px; */
-          font-size: 12px;
-          line-height: 20px;
-          padding-left: 2px;
-      }
-      .fc-unthemed .fc-content, .fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-list-view, .fc-unthemed .fc-popover, .fc-unthemed .fc-row, .fc-unthemed tbody, .fc-unthemed td, .fc-unthemed th, .fc-unthemed thead{
-          border-color: #c8c8c8;
-      }
-      .fc-unthemed .fc-disabled-day{
-          background: #f1f1f1;
-          opacity: 1;
-      }
-      .fc-past{
-          background: white;
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+  }
 
-      }
-      .fc-future{
-          background: white;
+  #calendar {
+    background-color: white !important;
+    padding: 2rem;
+    max-width: 1140px;
+    margin: 20px auto;
+  }
 
-      }
-      h2{
-          display: inline-block;
-      }
-      .fc-button-primary {
-          color: black;
-          background: none;
-          border: none;
-      }
-      .fc-prev-button{
-          position: absolute;
-          left: 380px;
-      }
-      .fc-next-button{
-          position: absolute;
-          right: 380px;
-      }
-      table{
-          text-align: center;
-          border: 1px solid #c6c6c6;
-      }
-      th{
-          background-color: #d9d9d9;
-      }
-      .audit_items_body{
-          background: white;
-      }
-      .last_one{
-          color: #b5b5b5;
-          font-weight: 300;
-          font-size: 13px;
-      }
-      .ex-wrapper{
-          margin-top: 5px;
-          height: 28px;
-      }
-      #origin_schedule{
-          display: inline-block;
-          width: 135px;
-          height: 24px;
-          background: #EBC57C;
-          border-radius: 3px;
-      }
-      .os_title{
-          display: inline-block;
-          color: white;
-          margin-left: 5px;
-          font-weight: 400;
-          float: left;
-          margin-top: -2px;
-      }
-      .os_content{
-          display: inline-block;
-          background: white;
-          height: 20px;
-          width: 45px;
-          color: #EBC57C;
-          border-radius: 3px;
-          float: left;
-          margin-left: 5px;
-          margin-top: 2px;
-          font-size: 12px;
-          line-height: 20px;
-          padding-left: 2px;
-      }
-      #top {
-        background: #eee;
-        border-bottom: 1px solid #ddd;
-        padding: 0 10px;
-        line-height: 40px;
-        font-size: 12px;
-      }
-      .container{
-          width: 100%;
-      }
-      .fc-event-container {
-        color: white;
-      }
-      /* i {
+  .fc-event {
+    display: inline-block;
+    width: 90%;
+    height: 24px;
+    border-radius: 3px;
+    border: 1px solid;
+    text-align: left;
+  }
+
+  .shift-type .fc-title {
+    color: white !important;
+    vertical-align: top;
+  }
+
+  .fc-title {
+    font-size: 16px;
+    margin: auto 4px;
+  }
+
+  .shift-time,
+  .shift-station,
+  .adjust-item {
+    font-size: 12px;
+    background: white;
+    margin: auto 1px;
+    padding: 1px;
+    border-radius: 3px;
+  }
+
+  .day_type {
+    display: inline-block;
+    color: white;
+    margin-left: 2px;
+    font-weight: 400;
+    float: left;
+    /* margin-top: -2px; */
+  }
+
+  .day_content {
+    display: inline-block;
+    background: white;
+    height: 20px;
+    width: 40px;
+    color: #EBC57C;
+    border-radius: 3px;
+    float: left;
+    margin-left: 15px;
+    /* margin-top: 2px; */
+    font-size: 12px;
+    line-height: 20px;
+    padding-left: 2px;
+  }
+
+  .fc-unthemed .fc-content,
+  .fc-unthemed .fc-divider,
+  .fc-unthemed .fc-list-heading td,
+  .fc-unthemed .fc-list-view,
+  .fc-unthemed .fc-popover,
+  .fc-unthemed .fc-row,
+  .fc-unthemed tbody,
+  .fc-unthemed td,
+  .fc-unthemed th,
+  .fc-unthemed thead {
+    border-color: #c8c8c8;
+  }
+
+  .fc-unthemed .fc-disabled-day {
+    background: #f1f1f1;
+    opacity: 1;
+  }
+
+  .fc-past {
+    background: white;
+
+  }
+
+  .fc-future {
+    background: white;
+
+  }
+
+  h2 {
+    display: inline-block;
+  }
+
+  .fc-button-primary {
+    color: black;
+    background: none;
+    border: none;
+  }
+
+  .fc-prev-button {
+    position: absolute;
+    left: 380px;
+  }
+
+  .fc-next-button {
+    position: absolute;
+    right: 380px;
+  }
+
+  table {
+    text-align: center;
+    border: 1px solid #c6c6c6;
+  }
+
+  th {
+    background-color: #d9d9d9;
+  }
+
+  .audit_items_body {
+    background: white;
+  }
+
+  .last_one {
+    color: #b5b5b5;
+    font-weight: 300;
+    font-size: 13px;
+  }
+
+  .ex-wrapper {
+    margin-top: 5px;
+    height: 28px;
+  }
+
+  #origin_schedule {
+    display: inline-block;
+    width: 135px;
+    height: 24px;
+    background: #EBC57C;
+    border-radius: 3px;
+  }
+
+  .os_title {
+    display: inline-block;
+    color: white;
+    margin-left: 5px;
+    font-weight: 400;
+    float: left;
+    margin-top: -2px;
+  }
+
+  .os_content {
+    display: inline-block;
+    background: white;
+    height: 20px;
+    width: 45px;
+    color: #EBC57C;
+    border-radius: 3px;
+    float: left;
+    margin-left: 5px;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 20px;
+    padding-left: 2px;
+  }
+
+  #top {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    padding: 0 10px;
+    line-height: 40px;
+    font-size: 12px;
+  }
+
+  .container {
+    width: 100%;
+  }
+
+  .fc-event-container {
+    color: white;
+  }
+
+  /* i {
             font-size: 30px;
         } */
-      /* .card-body {
+  /* .card-body {
             color: black;
             font-size: 1.2rem;
             text-decoration: none;
             text-overflow: hide;
         } */
-        .dash{
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        margin-bottom: 2rem;
-        }
-        .unit{
-          float: right;
-          font-size: 14px;
-        }
-        .DashCollapse{
-          height: 20rem;
-          display:inline-flex;
-          flex-direction: row;
-          flex-wrap: nowrap;
-        }
+  .dash {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    margin-bottom: 2rem;
+  }
 
-        .card{
-          width: 48%;
-        }
-        .card-header{
-          font-size: 1.6rem;
-        }
+  .unit {
+    float: right;
+    font-size: 14px;
+  }
 
-        .card-header>.btn{
-          margin: 0;
-          float:left;
-        }
+  .DashCollapse {
+    height: 20rem;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
 
-        .calendar{
-        width: 100%;
-        height: 50%;
-        }
-        
-        .content{
-        width: 100%;
-        height: 30rem;
-        display: flex;
-        justify-content: space-around;
-        }
-        
-        .right{
-          width: 65%;
-          height: 100%;
-          margin: 0;
-          overflow: hidden;
-          display:inline-flex;
-          max-width: 25rem;
-          position: relative;
-        }
+  .card {
+    width: 48%;
+  }
 
-        .left{
-          width: 30%;
-          height: 100%;
-          min-width: 10rem;
-          margin: 0;
-          display: inline-flex;
-          flex-direction: column;
-          justify-content: space-around;
-          font-size: 1rem;
-        }
-        .data{
-          display: flex;
-        }
-        .label{
-          width: 60%;
-        }
-        .card-header .fa-bars::before{
-          color: #666;
-        }
-    </style>
+  .card-header {
+    font-size: 1.6rem;
+  }
+
+  .card-header>.btn {
+    margin: 0;
+    float: left;
+  }
+
+  .calendar {
+    width: 100%;
+    height: 50%;
+  }
+
+  .content {
+    width: 100%;
+    height: 30rem;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .right {
+    width: 65%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    display: inline-flex;
+    max-width: 25rem;
+    position: relative;
+  }
+
+  .left {
+    width: 30%;
+    height: 100%;
+    min-width: 10rem;
+    margin: 0;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-size: 1rem;
+  }
+
+  .data {
+    display: flex;
+  }
+
+  .label {
+    width: 60%;
+  }
+
+  .card-header .fa-bars::before {
+    color: #666;
+  }
+</style>
 {% endblock %}
