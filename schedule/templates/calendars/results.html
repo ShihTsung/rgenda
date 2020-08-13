@@ -227,11 +227,11 @@
                     <td class="futureDay" style="width: 30px">[[getLevel(getUser(u.id).user.level)]]</td>
                     <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
-                    <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, shiftColor(userShift.shift_type)]">
-                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;">
+                    <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
+                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
                       </div>
-                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 1.3rem; width: 1vw; display: inline-block;">
+                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 1.3rem; width: 1vw; display: inline-block;" :class="whichWork(isAdjust(userShift.user.id, userShift.date))">
                         [[isAdjust(userShift.user.id, userShift.date)]]
                       </div>
                     </td>
@@ -389,16 +389,10 @@
         });
         
         this.getResults(this.month, this.year);
+        this.getAdjustment(this.month, this.year);
+        
 
-        fetch('/api/time-adjustment')
-        .then(res=>{
-          return res.json();
-        }).then(data=>{
-          console.log(data);
-          this.adjustHr = data;
-        }).catch(err=>{
-          console.log(err);
-        });
+
     },
     methods : {
       getYear(y,m) {
@@ -435,6 +429,20 @@
             this.isReady = true;
           }
         }).catch((err)=>{
+          console.log(err);
+        });
+      },
+      getAdjustment(m, y) {
+        let url = "";
+        url = "http://localhost/api/time-adjustment/?start=" + y.toString() + "-" + m.toString() + "-" + "01"
+                   + "&end=" + y.toString() + "-" + m.toString() + "-" + this.getYear(y, m).toString();
+        fetch(url)
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          console.log(data);
+          this.adjustHr = data;
+        }).catch(err=>{
           console.log(err);
         });
       },
@@ -502,6 +510,7 @@
         });
       },
       workhr(u, m, today, n) {//出勤時數
+        let month = new Date().getMonth() ;//+1
         let total_hr = 0;
         let pub_hr = 0;
         let add_hr = 0;
@@ -512,7 +521,11 @@
           };
         });
         let adjust = this.adjustHr.filter((item)=>{
-          return (item.user == u)&&(parseInt(item.date.split('-')[2]) <= today);
+          if(m == month){
+            return (item.user == u)&&(parseInt(item.date.split('-')[1]) == m)&&(parseInt(item.date.split('-')[2]) <= today);
+          }else{
+            return (item.user == u)&&(parseInt(item.date.split('-')[1]) == m);
+          }
         })
         
         
@@ -525,6 +538,16 @@
           case 1://總計
             arr.forEach((i)=>{
               total_hr += i.shift.work_hours;
+            });
+            adjust.forEach((i)=>{
+              if(i.adjustment_type == 0){
+                total_hr += i.hours;
+              }
+            });
+            adjust.forEach((i)=>{
+              if(i.adjustment_type == 1){
+                total_hr -= i.hours;
+              }
             });
             return total_hr;
           case 2://公假
@@ -550,21 +573,6 @@
             return sub_hr;
         }
 
-        // if(n == "false") {
-        //   arr.forEach((i)=>{
-        //     total_hr += i.shift.work_hours;
-        //   });
-
-        //   return total_hr;
-        // }else {
-        //   arr.forEach((i)=>{
-        //     if(i.shift_type == "公") {
-        //       pub_hr += (i.shift.work_hours / 8);
-        //     };
-        //   });
-        //   return pub_hr;
-        // }
-        
       },
       changeDate(ev) {
         if(ev.target.id === "prev") {
@@ -607,9 +615,16 @@
             return "onCall";
           case "B":
             return "adminis";
-        }
+        };
       },
-      
+      whichWork(type) {
+        switch(type[0]) {
+          case "+":
+            return "addWork";
+          case "-":
+            return "subWork";
+        }
+      }
     },
     
       // getWeek(today) {
@@ -1429,6 +1444,11 @@
     .adminis {
       color: #58B4AE;
     }
-
+    .addWork {
+      color: #EB8F90;
+    }
+    .subWork {
+      color: #3D313F;
+    }
 </style>
 {% endblock %}
