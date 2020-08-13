@@ -1,194 +1,225 @@
 <!DOCTYPE html>
 <html>
-        
-        {% load static %}
-        {% load i18n %}
+  {% load static %}
+  {% load i18n %}
 <head>
-    <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}</title>
-    
-    <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
-    <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
-    {% block styles %}
-    {% endblock %}
-    <style>
-        #wrapper #sidebar-wrapper {
-            position:fixed;
-            min-height: 100vh;
-            z-index: 10;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: rgba(180, 230, 255, 0.2);
-            font-family: arial,"Microsoft JhengHei","微軟正黑體",sans-serif !important;
-        }
-        main{
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            position: absolute;
-        }
-        .container{
-            padding-top: 7rem;
-            padding-bottom: 3rem;
-        }
-        .clicked{
-            background-color: #6b7991 !important; 
-        }
+  <meta charset="utf-8">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="bookmark" href="{% static 'images/favicon.ico' %}" />
 
-        #page-content-wrapper {
-            position: absolute;
-            left: 230px;
-            transition: all 0.5s ease-in-out;
-        }
+  <link rel="stylesheet" href="{% static 'bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'bootstrap/bootstrap-select.min.css' %}">
+  <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'fullcalendar/bootstrap/main.min.css' %}">
+  <link rel="stylesheet" href="{% static 'fullcalendar/core/main.min.css' %}">
+  <link rel="stylesheet" href="{% static 'fullcalendar/daygrid/main.min.css' %}">
+  <link rel="stylesheet" href="{% static 'fullcalendar/timeline/main.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/common.css' %}">
 
-        #sidebar-wrapper a{
-            color:white;
-            text-decoration: none;
-        }  
-        #sidebar-wrapper .sidebar-heading {
-            padding: 0.875rem 1.25rem;
-            font-size: 2rem;
-            height: 60px;
-            background-color: #37419A;
-            border-radius: 0%;
-            background-image: url("{% static 'logo/redfalcon_hor_white.png' %}");
-            background-repeat: no-repeat;
-            background-size: 150px 60px;
-            border: none;
-            background-position: 10px;
-        }
-        #side-arrange-add{
-            color: white;
-        }
-        #side-arrange-add:hover{
-            cursor: pointer;
-        }
-        .list-group-item{
-            border: none;
-        }
-        #sidebar-wrapper .list-group {
-            width: 200px;
-        }
-        .sidebar_w{
-            width: 200px;
-            background-color: #84C0E9;
-            color: white;
-        }
-        .sidebar_w:hover{
-            background:rgba(180, 230, 255, 0.2);
-            color: white;
-        }
-        .sidebar:hover{
-            background: #84C0E9;
-        }
-        #side-account:hover{
-            cursor: pointer;
-        }
-        #side-arrange{
-            color: white;
-        }
-        #side-arrange:hover{
-            cursor: pointer;
-        }
-        #side-work-manage{
-            color: white;
-        }
-        #side-work-manage:hover{
-            cursor: pointer;
-        }
-        #side-data-analysis:hover{
-            cursor: pointer;
-        }
-        #side-dates:hover{
-            cursor: pointer;
-        }
-        .container{
-            width: 82vw;
-        }
-        .dark{
-            background-color: #84C0E9;
-        }
-        a.sidebar_w:hover{
-            background-color: #74B0D9;
-        }
-        .icon{
-            float: left;
-            margin-right: 10px;
-        }
-        .fold{
-            display: none;
-        }
-        .acc {
-            margin-left: 60px;
-            font-weight: 400;
-        }
-        .arr {
-            margin-left: 60px;
-            font-weight: 400;
-        }
-        .fold_obj{
-            display: block;
-            width: 80px !important;
-            padding: 5px 0px;
-        }
-        .side_shrink{
-            margin-left: 135px;
-            width: 65px;
-            height: 60px;
-            background-image: url("{% static 'logo/redfalcon_shrink_white.png' %}");
-            background-size: 55px 70px;
-            background-repeat: no-repeat;
-            background-position: 4px 5px;
-            background-color: #37419A;
-            cursor: pointer;
-            position: absolute;
-        }
-        .side_s{
-            margin-left: 135px;
-            width: 65px;
-            height: 40px;
-            padding: 10px 20px;
-            cursor: pointer;
-            position: absolute;
-        }
-        svg{
-            pointer-events: none;
-        }
-        
-    </style>
-    {% block heads %}{% endblock %}
-       
+  <script src="{% static 'assets/common.bundle.js' %}"></script>
+
+  {% block styles %}
+  {% endblock %}
+  <style>
+    #wrapper #sidebar-wrapper {
+      position: fixed;
+      min-height: 100vh;
+      z-index: 10;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: rgba(180, 230, 255, 0.2);
+      font-family: arial, "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
+    }
+
+    main {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      position: absolute;
+    }
+
+    .container {
+      padding-top: 7rem;
+      padding-bottom: 3rem;
+    }
+
+    .clicked {
+      background-color: #6b7991 !important;
+    }
+
+    #page-content-wrapper {
+      position: absolute;
+      left: 230px;
+      transition: all 0.5s ease-in-out;
+    }
+
+    #sidebar-wrapper a {
+      color: white;
+      text-decoration: none;
+    }
+
+    #sidebar-wrapper .sidebar-heading {
+      padding: 0.875rem 1.25rem;
+      font-size: 2rem;
+      height: 60px;
+      background-color: #37419A;
+      border-radius: 0%;
+      background-image: url("{% static 'logo/redfalcon_hor_white.png' %}");
+      background-repeat: no-repeat;
+      background-size: 150px 60px;
+      border: none;
+      background-position: 10px;
+    }
+
+    #side-arrange-add {
+      color: white;
+    }
+
+    #side-arrange-add:hover {
+      cursor: pointer;
+    }
+
+    .list-group-item {
+      border: none;
+    }
+
+    #sidebar-wrapper .list-group {
+      width: 200px;
+    }
+
+    .sidebar_w {
+      width: 200px;
+      background-color: #84C0E9;
+      color: white;
+    }
+
+    .sidebar_w:hover {
+      background: rgba(180, 230, 255, 0.2);
+      color: white;
+    }
+
+    .sidebar:hover {
+      background: #84C0E9;
+    }
+
+    #side-account:hover {
+      cursor: pointer;
+    }
+
+    #side-arrange {
+      color: white;
+    }
+
+    #side-arrange:hover {
+      cursor: pointer;
+    }
+
+    #side-work-manage {
+      color: white;
+    }
+
+    #side-work-manage:hover {
+      cursor: pointer;
+    }
+
+    #side-data-analysis:hover {
+      cursor: pointer;
+    }
+
+    #side-dates:hover {
+      cursor: pointer;
+    }
+
+    .container {
+      width: 82vw;
+    }
+
+    .dark {
+      background-color: #84C0E9;
+    }
+
+    a.sidebar_w:hover {
+      background-color: #74B0D9;
+    }
+
+    .icon {
+      float: left;
+      margin-right: 10px;
+    }
+
+    .fold {
+      display: none;
+    }
+
+    .acc {
+      margin-left: 60px;
+      font-weight: 400;
+    }
+
+    .arr {
+      margin-left: 60px;
+      font-weight: 400;
+    }
+
+    .fold_obj {
+      display: block;
+      width: 80px !important;
+      padding: 5px 0px;
+    }
+
+    .side_shrink {
+      margin-left: 135px;
+      width: 65px;
+      height: 60px;
+      background-image: url("{% static 'logo/redfalcon_shrink_white.png' %}");
+      background-size: 55px 70px;
+      background-repeat: no-repeat;
+      background-position: 4px 5px;
+      background-color: #37419A;
+      cursor: pointer;
+      position: absolute;
+    }
+
+    .side_s {
+      margin-left: 135px;
+      width: 65px;
+      height: 40px;
+      padding: 10px 20px;
+      cursor: pointer;
+      position: absolute;
+    }
+
+    svg {
+      pointer-events: none;
+    }
+  </style>
+  {% block heads %}{% endblock %}
+
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
+  <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
+  <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
+  <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
+  <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
+  <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
+  <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
+  <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
+  <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
 </head>
 
 <body>
-        <script
-            src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
-        
-        <script src="{% static "fullcalendar/core/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/daygrid/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/interaction/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/timeline/main.min.js" %}"></script>
-        <script src="{% static "fullcalendar/core/locales/zh-tw.js" %}"></script>
-        <script src="{% static "fullcalendar/bootstrap/main.min.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap.bundle.min.js" %}"></script>
-        <script src="{% static "bootstrap/bootstrap-select.min.js" %}"></script>
-        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
-        
-        
-        <!-- custom filter module -->
-        {% load i18n_switcher %}
+    <!-- custom filter module -->
+    {% load i18n_switcher %}
     <main>
-        
         <div class="d-flex toggled" id="wrapper">
             <!-- Sidebar -->
             <div class="sidebar sidebar_w" id="sidebar-wrapper">
@@ -240,12 +271,12 @@
                             調班審核</a>
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
-                            調班申請</a> 
-                        {% endif %}  
+                            調班申請</a>
+                        {% endif %}
                         <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
                             調班紀錄</a>
                     </div>
-                    
+
                     {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-work-manage" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M6.914 2.741l15.557 15.556-4.243 4.243-15.556-15.557 4.242-4.242zm-.707-.707l-2.033-2.034-4.174 4.243 1.965 2.034 4.242-4.243zm12.821 21.119l4.972.847-.918-4.901-4.054 4.054zm-4.567-15.694l.389-.388.707.707.707-.707-.707-.707.707-.707.707.707.708-.708-.707-.706 2.121-2.121 2.121 2.121-4.631 4.631 1.393 1.393 6.024-6.024-4.908-4.95-6.045 6.045 1.414 1.414zm-4.949 9.193l-4.562 4.561-2.121-2.121.707-.708.707.707.707-.707-.707-.707.707-.707.707.707.707-.707-.707-.707.707-.707.707.707.707-.707-.707-.706.319-.319-1.415-1.415-5.975 5.976 4.95 4.908 5.955-5.955-1.393-1.393zm9.934-11.349c.195-.195.195-.512 0-.707s-.512-.195-.707 0-.195.512 0 .707.512.196.707 0z"/></svg>
@@ -264,7 +295,7 @@
                     </div>
                     {% endif %}
 
-                    {% if user.role in 'admin, manager' or user.is_superuser %}                    
+                    {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-data-analysis" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
                         資料分析
@@ -307,10 +338,10 @@
                             證照審核</a>
                         {% endif %}
                     </div>
-                    
+
                     {% endif %}
 
-                    
+
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-dates" class="list-group-item list-group-item-action sidebar_w fold_m">
@@ -348,27 +379,27 @@
                         {% endif %}
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-arrange-add" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
-                            工作站管理</a>  
+                            工作站管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
                             人力管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
                             班別管理</a>
-        
+
                         {% endif %}
-                        
+
                     </div>
                     {% endif %}
-                    
-                    
-                    
+
+
+
               </div>
             </div>
             <!-- /#sidebar-wrapper -->
-            
+
 
             <!-- Page Content -->
             <div id="page-content-wrapper">
-        
+
                 {% include 'nav.html' %}
                 {% block content %}
                 {% endblock %}
@@ -376,210 +407,219 @@
             </div>
             <!-- /#page-content-wrapper -->
         </div>
-        
+
     </main>
-    
-
-        {% block scripts %}
-        {% endblock %}
-        <script>
-            window.onload = function(){
-                let unfold_aa = false;
-                let unfold_a = false;
-                let unfold_wm = false;
-                let unfold_ac = false;
-                let unfold_da = false;
-                let unfold_d = false;
-                //nav
-                let nav_fold = true;
-                const onav = document.querySelector('.navbar');
-                const obt = document.querySelector('.nav_btn');
-                const osidebar = document.querySelector('.sidebar');
-                const oside_sh = document.querySelector('.side_shrink');
-                const olist_group = document.getElementsByClassName('list-group-item');
-                const oside_s = document.getElementsByClassName('side_s');
-                const owrapper = document.querySelector('#page-content-wrapper');
-
-                function spread_ev() {
-                    nav_fold = !nav_fold;
-
-                    $("#acc_fold").addClass("fold");
-                    $("#arra_fold").addClass("fold");
-                    $("#arr_fold").addClass("fold");
-                    $("#wm_fold").addClass("fold");
-                    $("#da_fold").addClass("fold");
-                    $("#d_fold").addClass("fold");
-                
-                    if(nav_fold){
-                        onav.style.left = '200px';
-                        osidebar.style.transform = 'translateX(0px)';
-                        oside_sh.style.visibility = 'hidden';
-                        oside_sh.style.position = 'absolute';
-                        owrapper.style.left = '230px';
-                        
-                        for(var i = 0; i < olist_group.length; i++){
-                            olist_group[i].style.visibility = 'visible';
-                            olist_group[i].style.position = 'static';
-                        };
-                        for(var i = 0; i < oside_s.length; i++){
-                            oside_s[i].style.visibility = 'hidden';
-                            oside_s[i].style.position = 'absolute';
-                        };
-                    }else{
-                        onav.style.left = '65px';
-                        osidebar.style.transform = 'translateX(-135px)';
-                        oside_sh.style.visibility = 'visible';
-                        oside_sh.style.position = 'static';
-                        owrapper.style.left = '140px';
-
-                        for(var i = 0; i < olist_group.length; i++){
-                            olist_group[i].style.visibility = 'hidden';
-                            olist_group[i].style.position = 'absolute';
-                        };
-                        for(var i = 0; i < oside_s.length; i++){
-                            oside_s[i].style.visibility = 'visible';
-                            oside_s[i].style.position = 'static';
-                        };
-                    }
-                };
-
-                obt.addEventListener('click', (event)=>{
-                    spread_ev();
-                });
-
-                $(".side_shrink").click((e)=>{
-                    spread_ev();
-                });
 
 
-                $(".side_s").click((e)=>{
-                    switch(e.target.id){
-                        case "acm":
-                            spread_ev();
-                            $("#acc_fold").removeClass("fold");
-                            break;
-                        case "arr-add":
-                            spread_ev();
-                            $("#arra_fold").removeClass("fold");
-                            break;
-                        case "arrange":
-                            spread_ev();
-                            $("#arr_fold").removeClass("fold");
-                            break;
-                        case "sw":
-                            spread_ev();
-                            $("#wm_fold").removeClass("fold");
-                            break;
-                        case "da":
-                            spread_ev();
-                            $("#da_fold").removeClass("fold");
-                            break;
-                        case "d":
-                            spread_ev();
-                            $("#d_fold").removeClass("fold");
-                            break;
-                        default:
-                            spread_ev();
-                            break;
-                    }
-                });
-    
-                $(".sidebar_w").click((e)=>{
-                    $.cookie("sideClicked", e.target.id, { path: "/" });
-                    
-                    $(".sidebar_w").removeClass("clicked");
-                    if(e.target.id ==="side-account"||e.target.id ==="side-work-manage"||e.target.id ==="side-arrange-add"||e.target.id ==="side-arrange"||e.target.id ==="side-data-analysis"||e.target.id==="side-dates"){
-                        document.getElementById(e.target.id).classList.add("clicked");
-                    }
-                    
-                });
-                let sideClicked = $.cookie("sideClicked");
+    {% block scripts %}
+    {% endblock %}
+    <script>
+      window.onload = function () {
+        let unfold_aa = false;
+        let unfold_a = false;
+        let unfold_wm = false;
+        let unfold_ac = false;
+        let unfold_da = false;
+        let unfold_d = false;
+        //nav
+        let nav_fold = true;
+        const onav = document.querySelector('.navbar');
+        const obt = document.querySelector('.nav_btn');
+        const osidebar = document.querySelector('.sidebar');
+        const oside_sh = document.querySelector('.side_shrink');
+        const olist_group = document.getElementsByClassName('list-group-item');
+        const oside_s = document.getElementsByClassName('side_s');
+        const owrapper = document.querySelector('#page-content-wrapper');
 
-                if(sideClicked){
-                    if(!(sideClicked==="acm"||sideClicked==="arr-add"||sideClicked==="arrange"||sideClicked==="sw"||sideClicked==="side-redfalcon"||sideClicked==="da"||sideClicked==="d")){
-                        document.getElementById(sideClicked).classList.add("clicked");
-                    }
-                };
+        function spread_ev() {
+          nav_fold = !nav_fold;
 
-                $(".fold_m").click((e)=>{
-                    if(e.target.id == "side-arrange-add"){
-                        unfold_aa = !unfold_aa;
-                        if(unfold_aa === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#da_fold").addClass("fold");
-                            $("#arra_fold").removeClass("fold");
-                            $("#d_fold").addClass("fold");
-                        }else{
-                            $("#arra_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-arrange"){
-                        unfold_a = !unfold_a;
-                        if(unfold_a === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#da_fold").addClass("fold");
-                            $("#arr_fold").removeClass("fold");
-                            $("#d_fold").addClass("fold");
-                        }else{
-                            $("#arr_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-work-manage"){
-                        unfold_wm = !unfold_wm;
-                        if(unfold_wm === true){
-                            $("#acc_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#da_fold").addClass("fold");
-                            $("#wm_fold").removeClass("fold");
-                            $("#d_fold").addClass("fold");
-                        }else{
-                            $("#wm_fold").addClass("fold");
-                        }
-                    }else if(e.target.id == "side-account"){
-                        unfold_ac = !unfold_ac;
-                        if(unfold_ac === true){
-                            $("#acc_fold").removeClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#da_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#d_fold").addClass("fold");
-                        }else{
-                            $("#acc_fold").addClass("fold");
-                        }
-                    }else if(e.target.id ==="side-data-analysis"){
-                        unfold_da = !unfold_da;
-                        if(unfold_da === true){
-                            $("#da_fold").removeClass("fold");
-                            $("#acc_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                            $("#d_fold").addClass("fold");
-                        }else{
-                            $("#da_fold").addClass("fold");
-                        }
-                    }else if(e.target.id ==="side-dates"){
-                        unfold_d = !unfold_d;
-                        if(unfold_d === true){
-                            $("#d_fold").removeClass("fold");
-                            $("#da_fold").addClass("fold");
-                            $("#acc_fold").addClass("fold");
-                            $("#arr_fold").addClass("fold");
-                            $("#arra_fold").addClass("fold");
-                            $("#wm_fold").addClass("fold");
-                        }else{
-                            $("#d_fold").addClass("fold");
-                        }
-                    }
-                })
+          $("#acc_fold").addClass("fold");
+          $("#arra_fold").addClass("fold");
+          $("#arr_fold").addClass("fold");
+          $("#wm_fold").addClass("fold");
+          $("#da_fold").addClass("fold");
+          $("#d_fold").addClass("fold");
+
+          if (nav_fold) {
+            onav.style.left = '200px';
+            osidebar.style.transform = 'translateX(0px)';
+            oside_sh.style.visibility = 'hidden';
+            oside_sh.style.position = 'absolute';
+            owrapper.style.left = '230px';
+
+            for (var i = 0; i < olist_group.length; i++) {
+              olist_group[i].style.visibility = 'visible';
+              olist_group[i].style.position = 'static';
+            };
+            for (var i = 0; i < oside_s.length; i++) {
+              oside_s[i].style.visibility = 'hidden';
+              oside_s[i].style.position = 'absolute';
+            };
+          } else {
+            onav.style.left = '65px';
+            osidebar.style.transform = 'translateX(-135px)';
+            oside_sh.style.visibility = 'visible';
+            oside_sh.style.position = 'static';
+            owrapper.style.left = '140px';
+
+            for (var i = 0; i < olist_group.length; i++) {
+              olist_group[i].style.visibility = 'hidden';
+              olist_group[i].style.position = 'absolute';
+            };
+            for (var i = 0; i < oside_s.length; i++) {
+              oside_s[i].style.visibility = 'visible';
+              oside_s[i].style.position = 'static';
+            };
+          }
+        };
+
+        obt.addEventListener('click', (event) => {
+          spread_ev();
+        });
+
+        $(".side_shrink").click((e) => {
+          spread_ev();
+        });
+
+
+        $(".side_s").click((e) => {
+          switch (e.target.id) {
+            case "acm":
+              spread_ev();
+              $("#acc_fold").removeClass("fold");
+              break;
+            case "arr-add":
+              spread_ev();
+              $("#arra_fold").removeClass("fold");
+              break;
+            case "arrange":
+              spread_ev();
+              $("#arr_fold").removeClass("fold");
+              break;
+            case "sw":
+              spread_ev();
+              $("#wm_fold").removeClass("fold");
+              break;
+            case "da":
+              spread_ev();
+              $("#da_fold").removeClass("fold");
+              break;
+            case "d":
+              spread_ev();
+              $("#d_fold").removeClass("fold");
+              break;
+            default:
+              spread_ev();
+              break;
+          }
+        });
+
+        $(".sidebar_w").click((e) => {
+          $.cookie("sideClicked", e.target.id, {
+            path: "/"
+          });
+
+          $(".sidebar_w").removeClass("clicked");
+          if (e.target.id === "side-account" || e.target.id === "side-work-manage" || e.target.id ===
+            "side-arrange-add" || e.target.id === "side-arrange" || e.target.id === "side-data-analysis" || e
+            .target.id === "side-dates") {
+            document.getElementById(e.target.id).classList.add("clicked");
+          }
+
+        });
+        let sideClicked = $.cookie("sideClicked");
+
+        if (sideClicked) {
+          if (!(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange" || sideClicked ===
+              "sw" || sideClicked === "side-redfalcon" || sideClicked === "da" || sideClicked === "d")) {
+            document.getElementById(sideClicked).classList.add("clicked");
+          }
+        };
+
+        $(".fold_m").click((e) => {
+          if (e.target.id == "side-arrange-add") {
+            unfold_aa = !unfold_aa;
+            if (unfold_aa === true) {
+              $("#acc_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#da_fold").addClass("fold");
+              $("#arra_fold").removeClass("fold");
+              $("#d_fold").addClass("fold");
+            } else {
+              $("#arra_fold").addClass("fold");
             }
-            
-        </script>
-        
+          } else if (e.target.id == "side-arrange") {
+            unfold_a = !unfold_a;
+            if (unfold_a === true) {
+              $("#acc_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#da_fold").addClass("fold");
+              $("#arr_fold").removeClass("fold");
+              $("#d_fold").addClass("fold");
+            } else {
+              $("#arr_fold").addClass("fold");
+            }
+          } else if (e.target.id == "side-work-manage") {
+            unfold_wm = !unfold_wm;
+            if (unfold_wm === true) {
+              $("#acc_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#da_fold").addClass("fold");
+              $("#wm_fold").removeClass("fold");
+              $("#d_fold").addClass("fold");
+            } else {
+              $("#wm_fold").addClass("fold");
+            }
+          } else if (e.target.id == "side-account") {
+            unfold_ac = !unfold_ac;
+            if (unfold_ac === true) {
+              $("#acc_fold").removeClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#da_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#d_fold").addClass("fold");
+            } else {
+              $("#acc_fold").addClass("fold");
+            }
+          } else if (e.target.id === "side-data-analysis") {
+            unfold_da = !unfold_da;
+            if (unfold_da === true) {
+              $("#da_fold").removeClass("fold");
+              $("#acc_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+              $("#d_fold").addClass("fold");
+            } else {
+              $("#da_fold").addClass("fold");
+            }
+          } else if (e.target.id === "side-dates") {
+            unfold_d = !unfold_d;
+            if (unfold_d === true) {
+              $("#d_fold").removeClass("fold");
+              $("#da_fold").addClass("fold");
+              $("#acc_fold").addClass("fold");
+              $("#arr_fold").addClass("fold");
+              $("#arra_fold").addClass("fold");
+              $("#wm_fold").addClass("fold");
+            } else {
+              $("#d_fold").addClass("fold");
+            }
+          }
+        })
+      }
+
+      // tooltips
+      $(function () {
+        $('[data-tooltip="tooltip"]').tooltip()
+      })
+    </script>
+
 </body>
 
 </html>
