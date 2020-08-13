@@ -199,7 +199,7 @@ export default {
       $('#modalDelete').modal('hide');
 
       popup.loading({
-        title: "處理中...",
+        title: '處理中...',
       });
 
       let url = `/api/users/${self.deleteUser.id}/`;
@@ -215,8 +215,8 @@ export default {
           });
 
           popup.success({
-            title: "刪除人員",
-            text: "請求成功",
+            title: '刪除人員',
+            text: '請求成功',
           });
         })
         .catch(function (error) {
@@ -248,14 +248,14 @@ export default {
       };
 
       popup.loading({
-        title: "處理中...",
+        title: '處理中...',
       });
 
       this.$httpClient.patch(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: "更新排班狀況",
-            text: "請求成功",
+            title: '更新排班狀況',
+            text: '請求成功',
           });
         })
         .catch(function (error) {

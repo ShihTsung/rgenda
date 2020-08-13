@@ -7,7 +7,10 @@
 
 <div id="app" class="container">
 
-  <add-license></add-license>
+  <add-license
+  :user-id="{{ target_user.id }}"
+  username="{{ target_user.username }}"
+  csrf-token="{{ csrf_token }}"></add-license>
 
   <div class="row">
     <div class="col-6">
