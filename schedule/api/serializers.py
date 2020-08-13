@@ -378,12 +378,19 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):
+    adjustment_item_text = serializers.SerializerMethodField()
+
+    def get_adjustment_item_text(self, obj):
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        return texts[obj.adjustment_item]
 
     class Meta:
         model = TimeAdjustment
         fields = (
             'id', 'user', 'date', 'hours', 'adjustment_type',
-            'adjustment_item', 'remark')
+            'adjustment_item', 'adjustment_item_text', 'remark')
 
 
 class LiscenseSerializer(serializers.ModelSerializer):
