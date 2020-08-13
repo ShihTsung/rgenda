@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} User Detail {% endblock %}
+{% block title %} 人員詳細資料 {% endblock %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% block content %}
@@ -15,9 +15,8 @@
   <div class="row">
     <div class="col-6">
       <div class="d-flex">
-        <div style="background-color:{{user_color}};width:4rem;height:4rem;border-radius:
-                    1rem;" class="d-flex justify-content-center
-                    align-items-center">
+        <div style="background-color:{{user_color}};width:4rem;height:4rem;"
+        class="rounded d-flex justify-content-center align-items-center">
           <h3 style="color:white;">
             {%if target_user.level > 4%}
             Nn
