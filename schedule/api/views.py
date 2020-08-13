@@ -86,6 +86,8 @@ mode = openapi.Parameter('mode', openapi.IN_QUERY,
                          description="模式", type=openapi.TYPE_STRING)
 month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
                                description="月初日", type=openapi.TYPE_STRING)
+uid = openapi.Parameter('uid', openapi.IN_QUERY,
+                        description="使用者id", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -184,28 +186,47 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     serializer_class = TimeAdjustmentSerializer
 
     def get_queryset(self):
+        queryset = TimeAdjustment.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
             mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if start and end:
+                queryset = queryset.filter(
+                    date__range=[start[:10], end[:10]]
+                )
             if mode == 'personal':
-                if start and end:
-                    return TimeAdjustment.objects.filter(
-                        date__range=[start[:10], end[:10]],
-                        user=self.request.user)
-                return TimeAdjustment.objects.filter(
-                    user=self.request.user)
-            return TimeAdjustment.objects.filter(
-                date__range=[start[:10], end[:10]])
-        return TimeAdjustment.objects.all()
+                if uid:
+                    target = CustomUser.objects.get(id=int(uid))
+                    queryset = queryset.filter(user=target)
+                else:
+                    queryset = queryset.filter(user=self.request.user)
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='調班清單',
         operation_description='列出所有調班清單',
-        manual_parameters=[start_date, end_date, mode]
+        manual_parameters=[start_date, end_date, mode, uid]
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary='新增調班',
+        operation_description='增加一筆加減班',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        data['adjustment_item_text'] = texts[data['adjustment_item']]
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -457,10 +478,29 @@ class LiscenseViewSet(viewsets.ModelViewSet):
     serializer_class = LiscenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if mode == 'personal' and uid:
+                user = CustomUser.objects.get(id=int(uid))
+                return Liscense.objects.filter(user=user)
+            else:
+                return Liscense.objects.all()
+        return Liscense.objects.all()
+
 
 # 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            if mode == 'personal':
+                return ExchangeApplication.objects.filter(
+                    user_receive=self.request.user)
+        return ExchangeApplication.objects.all()
 
 # class CheckResultView(APIView):
 #     """

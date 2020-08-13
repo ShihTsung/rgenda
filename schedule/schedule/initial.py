@@ -22,10 +22,11 @@ def initial(request):
     from station.models import Station
     from shift.models import Shift
     from demand.models import DemandOfStation
-    from result.models import Result, PreResult, AfterResult
+    from result.models import Result, PreResult, AfterResult, TimeAdjustment
 
     print('clean database')
     Department.objects.all().delete()
+    TimeAdjustment.objects.all().delete()
     User.objects.all().delete()
     Station.objects.all().delete()
     Shift.objects.all().delete()
@@ -187,6 +188,19 @@ def initial(request):
                 station=station,
                 shift=shift
             )
+    print('add adjustments')
+    users = list(User.objects.all())[:10]
+
+    for x in users:
+        month = random.randint(1, 12)
+        day = random.randint(1, 28)
+        TimeAdjustment.objects.create(
+            user=x,
+            date=datetime.date(2020, month, day),
+            hours=random.randint(1, 3),
+            adjustment_type=0,
+            adjustment_item=0
+        )
 
     print('finish')
 
