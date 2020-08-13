@@ -62,9 +62,9 @@ def check_cycle(department, results, invalid):
         for result in temp_results:
             if i % 7 == 0:
                 current_shift_type = None
-            if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
+            if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
                 current_shift_type = result.shift.shift_type
-            elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type and result in results:
+            elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result in results:
                 invalid[result.id].append('unique shift type in a week')
             i += 1
         return None
@@ -73,18 +73,18 @@ def check_cycle(department, results, invalid):
     if department.schedule_rule == 2 and date0.month % 3 != department.month_cycle:
         results_last_month = Result.objects.filter(date__month=results[0].date.month - 1,
                                                    user=user,
-                                                   shift__shift_type__in=['白班', '小夜', '大夜'])
+                                                   shift__shift_type__in=[0, 1, 2])
         shift_types = [
             result.shift.shift_type for result in results_last_month]
         counter = 0
-        for st in ['白班', '小夜', '大夜']:
+        for st in [0, 1, 2]:
             if shift_types.count(st) > counter:
                 counter = shift_types.count(st)
                 current_shift_type = st
     for result in results:
-        if current_shift_type is None and result.shift.shift_type in ['白班', '小夜', '大夜']:
+        if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
             current_shift_type = result.shift.shift_type
-        elif result.shift.shift_type in ['白班', '小夜', '大夜'] and result.shift.shift_type != current_shift_type:
+        elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
             invalid[result.id].append('unique shift type in a week')
     return None
 
@@ -118,7 +118,7 @@ def check_rest_day(department, results, invalid):
         user=user).order_by('date')
     continue_workday = 0
     for result in last_week_results:
-        if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+        if result.shift.shift_type in [0, 1, 2, 3]:
             continue_workday += 1
         else:
             continue_workday = 0
@@ -131,7 +131,7 @@ def check_rest_day(department, results, invalid):
             work_days = 0
         if H_Calendar.objects.filter(date=result.date).first().attribute == 'holiday':
             work_days_limit -= 1
-        if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
+        if result.shift.shift_type in [0, 1, 2, 3]:
             continue_workday += 1
             work_days += 1
         else:
@@ -158,7 +158,7 @@ def check_rest_hour(results, invalid):
         user=results[0].user, date=results[0].date - timedelta(days=1))
     last_off_time = datetime.combine(
         last_result.date, time(hour=0, minute=0, second=0))
-    if last_result.shift.shift_type in ['白班', '小夜', '大夜']:
+    if last_result.shift.shift_type in [0, 1, 2]:
         if last_result.shift.start_time > last_result.shift.end_time:
             last_off_time = datetime.combine(
                 last_result.date, last_result.shift.end_time) + timedelta(days=1)
@@ -166,7 +166,7 @@ def check_rest_hour(results, invalid):
             last_off_time = datetime.combine(
                 last_result.date, last_result.shift.end_time)
     for result in results:
-        if result.shift.shift_type in ['白班', '小夜', '大夜']:
+        if result.shift.shift_type in [0, 1, 2]:
             start_time = datetime.combine(result.date, result.shift.start_time)
             if start_time - last_off_time < timedelta(hours=11):
                 invalid[result.id].append('rest time less than 11 hours')
@@ -187,7 +187,7 @@ def check_hour_pregnant(results, invalid):
     :return:
     """
     for result in results:
-        if result.shift.shift_type in ['白班', '小夜', '大夜'] and not (
+        if result.shift.shift_type in [0, 1, 2] and not (
                 result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
             invalid[result.id].append(
                 'pregnant woman work between 22 PM to 6 AM')

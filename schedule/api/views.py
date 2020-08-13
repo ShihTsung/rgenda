@@ -525,18 +525,18 @@ def total_per_day_api(request):
         demands = DemandOfStation.objects.all()
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
-            results[date_str] = {'白班': 0, '小夜': 0, '大夜': 0}
+            results[date_str] = {'0': 0, '1': 0, '2': 0}
             config = 1
             for demand in demands:
                 if demand.shift.department == d:
                     s_type = demand.shift.shift_type
-                    if s_type in ['白班', '小夜', '大夜']:
+                    if s_type in [0, 1, 2]:
                         if config == 1:
-                            results[date_str][s_type] += demand.config1
+                            results[date_str][str(s_type)] += demand.config1
                         elif config == 2:
-                            results[date_str][s_type] += demand.config2
+                            results[date_str][str(s_type)] += demand.config2
                         else:
-                            results[date_str][s_type] = 0
+                            results[date_str][str(s_type)] = 0
     return Response(results)
 
 
@@ -586,10 +586,10 @@ def last_month_continue(request):
     date0 = datetime.strptime(month_head, '%Y-%m-%d')
     output = dict()
     type_dict = {
-        '白班': 'A',
-        '小夜': 'E',
-        '大夜': 'N',
-        '公假': '公'
+        '0': 'A',
+        '1': 'E',
+        '2': 'N',
+        '3': '公'
     }
     for user in users:
         output[user.id] = list()
@@ -597,8 +597,8 @@ def last_month_continue(request):
             user=user, date__gte=date0 - timedelta(days=7),
             date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
-            if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
-                output[user.id].append(result.shift.shift_type)
+            if result.shift.shift_type in [0, 1, 2, 3]:
+                output[user.id].append(str(result.shift.shift_type))
             else:
                 output[user.id] = list()
         outstr = ''

@@ -7,7 +7,7 @@
 <!-- 加入full calendar套件 -->
 {% block content %}
 <div class="container">
-  
+
   <div class="greet text-center">
     {% if user.is_authenticated %}
     <h1> {%trans 'PromiseShift'%}</h1>
@@ -122,7 +122,7 @@
 <!-- 自訂 scripts -->
 {% block scripts %}
 <script>
-    
+
     document.addEventListener('DOMContentLoaded', function () {
         var Calendar = FullCalendar.Calendar;
         var Draggable = FullCalendarInteraction.Draggable;
@@ -161,7 +161,7 @@
 // 查詢所有班別
         fetch('/api/shifts/')
         .then(response=>{
-          return response.json();  
+          return response.json();
         })
         .then(data=>{
             data.forEach(shift=>{
@@ -241,7 +241,7 @@
                   e.overlap=true;
                 })
                 successCallback(jsonData);
-                  
+
               })
             }
             },{
@@ -259,8 +259,8 @@
                     e.className = 'bigEvent';
                     e.title = e.user.full_name + '\n' + e.shift.name;
                     e.textColor = 'white';
-                    
-                    if(e.shift.shift_type=='休假'){
+
+                    if(e.shift.shift_type==5){
                         e.color = 'red'
                     }
                     choosed_days.push(e.date)
@@ -308,7 +308,7 @@
                 'shift': shift,
                 'combo': combo
               }
-            fetch('/api/promises/', 
+            fetch('/api/promises/',
                         {
                           method: "POST",
                           headers:{
@@ -335,7 +335,7 @@
           fetch(url, {
             method: "DELETE",
             headers:{
-              'X-CSRFToken': '{{ csrf_token }}',  
+              'X-CSRFToken': '{{ csrf_token }}',
             },
           })
           .then(res=>{
@@ -360,7 +360,7 @@
             method: "PUT",
             headers:{
               'X-CSRFToken': '{{ csrf_token }}',
-              'content-type': 'application/json'  
+              'content-type': 'application/json'
             },
             body: JSON.stringify(update_data)
           }).
@@ -372,7 +372,7 @@
 
 
         // 印出目前顯示的最早與最晚時間
-        
+
         //console.log(calendar.view.activeStart);
         //console.log(calendar.view.activeEnd);
     });

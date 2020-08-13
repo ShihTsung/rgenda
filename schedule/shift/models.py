@@ -7,20 +7,19 @@ from account.models import Department
 """
 
 TYPE_CHOICES = (
-    ('白班', '白班'),
-    ('小夜', '小夜'),
-    ('大夜', '大夜'),
-    ('公假', '公假'),
-    ('oncall', 'oncall'),
-    ('有薪假', '有薪假'),
-    ('無薪假', '無薪假'),
+    (0, '白班'),
+    (1, '小夜'),
+    (2, '大夜'),
+    (3, '公假'),
+    (4, 'oncall'),
+    (5, '有薪假'),
+    (6, '無薪假'),
 )
 
 
 class Shift(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Name'), null=True)
-    shift_type = models.CharField(
-        max_length=100,
+    shift_type = models.IntegerField(
         verbose_name=_('ShiftType'),
         null=True,
         choices=TYPE_CHOICES,)
