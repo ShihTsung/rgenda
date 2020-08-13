@@ -11,13 +11,13 @@ LEVEL_CHOICES = (
 )
 
 TYPE_CHOICES = (
-    ('白班', '白班'),
-    ('小夜', '小夜'),
-    ('大夜', '大夜'),
-    ('公假', '公假'),
-    ('oncall', 'oncall'),
-    ('有薪假', '有薪假'),
-    ('無薪假', '無薪假'),
+    (0, '白班'),
+    (1, '小夜'),
+    (2, '大夜'),
+    (3, '公假'),
+    (4, 'oncall'),
+    (5, '有薪假'),
+    (6, '無薪假'),
 )
 
 """
@@ -27,8 +27,7 @@ TYPE_CHOICES = (
 
 class ShiftCreationForm(forms.ModelForm):
     name = forms.CharField(max_length=100, label=_('Name'))
-    shift_type = forms.CharField(
-        max_length=100,
+    shift_type = forms.IntegerField(
         label=_('ShiftType'),
         widget=forms.widgets.Select(choices=TYPE_CHOICES))
     start_time = forms.TimeField(label=_('StartTime'))

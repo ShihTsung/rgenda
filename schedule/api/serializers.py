@@ -265,13 +265,13 @@ class GetResultSerializer(serializers.ModelSerializer):
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
-        if obj.shift.shift_type == '白班':
+        if obj.shift.shift_type == 0:
             return 'A'
-        elif obj.shift.shift_type == '小夜':
+        elif obj.shift.shift_type == 1:
             return 'E'
-        elif obj.shift.shift_type == '大夜':
+        elif obj.shift.shift_type == 2:
             return 'N'
-        elif obj.shift.shift_type == '有薪假':
+        elif obj.shift.shift_type == 5:
             if obj.shift.name == "休息":
                 return '休'
             if obj.shift.name == "例假":
@@ -282,8 +282,6 @@ class GetResultSerializer(serializers.ModelSerializer):
                 return "特"
             if obj.shift.name == "空班":
                 return "空"
-            if obj.shift.name == "公假":
-                return "公"
             if obj.shift.name == "婚假":
                 return "婚"
             if obj.shift.name == "喪假":
@@ -294,16 +292,16 @@ class GetResultSerializer(serializers.ModelSerializer):
                 return "生"
             if obj.shift.name == "國定假日":
                 return "國"
-        elif obj.shift.shift_type == '無薪假':
+        elif obj.shift.shift_type == 6:
             if obj.shift.name == "無薪病假":
                 return '病'
             if obj.shift.name == "事假":
                 return '事'
             if obj.shift.name == "家庭照顧假":
                 return '家'
-        elif obj.shift.shift_type == 'oncall':
+        elif obj.shift.shift_type == 4:
             return 'On'
-        elif obj.shift.shift_type == '公假':
+        elif obj.shift.shift_type == 3:
             return '公'
         else:
             return ''
@@ -367,7 +365,7 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift')
 
 # 保證假/班
 
@@ -376,7 +374,7 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift')
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):

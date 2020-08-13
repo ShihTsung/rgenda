@@ -340,7 +340,7 @@ def departmentCreate(request):
             form.save()
             department = Department.objects.last()
             names = ['休息', '例假', '公假', 'on-call']
-            types = ['休假', '休假', '公假', 'on-call']
+            types = [5, 5, 3, 4]
             hours = [0, 0, 8, 0]
             for i in range(4):
                 shift = Shift.objects.create(
@@ -352,21 +352,21 @@ def departmentCreate(request):
                     work_hours=hours[i])
             shift = Shift.objects.create(
                 name='白班',
-                shift_type='白班',
+                shift_type=0,
                 start_time=time(hour=7, minute=0),
                 end_time=time(hour=16, minute=0),
                 department=department,
                 work_hours=8)
             shift = Shift.objects.create(
                 name='小夜',
-                shift_type='小夜',
+                shift_type=1,
                 start_time=time(hour=15, minute=0),
                 end_time=time(hour=0, minute=0),
                 department=department,
                 work_hours=8)
             shift = Shift.objects.create(
                 name='大夜',
-                shift_type='大夜',
+                shift_type=2,
                 start_time=time(hour=23, minute=0),
                 end_time=time(hour=8, minute=0),
                 department=department,

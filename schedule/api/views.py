@@ -86,6 +86,8 @@ mode = openapi.Parameter('mode', openapi.IN_QUERY,
                          description="模式", type=openapi.TYPE_STRING)
 month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
                                description="月初日", type=openapi.TYPE_STRING)
+uid = openapi.Parameter('uid', openapi.IN_QUERY,
+                        description="使用者id", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -184,28 +186,47 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     serializer_class = TimeAdjustmentSerializer
 
     def get_queryset(self):
+        queryset = TimeAdjustment.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
             mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if start and end:
+                queryset = queryset.filter(
+                    date__range=[start[:10], end[:10]]
+                )
             if mode == 'personal':
-                if start and end:
-                    return TimeAdjustment.objects.filter(
-                        date__range=[start[:10], end[:10]],
-                        user=self.request.user)
-                return TimeAdjustment.objects.filter(
-                    user=self.request.user)
-            return TimeAdjustment.objects.filter(
-                date__range=[start[:10], end[:10]])
-        return TimeAdjustment.objects.all()
+                if uid:
+                    target = CustomUser.objects.get(id=int(uid))
+                    queryset = queryset.filter(user=target)
+                else:
+                    queryset = queryset.filter(user=self.request.user)
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='調班清單',
         operation_description='列出所有調班清單',
-        manual_parameters=[start_date, end_date, mode]
+        manual_parameters=[start_date, end_date, mode, uid]
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary='新增調班',
+        operation_description='增加一筆加減班',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        data['adjustment_item_text'] = texts[data['adjustment_item']]
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -457,10 +478,29 @@ class LiscenseViewSet(viewsets.ModelViewSet):
     serializer_class = LiscenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if mode == 'personal' and uid:
+                user = CustomUser.objects.get(id=int(uid))
+                return Liscense.objects.filter(user=user)
+            else:
+                return Liscense.objects.all()
+        return Liscense.objects.all()
+
 
 # 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            if mode == 'personal':
+                return ExchangeApplication.objects.filter(
+                    user_receive=self.request.user)
+        return ExchangeApplication.objects.all()
 
 # class CheckResultView(APIView):
 #     """
@@ -525,18 +565,18 @@ def total_per_day_api(request):
         demands = DemandOfStation.objects.all()
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
-            results[date_str] = {'白班': 0, '小夜': 0, '大夜': 0}
+            results[date_str] = {'0': 0, '1': 0, '2': 0}
             config = 1
             for demand in demands:
                 if demand.shift.department == d:
                     s_type = demand.shift.shift_type
-                    if s_type in ['白班', '小夜', '大夜']:
+                    if s_type in [0, 1, 2]:
                         if config == 1:
-                            results[date_str][s_type] += demand.config1
+                            results[date_str][str(s_type)] += demand.config1
                         elif config == 2:
-                            results[date_str][s_type] += demand.config2
+                            results[date_str][str(s_type)] += demand.config2
                         else:
-                            results[date_str][s_type] = 0
+                            results[date_str][str(s_type)] = 0
     return Response(results)
 
 
@@ -586,10 +626,10 @@ def last_month_continue(request):
     date0 = datetime.strptime(month_head, '%Y-%m-%d')
     output = dict()
     type_dict = {
-        '白班': 'A',
-        '小夜': 'E',
-        '大夜': 'N',
-        '公假': '公'
+        '0': 'A',
+        '1': 'E',
+        '2': 'N',
+        '3': '公'
     }
     for user in users:
         output[user.id] = list()
@@ -597,8 +637,8 @@ def last_month_continue(request):
             user=user, date__gte=date0 - timedelta(days=7),
             date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
-            if result.shift.shift_type in ['白班', '小夜', '大夜', '公假']:
-                output[user.id].append(result.shift.shift_type)
+            if result.shift.shift_type in [0, 1, 2, 3]:
+                output[user.id].append(str(result.shift.shift_type))
             else:
                 output[user.id] = list()
         outstr = ''

@@ -19,7 +19,7 @@ def demand_create(request):
     department = request.user.department
     form = DemandCreationForm()
     form.fields['shift'].queryset = Shift.objects.filter(department=department,
-                                                         shift_type__in=['白班', '小夜', '大夜', 'oncall'])
+                                                         shift_type__in=[0, 1, 2, 4])
     form.fields['station'].queryset = Station.objects.filter(
         department=department)
     is_super = request.user.is_superuser
@@ -124,7 +124,8 @@ def get_demands(station, shift):
 
     output = list()
 
-    demands = DemandOfStation.objects.filter(station=station, shift=shift).order_by('-level')
+    demands = DemandOfStation.objects.filter(
+        station=station, shift=shift).order_by('-level')
     for demand in demands:
         data = {
             'demand': demand,
