@@ -82,7 +82,7 @@
 
   <div id='app'>
     <div class='master'>
-      <div class='calendar'>
+      <div class='calendar' >
           <div class='title'>
               <div class='time'>
                   <h2 class="year">[[year]]年</h2>
@@ -149,18 +149,18 @@
           </div>
           <div class="c-body">
             <div class="month_table" v-if="!month_week_bt">   
-              <table class="days" width="100%" height="70" border="1" cellspacing="0" bordercolor="black">
+              <table class="days" width="2300px" height="70" border="1" cellspacing="0" bordercolor="black">
                   <tr class="day-num title-row">
                     <td rowspan='3'>員工編號</td>
                     <td rowspan='3'>職級</td>
                     <td rowspan='3'>姓名</td>
                     <td rowspan='3'>前月排班</td>
                     <td rowspan='2' v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid" :class="{todayMark: isToday(year, month, day)}">
-                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;">
+                      <div style="font-size: 22px; width: 40px; display: inline-block;">
                         [[day]]
                       </div>
                     </td>
-                    <td rowspan='2' style='width: 1vw; text-align: center;'>備註</td>
+                    <td rowspan='2' style='width: 60px; text-align: center;'>備註</td>
                     <td rowspan='2'>排班</td>
                     <td colspan="4">出勤</td>
                     <td colspan="4">不出勤</td>
@@ -199,10 +199,10 @@
                   <tr v-if="!isReady" class="user-row" v-for="u in userData" :key="u">
                       <td class="futureDay" style="width: 75px">-</td>  
                       <td class="futureDay" style="width: 30px">-</td>                     
-                      <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>                     
+                      <td class="user-first-col futureDay" style="width: 100px">[[u.full_name]]</td>                     
                       <td class="pastDay" style="width: 45px">-</td>                     
                       <td class="user-content-col pastDay"  v-for="d in getYear(year,month)" :key="d">
-                        <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                        <div style="font-size: 22px; width: 1vw; display: inline-block;">
                           -
                         </div>
                       </td>                      
@@ -228,10 +228,10 @@
                     <td class="user-first-col futureDay" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
                     <td @click="print($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.full_name, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
-                      <div style="font-size: 1.3rem; width: 1vw; display: inline-block;" :class="shiftColor(userShift.shift_type)">
+                      <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
                       </div>
-                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 1.3rem; width: 1vw; display: inline-block;" :class="whichWork(isAdjust(userShift.user.id, userShift.date))">
+                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user.id, userShift.date))">
                         [[isAdjust(userShift.user.id, userShift.date)]]
                       </div>
                     </td>
@@ -252,7 +252,7 @@
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
                       [[day]]
                     </div>
                   </td>
@@ -262,7 +262,7 @@
                 <tr class="futureDay">
                   <td colspan="4">白班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
                       -
                     </div>
                   </td>
@@ -276,7 +276,7 @@
                 <tr class="futureDay">
                   <td colspan="4">小夜班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
                       -
                     </div>
                   </td>
@@ -290,7 +290,7 @@
                 <tr class="futureDay">
                   <td colspan="4">大夜班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 1rem; width: 1vw; display: inline-block;">
+                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
                       -
                     </div>
                   </td>
@@ -346,9 +346,13 @@
             </div> -->
           </div>
       </div>
-      <!-- <div class='changeShift' v-if="showEvent">
-        <svg class='cross' width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
-      </div> -->
+      <div class='changeShift' style="display: none;">
+        
+        <div class='cross'>
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
+        </div>
+        
+      </div>
     </div>
   </div>
 
@@ -1348,13 +1352,13 @@
     .user-first-col {
       width: 9.55vw;
       text-align: center;
-      font-size: 1.3rem;
+      font-size: 22px;
       background: #f2f2f2;
     }
     .user-content-col {
-      font-size: 0.7rem;
+      font-size: 22px;
       text-align: center; 
-      width: 2.3vw;
+      width: 40px;
     }
     .pastDay {
       background: #f2f2f2;
@@ -1367,18 +1371,26 @@
       background: rgba(185, 184, 184, 0.26);
     }
     .changeShift {
-      width: 30vw;
-      height: 50vh;
-      background: pink;
+      width: 27vw;
+      height: 35vh;
+      background: white;
       position: absolute;
       top: 15vh;
       left: 25vw;
-      border-radius: 5px;
+      border-radius: 2px;
+      box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
     }
+    .cross {
+      float: right;
+      margin-top: 5px;
+      margin-right: 5px;
+    }
+    
     .cross:hover {
-      fill: rgb(126, 126, 126);
       cursor: pointer;
+      fill: #37419A;
     }
+
     .right {
       margin-top: -1px;
     }
@@ -1420,7 +1432,7 @@
       pointer-events: none;
     }
     td {
-      font-size: 1.3rem;
+      font-size: 22px;
     }
     .dayShift {
       color: #EBC57C;
