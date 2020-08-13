@@ -3,7 +3,7 @@
     <!-- modal - del user -->
     <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-hidden="true"
     data-backdrop="static">
-      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header border-bottom-0">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
