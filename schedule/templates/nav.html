@@ -30,7 +30,7 @@
 
     {% if user.is_authenticated %}
     <div class="btns">
-      <notice-list url="{% url 'notice:list' %}"></notice-list>
+      <notice-list url="{% url 'notice:list' %}" :user-id="{{user.id}}" csrf-token="{{csrf_token}}"></notice-list>
 
       <div class="dropdown">
         <a class="nav-link dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
