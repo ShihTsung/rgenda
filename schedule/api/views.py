@@ -74,6 +74,10 @@ month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
                                description="月初日", type=openapi.TYPE_STRING)
 uid = openapi.Parameter('uid', openapi.IN_QUERY,
                         description="使用者id", type=openapi.TYPE_STRING)
+department = openapi.Parameter('department', openapi.IN_QUERY,
+                               description="科別", type=openapi.TYPE_STRING)
+usertype = openapi.Parameter('type', openapi.IN_QUERY,
+                             description="排班身份類型", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -98,29 +102,30 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         return super().get_object()
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = CustomUser.objects.all()
         mode = self.request.query_params.get('mode', None)
         dep = self.request.query_params.get('department', None)
+        t = self.request.query_params.get('type', None)
 
         if mode == 'onlyUser':
-            return CustomUser.objects.filter(is_staff=False)
+            queryset = queryset.filter(is_staff=False)
         if mode == 'resource':
             user = self.request.user
-            if user.role == 'manager':
-                return CustomUser.objects.filter(
-                    department=user.department,
-                    can_be_scheduled=True)
-            if user.role == 'admin' or user.is_superuser:
-                return CustomUser.objects.filter(can_be_scheduled=True)
+            queryset = queryset.filter(
+                department=user.department,
+                can_be_scheduled=True)
+        if t:
+            queryset = queryset.filter(type_of_user=int(t))
+
         if dep is not None:
             target = Department.objects.get(id=dep)
-            return CustomUser.objects.filter(department=target)
-        return CustomUser.objects.all()
+            queryset = queryset.filter(department=target)
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='獲得使用者清單',
         operation_description='GET 的說明',
-        manual_parameters=[mode, ]
+        manual_parameters=[mode, department, usertype]
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)

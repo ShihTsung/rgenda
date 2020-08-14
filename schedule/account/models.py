@@ -23,12 +23,12 @@ ROLE_CHOICES = (
 )
 
 TYPE_CHOICES = (
-    ('正職', _('正職')),
-    ('資深正職', _('資深正職')),
-    ('行政職', _('行政職')),
-    ('新進人員', _('新進人員')),
-    ('兼職人員', _('兼職人員')),
-    ('實習生', _('實習生')),
+    (0, _('正職')),
+    (1, _('資深正職')),
+    (2, _('行政職')),
+    (3, _('新進人員')),
+    (4, _('兼職人員')),
+    (5, _('實習生')),
 )
 
 
@@ -119,11 +119,6 @@ class CustomUser(AbstractUser):
         choices=LEVEL_CHOICES,
         null=True)
 
-    is_senior = models.BooleanField(
-        verbose_name=_('資深'),
-        null=True
-    )
-
     role = models.CharField(
         max_length=100,
         verbose_name=_('權限'),
@@ -136,10 +131,10 @@ class CustomUser(AbstractUser):
         default="Male",
         null=True)
 
-    type_of_user = models.CharField(
+    type_of_user = models.IntegerField(
         max_length=20, choices=TYPE_CHOICES,
         verbose_name=_('排班身份'),
-        default="正職",
+        default=0,
         null=True)
 
     pregnant = models.BooleanField(
