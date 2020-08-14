@@ -14,6 +14,7 @@ module.exports = {
     'department-edit': './department/department-edit.js',
     'account-detail': './accounts/account-detail.js',
     'demand-list': './demands/list.js',
+    'application-audit': './exchange/application-audit.js',
     'rgenda': './rgenda.scss',
   },
   output: {
@@ -25,6 +26,7 @@ module.exports = {
     alias: {
       common: path.join(__dirname, '/schedule/resources/common'),
       components: path.join(__dirname, '/schedule/resources/components'),
+      src: path.join(__dirname, '/schedule/resources/src'),
     },
     extensions: ['.js', '.vue', '.json', '.css']
   },

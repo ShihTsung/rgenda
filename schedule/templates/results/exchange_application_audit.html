@@ -1,97 +1,22 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-{% block title %}exchange application{% endblock %}
+{% block title %}部門調班審核{% endblock %}
 
 {% block content %}
-<div class="container">
+<div id="app" class="container-fluid">
     <!-- {{processing}}
     {{complete}}
     {{form}} -->
     <h3>調班審核</h3>
     <hr/>
-    <div class="audit_items">
-        <table width="1000" border="1" cellspacing="0">
-            <tr>
-                <th>單據編號</th>
-                <th>起始日期</th>
-                <th>結束日期</th>
-                <th>申請人</th>
-                <th>原排班別</th>
-                <th>調換班別</th>
-                <th>動作</th>
-                <th>事由</th>
-            </tr>
-            <tr class="audit_items_body">
-                <td>S20200724001</td>
-                <td>2020/06/24</td>
-                <td>2020/06/24</td>
-                <td>阿花</td>
-                <td>
-                    <div class="ex-wrapper">
-                        <div id="origin_schedule">
-                            <h4 class="os_title">D</h4>
-                            <div class="os_content" style="width: 40px; padding-left: 4px;">
-                                7a-4p
-                            </div>
-                            <div class="os_content">
-                                工作站1
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="ex-wrapper">
-                        <div id="origin_schedule" style="width: 100px; background: white; border: 1px solid #cbcbcb;">
-                            <h6 class="os_title" style="color: #cbcbcb; font-weight: 300; margin-top: 2px;">休息日</h6>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <button class="audit_btn">同意</button>
-                    <button class="audit_btn">退回</button>
-                </td>
-                <td class="last_one">退回請填寫事由</td>
-            </tr>
-            <tr class="audit_items_body">
-                <td>S20200724002</td>
-                <td>2020/06/20</td>
-                <td>2020/06/20</td>
-                <td>阿花</td>
-                <td>
-                    <div class="ex-wrapper">
-                        <div id="origin_schedule" style="background: #84B1ED;">
-                            <h4 class="os_title">E</h4>
-                            <div class="os_content" style="width: 45px; padding-left: 1px; color: #84B1ED;">
-                                11a-8p
-                            </div>
-                            <div class="os_content" style="color: #84B1ED;">
-                                工作站1
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="ex-wrapper">
-                        <div id="origin_schedule" style="width: 100px; background: white; border: 1px solid #cbcbcb;">
-                            <h6 class="os_title" style="color: #cbcbcb; font-weight: 300; margin-top: 2px;">休息日</h6>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <button class="audit_btn">同意</button>
-                    <button class="audit_btn">退回</button>
-                </td>
-                <td class="last_one">退回請填寫事由</td>
-            </tr>
-        </table>
-    </div>
-    
+    <application-audit csrf-token="{{ csrf_token }}"></application-audit>
     <hr/>
-    <div id="calendar">
-
-    </div>
+    <div id="calendar"></div>
 </div>
+
+<script src="{% static 'assets/application-audit.bundle.js' %}"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         let Calendar = FullCalendar.Calendar;
@@ -119,7 +44,7 @@
                 showNonCurrentDates: false,
                 droppable: true,
                 views: {
-                    dayGridMonth: { 
+                    dayGridMonth: {
                         titleFormat: { year: 'numeric', month: '2-digit' }
                     }
                 },
@@ -142,7 +67,7 @@
                     // console.log(info.event.extendedProps.shift.shift_type);
                     info.el.innerHTML = "";
                     info.el.classList.add("shift");
-                    
+
                     switch(prop.shift.shift_type){
                         case "白班":
                             info.el.classList.add("day-shift");
@@ -194,9 +119,9 @@
                             info.el.innerHTML += "<h6 class='on-call-title'>OnCall</h6>"
                             + "<div class='on-call-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
                             + "<div class='on-call-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
-                            
+
                             break;
-                        default: 
+                        default:
                             info.el.innerHTML += "<h6>ERROR</h6>";
                             break;
                     };
@@ -222,7 +147,7 @@
                 calendar.setOption('locale', 'zh-tw');
             }
             calendar.render();
-            
+
         });
 </script>
 {% endblock %}
