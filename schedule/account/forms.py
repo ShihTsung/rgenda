@@ -25,12 +25,12 @@ GENDER_CHOICES = (
     ('F', _('Female'))
 )
 TYPE_CHOICES = (
-    ('正職', _('正職')),
-    ('資深正職', _('資深正職')),
-    ('行政職', _('行政職')),
-    ('新進人員', _('新進人員')),
-    ('兼職人員', _('兼職人員')),
-    ('實習生', _('實習生')),
+    (0, _('正職')),
+    (1, _('資深正職')),
+    (2, _('行政職')),
+    (3, _('新進人員')),
+    (4, _('兼職人員')),
+    (5, _('實習生')),
 )
 
 
@@ -57,9 +57,9 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         help_texts = {}
         fields = ['username', 'email', 'password1', 'password2', 'full_name',
-                  'department', 'level', 'is_senior', 'gender', 'role',
+                  'department', 'level', 'gender', 'role',
                   'type_of_user', 'can_be_scheduled', 'eid',
-                  'onboard_date', 'is_senior']
+                  'onboard_date']
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
@@ -77,8 +77,6 @@ class CustomUserChangeForm(UserChangeForm):
 
     level = forms.IntegerField(label=_('職級'), widget=forms.widgets.Select(
         choices=LEVEL_CHOICES))
-
-    is_senior = forms.BooleanField(label=_('資深'), required=False)
 
     job_title = forms.CharField(
         max_length=100,
@@ -104,9 +102,8 @@ class CustomUserChangeForm(UserChangeForm):
             choices=GENDER_CHOICES),
         required=False
     )
-    type_of_user = forms.CharField(
+    type_of_user = forms.IntegerField(
         label=_('排班身份'),
-        max_length=20,
         widget=forms.widgets.Select(
             choices=TYPE_CHOICES)
     )
@@ -151,7 +148,7 @@ class CustomUserChangeForm(UserChangeForm):
                                              })
         }
         fields = ('username', 'full_name', 'email', 'department', 'job_title',
-                  'level', 'is_senior', 'gender', 'role', 'type_of_user',
+                  'level', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
                   'special_rest_num', 'hour_required',
                   'eid', 'onboard_date')

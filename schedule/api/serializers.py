@@ -25,6 +25,16 @@ class DepartmentSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id', )
 
+
+class SimpleDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = (
+            'id', 'name', 'detail'
+        )
+        read_only_fields = ('id', )
+
+
 # 帳號
 
 
@@ -33,7 +43,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'is_senior', 'gender', 'role', 'type_of_user', 'can_be_scheduled',
+            'gender', 'role', 'type_of_user', 'can_be_scheduled',
             'holiday_rest_num', 'special_rest_num', 'hour_required',
             'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
@@ -42,14 +52,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class GetCustomUserSerializer(serializers.ModelSerializer):
-    department = DepartmentSerializer()
+    department = SimpleDepartmentSerializer()
     # start_time = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'is_senior', 'gender', 'role', 'is_superuser', 'type_of_user',
+            'gender', 'role', 'is_superuser', 'type_of_user',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
@@ -113,8 +123,8 @@ class GetResourceUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'department', 'can_be_scheduled',
-            'is_senior', 'full_name', 'shift_num', 'special_rest',
-            'overtime', 'diff', 'type_of_user'
+            'full_name', 'shift_num', 'special_rest',
+            'overtime', 'diff', 'type_of_user', 'eid', 'level'
         )
 
 # 工作站Get
@@ -170,6 +180,13 @@ class ShiftSerializer(serializers.ModelSerializer):
         model = Shift
         fields = ('id', 'name', 'shift_type', 'start_time', 'end_time',
                   'department', 'work_hours')
+        read_only_fields = ('id',)
+
+
+class SimpleShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shift
+        fields = ('id', 'name', 'shift_type')
         read_only_fields = ('id',)
 
 # 日期Get
@@ -260,7 +277,7 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
 
 class GetResultSerializer(serializers.ModelSerializer):
-    #user = CustomUserSerializer()
+    # user = CustomUserSerializer()
     # shift = GetShiftSerializer()
     # station = StationSerializer()
     shift_type = serializers.SerializerMethodField()
@@ -359,7 +376,7 @@ class GetDemandSerializer(serializers.ModelSerializer):
         res = []
         p_set = DemandUserTable.objects.filter(demand=obj)
         for p in p_set:
-            level = 2 if p.user.is_senior else 1
+            level = 2 if p.user.type_of_user == 1 else 1
             res.append({
                 'id': p.user.id,
                 'full_name': p.user.full_name,
