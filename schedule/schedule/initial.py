@@ -83,8 +83,8 @@ def initial(request):
     user.full_name = 'YiJu Lai'
     user.level = 3
     user.gender = 'male'
-    user.is_senior = True
     user.job_title = '職稱'
+    user.type_of_user = 1
     user.holiday_rest_num = 10
     user.special_rest_num = 10
     user.eid = 20190022
@@ -108,7 +108,7 @@ def initial(request):
         user.full_name = names[i]
         user.level = 1
         user.job_title = '職稱'
-        user.is_senior = False
+        user.type_of_user = 0
         user.gender = 'female'
         user.holiday_rest_num = 40
         user.special_rest_num = 10
