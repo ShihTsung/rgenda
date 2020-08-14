@@ -62,20 +62,6 @@ class IsManagerOrReadOnly(BasePermission):
             return cond1 or cond2 or cond3
 
 
-"""
-CustomUserViewSet     |帳號 api
-DepartmentViewSet     |部門 api
-ShiftViewSet          |班別 api
-StationViewSet        |工站 api
-HCalendarViewSet      |日期 api
-ResultViewSet         |已發布排班結果 api
-PreResultViewSet      |未發布排班結果 api
-AfterResultViewSet    |已執行排班結果 api
-ReservationViewSet    |預排假 api
-DemandViewSet         |人力需求 api
-PromiseShiftViewSet   |管理者排班 api
-"""
-
 get_all = openapi.Parameter('all', openapi.IN_QUERY,
                             description="全部或是單一部門", type=openapi.TYPE_BOOLEAN)
 start_date = openapi.Parameter('start', openapi.IN_QUERY,
@@ -296,6 +282,49 @@ class HCalendarViewSet(viewsets.ModelViewSet):
             return H_Calendar.objects.all()
 
 
+def get_type(shift):
+    if shift.shift_type == 0:
+        return 'A'
+    elif shift.shift_type == 1:
+        return 'E'
+    elif shift.shift_type == 2:
+        return 'N'
+    elif shift.shift_type == 5:
+        if shift.name == "休息":
+            return '休'
+        if shift.name == "例假":
+            return '例'
+        if shift.name == "補休":
+            return "補"
+        if shift.name == "特休":
+            return "特"
+        if shift.name == "空班":
+            return "空"
+        if shift.name == "婚假":
+            return "婚"
+        if shift.name == "喪假":
+            return "喪"
+        if shift.name == "產假":
+            return "產"
+        if shift.name == "生理假":
+            return "生"
+        if shift.name == "國定假日":
+            return "國"
+    elif shift.shift_type == 6:
+        if shift.name == "無薪病假":
+            return '病'
+        if shift.name == "事假":
+            return '事'
+        if shift.name == "家庭照顧假":
+            return '家'
+    elif shift.shift_type == 4:
+        return 'On'
+    elif shift.shift_type == 3:
+        return '公'
+    else:
+        return ''
+
+
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
@@ -327,6 +356,28 @@ class ResultViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary='更新資料',
+        operation_description='PATCH 更改result',
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        data = serializer.data
+        shift = Shift.objects.get(id=data['shift'])
+
+        data['shift_type'] = get_type(shift)
+        return Response(data)
 
 
 class PreResultViewSet(viewsets.ModelViewSet):
@@ -647,3 +698,9 @@ def last_month_continue(request):
         output[user.id] = outstr
 
     return Response(output)
+
+
+class DemandUserTableViewset(viewsets.ModelViewSet):
+    queryset = DemandUserTable.objects.all()
+    serializer_class = DemandUserTableSerializer
+    permission_classes = (permissions.IsAuthenticated,)

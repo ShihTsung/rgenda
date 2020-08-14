@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
-from demand.models import DemandOfStation
+from demand.models import DemandOfStation, DemandUserTable
 from date.models import H_Calendar
 from result.models import (Result, PreResult,
                            AfterResult, TimeAdjustment,
@@ -234,6 +234,7 @@ class PreResultSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Result
         fields = ('id', 'user', 'shift', 'date', 'station')
@@ -259,9 +260,9 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
 
 class GetResultSerializer(serializers.ModelSerializer):
-    user = GetCustomUserSerializer()
-    shift = GetShiftSerializer()
-    station = StationSerializer()
+    #user = CustomUserSerializer()
+    # shift = GetShiftSerializer()
+    # station = StationSerializer()
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
@@ -342,6 +343,7 @@ class GetReservationSerializer(serializers.ModelSerializer):
 
 
 class DemandSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = DemandOfStation
         fields = ('id', 'shift', 'config1', 'config2',
@@ -351,11 +353,23 @@ class DemandSerializer(serializers.ModelSerializer):
 class GetDemandSerializer(serializers.ModelSerializer):
     shift = ShiftSerializer()
     station = StationSerializer()
+    people = serializers.SerializerMethodField()
+
+    def get_people(self, obj):
+        res = []
+        p_set = DemandUserTable.objects.filter(demand=obj)
+        for p in p_set:
+            level = 2 if p.user.is_senior else 1
+            res.append({
+                'id': p.user.id,
+                'full_name': p.user.full_name,
+                'level': level})
+        return res
 
     class Meta:
         model = DemandOfStation
         fields = ('id', 'shift', 'config1', 'config2',
-                  'station', 'level')
+                  'station', 'level', 'people')
 
 # 保證假/班 Get
 
@@ -365,7 +379,7 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift')
+        fields = ('id', 'user', 'date', 'shift_type')
 
 # 保證假/班
 
@@ -374,16 +388,23 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift')
+        fields = ('id', 'user', 'date', 'shift_type')
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):
+    adjustment_item_text = serializers.SerializerMethodField()
+
+    def get_adjustment_item_text(self, obj):
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        return texts[obj.adjustment_item]
 
     class Meta:
         model = TimeAdjustment
         fields = (
             'id', 'user', 'date', 'hours', 'adjustment_type',
-            'adjustment_item', 'remark')
+            'adjustment_item', 'adjustment_item_text', 'remark')
 
 
 class LiscenseSerializer(serializers.ModelSerializer):
@@ -422,6 +443,16 @@ class NotificationSerializer(serializers.ModelSerializer):
         target_content_type:        INT
         action_object_content_type: INT
     """
+    actor = serializers.SerializerMethodField()
+    target = serializers.SerializerMethodField()
+
+    def get_actor(self, obj):
+        id = int(obj.actor_object_id)
+        return CustomUser.objects.get(id=id).full_name
+
+    def get_target(self, obj):
+        id = int(obj.target_object_id)
+        return Department.objects.get(id=id).detail
 
     class Meta:
         model = Notification
@@ -443,4 +474,11 @@ class RemarkSquareSerializer(serializers.ModelSerializer):
 class ResultRemarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResultRemark
+        fields = '__all__'
+
+
+class DemandUserTableSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DemandUserTable
         fields = '__all__'
