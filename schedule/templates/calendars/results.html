@@ -80,6 +80,7 @@
 </div> -->
 
 
+
   <div id='app'>
     <div class='master'>
       <div class='calendar'>
@@ -195,7 +196,7 @@
                     <td>天</td>
                   </tr>
                 
-                
+                  <!-- v-if="!isReady" -->
                   <tr v-if="!isReady" class="user-row" v-for="u in userData" :key="u">
                       <td class="white-background" style="width: 75px">-</td>  
                       <td class="white-background" style="width: 30px">-</td>                     
@@ -221,10 +222,10 @@
                       <td class="white-background">-</td>
 
                   </tr>
-                  
+                  <!-- v-if="isReady" -->
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
-                    <td class="white-background" style="width: 30px">[[u.level)]]</td>
+                    <td class="white-background" style="width: 30px">[[u.level]]</td>
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
                     <td @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
@@ -266,7 +267,7 @@
                   <td>-</td>
                   <td colspan="12">標誌說明</td>
                 </tr>
-                <tr class="white-background">
+                <tr class="white-background" >
                   <td colspan="4">白班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
                     <div style="font-size: 22px; width: 1vw; display: inline-block;">
@@ -280,7 +281,7 @@
                     </div>
                   </td>
                 </tr>
-                <tr class="white-background">
+                <tr class="white-background" >
                   <td colspan="4">小夜班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
                     <div style="font-size: 22px; width: 1vw; display: inline-block;">
@@ -294,7 +295,7 @@
                     </div>
                   </td>
                 </tr>
-                <tr class="white-background">
+                <tr class="white-background" >
                   <td colspan="4">大夜班</td>
                   <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
                     <div style="font-size: 22px; width: 1vw; display: inline-block;">
@@ -325,7 +326,7 @@
             
           </div>
       </div>
-      <div class='changeShift' v-if="edit && singleEdit">
+      <div class='changeShift' v-if="edit && singleEdit" >
         <div @click="singleEdit = false" class='cross'>
           <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
         </div>
@@ -569,7 +570,7 @@
         let add_hr = 0;
         let sub_hr = 0;
         let arr = this.resultData.filter((userItem)=>{
-          if((userItem.user.id == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
+          if((userItem.user == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
             return parseInt(userItem.date.split('-')[2]) <= today;
           };
         });
