@@ -937,7 +937,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                         if date_start <= d <= date_end:
                             if output[user_id][str(d)] == 1:
                                 output[user_id][str(d)] = '工'
-                                Result.object.create(
+                                Result.objects.create(
                                     user=User.objects.get(id=user_id),
                                     shift=shift,
                                     date=d,
@@ -946,7 +946,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                             else:
                                 if '例' in q and '休' in options:
                                     output[user_id][str(d)] = '休'
-                                    Result.object.create(
+                                    Result.objects.create(
                                         user=User.objects.get(id=user_id),
                                         shift=shift_rest1,
                                         date=d,
@@ -954,7 +954,8 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                     )
                                 elif '例' not in q and '例' in options:
                                     output[user_id][str(d)] = '例'
-                                    Result.object.create(
+                                    Result.objects.create(
+                                        user=User.objects.get(id=user_id),
                                         shift=shift_rest0,
                                         date=d,
                                         station=station_rest,
@@ -962,13 +963,14 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                 else:
                                     output[user_id][str(d)] = options.pop(0)
                                     if output[user_id][str(d)] == '例':
-                                        Result.object.create(
+                                        Result.objects.create(
+                                            user=User.objects.get(id=user_id),
                                             shift=shift_rest0,
                                             date=d,
                                             station=station_rest,
                                         )
                                     else:
-                                        Result.object.create(
+                                        Result.objects.create(
                                             user=User.objects.get(id=user_id),
                                             shift=shift_rest1,
                                             date=d,

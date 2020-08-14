@@ -21,7 +21,7 @@ def initial(request):
     from date.models import H_Calendar
     from station.models import Station
     from shift.models import Shift
-    from demand.models import DemandOfStation
+    from demand.models import DemandOfStation, DemandUserTable
     from result.models import Result, PreResult, AfterResult, TimeAdjustment
 
     print('clean database')
@@ -60,15 +60,16 @@ def initial(request):
             department=department,
             work_hours=hours[i])
 
-    names = ['B1', 'B10', 'B15', 'B2', 'B3', 'B31', 'B4', 'B6', 'B8']
-    start_hours = [7, 8, 8, 7, 7, 8, 8, 9, 8]
-    start_mins = [0, 0, 3, 3, 3, 3, 0, 0, 0]
-    end_hours = [15, 16, 12, 16, 16, 17, 17, 18, 12]
-    end_mins = [30, 30, 30, 0, 30, 0, 0, 0, 0]
-    for i in range(9):
+    names = ['D', 'E']
+    shift_types = [0, 1]
+    start_hours = [8, 16]
+    start_mins = [0, 0]
+    end_hours = [15, 23]
+    end_mins = [59, 59]
+    for i in range(2):
         shift = Shift.objects.create(
             name=names[i],
-            shift_type=0,
+            shift_type=shift_types[i],
             start_time=datetime.time(
                 hour=start_hours[i], minute=start_mins[i]),
             end_time=datetime.time(hour=end_hours[i], minute=end_mins[i]),
@@ -139,68 +140,98 @@ def initial(request):
         newday.save()
         daystmp += datetime.timedelta(days=1)
 # station
-    names = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
-             '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
-             '聽力', '眼科+眼底攝影', '外檢', '公假', '休假']
+    names = ['護理站1F', '護理站2F', '休假']
 
     print('create station')
-    for i in range(17):
+    for i in range(3):
         station = Station.objects.create(
             department=Department.objects.first(),
-            name=names[i]
+            name=names[i],
         )
 
 # demands
-    stations = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
-                '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
-                '聽力', '眼科+眼底攝影', '外檢']
-    workday = [1, 1, 2, 2, 1, 1, 1, 7, 1, 1, 1, 3, 1, 1, 1]
-    holiday = [1, 1, 1, 1, 1, 1, 1, 5, 1, 0, 0, 3, 1, 1, 1]
-    for i in range(15):
-        shifts = ['B1', 'B10', 'B15', 'B2', 'B3', 'B31', 'B4', 'B6', 'B8']
-        pick_shift = random.choice(shifts)
-        for j in range(2):
-            DemandOfStation.objects.create(
-                shift=Shift.objects.get(name=pick_shift),
-                station=Station.objects.get(name=stations[i]),
-                level=j+1,
-                config1=workday[i] if j == 0 else 0,
-                config2=holiday[i] if j == 0 else 0
-            )
-    # 班表假資料
-    department = Department.objects.first()
-    users = list(User.objects.filter(can_be_scheduled=True,
-                                     department=department))
-    start = datetime.date(2020, 6, 1).strftime('%Y-%m-%d')
-    end = datetime.date(2020, 7, 31).strftime('%Y-%m-%d')
-    dates = list(H_Calendar.objects.filter(date__range=[start, end]))
-    shifts = list(Shift.objects.filter(department=department))
-    stations = list(Station.objects.filter(department=department))
+    demand0 = DemandOfStation.objects.create(
+        station=Station.objects.get(name='護理站1F'),
+        shift=Shift.objects.get(name='D'),
+        level=1,
+        config1=3,
+        config2=2,
+    )
+    demand1 = DemandOfStation.objects.create(
+        station=Station.objects.get(name='護理站1F'),
+        shift=Shift.objects.get(name='D'),
+        level=2,
+        config1=2,
+        config2=1,
+    )
+    demand2 = DemandOfStation.objects.create(
+        station=Station.objects.get(name='護理站1F'),
+        shift=Shift.objects.get(name='E'),
+        level=1,
+        config1=1,
+        config2=1,
+    )
+    demand3 = DemandOfStation.objects.create(
+        station=Station.objects.get(name='護理站1F'),
+        shift=Shift.objects.get(name='E'),
+        level=2,
+        config1=2,
+        config2=1,
+    )
 
-    # user, date, station, shift
-    for day in dates:
-        for staff in users:
-            station = random.choice(stations)
-            shift = random.choice(shifts)
-            Result.objects.create(
-                user=staff,
-                date=day.date,
-                station=station,
-                shift=shift
-            )
-    print('add adjustments')
-    users = list(User.objects.all())[:10]
-
-    for x in users:
-        month = random.randint(1, 12)
-        day = random.randint(1, 28)
-        TimeAdjustment.objects.create(
-            user=x,
-            date=datetime.date(2020, month, day),
-            hours=random.randint(1, 3),
-            adjustment_type=0,
-            adjustment_item=0
+# demand user table
+    for i in range(3):
+        demand_user = DemandUserTable.objects.create(
+            demand=demand0,
+            user=User.objects.get(id=i+1),
         )
+        demand_user = DemandUserTable.objects.create(
+            demand=demand1,
+            user=User.objects.get(id=i+4),
+        )
+        demand_user = DemandUserTable.objects.create(
+            demand=demand3,
+            user=User.objects.get(id=i+7)
+        )
+    demand_user = DemandUserTable.objects.create(
+        demand=demand2,
+        user=User.objects.get(id=10)
+    )
+
+    # # 班表假資料
+    # department = Department.objects.first()
+    # users = list(User.objects.filter(can_be_scheduled=True,
+    #                                  department=department))
+    # start = datetime.date(2020, 6, 1).strftime('%Y-%m-%d')
+    # end = datetime.date(2020, 7, 31).strftime('%Y-%m-%d')
+    # dates = list(H_Calendar.objects.filter(date__range=[start, end]))
+    # shifts = list(Shift.objects.filter(department=department))
+    # stations = list(Station.objects.filter(department=department))
+    #
+    # # user, date, station, shift
+    # for day in dates:
+    #     for staff in users:
+    #         station = random.choice(stations)
+    #         shift = random.choice(shifts)
+    #         Result.objects.create(
+    #             user=staff,
+    #             date=day.date,
+    #             station=station,
+    #             shift=shift
+    #         )
+    # print('add adjustments')
+    # users = list(User.objects.all())[:10]
+    #
+    # for x in users:
+    #     month = random.randint(1, 12)
+    #     day = random.randint(1, 28)
+    #     TimeAdjustment.objects.create(
+    #         user=x,
+    #         date=datetime.date(2020, month, day),
+    #         hours=random.randint(1, 3),
+    #         adjustment_type=0,
+    #         adjustment_item=0
+    #     )
 
     print('finish')
 

@@ -11,5 +11,5 @@ urlpatterns = [
    path('time_adjustment', time_adjustment_list),
    path('exchange_application_list', exchange_application_list),
    path('exchange_application_audit', exchange_application_audit),
-   path('create_result/<int:department_id>/<slug:date_start>/<slug:date_end>', create_result),
+   path('create_result/<int:department_id>/<start>/<end>', create_result),
 ]

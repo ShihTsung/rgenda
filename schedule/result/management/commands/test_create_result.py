@@ -403,9 +403,9 @@ class Command(BaseCommand):
                         for d in cycle:
                             if date_start <= d <= date_end:
                                 if output[user_id][str(d)] == 1:
-                                    if shift.shift_type == '0':
+                                    if shift.shift_type == 0:
                                         output[user_id][str(d)] = 'D'
-                                    elif shift.shift_type == '1':
+                                    elif shift.shift_type == 1:
                                         output[user_id][str(d)] = 'E'
                                     elif shift.shift_type == 2:
                                         output[user_id][str(d)] = 'N'
