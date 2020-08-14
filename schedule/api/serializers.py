@@ -234,6 +234,7 @@ class PreResultSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Result
         fields = ('id', 'user', 'shift', 'date', 'station')
@@ -259,9 +260,9 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
 
 class GetResultSerializer(serializers.ModelSerializer):
-    user = GetCustomUserSerializer()
-    shift = GetShiftSerializer()
-    station = StationSerializer()
+    #user = CustomUserSerializer()
+    # shift = GetShiftSerializer()
+    # station = StationSerializer()
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
