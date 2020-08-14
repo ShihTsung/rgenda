@@ -402,11 +402,11 @@ class Command(BaseCommand):
                         for d in cycle:
                             if date_start <= d <= date_end:
                                 if output[user_id][str(d)] == 1:
-                                    if shift.shift_type == '白班':
+                                    if shift.shift_type == 0:
                                         output[user_id][str(d)] = 'Ｄ'
-                                    elif shift.shift_type == '小夜':
+                                    elif shift.shift_type == 1:
                                         output[user_id][str(d)] = 'Ｅ'
-                                    elif shift.shift_type == '大夜':
+                                    elif shift.shift_type == 2:
                                         output[user_id][str(d)] = 'Ｎ'
                                 else:
                                     if '例' in q and '休' in options:

@@ -494,9 +494,9 @@ def get_used_rest(department, date_start, date_end):
         output[user.id] = list()
         results = Result.objects.filter(user=user, date__gte=date_start, date__lt=date_end)
         for result in results:
-            if result.shift.shift_type == '例假':
+            if result.shift.name == '例假':
                 output[user.id].append('例')
-            elif result.shift.shift_type == '休假':
+            elif result.shift.name == '休息':
                 output[user.id].append('休')
             else:
                 output[user.id].append('工')
@@ -567,6 +567,20 @@ def create_result():
     shifts = get_shifts(department)
 
     output = dict()
+
+    # 例假/休息用的 shift & station
+    station_rest = Station.objects.get(
+        department=department,
+        name='休假',
+    )
+    shift_rest0 = Shift.objects.get(
+        department=department,
+        name='例假',
+    )
+    shift_rest1 = Shift.objects.get(
+        department=department,
+        name='休息',
+    )
 
     for station in stations:
         for shift in shifts:
@@ -918,12 +932,7 @@ def create_result():
                     for d in cycle:
                         if date_start <= d <= date_end:
                             if output[user_id][str(d)] == 1:
-                                if shift.shift_type == '白班':
-                                    output[user_id][str(d)] = 'Ｄ'
-                                elif shift.shift_type == '小夜':
-                                    output[user_id][str(d)] = 'Ｅ'
-                                elif shift.shift_type == '大夜':
-                                    output[user_id][str(d)] = 'Ｎ'
+                                output[user_id][str(d)] = '工'
                                 Result.object.create(
                                     user=User.objects.get(id=user_id),
                                     shift=shift,
@@ -935,32 +944,32 @@ def create_result():
                                     output[user_id][str(d)] = '休'
                                     Result.object.create(
                                         user=User.objects.get(id=user_id),
-                                        shift=Shift.objects.get(
-                                            department=department,
-                                            name='休假',
-                                        ),
+                                        shift=shift_rest1,
                                         date=d,
-                                        station=Station.objects.get(
-                                            department=department,
-                                            name='休假',
-                                        ),
+                                        station=station_rest,
                                     )
                                 elif '例' not in q and '例' in options:
                                     output[user_id][str(d)] = '例'
                                     Result.object.create(
-                                        shift=Shift.objects.get(
-                                            department=department,
-                                            name='例假',
-                                        ),
+                                        shift=shift_rest0,
                                         date=d,
-                                        station=Station.objects.get(
-                                            department=department,
-                                            name='休假',
-                                        ),
+                                        station=station_rest,
                                     )
                                 else:
                                     output[user_id][str(d)] = options.pop(0)
-                                    # TODO
+                                    if output[user_id][str(d)] == '例':
+                                        Result.object.create(
+                                            shift=shift_rest0,
+                                            date=d,
+                                            station=station_rest,
+                                        )
+                                    else:
+                                        Result.object.create(
+                                            user=User.objects.get(id=user_id),
+                                            shift=shift_rest1,
+                                            date=d,
+                                            station=station_rest,
+                                        )
                             q.append(output[user_id][str(d)])
                             if len(q) > 6:
                                 q.pop(0)
