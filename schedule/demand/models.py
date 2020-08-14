@@ -24,7 +24,7 @@ class DemandOfStation(models.Model):
         verbose_name=_('配置2'), default=0)
 
     def __str__(self):
-        return self.shift.name + '-' + self.station.name
+        return self.station.name + '-' + self.shift.name + '-' + str(self.level)
 
 
 class DemandUserTable(models.Model):
