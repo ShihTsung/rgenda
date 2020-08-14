@@ -36,6 +36,20 @@ export default {
       notificationList: [],
     }
   },
+  props: {
+    url: {
+      type: String,
+      default: '',
+    },
+    userId: {
+      type: Number,
+      default: 0,
+    },
+    csrfToken: {
+      type: String,
+      default: '',
+    }
+  },
   methods: {
     dateDiffStr(timestamp) {
       return moment(timestamp).fromNow();
@@ -70,7 +84,6 @@ export default {
       }, randomOneToFiveMinutes);
     })();
   },
-  props: ['url', 'userId', 'csrfToken'],
 }
 </script>
 <style scoped>
