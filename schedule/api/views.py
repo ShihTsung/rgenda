@@ -647,3 +647,9 @@ def last_month_continue(request):
         output[user.id] = outstr
 
     return Response(output)
+
+
+class DemandUserTableViewset(viewsets.ModelViewSet):
+    queryset = DemandUserTable.objects.all()
+    serializer_class = DemandUserTableSerializer
+    permission_classes = (permissions.IsAuthenticated,)

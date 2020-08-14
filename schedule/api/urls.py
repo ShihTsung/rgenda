@@ -21,6 +21,7 @@ router.register(r'time-adjustment', views.TimeAdjustmentViewSet)
 router.register(r'user-remarks', views.UserRemarkViewSet)
 router.register(r'remark-squares', views.RemarkSquareViewSet)
 router.register(r'result-remarks', views.ResultRemarkViewSet)
+router.register(r'demand-user', views.DemandUserTableViewset)
 
 
 urlpatterns = [
