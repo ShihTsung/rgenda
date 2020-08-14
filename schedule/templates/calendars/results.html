@@ -223,16 +223,16 @@
                   </tr>
                   
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
-                    <td class="white-background" style="width: 75px">[[getUser(u.id).user.eid]]</td>
-                    <td class="white-background" style="width: 30px">[[getLevel(getUser(u.id).user.level)]]</td>
+                    <td class="white-background" style="width: 75px">[[u.eid]]</td>
+                    <td class="white-background" style="width: 30px">[[u.level)]]</td>
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
                     <td @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
                       <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
                       </div>
-                      <div v-if="isAdjust(userShift.user.id, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user.id, userShift.date))">
-                        [[isAdjust(userShift.user.id, userShift.date)]]
+                      <div v-if="isAdjust(userShift.user, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user, userShift.date))">
+                        [[isAdjust(userShift.user, userShift.date)]]
                       </div>
                     </td>
                     <td class="user-last-col pastDay">
@@ -452,9 +452,9 @@
         return this.weekday[weekofday.getDay()];
       },
 
-      ShiftOfUser(name, m) {
+      ShiftOfUser(id, m) {
         return this.resultData.filter((userItem)=>{
-          if(userItem.user.id == name){
+          if(userItem.user == id){
             return parseInt(userItem.date.split('-')[1]) == m;
           }
         });
@@ -554,13 +554,13 @@
         }
       },
 
-      getUser(u) {
-        return this.resultData.find((item)=>{
-          if(item.user.id == u){
-            return item.user.eid;
-          }
-        });
-      },
+      // getUser(u) {
+      //   return this.userData.find((item)=>{
+      //     if(item.user.id == u){
+      //       return item.user.eid;
+      //     }
+      //   });
+      // },
 
       workhr(u, m, today, n) {//出勤時數
         let month = new Date().getMonth() ;//+1
