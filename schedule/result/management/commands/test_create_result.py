@@ -388,6 +388,7 @@ class Command(BaseCommand):
                                 user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
 
                 # 移除date_pre
+                # 將0指派為 例假/休假
                 for user_id in user_pool:
                     output[user_id].pop('date_pre')
                     q = used_rest[user_id]
@@ -402,23 +403,29 @@ class Command(BaseCommand):
                         for d in cycle:
                             if date_start <= d <= date_end:
                                 if output[user_id][str(d)] == 1:
-                                    if shift.shift_type == 0:
-                                        output[user_id][str(d)] = 'Ｄ'
-                                    elif shift.shift_type == 1:
-                                        output[user_id][str(d)] = 'Ｅ'
+                                    if shift.shift_type == '0':
+                                        output[user_id][str(d)] = 'D'
+                                    elif shift.shift_type == '1':
+                                        output[user_id][str(d)] = 'E'
                                     elif shift.shift_type == 2:
-                                        output[user_id][str(d)] = 'Ｎ'
+                                        output[user_id][str(d)] = 'N'
+                                    q.append('工')
                                 else:
                                     if '例' in q and '休' in options:
-                                        output[user_id][str(d)] = '休'
+                                        output[user_id][str(d)] = 'R'
+                                        q.append('休')
                                     elif '例' not in q and '例' in options:
-                                        output[user_id][str(d)] = '例'
+                                        output[user_id][str(d)] = 'Z'
+                                        q.append('例')
                                     else:
-                                        output[user_id][str(d)] = options.pop(0)
-                                q.append(output[user_id][str(d)])
+                                        if options[0] == '例':
+                                            output[user_id][str(d)] = 'Z'
+                                            q.append('例')
+                                        else:
+                                            output[user_id][str(d)] = 'R'
+                                            q.append('休')
                                 if len(q) > 6:
                                     q.pop(0)
-        # 將0指派為 例假/休假
 
         for user_id, result in output.items():
             print(user_id)

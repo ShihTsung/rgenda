@@ -527,15 +527,18 @@ def str_to_date(s):
     return date(year=int(sp[0]), month=int(sp[1]), day=int(sp[2]))
 
 
-def create_result():
+def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'):
     """
 
+    :param department_id:
+    :param start:
+    :param end:
     :return:
     """
     # testing data
-    department = Department.objects.get(id=1)
-    date_start = date(2020, 8, 1)
-    date_end = date(2020, 8, 31)
+    department = Department.objects.get(id=department_id)
+    date_start = str_to_date(start)
+    date_end = str_to_date(end)
 
     # 日期資料
     date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
@@ -918,6 +921,7 @@ def create_result():
                             user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
 
             # 移除date_pre
+            # 將0指派為 例假/休假
             for user_id in user_pool:
                 output[user_id].pop('date_pre')
                 q = used_rest[user_id]
@@ -973,8 +977,8 @@ def create_result():
                             q.append(output[user_id][str(d)])
                             if len(q) > 6:
                                 q.pop(0)
-    # 將0指派為 例假/休假
 
-    for user_id, result in output.items():
-        print(user_id)
-        print(list(result.values()))
+    # for user_id, result in output.items():
+    #     print(user_id)
+    #     print(list(result.values()))
+    return redirect('/' + request.LANGUAGE_CODE + '/results')

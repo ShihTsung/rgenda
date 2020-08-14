@@ -49,7 +49,7 @@ def get_reserve_leave(department, date_start, date_end):
 def get_promise_leave(department, date_start, date_end):
     output = defaultdict(list)
     promise_rests = PromiseShift.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end,
-                                                shift_type=0)
+                                                shift_type=5)
     for pr in promise_rests:
         output[pr.user.id].append(pr.date)
     return output
@@ -58,7 +58,7 @@ def get_promise_leave(department, date_start, date_end):
 def get_official_leave(department, date_start, date_end):
     output = defaultdict(list)
     official_leaves = PromiseShift.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end,
-                                                  shift_type=1)
+                                                  shift_type=3)
     for ol in official_leaves:
         output[ol.user.id].append(ol.date)
     return output

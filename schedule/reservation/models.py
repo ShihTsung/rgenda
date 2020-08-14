@@ -1,16 +1,16 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from shift.models import Shift
 from account.models import CustomUser
 
 
 TYPE_CHOICES = (
-    (0, _('白班')),
-    (1, _('小夜')),
-    (2, _('大夜')),
-    (3, _('oncall')),
-    (4, _('有薪假')),
-    (5, _('無薪假'))
+    (0, '白班'),
+    (1, '小夜'),
+    (2, '大夜'),
+    (3, '公假'),
+    (4, 'oncall'),
+    (5, '有薪假'),
+    (6, '無薪假'),
 )
 
 # 預排假
