@@ -481,7 +481,7 @@
               delete e
             }
             e.resourceId = e.station.id;
-            if (e.shift.shift_type == 5){
+            if (e.shift.shift_type == 5 || e.shift.shift_type==6){
               e.color = 'red';
             }
           });
