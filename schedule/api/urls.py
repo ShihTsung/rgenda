@@ -17,7 +17,10 @@ router.register(r'demands', views.DemandViewSet)
 router.register(r'promises', views.PromiseShiftViewSet)
 router.register(r'liscenses', views.LiscenseViewSet)
 router.register(r'notifications', views.NotificationViewSet)
-router.register(r'time-ajustment', views.TimeAdjustmentViewSet)
+router.register(r'time-adjustment', views.TimeAdjustmentViewSet)
+router.register(r'user-remarks', views.UserRemarkViewSet)
+router.register(r'remark-squares', views.RemarkSquareViewSet)
+router.register(r'result-remarks', views.ResultRemarkViewSet)
 
 
 urlpatterns = [
@@ -26,5 +29,6 @@ urlpatterns = [
                               namespace='rest_framework')),
     path('checkresult/', views.check_result_api),
     path('total-per-day/', views.total_per_day_api),
-    path('notification/mark-all-as-read', views.mark_all_notices_read)
+    path('notification/mark-all-as-read', views.mark_all_notices_read),
+    path('last-month-continue', views.last_month_continue)
 ]

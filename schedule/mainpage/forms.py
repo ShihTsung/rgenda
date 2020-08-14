@@ -11,12 +11,15 @@ LEVEL_CHOICES = (
 )
 
 TYPE_CHOICES = (
-    ('白班', '白班'),
-    ('小夜', '小夜'),
-    ('大夜', '大夜'),
-    ('休假', '休假'),
-    ('公假', '公假'),
+    (0, '白班'),
+    (1, '小夜'),
+    (2, '大夜'),
+    (3, '公假'),
+    (4, 'oncall'),
+    (5, '有薪假'),
+    (6, '無薪假'),
 )
+
 """
 班別管理
 """
@@ -27,8 +30,7 @@ class ShiftCreationForm(forms.ModelForm):
         max_length=100,
         label=_('Name'),
     )
-    shift_type = forms.CharField(
-        max_length=100,
+    shift_type = forms.IntegerField(
         label=_('ShiftType'),
         widget=forms.widgets.Select(choices=TYPE_CHOICES)
     )
@@ -40,10 +42,6 @@ class ShiftCreationForm(forms.ModelForm):
         label=_('EndHour'),
         widget=forms.widgets.TimeInput,
     )
-    station = forms.ModelChoiceField(
-        queryset=Station.objects.all(),
-        label=_('Station'),
-    )
     work_hours = forms.FloatField(
         label=_('WorkHours'),
     )
@@ -51,13 +49,17 @@ class ShiftCreationForm(forms.ModelForm):
     class Meta:
         model = Shift
         fields = ['name', 'shift_type', 'start_time',
-                  'end_time', 'station', 'work_hours']
+                  'end_time', 'work_hours']
 
 
 class ShiftEditForm(forms.ModelForm):
     name = forms.CharField(
         max_length=100,
         label=_('Name'),
+    )
+    shift_type = forms.IntegerField(
+        label=_('ShiftType'),
+        widget=forms.widgets.Select(choices=TYPE_CHOICES)
     )
     start_time = forms.TimeField(
         label=_('StartTime'),
@@ -67,10 +69,6 @@ class ShiftEditForm(forms.ModelForm):
         label=_('EndHour'),
         widget=forms.widgets.TimeInput,
     )
-    station = forms.ModelChoiceField(
-        queryset=Station.objects.all(),
-        label=_('Station'),
-    )
     work_hours = forms.FloatField(
         label=_('WorkHours'),
     )
@@ -78,4 +76,4 @@ class ShiftEditForm(forms.ModelForm):
     class Meta:
         model = Shift
         fields = ['name', 'shift_type', 'start_time',
-                  'end_time', 'station', 'work_hours']
+                  'end_time', 'work_hours']

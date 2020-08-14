@@ -22,7 +22,7 @@
     let calendar;
     let users = [];
 
-    // fullcalendar 
+    // fullcalendar
     calendar = new FullCalendar.Calendar(calendarEl, {
       timeZone: 'UTC',
       editable: false,
@@ -68,7 +68,7 @@
       eventRender: function(info) {
         let prop = info.event.extendedProps
         $(info.el).tooltip({
-          html:true, 
+          html:true,
           title: '<h3>'+prop.station_name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
         });
       },
@@ -86,7 +86,7 @@
           data.forEach(e=>{
             e.title = e.shift.name;
             e.resourceId = e.user.id;
-            if (e.shift.shift_type == '休假'){
+            if (e.shift.shift_type == 5){
               e.color = 'white';
             }
           });

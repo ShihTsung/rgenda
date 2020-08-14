@@ -1,22 +1,35 @@
 {% load crispy_forms_tags %}
 <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h1>{{ modal_form_title }}</h1>
-                    {% for field in form %}
-                    {{ field | as_crispy_field }}
-                    {% endfor %}
-                    <div class="row">
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                            <button type="submit" class="submit-btn btn btn-primary">上傳</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom-0">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="modal-body text-center pt-0">
+        <h3 class="modal-title rgenda-text-dark-blue mb-4">批次新增人員</h3>
+        <div class="col-12">
+          <div class="row">
+          <div class="offset-2 col-8">
+            <p class="mb-4">提醒您！如需批次新增多筆人員資料，請先下載 Excel 範本檔，並依照格式填寫完畢後，於下方上傳檔案。</p>
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="file" name="file" accept=".xlsx" required="required" id="id_file"
+              class="fileinput fileUpload form-control-file mb-3">
+              <div class="row">
+                <div class="col mb-2">
+                  <button type="button" class="btn btn-rgenda" data-dismiss="modal">取消</button>
+                  <button type="submit" class="btn btn-rgenda">上傳</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>

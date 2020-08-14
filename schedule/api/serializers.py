@@ -10,6 +10,7 @@ from result.models import (Result, PreResult,
                            AfterResult, TimeAdjustment,
                            ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
+from remarks.models import UserRemark, RemarkSquare, ResultRemark
 
 # 部門/科別
 
@@ -17,7 +18,11 @@ from reservation.models import Reservation, PromiseShift
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('id', 'name', 'detail')
+        fields = (
+            'id', 'name', 'detail', 'limit_pre_schedule',
+            'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
+            'admin_in_schedule', 'same_day_notice', 'date_start'
+        )
         read_only_fields = ('id', )
 
 # 帳號
@@ -79,7 +84,7 @@ class CustomUserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'id', 'full_name', 'department',
+            'id', 'username', 'full_name', 'department', 'can_be_scheduled',
             'level', 'eid', 'type_of_user', 'pregnant', 'schedule_state'
 
         )
@@ -109,7 +114,7 @@ class GetResourceUserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'department', 'can_be_scheduled',
             'is_senior', 'full_name', 'shift_num', 'special_rest',
-            'overtime', 'diff'
+            'overtime', 'diff', 'type_of_user'
         )
 
 # 工作站Get
@@ -260,13 +265,13 @@ class GetResultSerializer(serializers.ModelSerializer):
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
-        if obj.shift.shift_type == '白班':
+        if obj.shift.shift_type == 0:
             return 'A'
-        elif obj.shift.shift_type == '小夜':
+        elif obj.shift.shift_type == 1:
             return 'E'
-        elif obj.shift.shift_type == '大夜':
+        elif obj.shift.shift_type == 2:
             return 'N'
-        elif obj.shift.shift_type == '有薪假':
+        elif obj.shift.shift_type == 5:
             if obj.shift.name == "休息":
                 return '休'
             if obj.shift.name == "例假":
@@ -277,8 +282,6 @@ class GetResultSerializer(serializers.ModelSerializer):
                 return "特"
             if obj.shift.name == "空班":
                 return "空"
-            if obj.shift.name == "公假":
-                return "公"
             if obj.shift.name == "婚假":
                 return "婚"
             if obj.shift.name == "喪假":
@@ -289,16 +292,16 @@ class GetResultSerializer(serializers.ModelSerializer):
                 return "生"
             if obj.shift.name == "國定假日":
                 return "國"
-        elif obj.shift.shift_type == '無薪假':
+        elif obj.shift.shift_type == 6:
             if obj.shift.name == "無薪病假":
                 return '病'
             if obj.shift.name == "事假":
                 return '事'
             if obj.shift.name == "家庭照顧假":
                 return '家'
-        elif obj.shift.shift_type == 'oncall':
+        elif obj.shift.shift_type == 4:
             return 'On'
-        elif obj.shift.shift_type == '公假':
+        elif obj.shift.shift_type == 3:
             return '公'
         else:
             return ''
@@ -362,7 +365,7 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift')
 
 # 保證假/班
 
@@ -371,16 +374,23 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift')
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):
+    adjustment_item_text = serializers.SerializerMethodField()
+
+    def get_adjustment_item_text(self, obj):
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        return texts[obj.adjustment_item]
 
     class Meta:
         model = TimeAdjustment
         fields = (
             'id', 'user', 'date', 'hours', 'adjustment_type',
-            'adjustment_item', 'remark')
+            'adjustment_item', 'adjustment_item_text', 'remark')
 
 
 class LiscenseSerializer(serializers.ModelSerializer):
@@ -422,4 +432,22 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
+        fields = '__all__'
+
+
+class UserRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRemark
+        fields = '__all__'
+
+
+class RemarkSquareSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RemarkSquare
+        fields = '__all__'
+
+
+class ResultRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResultRemark
         fields = '__all__'

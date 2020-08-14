@@ -10,7 +10,7 @@ module.exports = merge(common, {
       vue: 'vue/dist/vue.js'
     }
   },
-  /* plugins: [
+  plugins: [
     {
       apply: (compiler) => {
         compiler.hooks.afterEmit.tap('AfterEmitPlugin', (compilation) => {
@@ -21,5 +21,5 @@ module.exports = merge(common, {
         });
       }
     }
-  ] */
+  ]
 });

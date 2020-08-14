@@ -1,4 +1,6 @@
 $color-dark-blue: #37419a;
+$color-dark-blue-2:#303987;
+$color-light-gray:#d0d0d0;
 $icon-color: #a6a6a6;
 
 .btn-outline-rgenda {
@@ -7,9 +9,21 @@ $icon-color: #a6a6a6;
 }
 
 .btn-outline-rgenda:hover {
-  color: #aaa;
+  color: $color-light-gray;
   border-color: $color-dark-blue;
   background-color: $color-dark-blue;
+}
+
+.btn-rgenda {
+  color: #fff;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue;
+}
+
+.btn-rgenda:hover {
+  color: $color-light-gray;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue-2;
 }
 
 .w-1p5 {
@@ -28,11 +42,13 @@ $icon-color: #a6a6a6;
   padding: .375rem .75rem;
   font-size: 1rem;
   line-height: 1.5;
+  color: $icon-color;
 }
 
 .icon-bts:hover {
   background-color: $icon-color;
   border-color: $icon-color;
+  color: #fff;
 }
 
 .icon-color {
@@ -41,4 +57,12 @@ $icon-color: #a6a6a6;
 
 .icon-bts:hover svg path {
   fill: #fff;
+}
+
+.modal-title {
+  color: $color-dark-blue;
+}
+
+.rgenda-text-dark-blue {
+  color: $color-dark-blue !important;
 }

@@ -22,7 +22,8 @@ from account.models import CustomUser, Department, Liscense
 from station.models import Station
 from shift.models import Shift
 from date.models import H_Calendar
-from result.models import Result, PreResult, AfterResult, TimeAdjustment, ExchangeApplication
+from result.models import (Result, PreResult,
+                           AfterResult, TimeAdjustment, ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 
@@ -81,6 +82,12 @@ start_date = openapi.Parameter('start', openapi.IN_QUERY,
                                description="開始日期", type=openapi.TYPE_STRING)
 end_date = openapi.Parameter('end', openapi.IN_QUERY,
                              description="結束日期", type=openapi.TYPE_STRING)
+mode = openapi.Parameter('mode', openapi.IN_QUERY,
+                         description="模式", type=openapi.TYPE_STRING)
+month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
+                               description="月初日", type=openapi.TYPE_STRING)
+uid = openapi.Parameter('uid', openapi.IN_QUERY,
+                        description="使用者id", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -102,7 +109,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if pk == "curr":
             return self.request.user
 
-        return super(CustomUserViewSet, self).get_object()
+        return super().get_object()
 
     def get_queryset(self):
         queryset = self.queryset
@@ -110,73 +117,116 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         dep = self.request.query_params.get('department', None)
 
         if mode == 'onlyUser':
-            return queryset.filter(is_staff=False)
+            return CustomUser.objects.filter(is_staff=False)
         if mode == 'resource':
             user = self.request.user
             if user.role == 'manager':
-                return queryset.filter(
+                return CustomUser.objects.filter(
                     department=user.department,
                     can_be_scheduled=True)
             if user.role == 'admin' or user.is_superuser:
-                return queryset.filter(can_be_scheduled=True)
+                return CustomUser.objects.filter(can_be_scheduled=True)
         if dep is not None:
             target = Department.objects.get(id=dep)
-            return queryset.filter(department=target)
-        return queryset
+            return CustomUser.objects.filter(department=target)
+        return CustomUser.objects.all()
 
     @swagger_auto_schema(
         operation_summary='獲得使用者清單',
         operation_description='GET 的說明',
+        manual_parameters=[mode, ]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='新增使用者',
         operation_description='POST 的說明',
     )
-    def create(self, request):
-        return super().create(request)
+    def create(self, request, *args, **kwargs):
+        return super().create(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='獲得個別使用者',
         operation_description='GET 單一個體的說明',
     )
-    def retrieve(self, request, pk=None):
-        return super().retrieve(request)
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        return super().retrieve(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='更新使用者資料',
         operation_description='PUT 的說明',
     )
-    def update(self, request, pk=None):
-        return super().update(request, pk)
+    def update(self, request, pk=None, partial=False, *args, **kwargs):
+        return super().update(request, pk, partial, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='部分更新',
         operation_description='PATCH 的說明',
     )
-    def partial_update(self, request, pk=None):
-        return super().partial_update(request, pk)
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        return super().partial_update(request, pk, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary='刪除使用者',
         operation_description='DELETE 的說明',
     )
-    def destroy(self, request, pk=None):
-        return super().destroy(request, pk)
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
     serializer_class = TimeAdjustmentSerializer
 
+    def get_queryset(self):
+        queryset = TimeAdjustment.objects.all()
+        if self.request.query_params:
+            start = self.request.query_params.get('start')
+            end = self.request.query_params.get('end')
+            mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if start and end:
+                queryset = queryset.filter(
+                    date__range=[start[:10], end[:10]]
+                )
+            if mode == 'personal':
+                if uid:
+                    target = CustomUser.objects.get(id=int(uid))
+                    queryset = queryset.filter(user=target)
+                else:
+                    queryset = queryset.filter(user=self.request.user)
+        return queryset
+
     @swagger_auto_schema(
         operation_summary='調班清單',
         operation_description='列出所有調班清單',
+        manual_parameters=[start_date, end_date, mode, uid]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(self, request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary='新增調班',
+        operation_description='增加一筆加減班',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data
+        texts = ['工作日加班', '休息日出勤',
+                 '國定假日出勤', '空班出勤', 'On Call出勤',
+                 '機構減班', '員工自假']
+        data['adjustment_item_text'] = texts[data['adjustment_item']]
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -211,8 +261,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
         operation_description='GET 的說明',
         manual_parameters=[get_all]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(self, request, *args, **kwargs)
 
 
 class StationViewSet(viewsets.ModelViewSet):
@@ -275,8 +325,8 @@ class ResultViewSet(viewsets.ModelViewSet):
         operation_description='GET 的說明',
         manual_parameters=[start_date, end_date]
     )
-    def list(self, request):
-        return super().list(request)
+    def list(self, request, *args, **kwargs):
+        return super().list(self, request, *args, **kwargs)
 
 
 class PreResultViewSet(viewsets.ModelViewSet):
@@ -327,7 +377,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     # 覆寫 create
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         max_reserve = request.user.department.same_day_notice
         serializer = ReservationSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -428,10 +478,29 @@ class LiscenseViewSet(viewsets.ModelViewSet):
     serializer_class = LiscenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            uid = self.request.query_params.get('uid')
+            if mode == 'personal' and uid:
+                user = CustomUser.objects.get(id=int(uid))
+                return Liscense.objects.filter(user=user)
+            else:
+                return Liscense.objects.all()
+        return Liscense.objects.all()
+
 
 # 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+
+    def get_queryset(self):
+        if self.request.query_params:
+            mode = self.request.query_params.get('mode')
+            if mode == 'personal':
+                return ExchangeApplication.objects.filter(
+                    user_receive=self.request.user)
+        return ExchangeApplication.objects.all()
 
 # class CheckResultView(APIView):
 #     """
@@ -496,18 +565,18 @@ def total_per_day_api(request):
         demands = DemandOfStation.objects.all()
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
-            results[date_str] = {'白班': 0, '小夜': 0, '大夜': 0}
+            results[date_str] = {'0': 0, '1': 0, '2': 0}
             config = 1
             for demand in demands:
                 if demand.shift.department == d:
                     s_type = demand.shift.shift_type
-                    if s_type in ['白班', '小夜', '大夜']:
+                    if s_type in [0, 1, 2]:
                         if config == 1:
-                            results[date_str][s_type] += demand.config1
+                            results[date_str][str(s_type)] += demand.config1
                         elif config == 2:
-                            results[date_str][s_type] += demand.config2
+                            results[date_str][str(s_type)] += demand.config2
                         else:
-                            results[date_str][s_type] = 0
+                            results[date_str][str(s_type)] = 0
     return Response(results)
 
 
@@ -524,3 +593,57 @@ def mark_all_notices_read(request):
         return Response({'status': 'success'})
     else:
         return Response({'status': 'permission denied'})
+
+
+class UserRemarkViewSet(viewsets.ModelViewSet):
+    queryset = UserRemark.objects.all()
+    serializer_class = UserRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class RemarkSquareViewSet(viewsets.ModelViewSet):
+    queryset = RemarkSquare.objects.all()
+    serializer_class = RemarkSquareSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class ResultRemarkViewSet(viewsets.ModelViewSet):
+    queryset = ResultRemark.objects.all()
+    serializer_class = ResultRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='前月班表紀錄',
+    manual_parameters=[month_head])
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def last_month_continue(request):
+    department = request.user.department
+    users = User.objects.filter(department=department, can_be_scheduled=True)
+    month_head = request.GET.get('month_head')
+    date0 = datetime.strptime(month_head, '%Y-%m-%d')
+    output = dict()
+    type_dict = {
+        '0': 'A',
+        '1': 'E',
+        '2': 'N',
+        '3': '公'
+    }
+    for user in users:
+        output[user.id] = list()
+        results = Result.objects.filter(
+            user=user, date__gte=date0 - timedelta(days=7),
+            date__lte=date0 - timedelta(days=1)).order_by('date')
+        for result in results:
+            if result.shift.shift_type in [0, 1, 2, 3]:
+                output[user.id].append(str(result.shift.shift_type))
+            else:
+                output[user.id] = list()
+        outstr = ''
+        for x in output[user.id]:
+            outstr += type_dict[x]
+        output[user.id] = outstr
+
+    return Response(output)

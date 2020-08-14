@@ -299,9 +299,9 @@
       eventRender: function(info) {
         let prop = info.event.extendedProps;
 
-        if (prop.shift.shift_type=="休假"){
+        if (prop.shift.shift_type==5||prop.shift.shift_type==6){
           info.event.remove();
-        }else if(prop.shift.shift_type=="公假"){
+        }else if(prop.shift.shift_type==4){
           info.event.remove();
         }else{
           $(info.el).tooltip({
@@ -314,7 +314,7 @@
         switch(prop.user.level) {
           case 1:
             switch(prop.shift.shift_type){
-              case "白班":
+              case 0:
                 info.el.classList.add("day-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
                 + "<div class='user-wrapper'>"
@@ -322,7 +322,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "小夜":
+              case 1:
                 info.el.classList.add("night-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
                 + "<div class='user-wrapper'>"
@@ -330,7 +330,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "大夜":
+              case 2:
                 info.el.classList.add("graveyard-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
                 + "<div class='user-wrapper'>"
@@ -338,7 +338,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "onCall":
+              case 4:
                 info.el.classList.add("on-call-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
                 + "<div class='user-wrapper'>"
@@ -350,7 +350,7 @@
             break;
           case 2:
             switch(prop.shift.shift_type){
-              case "白班":
+              case 0:
                 info.el.classList.add("day-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
                 + "<div class='user-wrapper'>"
@@ -358,7 +358,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "小夜":
+              case 1:
                 info.el.classList.add("night-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
                 + "<div class='user-wrapper'>"
@@ -366,7 +366,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "大夜":
+              case 2:
                 info.el.classList.add("graveyard-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
                 + "<div class='user-wrapper'>"
@@ -374,7 +374,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "onCall":
+              case 4:
                 info.el.classList.add("on-call-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
                 + "<div class='user-wrapper'>"
@@ -386,7 +386,7 @@
             break;
           case 3:
             switch(prop.shift.shift_type){
-              case "白班":
+              case 0:
                 info.el.classList.add("day-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
                 + "<div class='user-wrapper'>"
@@ -394,7 +394,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "小夜":
+              case 1:
                 info.el.classList.add("night-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
                 + "<div class='user-wrapper'>"
@@ -402,7 +402,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "大夜":
+              case 2:
                 info.el.classList.add("graveyard-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
                 + "<div class='user-wrapper'>"
@@ -410,7 +410,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "onCall":
+              case 4:
                 info.el.classList.add("on-call-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
                 + "<div class='user-wrapper'>"
@@ -422,7 +422,7 @@
             break;
           case 4:
             switch(prop.shift.shift_type){
-              case "白班":
+              case 0:
                 info.el.classList.add("day-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
                 + "<div class='user-wrapper'>"
@@ -430,7 +430,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "小夜":
+              case 1:
                 info.el.classList.add("night-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
                 + "<div class='user-wrapper'>"
@@ -438,7 +438,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "大夜":
+              case 2:
                 info.el.classList.add("graveyard-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
                 + "<div class='user-wrapper'>"
@@ -446,7 +446,7 @@
                 + "<span class='username'>" + prop.user.full_name + "</span>"
                 + "</div>";
                 break;
-              case "onCall":
+              case 4:
                 info.el.classList.add("on-call-shift");
                 info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
                 + "<div class='user-wrapper'>"
@@ -481,7 +481,7 @@
               delete e
             }
             e.resourceId = e.station.id;
-            if (e.shift.shift_type == '休假'){
+            if (e.shift.shift_type == 5){
               e.color = 'red';
             }
           });

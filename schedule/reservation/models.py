@@ -25,17 +25,15 @@ class PromiseShift(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         verbose_name=_('User'),
-        null=None,
+        null=True,
     )
     date = models.DateField(verbose_name=_('Date'))
-    shift_type = models.IntegerField(
-        verbose_name=_('ShiftType'),
-        null=False,
-        choices=(
-            (0, '休息日'),
-            (1, '公假'),
-        ),
-        default=0,
+    shift = models.ForeignKey(
+        Shift,
+        on_delete=models.CASCADE,
+        verbose_name=_('班別'),
+        null=True
+
     )
 
     def __str__(self):

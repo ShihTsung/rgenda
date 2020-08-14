@@ -22,10 +22,11 @@ def initial(request):
     from station.models import Station
     from shift.models import Shift
     from demand.models import DemandOfStation
-    from result.models import Result, PreResult, AfterResult
+    from result.models import Result, PreResult, AfterResult, TimeAdjustment
 
     print('clean database')
     Department.objects.all().delete()
+    TimeAdjustment.objects.all().delete()
     User.objects.all().delete()
     Station.objects.all().delete()
     Shift.objects.all().delete()
@@ -38,7 +39,7 @@ def initial(request):
 # departments
     print('create departments')
     names = ['休息', '例假', '公假', 'oncall']
-    types = ['有薪假', '有薪假', '有薪假', 'oncall']
+    types = [5, 5, 3, 4]
     hours = [0, 0, 8, 0]
     department = Department.objects.create(name='D1', detail='健檢診所')
     for i in range(4):
@@ -49,27 +50,6 @@ def initial(request):
             end_time=datetime.time(hour=0, minute=0),
             department=department,
             work_hours=hours[i])
-    # shift = Shift.objects.create(
-    #     name='白班',
-    #     shift_type='白班',
-    #     start_time=datetime.time(hour=7, minute=0),
-    #     end_time=datetime.time(hour=16, minute=0),
-    #     department=department,
-    #     work_hours=8)
-    # shift = Shift.objects.create(
-    #     name='小夜',
-    #     shift_type='小夜',
-    #     start_time=datetime.time(hour=15, minute=0),
-    #     end_time=datetime.time(hour=0, minute=0),
-    #     department=department,
-    #     work_hours=8)
-    # shift = Shift.objects.create(
-    #     name='大夜',
-    #     shift_type='大夜',
-    #     start_time=datetime.time(hour=23, minute=0),
-    #     end_time=datetime.time(hour=8, minute=0),
-    #     department=department,
-    #     work_hours=8)
     department = Department.objects.create(name='D2', detail='手術房')
     for i in range(4):
         shift = Shift.objects.create(
@@ -79,27 +59,7 @@ def initial(request):
             end_time=datetime.time(hour=0, minute=0),
             department=department,
             work_hours=hours[i])
-    # shift = Shift.objects.create(
-    #     name='白班',
-    #     shift_type='白班',
-    #     start_time=datetime.time(hour=7, minute=0),
-    #     end_time=datetime.time(hour=16, minute=0),
-    #     department=department,
-    #     work_hours=8)
-    # shift = Shift.objects.create(
-    #     name='小夜',
-    #     shift_type='小夜',
-    #     start_time=datetime.time(hour=15, minute=0),
-    #     end_time=datetime.time(hour=0, minute=0),
-    #     department=department,
-    #     work_hours=8)
-    # shift = Shift.objects.create(
-    #     name='大夜',
-    #     shift_type='大夜',
-    #     start_time=datetime.time(hour=23, minute=0),
-    #     end_time=datetime.time(hour=8, minute=0),
-    #     department=department,
-    #     work_hours=8)
+
     names = ['B1', 'B10', 'B15', 'B2', 'B3', 'B31', 'B4', 'B6', 'B8']
     start_hours = [7, 8, 8, 7, 7, 8, 8, 9, 8]
     start_mins = [0, 0, 3, 3, 3, 3, 0, 0, 0]
@@ -108,7 +68,7 @@ def initial(request):
     for i in range(9):
         shift = Shift.objects.create(
             name=names[i],
-            shift_type='白班',
+            shift_type=0,
             start_time=datetime.time(
                 hour=start_hours[i], minute=start_mins[i]),
             end_time=datetime.time(hour=end_hours[i], minute=end_mins[i]),
@@ -123,6 +83,8 @@ def initial(request):
     user.full_name = 'YiJu Lai'
     user.level = 3
     user.gender = 'male'
+    user.is_senior = True
+    user.job_title = '職稱'
     user.holiday_rest_num = 10
     user.special_rest_num = 10
     user.eid = 20190022
@@ -131,74 +93,6 @@ def initial(request):
     user.department = Department.objects.first()
     user.save()
     print('create user')
-    # people = [{
-    #     'name': 'Max',
-    #     'email': 'max.chen@redfalcon-hpc.com',
-    #     'password': 'redfalcon',
-    #     'level': 3,
-    #     'gender': 'male',
-    #     'holiday_rest_num': 10,
-    #     'special_rest_num': 10,
-    #     'eid': 12345678,
-    #     'hour_required': 100.0,
-    #     'hour_realized': 0.0,
-    #     'department': Department.objects.first()
-    # },
-    #     {
-    #     'name': 'Peter',
-    #     'email': 'peter.chen@redfalcon-hpc.com',
-    #     'password': 'redfalcon',
-    #     'level': 4,
-    #     'gender': 'male',
-    #     'holiday_rest_num': 10,
-    #     'special_rest_num': 10,
-    #     'eid': 12345678,
-    #     'hour_required': 100.0,
-    #     'hour_realized': 0.0,
-    #     'department': Department.objects.first()
-    # },
-    #     {
-    #     'name': 'Allison',
-    #     'email': 'allison.chen@redfalcon-hpc.com',
-    #     'password': 'redfalcon',
-    #     'level': 3,
-    #     'gender': 'female',
-    #     'holiday_rest_num': 10,
-    #     'special_rest_num': 10,
-    #     'eid': 12345678,
-    #     'hour_required': 100.0,
-    #     'hour_realized': 0.0,
-    #     'department': Department.objects.first()
-    # },
-    #     {
-    #     'name': 'jenny',
-    #     'email': 'jenny.chin@redfalcon-hpc.com',
-    #     'password': 'redfalcon',
-    #     'level': 3,
-    #     'gender': 'female',
-    #     'holiday_rest_num': 10,
-    #     'special_rest_num': 10,
-    #     'eid': 12345678,
-    #     'hour_required': 100.0,
-    #     'hour_realized': 0.0,
-    #     'department': Department.objects.first()
-    # },
-    # ]
-    # for i in range(4):
-    #     user = User.objects.create_user(
-    #         people[i]['name'], people[i]['email'], people[i]['password']
-    #     )
-    #     user.role = 'user'
-    #     user.full_name = 'user' + str(i)
-    #     user.level = people[i]['level']
-    #     user.gender = people[i]['gender']
-    #     user.holiday_rest_num = people[i]['holiday_rest_num']
-    #     user.special_rest_num = people[i]['special_rest_num']
-    #     user.eid = people[i]['eid']
-    #     user.hour_required = people[i]['hour_required']
-    #     user.hour_realized = people[i]['hour_realized']
-    #     user.department = Department.objects.first()
-    #     user.save()
 
 # test users
     names = ['惠如', '亭惠', '美芳', '靜音', '贈伊',
@@ -213,6 +107,7 @@ def initial(request):
         user.role = 'user'
         user.full_name = names[i]
         user.level = 1
+        user.job_title = '職稱'
         user.is_senior = False
         user.gender = 'female'
         user.holiday_rest_num = 40
@@ -227,44 +122,38 @@ def initial(request):
 
     print('create days')
     daystmp = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d')
-    work_or_holiday = ""
     redday = True
     departments = Department.objects.all()
-    d_ids = [str(x.id) for x in departments]
+    d_ids = [x.id for x in departments]
     for i in range(520):
         attribute = {}
         if daystmp.weekday() in [5, 6]:
-            work_or_holiday = "假日"
             redday = True
         else:
-            work_or_holiday = "平日"
             redday = False
         for d in d_ids:
-            attribute[d] = 1
-        attribute = json.dumps(attribute, indent=2)
+            attribute[d] = "1"
         newday = H_Calendar.objects.create(date=daystmp,
                                            red_day=redday,
                                            attribute=attribute)
         newday.save()
         daystmp += datetime.timedelta(days=1)
-
 # station
     names = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
              '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
              '聽力', '眼科+眼底攝影', '外檢', '公假', '休假']
 
     print('create station')
-    for i in range(15):
+    for i in range(17):
         station = Station.objects.create(
             department=Department.objects.first(),
             name=names[i]
         )
-        station.save()
 
 # demands
     stations = ['POR主控', 'POR', '洗滌區', '受檢', '麻醉科', '3F場控',
                 '2F場控', '健康秘書', '一般', '腹超', '理學', 'EKGX+ASIX',
-                '聽力', '眼科+眼底攝影', '外檢', '公假', '休假']
+                '聽力', '眼科+眼底攝影', '外檢']
     workday = [1, 1, 2, 2, 1, 1, 1, 7, 1, 1, 1, 3, 1, 1, 1]
     holiday = [1, 1, 1, 1, 1, 1, 1, 5, 1, 0, 0, 3, 1, 1, 1]
     for i in range(15):
@@ -275,7 +164,6 @@ def initial(request):
                 shift=Shift.objects.get(name=pick_shift),
                 station=Station.objects.get(name=stations[i]),
                 level=j+1,
-                is_senior=True if j == 0 else False,
                 config1=workday[i] if j == 0 else 0,
                 config2=holiday[i] if j == 0 else 0
             )
@@ -300,6 +188,19 @@ def initial(request):
                 station=station,
                 shift=shift
             )
+    print('add adjustments')
+    users = list(User.objects.all())[:10]
+
+    for x in users:
+        month = random.randint(1, 12)
+        day = random.randint(1, 28)
+        TimeAdjustment.objects.create(
+            user=x,
+            date=datetime.date(2020, month, day),
+            hours=random.randint(1, 3),
+            adjustment_type=0,
+            adjustment_item=0
+        )
 
     print('finish')
 
