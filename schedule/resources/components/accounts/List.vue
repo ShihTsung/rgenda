@@ -33,7 +33,7 @@
     <!-- \modal - del user -->
 
     <!-- users table -->
-    <vue-good-table v-if="loading"
+    <vue-good-table v-if="loaded"
       :columns="columns"
       :rows="rows"
       :search-options="{
@@ -50,12 +50,11 @@
             </label>
         </div>
         </template>
-        <template v-else-if="props.column.field == 'functions'">
-          <a :href="'/accounts/' + props.row.id" class="btn icon-bts" data-tooltip="tooltip" title="編輯">
-            <i class="fas fa-edit"></i>
-          </a>
-          <button class="btn icon-bts" type="button" data-toggle="modal" data-target="#modalDelete"
-          data-tooltip="tooltip" title="刪除" @click="comfirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></button>
+        <template v-else-if="props.column.field == 'actions'">
+          <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
+          :href="'/accounts/' + props.row.id"><i class="fas fa-edit"></i></a>
+          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDelete"
+          @click="comfirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
     </vue-good-table>
@@ -96,7 +95,7 @@ export default {
   },
   data() {
     return {
-      loading: false,
+      loaded: false,
       noData: false,
       deleteUser: {
         id: 0,
@@ -134,12 +133,13 @@ export default {
           sortable: false,
         },
         {
-          label: '功能',
-          field: 'functions',
+          label: '動作',
+          field: 'actions',
           sortable: false,
         },
       ],
       rows: [],
+      rendered: false,
     };
   },
   methods: {
@@ -149,12 +149,12 @@ export default {
     getUsers() {
       let self = this;
       let url = `/api/users/?mode=table`;
-      this.$httpClient.get(url)
+      self.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            self.transformer(data);
-            self.loading = true;
+            self.rows = self.transformer(data);
+            self.loaded = true;
             self.noData = false;
           } else {
             self.rows = [];
@@ -165,26 +165,25 @@ export default {
           // handle error
           popup.error({
             title: error.title,
-            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+            html: httpRep.messageJoin(error.message),
           });
           console.log(error);
         });
     },
     transformer(data) {
-      let newArr = [];
-      this.rows = data.map(function(obj) {
-        let element = {
+      let self = this;
+      return data.map(function(obj) {
+        return {
           id: obj.id,
           username: obj.username,
           department: obj.department.detail,
           eid: obj.eid,
           fullName: obj.full_name,
           level: obj.level,
-          typeOfUser: obj.type_of_user,
+          typeOfUser: self.$getUserTypeString(obj.type_of_user),
           pregnant: obj.pregnant,
           canBeScheduled: obj.can_be_scheduled,
         };
-        return element;
       });
     },
     comfirmDeletion(row) {
@@ -223,7 +222,7 @@ export default {
           // handle error
           popup.error({
             title: error.title,
-            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+            html: httpRep.messageJoin(error.message),
           });
           console.log(error);
         });
@@ -262,7 +261,7 @@ export default {
           // handle error
           popup.error({
             title: error.title,
-            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+            html: httpRep.messageJoin(error.message),
           });
           console.log(error);
         });
@@ -270,10 +269,6 @@ export default {
   },
   mounted() {
     this.getUsers();
-  }
+  },
 }
 </script>
-
-<style scoped>
-
-</style>

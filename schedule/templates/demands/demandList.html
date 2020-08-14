@@ -1,162 +1,36 @@
 {% extends "base.html" %}
-{% block title %} Demand List {% endblock %}
+{% block title %} 人力配置管理 {% endblock %}
 {% load i18n %}
 {% load static %}
 
 {% block content %}
-<div class="container">
-	<div class="title text-center">
-		<h1>人力配置管理</h1>
-	</div>
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>人力配置管理</h3>
+  </div>
 
-	{% for message in messages %}
-	<div class="alert {{ message.tags }} alert-dismissible" role="alert">
-		{{message}}
-	</div>
-	{% endfor %}
-	<a href="/demands/update">
-		<div id="btn-edit" class="btn btn-success"><i class="fas fa-edit"></i></div>
-	</a>
-	<a href="/demands/create" class="btn btn-primary">
-		新增
-	</a>
-	<!-- 搜尋欄 -->
-	<span id="searchbar" class="d-flex">
-		<i class="fa fa-search"></i>
-		<input type="text" class="form-input" id="myInput" placeholder="Search by">
-		<select class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
-			{% for index, field in field_names %}
-			<option class="dropdown-item" value={{index}} text={{field}}>{{field}}</option>>
-			{% endfor %}
-		</select>
-	</span>
-	<!-- 搜尋欄end -->
+  <demand-list
+  :user-id="{{ user.id }}"
+  username="{{ user.username }}"
+  csrf-token="{{ csrf_token }}"></demand-list>
 
-	<table class="table table-striped text-center" id="myTable">
-		<thead class="thead-dark">
-			<tr>
-				<th rowspan="2" scope="col" id='station'>工作站</th>
-				<th rowspan="2" scope="col">班別</th>
-				<th colspan="4" scope="col">一般工作日</th>
-				<th colspan="4" scope="col">休假工作日</th>
-			</tr>
-			<tr>
-				<th>Level 4</th>
-				<th>Level 3</th>
-				<th>Level 2</th>
-				<th>Level 1</th>
-				<th>Level 4</th>
-				<th>Level 3</th>
-				<th>Level 2</th>
-				<th>Level 1</th>
-			</tr>
-		</thead>
-		<tbody></tbody>
-	</table>
+  {% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{message}}
+  </div>
+  {% endfor %}
+  <a href="/demands/update">
+    <div id="btn-edit" class="btn btn-success"><i class="fas fa-edit"></i></div>
+  </a>
+  <a href="/demands/create" class="btn btn-primary">
+    新增
+  </a>
+
 </div>
 
-
-<style>
-	table {
-		background-color: white;
-		box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
-	}
-	table th, table td {
-		vertical-align: middle !important;
-		width: 10%;
-	}
-	#btn-edit {
-		margin-left: 0;
-	}
-	.fa-search {
-		margin: 0 5px;
-	}
-	#myInput:focus{
-      outline: none;
-    }
-</style>
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+<script src="{% static 'assets/demand-list.bundle.js' %}"></script>
 {% endblock %}
-<script>
-	var demands = {{ demands | safe }};
-	console.log(demands)
-	$.each(demands, function(station, shifts){
-		let first_of_station = true;
-		let rowspan = Object.keys(shifts).length;
-		$.each(shifts, function(shift, val){
-			let tr = $("<tr></tr>");
-			if (first_of_station) {
-				first_of_station = false;
-				let td_station = $("<td rowspan=" + rowspan + " class=\"row_head\">" + station + "</td>");
-				$(tr).append(td_station);
-			}
-			$(tr).append("<td>" + shift + "</td>");
-			$(tr).append("<td>" + val[4]["weekday"] + "</td>");
-			$(tr).append("<td>" + val[3]["weekday"] + "</td>");
-			$(tr).append("<td>" + val[2]["weekday"] + "</td>");
-			$(tr).append("<td>" + val[1]["weekday"] + "</td>");
-			$(tr).append("<td>" + val[4]["holiday"] + "</td>");
-			$(tr).append("<td>" + val[3]["holiday"] + "</td>");
-			$(tr).append("<td>" + val[2]["holiday"] + "</td>");
-			$(tr).append("<td>" + val[1]["holiday"] + "</td>");
-			$("tbody").append(tr);
-		});
-	});
-	function searchFilter() {
-		// Declare variables
-		let input, filter, table, tr, td, i, txtValue;
-		input = document.getElementById("myInput");
-		filter = input.value.toUpperCase();
-		table = document.getElementById("myTable");
-		let stations = document.querySelectorAll('.row_head')
-		// Loop through all table rows, and hide those who don't match the search query
-		for (i = 0; i < stations.length; i++) {
-			let node = stations[i]
-			let rowNum = node.getAttribute('rowspan')
-			txtValue = node.textContent || node.innerText
-			if(txtValue.toUpperCase().indexOf(filter) > -1){
-				tr = node.parentNode
-				for (j = 0; j < rowNum; j++){
-					tr.style.display="";
-					tr = tr.nextSibling;
-				}
-			}else{
-				tr = node.parentNode
-				tr.style.display="none";
-				for (j = 0; j < rowNum; j++){
-					tr.style.display="none";
-					tr = tr.nextSibling;
-				}
-			}
-		}
-	}
-	function printOption(){
-		let e = document.getElementById('condition');
-		sid = e.options[e.selectedIndex].value;
-		optiontext = e.options[e.selectedIndex].text;
-		searchFilter(sid);
-		document.getElementById('myInput').placeholder = "search by " + optiontext;
-	}
-	let sid = 0
-	let inputBox = document.getElementById("myInput");
-	inputBox.addEventListener('keyup', searchFilter);
 
-	document.addEventListener("DOMContentLoaded", function(event) {
-		// Your code to run since DOM is loaded and ready
-		let id = "#";
-		let name = "";
-		document.querySelectorAll(".btn-delete").forEach(function(el){
-			el.addEventListener('click', function(){
-				id = this.parentNode.parentNode.getAttribute('idx');
-				name = this.parentNode.parentNode.childNodes[1].innerText;
-				name2 = this.parentNode.parentNode.childNodes[3].innerText;
-				document.querySelector(".modal-body").querySelector("p").innerText = "Are you sure to delete demand " + name + ':' + name2 + " ?";
-				document.querySelector("#btn-delete").addEventListener('click', function(){
-					window.location.href = "/demands/delete/" + id;
-				});
-			});
-		});
-	});
-</script>
 {% endblock %}
