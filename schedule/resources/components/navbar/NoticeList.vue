@@ -12,10 +12,12 @@
     <div class="dropdown-menu dropdown-menu-right" aria-labbeledby="navbar-notice-list">
       <div class="dropdown-item disabled" v-if="notificationList.length === 0">無資料</div>
       <template v-else>
-        <div class="dropdown-item text-center" @click="readAll">全部已讀</div>
-        <div class="dropdown-divider"></div>
-        <div :class="'dropdown-item '+unreadClass(idx)" v-for="(n, idx) in 5" :v-if="idx < notificationList.length" :key="notificationList[idx].id">
-          <a class="text-dark" href="#">{{notificationList[idx].description}}</a>
+        <div :class="'dropdown-item '+unreadClass(idx)" v-for="(notification, idx) in notificationList" :v-if="idx < 5" :key="notification.id">
+          <a class="text-dark" :href="'/notice/update?department_id='+notification.target_object_id+'&notice_id='+notification.id">
+            <strong>{{ notification.target }}</strong>
+            {{ notification.verb }}
+            <strong>{{ notification.actor }}</strong>
+          </a>
           <span>{{dateDiffStr(notificationList[idx].timestamp)}}</span>
         </div>
       </template>
@@ -25,6 +27,9 @@
   </div>
 </template>
 <script>
+import moment from 'moment';
+
+moment.locale('zh-TW');
 export default {
   data() {
     return {
@@ -32,25 +37,16 @@ export default {
     }
   },
   methods: {
-    dateDiffStr(str) {
-      let date = new Date(str);
-      let diffInDays = Math.round((Date.now() - date.getTime()) / (1000*60*60*24));
-      if (diffInDays < 1) {
-        return '今天';
-      }
-      return diffInDays + '天前'
+    dateDiffStr(timestamp) {
+      return moment(timestamp).fromNow();
     },
     getNotificationList() {
       let self = this;
-      this.$httpClient.get(`/api/notifications/`).then((response) => {
-        self.notificationList = response.data;
-      }).catch((err) => {
+      this.$httpClient.get('/api/notifications/').then(response => {
+        self.notificationList = response.data.filter(notification => parseInt(notification.recipient) === parseInt(self.userId));
+      }).catch(err => {
         console.log(err);
       });
-    },
-    readAll () {
-      //TODO:
-      console.log('readAll');
     },
     unreadClass(idx) {
       return this.notificationList[idx].unread ? 'unread' : '';
@@ -59,7 +55,7 @@ export default {
   computed: {
     unreadCount() {
       return this.notificationList.reduce((acc, curr) => {
-        return acc + (curr.unread === true ? 0 : 1);
+        return acc + (curr.unread === true ? 1 : 0);
       }, 0);
     },
   },
@@ -74,7 +70,7 @@ export default {
       }, randomOneToFiveMinutes);
     })();
   },
-  props: ['url'],
+  props: ['url', 'userId', 'csrfToken'],
 }
 </script>
 <style scoped>
