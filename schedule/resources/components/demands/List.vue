@@ -4,11 +4,14 @@
     :csrf-token="csrfToken"
     :delete-shift="deleteShift"></modal-delete-demand>
 
+    <modal-add-demand
+    :csrf-token="csrfToken"></modal-add-demand>
+
     <div class="row mb-2">
       <div class="col-12">
         <div class="float-right">
           <!-- 新增人力配置 -->
-          <a href="/demands/create" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置">
+          <a href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置" data-toggle="modal" data-target="#modalAddShift">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
               <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
           </a>
@@ -18,7 +21,7 @@
     </div>
 
     <div class="rol col-12 p-0" v-if="loaded && demands">
-      <table class="table table-bordered text-center rgenda-table shadow-none">
+      <table class="table table-bordered table-hover text-center rgenda-table shadow-none">
         <thead>
           <tr>
             <th scope="col" rowspan="2">工作站名</th>
@@ -81,10 +84,12 @@ import {
   httpRep
 } from 'common/helpers';
 import ModalDeleteDemand from './ModalDeleteDemand.vue';
+import ModalAddDemand from './ModalAddDemand.vue';
 
 export default {
   components: {
     ModalDeleteDemand,
+    ModalAddDemand,
   },
   props: {
     userId: {
@@ -207,20 +212,32 @@ export default {
 
       let demands = {};
       arrObj.forEach(function (obj, idx) {
-        let prop = [obj.station.id, obj.shift.id].join('_');
         if (!demands.hasOwnProperty(obj.station.id)) {
-          let key = obj.shift.id;
-          demands = {
-            [obj.station.id]: {
-              [obj.shift.id]: {
-                stationId: obj.station.id,
-                stationName: obj.station.name,
-                shiftId: obj.shift.id,
-                shiftName: obj.shift.name,
-                config: {},
+          if (Object.keys(demands).length < 1) {
+            demands = {
+              [obj.station.id]: {
+                [obj.shift.id]: {
+                  stationId: obj.station.id,
+                  stationName: obj.station.name,
+                  shiftId: obj.shift.id,
+                  shiftName: obj.shift.name,
+                  config: {},
+                },
+              }
+            };
+          } else {
+            Object.assign(demands, {
+              [obj.station.id]: {
+                [obj.shift.id]: {
+                  stationId: obj.station.id,
+                  stationName: obj.station.name,
+                  shiftId: obj.shift.id,
+                  shiftName: obj.shift.name,
+                  config: {},
+                },
               },
-            },
-          };
+            });
+          }
           // group by level
           Object.assign(demands[obj.station.id][obj.shift.id].config, {
             [obj.level]: obj
@@ -306,6 +323,10 @@ export default {
       return Number(config1) + Number(config2);
     },
     userNames(arrObj) {
+      if (arrObj.length < 1) {
+        return '';
+      }
+
       return arrObj.map(function(user) {
         return user.full_name;
       }).join('<br>');

@@ -53,10 +53,6 @@ export default {
       }
     }
   },
-  data() {
-    return {
-    };
-  },
   methods: {
     destory() {
       let self = this;
@@ -80,7 +76,8 @@ export default {
         }
         self.$httpClient.delete(url, formConfig)
           .then(function (response) {
-            console.log(`delete demand id = ${id}`);
+            // debug
+            // console.log(`delete demand id = ${id}`);
           })
           .catch(function (error) {
             // handle error
