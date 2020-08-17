@@ -576,6 +576,10 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
         department=department,
         name='休假',
     )
+    station_official_leave = Station.objects.get(
+        department=department,
+        name='公假',
+    )
     shift_rest0 = Shift.objects.get(
         department=department,
         name='例假',
@@ -583,6 +587,10 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
     shift_rest1 = Shift.objects.get(
         department=department,
         name='休息',
+    )
+    shift_official_leave = Shift.objects.get(
+        department=department,
+        name='公假',
     )
 
     for station in stations:
@@ -983,4 +991,13 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
     # for user_id, result in output.items():
     #     print(user_id)
     #     print(list(result.values()))
+
+    # 將公假補回去
+    for user_id, dates in official_leave_dict.items():
+        for d in dates:
+            result = Result.objects.get(user__id=user_id, date=d)
+            result.station = station_official_leave
+            result.shift = shift_official_leave
+            result.save()
+
     return redirect('/' + request.LANGUAGE_CODE + '/results')

@@ -89,7 +89,7 @@ def userList(request):
             department.name for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
-        if row0 != ('', '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
+        if row0 != (None, '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
             messages.error(request, row0)
             return redirect('/accounts/list')
         for row in ws.iter_rows(values_only=True, min_row=2):
