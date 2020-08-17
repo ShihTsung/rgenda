@@ -15,7 +15,7 @@
           </div>
           <div class="modal-body text-center pt-0">
             <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
-            <p class="mb-4">確認要刪除 人員-{{deleteUser.fullName}} 嗎？</p>
+            <p class="mb-4">確定要刪除 人員-{{deleteUser.fullName}} 嗎？</p>
             <div class="row">
               <div class="col mb-2">
                 <button class="btn btn-rgenda" type="button"

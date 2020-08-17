@@ -1,0 +1,124 @@
+<template>
+  <!-- modal - del demand -->
+  <div class="modal fade" id="modalDeleteShift" tabindex="-1" role="dialog" aria-hidden="true"
+  data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+          @click="cancelDeletion()">
+            <span aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="modal-body text-center pt-0">
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
+          <p class="mb-4">確定要刪除 {{ deleteShift.stationName }} 班別 {{ deleteShift.shiftName }} 的配置嗎？</p>
+          <div class="row">
+            <div class="col mb-2">
+              <button class="btn btn-rgenda" type="button"
+              @click="cancelDeletion()"
+              data-dismiss="modal">取消</button>
+              <button id="btn-delete" class="btn btn-rgenda"
+              @click="destory()"
+              type="button">刪除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- \modal - del demand -->
+</template>
+
+<script>
+import popup from 'common/popup';
+import {
+  httpRep
+} from 'common/helpers';
+
+export default {
+  props: {
+    csrfToken: {
+      type: String,
+      default: '',
+    },
+    deleteShift: {
+      type: Object,
+      default: {
+        demandIds: [],
+        stationName: '',
+        shiftName: '',
+      }
+    }
+  },
+  data() {
+    return {
+    };
+  },
+  methods: {
+    destory() {
+      let self = this;
+      let demandIds = self.deleteShift.demandIds;
+      $('#modalDeleteShift').modal('hide');
+
+      if (demandIds.length < 1) {
+        return;
+      }
+
+      popup.loading({
+        title: '處理中...',
+      });
+
+      let promiseArr = demandIds.map(function(id) {
+        let url = `/api/demands/${id}/`;
+        const formConfig = {
+          headers: {
+            'X-CSRFToken': `${self.csrfToken}`
+          }
+        }
+        self.$httpClient.delete(url, formConfig)
+          .then(function (response) {
+            console.log(`delete demand id = ${id}`);
+          })
+          .catch(function (error) {
+            // handle error
+            popup.error({
+              title: error.title,
+              html: httpRep.messageJoin(error.message),
+            });
+            console.log(error);
+          });
+      });
+
+      Promise.all(
+        promiseArr
+      ).then(function (response) {
+        popup.success({
+          title: '刪除人力配置',
+          text: '請求成功',
+        }, function() {
+          location.reload();
+        });
+      }).catch(function (error) {
+        // handle error
+        popup.error({
+          title: error.title,
+          html: httpRep.messageJoin(error.message),
+        });
+        console.log(error);
+      });;
+    },
+    cancelDeletion() {
+      this.deleteShift = {
+        demandIds: [],
+        stationName: '',
+        shiftName: '',
+      };
+
+      this.$parent.cancelDeletion();
+    },
+  },
+}
+</script>
