@@ -132,7 +132,7 @@ class CustomUser(AbstractUser):
         null=True)
 
     type_of_user = models.IntegerField(
-        max_length=20, choices=TYPE_CHOICES,
+        choices=TYPE_CHOICES,
         verbose_name=_('排班身份'),
         default=0,
         null=True)

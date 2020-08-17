@@ -6,7 +6,7 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action, api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import JSONParser
@@ -175,6 +175,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
     serializer_class = TimeAdjustmentSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = TimeAdjustment.objects.all()
@@ -337,6 +338,7 @@ class ResultViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
+
             return GetResultSerializer
         return ResultSerializer
 
@@ -549,6 +551,8 @@ class LiscenseViewSet(viewsets.ModelViewSet):
 # 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     queryset = ExchangeApplication.objects.all()
+    serializer_class = ExchangeApplicationSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         if self.request.query_params:

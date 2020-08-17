@@ -138,6 +138,14 @@ class GetStationSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'department')
         read_only_fields = ('id', )
 
+
+class SimpleStationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Station
+        fields = ('id', 'name')
+
+
 # 工作站
 
 
@@ -186,7 +194,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 class SimpleShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type')
+        fields = ('id', 'name', 'shift_type', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get
@@ -278,8 +286,8 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
 class GetResultSerializer(serializers.ModelSerializer):
     # user = CustomUserSerializer()
-    # shift = GetShiftSerializer()
-    # station = StationSerializer()
+    shift = SimpleShiftSerializer()
+    station = SimpleStationSerializer()
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
