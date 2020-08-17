@@ -779,8 +779,8 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                                     break
                                             if s < 6:
                                                 options.append(user_id)
-                                        if len(options) < demand_dict[str(d)]:
-                                            # 可排人數不足 所有可排人員皆排班 記錄差額
+                                        if len(options) <= demand_dict[str(d)]:
+                                            # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
                                             temp_demand_loss += demand_dict[str(d)] - len(options)
                                             for user_id in user_pool:
                                                 if user_id in options:
@@ -875,8 +875,8 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                                 break
                                         if s < 6:
                                             options.append(user_id)
-                                    if len(options) < demand_dict[str(d)]:
-                                        # 可排人數不足 所有可排人員皆排班 記錄差額
+                                    if len(options) <= demand_dict[str(d)]:
+                                        # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
                                         temp_demand_loss += demand_dict[str(d)] - len(options)
                                         for user_id in user_pool:
                                             if user_id in options:
