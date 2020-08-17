@@ -117,6 +117,7 @@ def userList(request):
                 pregnant=raw_data[name]['pregnant'],
                 can_be_scheduled=raw_data[name]['can be scheduled'],
                 password=raw_data[name]['password'],
+                job_title=raw_data[name]['job title'],
             )
             user.save()
             messages.success(request, 'Users import success')
@@ -151,7 +152,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
             4: 員工編號
             5: 姓名
             6: 科別
-            7: 職稱 TODO
+            7: 職稱
             8: 職級
             9: 性別
             10: 權限
@@ -209,6 +210,9 @@ def check_excel(row, users, departments, eids, manager_num, data):
     if not row[6] in departments:
         return '第' + str(row[0]) + '筆 "科別"不存在'
 
+    if not row[7]:
+        return '第' + str(row[0]) + '筆 "職稱"不可空白'
+
     if not row[8]:
         return '第' + str(row[0]) + '筆 "職級"不可空白'
     if not row[8] in ['N1', 'N2', 'N3', 'N4', 'Nn']:
@@ -261,6 +265,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
         'pregnant': True if row[12] == '妊娠或哺乳期' else False,
         'can be scheduled': True if row[13] == '正常排班' else False,
         'onboard date': row[14],
+        'job title': str(row[7]),
     }
     return ''
 
