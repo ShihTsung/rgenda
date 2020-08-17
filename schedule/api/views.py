@@ -256,6 +256,18 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
 
+    @swagger_auto_schema(
+        operation_summary='刪除班別',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
 
 class StationViewSet(viewsets.ModelViewSet):
     queryset = Station.objects.all()
@@ -266,6 +278,17 @@ class StationViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetStationSerializer
         return StationSerializer
+    @swagger_auto_schema(
+        operation_summary='刪除工作站',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 class HCalendarViewSet(viewsets.ModelViewSet):
@@ -486,6 +509,18 @@ class DemandViewSet(viewsets.ModelViewSet):
             return GetDemandSerializer
         return DemandSerializer
 
+    @swagger_auto_schema(
+        operation_summary='刪除Demand',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
 
 # 保證班 api
 class PromiseShiftViewSet(viewsets.ModelViewSet):
@@ -514,6 +549,18 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED,
             headers=headers)
+
+    @swagger_auto_schema(
+        operation_summary='刪除保證班',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -547,6 +594,18 @@ class LiscenseViewSet(viewsets.ModelViewSet):
                 return Liscense.objects.all()
         return Liscense.objects.all()
 
+    @swagger_auto_schema(
+        operation_summary='刪除證照',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
 
 # 換班 api
 class ExchangeApplicationViewSet(viewsets.ModelViewSet):
@@ -562,22 +621,17 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
                     user_receive=self.request.user)
         return ExchangeApplication.objects.all()
 
-# class CheckResultView(APIView):
-#     """
-#     檢查排班結果
-#     * Requires token authentication.
-#     * Only admin users are able to access this view.
-#     """
-#     authentication_classes = [authentication.TokenAuthentication]
-#     permission_classes = [permissions.IsAdminUser]
-
-#     def get(self, request, format=None):
-#         """
-#         Return a list of all users.
-#         """
-#         usernames = [user.username for user in User.objects.all()]
-#         return Response(usernames)
-
+    @swagger_auto_schema(
+        operation_summary='刪除調班',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 # 排班檢查 api
 @swagger_auto_schema(
@@ -604,6 +658,18 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_summary='刪除通知',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 # 取得每天的白班，小夜，大夜總人數（總班表管理）
@@ -660,17 +726,53 @@ class UserRemarkViewSet(viewsets.ModelViewSet):
     serializer_class = UserRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    @swagger_auto_schema(
+        operation_summary='刪除使用者備註',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
 
 class RemarkSquareViewSet(viewsets.ModelViewSet):
     queryset = RemarkSquare.objects.all()
     serializer_class = RemarkSquareSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    @swagger_auto_schema(
+        operation_summary='刪除備註方塊',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
 
 class ResultRemarkViewSet(viewsets.ModelViewSet):
     queryset = ResultRemark.objects.all()
     serializer_class = ResultRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_summary='刪除班表備註',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 @swagger_auto_schema(
@@ -713,3 +815,15 @@ class DemandUserTableViewset(viewsets.ModelViewSet):
     queryset = DemandUserTable.objects.all()
     serializer_class = DemandUserTableSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_summary='刪除User跟Demand的關係',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
