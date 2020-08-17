@@ -26,7 +26,7 @@ def attr_list(department_id, start, end):
     """
     days = H_Calendar.objects.filter(
         date__gte=start, date__lte=end).order_by('date')
-    return [day.attribute[department_id] for day in days]
+    return [day.attribute[str(department_id)] for day in days]
 
 
 def red_dict(start, end):

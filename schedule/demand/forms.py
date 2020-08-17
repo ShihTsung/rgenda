@@ -22,7 +22,7 @@ class DemandCreationForm(forms.Form):
     )
     level = forms.IntegerField(
         label=_('分級'),
-        widget=forms.widgets.Select(choices=((1, 1), (2, 2)))
+        widget=forms.widgets.Select(choices=((1, '正職人員'), (2, '資深正職人員')))
     )
 
 

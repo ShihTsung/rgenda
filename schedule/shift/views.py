@@ -21,15 +21,6 @@ def shift_create(request):
         form = ShiftCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            last_shift = Shift.objects.last()
-            for i in range(1, 5):
-                demand = DemandOfStation.objects.create(
-                    shift=last_shift,
-                    level=i,
-                    weekday=0,
-                    holiday=0
-                )
-                demand.save()
             return redirect('/shifts/list')
 
     context = {'form': form}
@@ -84,5 +75,5 @@ def shift_delete(request, id=None):
 
 
 def get_shifts(department):
-    shifts = Shift.objects.filter(department=department, shift_type__in=['白班', '小夜', '大夜'])
+    shifts = Shift.objects.filter(department=department, shift_type__in=[0, 1, 2])
     return shifts
