@@ -35,6 +35,7 @@ def initial(request):
     PreResult.objects.all().delete()
     AfterResult.objects.all().delete()
     DemandOfStation.objects.all().delete()
+    DemandUserTable.objects.all().delete()
 
 # departments
     print('create departments')
@@ -140,13 +141,13 @@ def initial(request):
         newday.save()
         daystmp += datetime.timedelta(days=1)
 # station
-    names = ['護理站1F', '護理站2F', '休假']
+    names = ['護理站1F', '護理站2F', '休假', '公假']
 
     print('create station')
-    for i in range(3):
+    for name in names:
         station = Station.objects.create(
             department=Department.objects.first(),
-            name=names[i],
+            name=name,
         )
 
 # demands
