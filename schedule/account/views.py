@@ -85,12 +85,12 @@ def userList(request):
         for user in users:
             if user.role == 'manager':
                 manager_num[user.departmant.detail] += 1
-        departments = [
-            department.name for department in Department.objects.all()]
+        departments = [department.detail for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
         if row0 != (None, '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
             messages.error(request, row0)
+            print(row0)
             return redirect('/accounts/list')
         for row in ws.iter_rows(values_only=True, min_row=2):
             if row[0] == '範例':
@@ -174,74 +174,79 @@ def check_excel(row, users, departments, eids, manager_num, data):
         'Nn': 5,
     }
     user_type_dict = {
-        '': '',
+        '正職人員': 0,
+        '資深正職人員': 1,
+        '行政職人員': 2,
+        '新進人員': 3,
+        '兼職人員': 4,
+        '實習生': 5,
     }
     if not row[1]:
         return 'END'
     if row[1] in users:
-        return '第' + row[0] + '筆 "帳號"重複'
+        return '第' + str(row[0]) + '筆 "帳號"重複'
     users.append(row[1])
 
     if not row[2]:
-        return '第' + row[0] + '筆 "密碼"不可空白'
+        return '第' + str(row[0]) + '筆 "密碼"不可空白'
 
     if not row[3]:
-        return '第' + row[0] + '筆 "電子信箱"不可空白'
+        return '第' + str(row[0]) + '筆 "電子信箱"不可空白'
     if '@' not in row[3]:
-        return '第' + row[0] + '筆 "電子信箱"格式不符'
+        return '第' + str(row[0]) + '筆 "電子信箱"格式不符'
 
     if not row[4]:
-        return '第' + row[0] + '筆 "員工編號"不可空白'
+        return '第' + str(row[0]) + '筆 "員工編號"不可空白'
     if row[4] in eids:
-        return '第' + row[0] + '筆 "員工編號"重複'
+        return '第' + str(row[0]) + '筆 "員工編號"重複'
     eids.append(row[4])
 
     if not row[5]:
-        return '第' + row[0] + '筆 "姓名"不可空白'
+        return '第' + str(row[0]) + '筆 "姓名"不可空白'
 
     if not row[6]:
-        return '第' + row[0] + '筆 "科別"不可空白'
+        return '第' + str(row[0]) + '筆 "科別"不可空白'
     if not row[6] in departments:
-        return '第' + row[0] + '筆 "科別"不存在'
+        return '第' + str(row[0]) + '筆 "科別"不存在'
 
     if not row[8]:
-        return '第' + row[0] + '筆 "職級"不可空白'
+        return '第' + str(row[0]) + '筆 "職級"不可空白'
     if not row[8] in ['N1', 'N2', 'N3', 'N4', 'Nn']:
-        return '第' + row[0] + '筆 "職級"格式不符'
+        return '第' + str(row[0]) + '筆 "職級"格式不符'
 
     if not row[9]:
-        return '第' + row[0] + '筆 "性別"不可空白'
+        return '第' + str(row[0]) + '筆 "性別"不可空白'
     if not row[9] in ['男', '女']:
-        return '第' + row[0] + '筆 "性別"請填 男/女'
+        return '第' + str(row[0]) + '筆 "性別"請填 男/女'
 
     if not row[10]:
-        return '第' + row[0] + '筆 "權限"不可空白'
+        return '第' + str(row[0]) + '筆 "權限"不可空白'
     if not row[10] in ['管理員', '使用者']:
-        return '第' + row[0] + '筆 "權限"請填 管理員/使用者'
+        return '第' + str(row[0]) + '筆 "權限"請填 管理員/使用者'
     if row[10] == '管理員':
         manager_num[row[6]] += 1
         if manager_num[row[6]] > 2:
-            return '第' + row[0] + '筆 該科管理員人數超過2位'
+            return '第' + str(row[0]) + '筆 該科管理員人數超過2位'
 
     if not row[11]:
-        return '第' + row[0] + '筆 "排班身份"不可空白'
+        return '第' + str(row[0]) + '筆 "排班身份"不可空白'
     if not row[11] in ['資深正職人員', '正職人員', '行政職人員', '新進人員', '兼職人員', '實習生']:
-        return '第' + row[0] + '筆 "排班身份"請填 資深正職人員/正職人員/行政職人員/新進人員/兼職人員/實習生'
+        return '第' + str(row[0]) + '筆 "排班身份"請填 資深正職人員/正職人員/行政職人員/新進人員/兼職人員/實習生'
 
     if not row[12]:
-        return '第' + row[0] + '筆 "其他"不可空白'
-    if not row[12] in ['無', '妊娠、哺乳期']:
-        return '第' + row[0] + '筆 "其他"請填 無/妊娠、哺乳期'
+        return '第' + str(row[0]) + '筆 "其他"不可空白'
+    if not row[12] in ['無', '妊娠或哺乳期']:
+        return '第' + str(row[0]) + '筆 "其他"請填 無/妊娠或哺乳期'
 
     if not row[13]:
-        return '第' + row[0] + '筆 "排班狀況"不可空白'
+        return '第' + str(row[0]) + '筆 "排班狀況"不可空白'
     if not row[13] in ['正常排班', '暫停排班']:
-        return '第' + row[0] + '筆 "其他"請填 正常排班/暫停排班'
+        return '第' + str(row[0]) + '筆 "其他"請填 正常排班/暫停排班'
 
     if not row[14]:
-        return '第' + row[0] + '筆 "到職日"不可空白'
+        return '第' + str(row[0]) + '筆 "到職日"不可空白'
     if not type(row[14]) is datetime:
-        return '第' + row[0] + '筆 "到職日"格式不符'
+        return '第' + str(row[0]) + '筆 "到職日"格式不符'
 
     data[row[1]] = {
         'password': row[2],
@@ -253,7 +258,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
         'gender': 'M' if row[9] == '男' else 'F',
         'role': 'manager' if row[10] == '管理員' else 'user',
         'user type': user_type_dict[row[11]],
-        'pregnant': True if row[12] == '妊娠、哺乳期' else False,
+        'pregnant': True if row[12] == '妊娠或哺乳期' else False,
         'can be scheduled': True if row[13] == '正常排班' else False,
         'onboard date': row[14],
     }
