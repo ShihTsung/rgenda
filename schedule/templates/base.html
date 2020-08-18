@@ -616,7 +616,9 @@
 
       // tooltips
       $(function () {
-        $('[data-tooltip="tooltip"]').tooltip()
+        $('body').tooltip({
+          selector: '[data-tooltip="tooltip"]'
+        });
       })
     </script>
 
