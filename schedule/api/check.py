@@ -1,6 +1,7 @@
 from date.models import H_Calendar
 from account.models import CustomUser as User
 from account.models import Department
+from copy import deepcopy
 from scripts.get_date_range import *
 from datetime import time, datetime, timedelta, date
 from collections import defaultdict
@@ -19,18 +20,20 @@ def check_result(d_id, month_to_check=None):
             date__month=month_to_check).order_by('date')
     else:
         results = PreResult.objects.order_by('date')
-        month_to_check = results[0].date.month
     to_check = defaultdict(list)
     for result in results:
         # print('check_result', type(result))
         to_check[result.user.id].append(result)
     department = Department.objects.get(id=d_id)
     for user_id, schedule in to_check.items():
-        check_cycle(department, schedule, invalid)
-        check_rest_day(department, schedule, invalid)
-        check_rest_hour(schedule, invalid)
+        check_cycle(department, deepcopy(schedule), invalid)
+        check_rest_day(department, deepcopy(schedule), invalid)
+        check_rest_hour(deepcopy(schedule), invalid)
         if User.objects.get(id=user_id).pregnant:
-            check_hour_pregnant(schedule, invalid)
+            check_hour_pregnant(deepcopy(schedule), invalid)
+    invalid = dict(invalid)
+    for result_id, inv in invalid.items():
+        print(result_id, inv)
     return invalid
 
 
@@ -44,37 +47,35 @@ def check_cycle(department, results, invalid):
     """
     date0 = results[0].date
     user = results[0].user
-    results = [x for x in results]
 
     # 單週同班種
     if department.schedule_rule == 0:
-        # temp_results = results.copy()
-        temp_results = [result for result in results]
         ca = cycle_analysis(department, date0)
         current_shift_type = None
         i = ca['day_no']
         for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
             if d < date0:
                 try:
-                    temp_results.insert(
-                        0, Result.objects.get(date=d, user=user))
+
+                    results.insert(0, Result.objects.get(date=d, user=user))
+
                     i -= 1
                 except:
                     break
             else:
                 break
-        for result in temp_results:
+        for result in results:
             if i % 7 == 0:
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
                 current_shift_type = result.shift.shift_type
-            elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result in results:
+            elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result.date >= date0:
                 invalid[result.id].append('unique shift type in a week')
             i += 1
         return None
-    # 單月/三月同班種
-    current_shift_type = None
+    # 三月同班種 & 需與前一個月同班種
     if department.schedule_rule == 2 and date0.month % 3 != department.month_cycle:
+        current_shift_type = None
         results_last_month = Result.objects.filter(date__month=results[0].date.month - 1,
                                                    user=user,
                                                    shift__shift_type__in=[0, 1, 2])
@@ -85,10 +86,23 @@ def check_cycle(department, results, invalid):
             if shift_types.count(st) > counter:
                 counter = shift_types.count(st)
                 current_shift_type = st
+        for result in results:
+            if result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
+                invalid[result.id].append('unique shift type in a week')
+        return None
+    # 單月同班種 or 三月同班種且為第一個月
+    shift_types = [
+        result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2]]
+    counter = 0
+    current_shift_type = None
+    for st in [0, 1, 2]:
+        if shift_types.count(st) > counter:
+            counter = shift_types.count(st)
+            current_shift_type = st
+    invalid_type = [0, 1, 2]
+    invalid_type.remove(current_shift_type)
     for result in results:
-        if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
-            current_shift_type = result.shift.shift_type
-        elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
+        if result.shift.shift_type in invalid_type:
             invalid[result.id].append('unique shift type in a week')
     return None
 
@@ -108,12 +122,13 @@ def check_rest_day(department, results, invalid):
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
     ca = cycle_analysis(department, date0)
-    temp_results = [x for x in results]
+    ind = ca['day_no']
     # add previous results to make a complete cycle
     for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
         if d < date0:
             try:
-                temp_results.insert(0, Result.objects.get(date=d, user=user))
+                results.insert(0, Result.objects.get(date=d, user=user))
+                ind -= 1
             except:
                 break
         else:
@@ -129,9 +144,10 @@ def check_rest_day(department, results, invalid):
         else:
             continue_workday = 0
     # start checking
-    work_days_limit = 5 * 2 ** department.law_rule
+    work_days_limit = 5 * 2 ** department.law_rule * \
+        (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
     work_days = 0
-    for ind, result in enumerate(temp_results):
+    for result in results:
         if ind % (5 * 2 ** department.law_rule) == 0:
             work_days_limit = 5 * 2 ** department.law_rule
             work_days = 0
@@ -150,6 +166,7 @@ def check_rest_day(department, results, invalid):
             invalid[result.id].append('workday too much in the cycle')
         if holiday_rest_remain < 0:
             invalid[result.id].append('holiday rest out of limit')
+        ind += 1
     return None
 
 

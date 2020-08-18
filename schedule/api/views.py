@@ -526,7 +526,7 @@ class DemandViewSet(viewsets.ModelViewSet):
                 station=serializer.data['station'],
                 shift=serializers.data['shift'],
                 level=serializers.data['level']
-                )
+            )
             return Response({'message': 'already exist'})
         except:
             serializer.is_valid(raise_exception=True)
@@ -683,10 +683,7 @@ def check_result_api(request):
         department = request.query_params.get('department')
         month = request.query_params.get('month')
 
-        test = check_result(department, int(month))
-
-        res_data = dict(test)
-        res_data['message'] = "Hello, world!"
+        res_data = check_result(department, int(month))
     return Response(res_data)
 
 
