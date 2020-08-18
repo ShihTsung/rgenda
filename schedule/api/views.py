@@ -532,15 +532,19 @@ class DemandViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, pk=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.validated_data
+        print(d)
+        station = Station.objects.get(id=d['station'].id)
+        shift = Shift.objects.get(id=d['shift'].id)
         try:
             DemandOfStation.objects.get(
-                station=serializer.data['station'],
-                shift=serializers.data['shift'],
-                level=serializers.data['level']
+                station=station,
+                shift=shift,
+                level=d['level']
             )
             return Response({'message': 'already exist'})
         except:
-            serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(
