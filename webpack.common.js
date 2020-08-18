@@ -12,6 +12,7 @@ module.exports = {
     'notice-list': './navbar/notice-list.js',
     'department-list': './department/department-list.js',
     'account-detail': './accounts/account-detail.js',
+    'demand-list': './demands/list.js',
     'rgenda': './rgenda.scss',
   },
   output: {

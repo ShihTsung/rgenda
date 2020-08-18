@@ -178,5 +178,6 @@ class ExchangeApplication(models.Model):
     remark = models.CharField(
         verbose_name=_('Remark'),
         null=True,
+        default="",
         max_length=100,
     )

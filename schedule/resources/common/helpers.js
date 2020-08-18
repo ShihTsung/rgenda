@@ -20,6 +20,10 @@ export const size = (value) => {
 
 export const httpRep = {
   messageJoin: arrObj => {
+    if (typeof arrObj === 'string') {
+      return arrObj;
+    }
+
     let msgString = '';
     for (var prop in arrObj) {
       if (arrObj.hasOwnProperty(prop)) {
@@ -28,6 +32,7 @@ export const httpRep = {
         msgString += `<p>${msgArr}</p>`;
       }
     }
+
     return msgString;
   }
 };

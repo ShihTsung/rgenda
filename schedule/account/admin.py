@@ -26,6 +26,7 @@ class CustomUserAdmin(UserAdmin):
 
 class DepartmentAdmin(admin.ModelAdmin):
     model = Department
+    list_display = ['id', 'name', 'detail']
 
 # class LevelAdmin(admin.ModelAdmin):
 #     model = Level

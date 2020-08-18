@@ -90,7 +90,7 @@
                   <h2 class="month">&nbsp;[[month]]月</h2>
               </div>
               <div class="bt_group">
-                  <div class="icon-bts" v-if="edit">
+                  <div class="icon-bts" v-if="edit" @click="followEdit = true">
                       <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M.002 20h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619zm20.498-7c-1.932 0-3.5 1.567-3.5 3.5s1.568 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.568-3.5-3.5-3.5zm1.5 4h-1v1h-1v-1h-1v-1h1v-1h1v1h1v1zm-4.814 3h-9.183l-.003-.829c0-1.679.133-2.649 2.118-3.107 2.243-.518 4.458-.981 3.394-2.945-3.156-5.82-.901-9.119 2.488-9.119 4.06 0 4.857 4.119 3.085 7.903-1.972.609-3.419 2.428-3.419 4.597 0 1.38.589 2.619 1.52 3.5z"/></svg>
                   </div>
                   <div class="mark_group icon-bts" v-if="edit">
@@ -109,7 +109,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="icon-bts" v-if="edit" @click="edit = false">
+                  
+                  <div class="icon-bts" v-if="edit" @click="sendToResults()">
                     <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z"/></svg>
                   </div>
                   <div class="icon-bts" @click="edit = true" v-if="!edit">
@@ -196,7 +197,7 @@
                     <td>天</td>
                   </tr>
                 
-                  <!-- v-if="!isReady" -->
+                  
                   <tr v-if="!isReady" class="user-row" v-for="u in userData" :key="u">
                       <td class="white-background" style="width: 75px">-</td>  
                       <td class="white-background" style="width: 30px">-</td>                     
@@ -222,7 +223,7 @@
                       <td class="white-background">-</td>
 
                   </tr>
-                  <!-- v-if="isReady" -->
+                  
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
                     <td class="white-background" style="width: 30px">[[u.level]]</td>
@@ -349,7 +350,7 @@
           </h4>
           <select class="category-option" v-model="item">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option v-for="item in whichCategory(this.selected)" :key="item">[[item.name]]</option>
+            <option v-for="item in whichCategory(this.selected)" :key="item" :value="item.shift_type + item.name">[[item.name]]</option>
           </select>
         </div>
         <div class="editCategory" v-if="this.selected == 'shift'">
@@ -358,7 +359,7 @@
           </h4>
           <select class="category-option" v-model="station">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option v-for="station in stationData" :key="station">[[station.name]]</option>
+            <option v-for="station in stationData" :key="station" :value="station.id">[[station.name]]</option>
           </select>
         </div>
         <div class="btn-position">
@@ -366,6 +367,40 @@
           <button class="cate-btn" @click="editResult($event)">儲存</button>
         </div>
         
+      </div>
+      <div class='follow' v-if="edit && followEdit">
+        <h3 class="c-title">
+          編輯跟班
+        </h3>
+        <div @click="followEdit = false" class='cross'>
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
+        </div>
+        <div class="editCategory">
+          <h4 class="category-title">
+            跟班
+          </h4>
+          <select class="category-option">
+            <option selected disabled="disabled"  style='display: none' value=''></option>
+            <option>新進</option>
+            <option>兼職</option>
+            <option>實習生</option>
+          </select>
+        </div>
+        <div class="editCategory">
+          <h4 class="category-title">
+            帶班
+          </h4>
+          <select class="category-option">
+            <option selected disabled="disabled"  style='display: none' value=''></option>
+            <option>資深正職</option>
+            <option>正職</option>
+            <option>行政職</option>
+          </select>
+        </div>
+        <div class="btn-position">
+          <button class="cate-btn" @click="followEdit = false">取消</button>
+          <button class="cate-btn">儲存</button>
+        </div>
       </div>
     </div>
   </div>
@@ -398,16 +433,19 @@
       stationData: Array,
       remark: Array,
       singleEdit: false,
-      changedResult: Array,
-      item: String,
-      station: String,
+      changedResult: [],
+      changeInfo: Object,
+      item: -1,
+      station: -1,
+      obj: {},
+      followEdit: false,
     },
     mounted(){
         fetch('/api/users/?mode=resource')
         .then(res=>{
           return res.json();
         }).then(data=>{
-          console.log(data);
+          // console.log(data);
           this.userNumber = data.length;
           this.userData = data;
         }).catch(err=>{
@@ -421,7 +459,7 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          console.log(data);
+          // console.log(data);
           this.shiftData = data;
         }).catch(err=>{
           console.log(err);
@@ -431,12 +469,13 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          console.log(data);
+          // console.log(data);
           this.stationData = data;
         }).catch(err=>{
           console.log(err);
         });
     },
+    
     methods : {
 
       getYear(y,m) {
@@ -470,7 +509,7 @@
         .then((res)=>{
           return res.json();
         }).then((data)=>{
-          console.log(data);
+          // console.log(data);
           this.resultData = data;
           if(this.resultData.length != 0){
             this.isReady = true;
@@ -488,7 +527,7 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          console.log(data);
+          // console.log(data);
           this.adjustHr = data;
         }).catch(err=>{
           console.log(err);
@@ -713,18 +752,150 @@
       },
 
       editShift(ev, info) {
-        console.log(info);
         if(this.edit == true && (ev.target.parentElement.className.split(' ')[1]) == 'futureDay') {
           this.singleEdit = true;
+          this.changeInfo = info;
         }else {
           this.singleEdit = false;
         };
-        
       },
 
       editResult(ev) {
-        this.singleEdit = false
-        console.log(ev);
+        let type = '';
+        let stationArr = [];
+        let name = this.item[1] + this.item[2];
+        
+        console.log(this.item[0]);
+        // console.log(name);
+        this.singleEdit = false;
+        
+        this.obj.date = this.changeInfo.date;
+        this.obj.id = this.changeInfo.id;
+        this.obj.shift = parseInt(this.item[0]);
+        if(this.station != -1) {
+          this.obj.station = this.station;
+        }
+        this.obj.user = this.changeInfo.user;
+        this.changedResult.push(this.obj);//之後丟去api修正
+
+        //shift id to shift type
+        switch (this.obj.shift) {
+          case 0:
+            type = 'A';
+            break;
+          case 1:
+            type = 'E';
+            break;
+          case 2:
+            type = 'N';
+            break;
+          case 3:
+            type = '公';
+            break;
+          case 4:
+            type = 'On';
+            break;
+          case 5:
+            switch (name) {
+              case '休息':
+                type = '休';
+                break;
+              case '例假':
+                type = '例';
+                break;
+              case '補休':
+                type = '補';
+                break;
+              case '特休':
+                type = '特';
+                break;
+              case '空班':
+                type = '空';
+                break;
+              case '婚假':
+                type = '婚';
+                break;
+              case '喪假':
+                type = '喪';
+                break;
+              case '產假':
+                type = '產';
+                break;
+              case '生理'://生理假
+                type = '生';
+                break;
+              case '國定'://國定假日
+                type = '國';
+                break;
+              default:
+                console.log(name);
+                break;
+            };
+            break;
+          case 6:
+            switch (name) {
+              case '無薪'://無薪病假
+                type = '病';
+                break;
+              case '事假':
+                type = '事';
+                break;
+              case '家庭'://家庭照顧假
+                type = '家';
+                break;
+              default:
+                console.log(name);
+                break;
+            };
+            break;
+          default:
+            type = '?';
+            break;
+        };
+
+        //前端顯示修正
+        
+        this.resultData[this.resultData.indexOf(this.changeInfo)].shift_type = type;
+        
+        
+        this.changeInfo = {};
+        this.item = -1;
+        this.station = -1;
+        this.obj = {};
+
+      },
+
+      sendToResults() {
+        this.edit = false;
+        this.followEdit = false;
+        this.changedResult.forEach((i)=>{
+          let data = {};
+          data.user = i.user;
+          data.shift = i.shift;
+          data.date = i.date;
+          if(i.station){
+            data.station = i.station;
+          }
+          
+          this.url = "http://localhost/api/results/" + i.id + '/';
+
+          fetch(this.url, {
+            headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            method: 'PATCH',
+          })
+          .then((res)=>{
+            return res.json();
+          }).catch((err)=>{
+            console.log(err);
+          });
+        });
+
+        this.changedResult.length = 0;
+        console.log(this.changedResult);
       }
     },
     
@@ -1459,6 +1630,16 @@
       cursor: pointer;
       fill: #37419A;
     }
+    .follow {
+      width: 27vw;
+      height: 400px;
+      background: white;
+      position: absolute;
+      top: 25vh;
+      left: 28vw;
+      border-radius: 2px;
+      box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    }
     .c-title {
       color: #37419A;
       text-align: center;
@@ -1573,6 +1754,7 @@
     .white-background {
       background: white;
     }
+    
     /* html {
       width: 100%;
       height: 100%;

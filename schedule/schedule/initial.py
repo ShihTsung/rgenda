@@ -194,10 +194,10 @@ def initial(request):
             demand=demand3,
             user=User.objects.get(id=i+7)
         )
-    demand_user = DemandUserTable.objects.create(
-        demand=demand2,
-        user=User.objects.get(id=10)
-    )
+        demand_user = DemandUserTable.objects.create(
+            demand=demand2,
+            user=User.objects.get(id=10)
+        )
 
     # # 班表假資料
     # department = Department.objects.first()
