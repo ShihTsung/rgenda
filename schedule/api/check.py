@@ -5,7 +5,7 @@ from scripts.get_date_range import *
 from datetime import time, datetime, timedelta, date
 from collections import defaultdict
 from date.models import H_Calendar
-from result.models import Result
+from result.models import Result, PreResult
 from account.views import cycle_analysis, get_cycle, assign_user
 
 
@@ -13,12 +13,12 @@ def check_result(d_id, month_to_check=None):
     """
     """
     invalid = defaultdict(list)
-    demand_unsatisfied = defaultdict()
+    # demand_unsatisfied = defaultdict()
     if month_to_check:
         results = Result.objects.filter(
             date__month=month_to_check).order_by('date')
     else:
-        results = Result.objects.order_by('date')
+        results = PreResult.objects.order_by('date')
         month_to_check = results[0].date.month
     to_check = defaultdict(list)
     for result in results:
@@ -31,7 +31,7 @@ def check_result(d_id, month_to_check=None):
         check_rest_hour(schedule, invalid)
         if User.objects.get(id=user_id).pregnant:
             check_hour_pregnant(schedule, invalid)
-    return invalid,
+    return invalid
 
 
 def check_cycle(department, results, invalid):
@@ -52,13 +52,16 @@ def check_cycle(department, results, invalid):
         temp_results = [result for result in results]
         ca = cycle_analysis(department, date0)
         current_shift_type = None
-        for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
+        i = ca['day_no']
+        for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
             if d < date0:
-                temp_results.insert(
-                    i, Result.objects.get(date=d, user=user))
+                try:
+                    temp_results.insert(0, Result.objects.get(date=d, user=user))
+                    i -= 1
+                except:
+                    break
             else:
                 break
-        i = 0
         for result in temp_results:
             if i % 7 == 0:
                 current_shift_type = None
@@ -106,10 +109,12 @@ def check_rest_day(department, results, invalid):
     ca = cycle_analysis(department, date0)
     temp_results = [x for x in results]
     # add previous results to make a complete cycle
-    for i, d in enumerate(get_cycle(department, ca['cycle_no'])):
+    for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
         if d < date0:
-            temp_results.insert(i, Result.objects.get(
-                date=d, user=user))
+            try:
+                temp_results.insert(0, Result.objects.get(date=d, user=user))
+            except:
+                break
         else:
             break
     # get continue workday number
@@ -154,17 +159,20 @@ def check_rest_hour(results, invalid):
     :param invalid:
     :return:
     """
-    last_result = Result.objects.get(
-        user=results[0].user, date=results[0].date - timedelta(days=1))
-    last_off_time = datetime.combine(
-        last_result.date, time(hour=0, minute=0, second=0))
-    if last_result.shift.shift_type in [0, 1, 2]:
-        if last_result.shift.start_time > last_result.shift.end_time:
-            last_off_time = datetime.combine(
-                last_result.date, last_result.shift.end_time) + timedelta(days=1)
-        else:
-            last_off_time = datetime.combine(
-                last_result.date, last_result.shift.end_time)
+    try:
+        last_result = Result.objects.get(
+            user=results[0].user, date=results[0].date - timedelta(days=1))
+        last_off_time = datetime.combine(
+            last_result.date, time(hour=0, minute=0, second=0))
+        if last_result.shift.shift_type in [0, 1, 2]:
+            if last_result.shift.start_time > last_result.shift.end_time:
+                last_off_time = datetime.combine(
+                    last_result.date, last_result.shift.end_time) + timedelta(days=1)
+            else:
+                last_off_time = datetime.combine(
+                    last_result.date, last_result.shift.end_time)
+    except:
+        last_off_time = datetime.combine(results[0].date, time(hour=0, minute=0, second=0)) - timedelta(days=1)
     for result in results:
         if result.shift.shift_type in [0, 1, 2]:
             start_time = datetime.combine(result.date, result.shift.start_time)
