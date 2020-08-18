@@ -616,7 +616,10 @@
 
       // tooltips
       $(function () {
-        $('[data-tooltip="tooltip"]').tooltip()
+        $('body').tooltip({
+          selector: '[data-tooltip="tooltip"]',
+          trigger: 'hover',
+        });
       })
     </script>
 

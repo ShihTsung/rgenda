@@ -44,3 +44,7 @@ docker 指令：
     2.啟動： docker-compose up
     3.啟動並重新建立容器： docker-compose up --build
     4.關閉：docker-compose down
+
+網址列指令：
+    1. /init: 資料庫初始化
+    2. /results/create_result/department_id/YYYY-MM-DD/YYYY-MM-DD: 建立從日期一到日期二的排班結果

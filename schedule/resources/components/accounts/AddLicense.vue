@@ -220,7 +220,7 @@ export default {
           // handle error
           popup.error({
             title: error.title,
-            html: typeof error.message === 'string' ? error.message : httpRep.messageJoin(error.message),
+            html: httpRep.messageJoin(error.message),
           });
           console.log(error);
         });
@@ -243,7 +243,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-
-</style>
