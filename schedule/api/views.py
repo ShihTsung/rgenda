@@ -20,7 +20,7 @@ from .serializers import *
 from notifications.models import Notification
 
 # models
-from account.models import CustomUser, Department, Liscense
+from account.models import CustomUser, Department, Liscense, DepartmentManager
 from station.models import Station
 from shift.models import Shift
 from date.models import H_Calendar
@@ -231,6 +231,17 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetDepartmentSerializer
+        return DepartmentSerializer
+
+
+class DepartmentManagerViewSet(viewsets.ModelViewSet):
+    queryset = DepartmentManager.objects.all()
+    serializer_class = DepartmentManagerSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
