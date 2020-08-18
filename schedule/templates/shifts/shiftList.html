@@ -40,7 +40,7 @@
 
   <!-- 搜尋欄 -->
   <span id="searchbar" class="d-flex">
-      
+
       <i class="fa fa-search"></i>
     <input type="text" class="form-input" id="myInput" placeholder="Search by ">
     <select  class="selectpicker" data-style="btn-info" id="condition" onchange="printOption()">
@@ -48,7 +48,7 @@
       <option class="dropdown-item" value={{index}} text={{field}}>{{field}}</a>
       {% endfor %}
     </select>
-  </span> 
+  </span>
   <!-- 搜尋欄end -->
 
 <table class="table table-striped text-center" id="myTable">
@@ -67,6 +67,7 @@
     </thead>
     <tbody>
       {% for shift in shifts %}
+      {% if not shift.name in '休息, 例假, 公假, oncall'%}
       <tr idx="{{shift.id}}">
         <td class="name">{{shift.name}}</td>
         <td>{{shift.shift_type}}</td>
@@ -74,6 +75,7 @@
         <td>{{shift.end_time|time:'H:i'}}</td>
         <td>{{shift.department}}</td>
         <td>{{shift.work_hours}}</td>
+
         {% if user.role in "admin,manager" or user.is_superuser %}
         <td>
           <a href="/shifts/update/{{shift.id}}">
@@ -81,6 +83,7 @@
           </a>
           <button class="btn btn-delete btn-danger" type="button" data-toggle="modal" data-target="#modal-delete" value="{{ shift.id }}"><i class="fa fa-trash-alt"></i></button>
         </td>
+        {% endif %}
         {% endif %}
       </tr>
       {% endfor %}
@@ -134,7 +137,7 @@
   let sid = 0
   let inputBox = document.getElementById("myInput");
   inputBox.addEventListener('keyup',searchFilter);
-  
+
   document.addEventListener("DOMContentLoaded", function(event) {
     // Your code to run since DOM is loaded and ready
     let id = "#";
@@ -154,7 +157,7 @@
     optiontext = cond.options[cond.selectedIndex].text;
     document.getElementById('myInput').placeholder = "search by " + optiontext;
   });
-  
-  
+
+
 </script>
 {% endblock %}

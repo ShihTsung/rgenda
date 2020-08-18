@@ -186,6 +186,12 @@ class CustomUser(AbstractUser):
         verbose_name=_('到職日'),
         null=True)
 
+    compensatory_rest = models.IntegerField(
+        verbose_name=_('剩餘補休'),
+        default=0,
+        null=True
+    )
+
     def __str__(self):
         return self.username
 

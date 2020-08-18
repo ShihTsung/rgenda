@@ -3,7 +3,9 @@ from django.shortcuts import render
 
 # restframework
 from rest_framework import viewsets, generics, permissions, status
-from rest_framework.decorators import action, api_view, parser_classes
+from rest_framework.decorators import (
+    action, api_view, parser_classes,
+    permission_classes)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
@@ -78,6 +80,10 @@ department = openapi.Parameter('department', openapi.IN_QUERY,
                                description="科別", type=openapi.TYPE_STRING)
 usertype = openapi.Parameter('type', openapi.IN_QUERY,
                              description="排班身份類型", type=openapi.TYPE_STRING)
+follower = openapi.Parameter('follower', openapi.IN_QUERY,
+                             description="跟班者", type=openapi.TYPE_STRING)
+mentor = openapi.Parameter('mentor', openapi.IN_QUERY,
+                           description="帶班者", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -278,6 +284,7 @@ class StationViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetStationSerializer
         return StationSerializer
+
     @swagger_auto_schema(
         operation_summary='刪除工作站',
     )
@@ -510,6 +517,27 @@ class DemandViewSet(viewsets.ModelViewSet):
         return DemandSerializer
 
     @swagger_auto_schema(
+        operation_summary='新增Demand',
+    )
+    def create(self, request, pk=None, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            DemandOfStation.objects.get(
+                station=serializer.data['station'],
+                shift=serializers.data['shift'],
+                level=serializers.data['level']
+            )
+            return Response({'message': 'already exist'})
+        except:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers)
+
+    @swagger_auto_schema(
         operation_summary='刪除Demand',
     )
     def destroy(self, request, pk=None, *args, **kwargs):
@@ -613,13 +641,19 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = ExchangeApplicationSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetExchangeApplicationSerializer
+        return ExchangeApplicationSerializer
+
     def get_queryset(self):
+        queryset = ExchangeApplication.objects.all()
         if self.request.query_params:
             mode = self.request.query_params.get('mode')
             if mode == 'personal':
-                return ExchangeApplication.objects.filter(
+                queryset = queryset.filter(
                     user_receive=self.request.user)
-        return ExchangeApplication.objects.all()
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='刪除調班',
@@ -634,11 +668,14 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
         )
 
 # 排班檢查 api
+
+
 @swagger_auto_schema(
     methods=['get', 'post'],
     operation_summary='檢查排班結果，回傳有問題的班',
 )
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 @parser_classes([JSONParser])
 def check_result_api(request):
     res_data = {}
@@ -676,6 +713,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     operation_summary='取得指定期間，每天三班的總人數',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 @parser_classes([JSONParser])
 def total_per_day_api(request):
     results = {}
@@ -708,6 +746,7 @@ def total_per_day_api(request):
     operation_summary='把所有通知標為已讀',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 @parser_classes([JSONParser])
 def mark_all_notices_read(request):
     notices = Notification.objects.all()
@@ -777,6 +816,7 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
     operation_summary='前月班表紀錄',
     manual_parameters=[month_head])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 @parser_classes([JSONParser])
 def last_month_continue(request):
     department = request.user.department
@@ -824,3 +864,40 @@ class DemandUserTableViewset(viewsets.ModelViewSet):
             data=res,
             status=status.HTTP_200_OK,
         )
+
+
+@swagger_auto_schema(
+    methods=['get', ],
+    operation_summary='跟班設定',
+    manual_parameters=[start_date, end_date, follower, mentor]
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser])
+def follow_shift_api(request):
+    mentor = request.query_params.get('mentor')
+    follower = request.query_params.get('follower')
+    start = request.query_params.get('start')
+    end = request.query_params.get('end')
+    mentor_object = CustomUser.objects.get(id=int(mentor))
+    follower_object = CustomUser.objects.get(id=int(follower))
+    mentor_results = Result.objects.filter(
+        user=mentor_object,
+        date__range=[start, end]
+    )
+    Result.objects.filter(
+        user=follower_object,
+        date__range=[start, end]
+    ).delete()
+    for r in mentor_results:
+        Result.objects.create(
+            user=follower_object,
+            date=r.date,
+            station=r.station,
+            shift=r.shift
+        )
+
+    return Response(
+        data={'status': 'success'},
+        status=status.HTTP_200_OK,
+    )

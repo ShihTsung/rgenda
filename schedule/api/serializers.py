@@ -11,7 +11,7 @@ from result.models import (Result, PreResult,
                            ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 from remarks.models import UserRemark, RemarkSquare, ResultRemark
-
+import datetime
 # 部門/科別
 
 
@@ -388,7 +388,8 @@ class GetDemandSerializer(serializers.ModelSerializer):
             res.append({
                 'id': p.user.id,
                 'full_name': p.user.full_name,
-                'level': level})
+                'level': level,
+                'demand_user_id': p.id})
         return res
 
     class Meta:
@@ -444,6 +445,38 @@ class ExchangeApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeApplication
         fields = '__all__'
+
+
+class GetExchangeApplicationSerializer(serializers.ModelSerializer):
+    apply_result = serializers.SerializerMethodField()
+    receive_result = serializers.SerializerMethodField()
+
+    def get_apply_result(self, obj):
+        # date = datetime.datetime.strptime(obj.date_start, '%Y-%m-%d').date()
+        date = obj.date_start
+        try:
+            ret = Result.objects.get(user=obj.user_apply, date=date)
+            ret = GetResultSerializer(ret)
+        except:
+            ret = ''
+        return ret
+
+    def get_receive_result(self, obj):
+        # date = datetime.datetime.strptime(obj.date_start, '%Y-%m-%d').date()
+        date = obj.date_start
+        try:
+            ret = Result.objects.get(user=obj.user_receive, date=date)
+            ret = GetResultSerializer(ret)
+        except:
+            ret = ''
+        return ret
+
+    class Meta:
+        model = ExchangeApplication
+        fields = (
+            'id', 'user_apply', 'user_receive',
+            'date_start', 'date_end', 'application_status',
+            'receive_result', 'apply_result')
 
 
 class NotificationSerializer(serializers.ModelSerializer):
