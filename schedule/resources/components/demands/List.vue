@@ -7,74 +7,79 @@
     <modal-add-demand
     :csrf-token="csrfToken"></modal-add-demand>
 
-    <div class="row mb-2">
-      <div class="col-12">
-        <div class="float-right">
-          <!-- 新增人力配置 -->
-          <a href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置" data-toggle="modal" data-target="#modalAddShift">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
-              <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
-          </a>
-          <!-- 、新增人力配置 -->
+    <div v-if="!editing">
+      <div class="row mb-2">
+        <div class="col-12">
+          <div class="float-right">
+            <!-- 新增人力配置 -->
+            <a href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置" data-toggle="modal" data-target="#modalAddShift">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
+            </a>
+            <!-- 、新增人力配置 -->
+          </div>
+        </div>
+      </div>
+      <div class="rol col-12 p-0" v-if="loaded && demands">
+        <table class="table table-bordered table-hover text-center rgenda-table shadow-none">
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2">工作站名</th>
+              <th scope="col" rowspan="2">班別</th>
+              <th scope="col" colspan="2">可排人員</th>
+              <th scope="col" colspan="3">配置一</th>
+              <th scope="col" colspan="3">配置二</th>
+              <th scope="col" rowspan="2" style="min-width: 120px">功能</th>
+            </tr>
+            <tr>
+              <th scope="col">資深正職</th>
+              <th scope="col">正職</th>
+              <th scope="col">資深正職</th>
+              <th scope="col">正職</th>
+              <th scope="col">小計</th>
+              <th scope="col">資深正職</th>
+              <th scope="col">正職</th>
+              <th scope="col">小計</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="(station, idx) in demands">
+              <tr v-for="shift in station" :key="['station', idx, shift.stationId, shift.shiftId].join('_')">
+                <td>{{ shift.stationName }}</td>
+                <td>{{ shift.shiftName }}</td>
+                <td v-html="userNames(shift.config[$getUserLevelValue('VALUE_SENIOR')].people)"></td>
+                <td v-html="userNames(shift.config[$getUserLevelValue('VALUE_NORMAL')].people)"></td>
+                <td>{{ shift.config[$getUserLevelValue('VALUE_SENIOR')].config1 }}</td>
+                <td>{{ shift.config[$getUserLevelValue('VALUE_NORMAL')].config1 }}</td>
+                <td>{{ usersOfConfig(shift.config[$getUserLevelValue('VALUE_SENIOR')].config1, shift.config[$getUserLevelValue('VALUE_NORMAL')].config1) }}</td>
+                <td>{{ shift.config[$getUserLevelValue('VALUE_SENIOR')].config2 }}</td>
+                <td>{{ shift.config[$getUserLevelValue('VALUE_NORMAL')].config2 }}</td>
+                <td>{{ usersOfConfig(shift.config[$getUserLevelValue('VALUE_SENIOR')].config2, shift.config[$getUserLevelValue('VALUE_NORMAL')].config2) }}</td>
+                <td>
+                  <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
+                  @click="beforeEditing(shift)">
+                    <i class="fas fa-edit"></i>
+                  </div>
+                  <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
+                  @click="comfirmDeletion(shift)">
+                    <i class="fa fa-trash-alt"></i></div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="noData">
+        <div class="row col-12 text-center">
+          <p class="form-control-plaintext">無資料</p>
         </div>
       </div>
     </div>
-
-    <div class="rol col-12 p-0" v-if="loaded && demands">
-      <table class="table table-bordered table-hover text-center rgenda-table shadow-none">
-        <thead>
-          <tr>
-            <th scope="col" rowspan="2">工作站名</th>
-            <th scope="col" rowspan="2">班別</th>
-            <th scope="col" colspan="2">可排人員</th>
-            <th scope="col" colspan="3">配置一</th>
-            <th scope="col" colspan="3">配置二</th>
-            <th scope="col" rowspan="2" style="min-width: 120px">功能</th>
-          </tr>
-          <tr>
-            <th scope="col">資深正職</th>
-            <th scope="col">正職</th>
-            <th scope="col">資深正職</th>
-            <th scope="col">正職</th>
-            <th scope="col">小計</th>
-            <th scope="col">資深正職</th>
-            <th scope="col">正職</th>
-            <th scope="col">小計</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(station, idx) in demands">
-            <tr v-for="shift in station" :key="['station', idx, shift.stationId, shift.shiftId].join('_')">
-              <td>{{ shift.stationName }}</td>
-              <td>{{ shift.shiftName }}</td>
-              <td v-html="userNames(shift.config[$getUserLevelValue('VALUE_SENIOR')].people)"></td>
-              <td v-html="userNames(shift.config[$getUserLevelValue('VALUE_NORMAL')].people)"></td>
-              <td>{{ shift.config[$getUserLevelValue('VALUE_SENIOR')].config1 }}</td>
-              <td>{{ shift.config[$getUserLevelValue('VALUE_NORMAL')].config1 }}</td>
-              <td>{{ usersOfConfig(shift.config[$getUserLevelValue('VALUE_SENIOR')].config1, shift.config[$getUserLevelValue('VALUE_NORMAL')].config1) }}</td>
-              <td>{{ shift.config[$getUserLevelValue('VALUE_SENIOR')].config2 }}</td>
-              <td>{{ shift.config[$getUserLevelValue('VALUE_NORMAL')].config2 }}</td>
-              <td>{{ usersOfConfig(shift.config[$getUserLevelValue('VALUE_SENIOR')].config1, shift.config[$getUserLevelValue('VALUE_NORMAL')].config2) }}</td>
-              <td>
-                <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯">
-                  <i class="fas fa-edit"></i>
-                </div>
-                <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
-                @click="comfirmDeletion(shift)">
-                  <i class="fa fa-trash-alt"></i></div>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
+    <div v-else>
+      <edit-demand
+      :csrf-token="csrfToken"
+      :edit-shift="editShift"></edit-demand>
     </div>
-
-    <div v-if="noData">
-      <div class="row col-12 text-center">
-        <p class="form-control-plaintext">無資料</p>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -85,11 +90,13 @@ import {
 } from 'common/helpers';
 import ModalDeleteDemand from './ModalDeleteDemand.vue';
 import ModalAddDemand from './ModalAddDemand.vue';
+import EditDemand from './EditDemand.vue';
 
 export default {
   components: {
     ModalDeleteDemand,
     ModalAddDemand,
+    EditDemand,
   },
   props: {
     userId: {
@@ -110,13 +117,20 @@ export default {
       loaded: false,
       noData: false,
       demands: [],
-      users: [],
       rendered: false,
       deleteShift: {
         demandIds: [],
         stationName: '',
         shiftName: '',
-      }
+      },
+      editShift: {
+        stationId: 0,
+        stationName: '',
+        shiftId: 0,
+        shiftName: '',
+        config: {},
+      },
+      editing: false,
     };
   },
   methods: {
@@ -130,55 +144,6 @@ export default {
       });
 
       return size || 0;
-    },
-    getNormalUsers() {
-      let type = this.$getUserTypeValue('VALUE_NORMAL');
-      this.getUsers(type);
-    },
-    getSeniorlUsers() {
-      let type = this.$getUserTypeValue('VALUE_NORMAL');
-      this.getUsers(type);
-    },
-    getUsers(type) {
-      type = type || '';
-
-      let self = this;
-      let url = `/api/users/` + type;
-      this.$httpClient.get(url)
-        .then(function (response) {
-          let data = response.data;
-          if (data.length > 0) {
-            // self.users = self.usersTransformer(data);
-          } else {
-            self.users = [];
-          }
-        })
-        .catch(function (error) {
-          // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
-          });
-          console.log(error);
-        });
-    },
-    usersTransformer(data) {
-      let newArr = [];
-      return data.map(function (obj) {
-        let element = {
-          id: obj.id,
-          username: obj.username,
-          department: obj.department.detail,
-          eid: obj.eid,
-          fullName: obj.full_name,
-          level: obj.level,
-          typeOfUser: obj.type_of_user,
-          pregnant: obj.pregnant,
-          canBeScheduled: obj.can_be_scheduled,
-        };
-
-        return element;
-      });
     },
     getDemands() {
       let self = this;
@@ -280,10 +245,24 @@ export default {
         return user.full_name;
       }).join('<br>');
     },
+    beforeEditing(shift) {
+      this.editShift = shift;
+      this.editing = true;
+    },
+    cancelEdit() {
+      this.editShift = {};
+      this.editing = false;
+    },
   },
   mounted() {
     this.getDemands();
-    this.getUsers();
   },
+  updated() {
+    this.$nextTick(function() {
+      $('[data-tooltip="tooltip"]').on('click', function () {
+        $(this).tooltip('hide')
+      });
+    });
+  }
 }
 </script>

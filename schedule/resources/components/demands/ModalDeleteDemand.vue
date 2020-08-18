@@ -92,11 +92,14 @@ export default {
       Promise.all(
         promiseArr
       ).then(function (response) {
+
         popup.success({
           title: '刪除人力配置',
           text: '請求成功',
         }, function() {
-          location.reload();
+          self.cancelDeletion();
+          // refresh demand list
+          self.$parent.getDemands();
         });
       }).catch(function (error) {
         // handle error
@@ -108,12 +111,6 @@ export default {
       });;
     },
     cancelDeletion() {
-      this.deleteShift = {
-        demandIds: [],
-        stationName: '',
-        shiftName: '',
-      };
-
       this.$parent.cancelDeletion();
     },
   },

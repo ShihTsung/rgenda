@@ -172,11 +172,14 @@ export default {
       Promise.all(
         promiseArr
       ).then(function (response) {
+
         popup.success({
           title: '新增人力配置',
           text: '請求成功',
         }, function() {
-          location.reload();
+          self.cancelAddition();
+          // refresh demand list
+          self.$parent.getDemands();
         });
       }).catch(function (error) {
         // handle error
@@ -185,7 +188,7 @@ export default {
           html: httpRep.messageJoin(error.message),
         });
         console.log(error);
-      });;
+      });
     },
     cancelAddition() {
       this.addShift = {
