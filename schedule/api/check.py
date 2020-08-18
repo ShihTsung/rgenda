@@ -56,7 +56,8 @@ def check_cycle(department, results, invalid):
         for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
             if d < date0:
                 try:
-                    temp_results.insert(0, Result.objects.get(date=d, user=user))
+                    temp_results.insert(
+                        0, Result.objects.get(date=d, user=user))
                     i -= 1
                 except:
                     break
@@ -172,7 +173,8 @@ def check_rest_hour(results, invalid):
                 last_off_time = datetime.combine(
                     last_result.date, last_result.shift.end_time)
     except:
-        last_off_time = datetime.combine(results[0].date, time(hour=0, minute=0, second=0)) - timedelta(days=1)
+        last_off_time = datetime.combine(results[0].date, time(
+            hour=0, minute=0, second=0)) - timedelta(days=1)
     for result in results:
         if result.shift.shift_type in [0, 1, 2]:
             start_time = datetime.combine(result.date, result.shift.start_time)
