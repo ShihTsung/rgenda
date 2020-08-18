@@ -391,9 +391,9 @@
           <h4 class="category-title">
             帶班
           </h4>
-          <select class="category-option" v-model="teacher">
+          <select class="category-option" v-model="mentor">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option v-for="t in findTeachers()" :key="t" :value="t.id">[[t.full_name]]</option>
+            <option v-for="t in findMentors()" :key="t" :value="t.id">[[t.full_name]]</option>
           </select>
         </div>
         <div class="editCategory">
@@ -451,7 +451,7 @@
       obj: {},
       followEdit: false,
       follower: -1,
-      teacher: -1,
+      mentor: -1,
       startDate: '',
       endDate: '',
       newResultData: []
@@ -942,54 +942,38 @@
         return follower;
       },
 
-      findTeachers() {
-        let teacher = this.userData.filter((i)=>{
+      findMentors() {
+        let mentor = this.userData.filter((i)=>{
           return i.type_of_user < 3;
         });
 
-        return teacher;
+        return mentor;
       },
 
       whoFollows() {
+        let url = '';
         this.followEdit = false;
 
-        let t_data = this.resultData.filter((item)=>{
-          if((this.teacher == item.user) && (this.startDate.split('-')[1] == item.date.split('-')[1]) && (parseInt(this.startDate.split('-')[2]) <= parseInt(item.date.split('-')[2]))){
-            return parseInt(item.date.split('-')[2]) <= parseInt(this.endDate.split('-')[2])
-          };
-        });
-
-        console.log(t_data);
-
-        t_data.forEach((i)=>{
-          let newResultF = {};
-
-          newResultF.id = this.resultData[this.resultData.length - 1].id + 1;
-          newResultF.user = this.follower;
-          newResultF.shift = i.shift;
-          newResultF.date = i.date;
-          newResultF.station = i.station;
-          newResultF.shift_type = i.shift_type;
-
-          this.resultData.push(newResultF);
+        url = 'http://localhost/api/follow-shift/' + this.mentor + '/' + this.follower + '/' + this.startDate + '/' + this.endDate + '/';
 
 
-          let newResultB = {};
-
-          newResultB.id = this.resultData[this.resultData.length - 1].id + 1;
-          newResultB.user = this.follower;
-          newResultB.shift = i.shift.id;
-          newResultB.date = i.date;
-          newResultB.station = i.station.id;
-
-          this.newResultData.push(newResultB);
-        })
+        fetch(url)
+          .then((res)=>{
+            return res.json();
+          }).catch((err)=>{
+            console.log(err);
+          });
 
 
-        this.follower = -1;
-        this.teacher = -1;
-        this.startDate = '';
-        this.endDate = '';
+        console.log(this.follower);
+        console.log(this.mentor);
+        console.log(this.startDate);
+        console.log(this.endDate);
+
+        // this.follower = -1;
+        // this.mentor = -1;
+        // this.startDate = '';
+        // this.endDate = '';
 
       }
     },
