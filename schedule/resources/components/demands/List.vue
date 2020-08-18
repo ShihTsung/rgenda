@@ -213,34 +213,18 @@ export default {
       let demands = {};
       arrObj.forEach(function (obj, idx) {
         if (!demands.hasOwnProperty(obj.station.id)) {
-          if (Object.keys(demands).length < 1) {
-            demands = {
-              [obj.station.id]: {
-                [obj.shift.id]: {
-                  stationId: obj.station.id,
-                  stationName: obj.station.name,
-                  shiftId: obj.shift.id,
-                  shiftName: obj.shift.name,
-                  config: {},
-                },
-              }
-            };
-          } else {
-            Object.assign(demands, {
-              [obj.station.id]: {
-                [obj.shift.id]: {
-                  stationId: obj.station.id,
-                  stationName: obj.station.name,
-                  shiftId: obj.shift.id,
-                  shiftName: obj.shift.name,
-                  config: {},
+          Object.assign(demands, {
+            [obj.station.id]: {
+              [obj.shift.id]: {
+                stationId: obj.station.id,
+                stationName: obj.station.name,
+                shiftId: obj.shift.id,
+                shiftName: obj.shift.name,
+                config: {
+                  [obj.level]: obj,
                 },
               },
-            });
-          }
-          // group by level
-          Object.assign(demands[obj.station.id][obj.shift.id].config, {
-            [obj.level]: obj
+            },
           });
         } else {
           if (demands[obj.station.id].hasOwnProperty(obj.shift.id)) {
@@ -255,12 +239,10 @@ export default {
                 stationName: obj.station.name,
                 shiftId: obj.shift.id,
                 shiftName: obj.shift.name,
-                config: {},
+                config: {
+                  [obj.level]: obj,
+                },
               },
-            });
-            // group by level
-            Object.assign(demands[obj.station.id][obj.shift.id].config, {
-              [obj.level]: obj
             });
           }
         }
@@ -285,39 +267,6 @@ export default {
         stationName: '',
         shiftName: '',
       };
-    },
-    changeSchedule(id, username, bool) {
-      let self = this;
-      let url = `/api/demands/${id}/`;
-      let params = {
-        username: username,
-        can_be_scheduled: bool,
-      };
-      const formConfig = {
-        headers: {
-          'X-CSRFToken': `${this.csrfToken}`
-        }
-      };
-
-      popup.loading({
-        title: '處理中...',
-      });
-
-      this.$httpClient.patch(url, params, formConfig)
-        .then(function (response) {
-          popup.success({
-            title: '更新排班狀況',
-            text: '請求成功',
-          });
-        })
-        .catch(function (error) {
-          // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
-          });
-          console.log(error);
-        });
     },
     usersOfConfig(config1, config2) {
       return Number(config1) + Number(config2);
