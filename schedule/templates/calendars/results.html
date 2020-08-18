@@ -99,17 +99,17 @@
                     </div>
                     <div class="mark-content">
                       <div class="marks" style="border: 1px solid #58B4AE;">
-                        
+
                       </div>
                       <div class="marks" style="border: 1px solid #84B1ED;">
-                        
+
                       </div>
                       <div class="marks" style="border: 1px solid #37419A;">
-                        
+
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="icon-bts" v-if="edit" @click="sendToResults()">
                     <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z"/></svg>
                   </div>
@@ -125,7 +125,7 @@
                   <div @click="changeDate($event)" class="add_sub_wrapper">
                       <div id="prev">
                         <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z"/></svg>
-                      </div>  
+                      </div>
                       <div class="icon-bts" id="prev_next">
                           <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"/></svg>
                       </div>
@@ -150,7 +150,7 @@
               </div>
           </div>
           <div class="c-body">
-            <div class="month_table" v-if="!month_week_bt">   
+            <div class="month_table" v-if="!month_week_bt">
               <table class="days" width="2300px" height="70" border="1" cellspacing="0" bordercolor="black">
                   <tr class="day-num title-row">
                     <td rowspan='3'>員工編號</td>
@@ -196,25 +196,25 @@
                     <td>時</td>
                     <td>天</td>
                   </tr>
-                
-                  
+
+
                   <tr v-if="!isReady" class="user-row" v-for="u in userData" :key="u">
-                      <td class="white-background" style="width: 75px">-</td>  
-                      <td class="white-background" style="width: 30px">-</td>                     
-                      <td class="user-first-col white-background" style="width: 100px">[[u.full_name]]</td>                     
-                      <td class="pastDay" style="width: 45px">-</td>                     
+                      <td class="white-background" style="width: 75px">-</td>
+                      <td class="white-background" style="width: 30px">-</td>
+                      <td class="user-first-col white-background" style="width: 100px">[[u.full_name]]</td>
+                      <td class="pastDay" style="width: 45px">-</td>
                       <td class="user-content-col pastDay"  v-for="d in getYear(year,month)" :key="d">
                         <div style="font-size: 22px; width: 1vw; display: inline-block;">
                           -
                         </div>
-                      </td>                      
-                      <td class="user-last-col pastDay">&nbsp;</td>                      
-                      <td class="white-background">-</td>                      
-                      <td class="pastDay">-</td>                     
-                      <td class="white-background">-</td>                      
-                      <td class="white-background">-</td>                      
-                      <td class="white-background">-</td>                      
-                      <td class="pastDay">-</td>                      
+                      </td>
+                      <td class="user-last-col pastDay">&nbsp;</td>
+                      <td class="white-background">-</td>
+                      <td class="pastDay">-</td>
+                      <td class="white-background">-</td>
+                      <td class="white-background">-</td>
+                      <td class="white-background">-</td>
+                      <td class="pastDay">-</td>
                       <td class="white-background">-</td>
                       <td class="white-background">-</td>
                       <td class="white-background">-</td>
@@ -223,28 +223,31 @@
                       <td class="white-background">-</td>
 
                   </tr>
-                  
+
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
                     <td class="white-background" style="width: 30px">[[u.level]]</td>
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">-</td>
-                    <td @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
+                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
                       <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
+                        <!-- [[userShift.date]] -->
                       </div>
                       <div v-if="isAdjust(userShift.user, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user, userShift.date))">
                         [[isAdjust(userShift.user, userShift.date)]]
                       </div>
                     </td>
+                    <td v-if="isNull(u.id, month)" v-for="d in getYear(year,month)" :key="d" class="futureDay">
+                      -
+                    </td>
                     <td class="user-last-col pastDay">
-                      <input class="remark-gird" type="text" value="" @keyup.13="getRemark($event, index)" v-if="edit"/>
+                      <input class="remark-gird" type="text" value="" @keyup.13="getRemark($event, u.id)" v-if="edit"/>
+                      <!--
                       <div v-if="!edit">
-                        <div>
                           &nbsp;
-                        </div>
-                      </div>
-                    </td> 
+                      </div> -->
+                    </td>
                     <td class="white-background">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
                     <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 3)]]</td>
@@ -278,7 +281,7 @@
                   <td class="pastDay">-</td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #58B4AE;">
-                        
+
                     </div>
                   </td>
                 </tr>
@@ -292,7 +295,7 @@
                   <td class="pastDay">-</td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #84B1ED;">
-                        
+
                     </div>
                   </td>
                 </tr>
@@ -306,7 +309,7 @@
                   <td class="pastDay">-</td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #37419A;">
-                        
+
                     </div>
                   </td>
                 </tr>
@@ -324,7 +327,7 @@
                   </tr>
                 </table>
             </div> -->
-            
+
           </div>
       </div>
       <div class='changeShift' v-if="edit && singleEdit" >
@@ -350,7 +353,7 @@
           </h4>
           <select class="category-option" v-model="item">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option v-for="item in whichCategory(this.selected)" :key="item" :value="item.shift_type + item.name">[[item.name]]</option>
+            <option v-for="item in whichCategory(this.selected)" :key="item" :value="item.id">[[item.name]]</option>
           </select>
         </div>
         <div class="editCategory" v-if="this.selected == 'shift'">
@@ -366,7 +369,7 @@
           <button class="cate-btn" @click="singleEdit = false">取消</button>
           <button class="cate-btn" @click="editResult($event)">儲存</button>
         </div>
-        
+
       </div>
       <div class='follow' v-if="edit && followEdit">
         <h3 class="c-title">
@@ -379,27 +382,35 @@
           <h4 class="category-title">
             跟班
           </h4>
-          <select class="category-option">
+          <select class="category-option" v-model="follower">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option>新進</option>
-            <option>兼職</option>
-            <option>實習生</option>
+            <option v-for="f in findFollowers()" :key="f" :value="f.id">[[f.full_name]]</option>
           </select>
         </div>
         <div class="editCategory">
           <h4 class="category-title">
             帶班
           </h4>
-          <select class="category-option">
+          <select class="category-option" v-model="teacher">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option>資深正職</option>
-            <option>正職</option>
-            <option>行政職</option>
+            <option v-for="t in findTeachers()" :key="t" :value="t.id">[[t.full_name]]</option>
           </select>
+        </div>
+        <div class="editCategory">
+          <h4 class="category-title">
+            起始日期
+          </h4>
+          <input class="category-date" type="date" v-model="startDate"/>
+        </div>
+        <div class="editCategory">
+          <h4 class="category-title">
+            結束日期
+          </h4>
+          <input class="category-date" type="date" v-model="endDate"/>
         </div>
         <div class="btn-position">
           <button class="cate-btn" @click="followEdit = false">取消</button>
-          <button class="cate-btn">儲存</button>
+          <button class="cate-btn" @click="whoFollows()">儲存</button>
         </div>
       </div>
     </div>
@@ -420,7 +431,7 @@
       monthString: String,
       date: new Date().getDate(),
       month_week_bt: false,
-      userData: Object,
+      userData: Array,
       resultData: Array,
       showEvent: false,
       url: String,
@@ -439,6 +450,11 @@
       station: -1,
       obj: {},
       followEdit: false,
+      follower: -1,
+      teacher: -1,
+      startDate: '',
+      endDate: '',
+      newResultData: []
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -451,7 +467,7 @@
         }).catch(err=>{
           console.log(err);
         });
-        
+
         this.getResults(this.month, this.year);
         this.getAdjustment(this.month, this.year);
 
@@ -464,7 +480,7 @@
         }).catch(err=>{
           console.log(err);
         });
-        
+
         fetch('/api/stations')
         .then(res=>{
           return res.json();
@@ -475,7 +491,7 @@
           console.log(err);
         });
     },
-    
+
     methods : {
 
       getYear(y,m) {
@@ -494,8 +510,10 @@
 
       ShiftOfUser(id, m) {
         return this.resultData.filter((userItem)=>{
-          if(userItem.user == id){
+          if(userItem.user == id) {
             return parseInt(userItem.date.split('-')[1]) == m;
+          }else {
+            return false;
           }
         });
       },
@@ -509,7 +527,7 @@
         .then((res)=>{
           return res.json();
         }).then((data)=>{
-          // console.log(data);
+          console.log(data);
           this.resultData = data;
           if(this.resultData.length != 0){
             this.isReady = true;
@@ -587,7 +605,7 @@
             return "N2";
           case 3:
             return "N3";
-          case 4: 
+          case 4:
             return "N4";
           default:
             return "Nn";
@@ -620,7 +638,7 @@
             return (item.user == u)&&(parseInt(item.date.split('-')[1]) == m);
           }
         });
-        
+
         switch(n) {
           case 0://排班
             arr.forEach((i)=>{
@@ -763,23 +781,27 @@
       editResult(ev) {
         let type = '';
         let stationArr = [];
-        let name = this.item[1] + this.item[2];
-        
-        console.log(this.item[0]);
-        // console.log(name);
+
         this.singleEdit = false;
-        
+
+
         this.obj.date = this.changeInfo.date;
         this.obj.id = this.changeInfo.id;
-        this.obj.shift = parseInt(this.item[0]);
+        this.obj.shift = parseInt(this.item);//shift id
         if(this.station != -1) {
           this.obj.station = this.station;
         }
         this.obj.user = this.changeInfo.user;
         this.changedResult.push(this.obj);//之後丟去api修正
 
+        console.log(this.obj.shift);
+        let shift_id = this.shiftData.find((i)=>{
+          return i.id == this.obj.shift;
+        });
+
+        console.log(shift_id);
         //shift id to shift type
-        switch (this.obj.shift) {
+        switch (shift_id.shift_type) {
           case 0:
             type = 'A';
             break;
@@ -796,7 +818,7 @@
             type = 'On';
             break;
           case 5:
-            switch (name) {
+            switch (shift_id.name) {
               case '休息':
                 type = '休';
                 break;
@@ -828,12 +850,12 @@
                 type = '國';
                 break;
               default:
-                console.log(name);
+                console.log(shift_id.name);
                 break;
             };
             break;
           case 6:
-            switch (name) {
+            switch (shift_id.name) {
               case '無薪'://無薪病假
                 type = '病';
                 break;
@@ -844,7 +866,7 @@
                 type = '家';
                 break;
               default:
-                console.log(name);
+                console.log(shift_id.name);
                 break;
             };
             break;
@@ -854,10 +876,10 @@
         };
 
         //前端顯示修正
-        
+
         this.resultData[this.resultData.indexOf(this.changeInfo)].shift_type = type;
-        
-        
+
+
         this.changeInfo = {};
         this.item = -1;
         this.station = -1;
@@ -875,8 +897,8 @@
           data.date = i.date;
           if(i.station){
             data.station = i.station;
-          }
-          
+          };
+
           this.url = "http://localhost/api/results/" + i.id + '/';
 
           fetch(this.url, {
@@ -894,11 +916,84 @@
           });
         });
 
+
         this.changedResult.length = 0;
-        console.log(this.changedResult);
+
+      },
+
+      isNull(id, m) {
+        let data = this.resultData.find((i)=>{
+          if(i.user == id) {
+            return parseInt(i.date.split('-')[1]) == m;
+          };
+        });
+        if(data) {
+          return false;
+        }else {
+          return true;
+        };
+      },
+
+      findFollowers() {
+        let follower = this.userData.filter((i)=>{
+          return i.type_of_user > 2;
+        });
+
+        return follower;
+      },
+
+      findTeachers() {
+        let teacher = this.userData.filter((i)=>{
+          return i.type_of_user < 3;
+        });
+
+        return teacher;
+      },
+
+      whoFollows() {
+        this.followEdit = false;
+
+        let t_data = this.resultData.filter((item)=>{
+          if((this.teacher == item.user) && (this.startDate.split('-')[1] == item.date.split('-')[1]) && (parseInt(this.startDate.split('-')[2]) <= parseInt(item.date.split('-')[2]))){
+            return parseInt(item.date.split('-')[2]) <= parseInt(this.endDate.split('-')[2])
+          };
+        });
+
+        console.log(t_data);
+
+        t_data.forEach((i)=>{
+          let newResultF = {};
+
+          newResultF.id = this.resultData[this.resultData.length - 1].id + 1;
+          newResultF.user = this.follower;
+          newResultF.shift = i.shift;
+          newResultF.date = i.date;
+          newResultF.station = i.station;
+          newResultF.shift_type = i.shift_type;
+
+          this.resultData.push(newResultF);
+
+
+          let newResultB = {};
+
+          newResultB.id = this.resultData[this.resultData.length - 1].id + 1;
+          newResultB.user = this.follower;
+          newResultB.shift = i.shift.id;
+          newResultB.date = i.date;
+          newResultB.station = i.station.id;
+
+          this.newResultData.push(newResultB);
+        })
+
+
+        this.follower = -1;
+        this.teacher = -1;
+        this.startDate = '';
+        this.endDate = '';
+
       }
     },
-    
+
       // getWeek(today) {
       //   let timestamp = today.getTime();
       //   let curDay = today.getDay();
@@ -910,6 +1005,10 @@
 
       //   return dates;
       // },
+
+  });
+  $(function() {
+    $('footer').css('margin', '100rem 0 2rem 25rem');
   });
     // var myHeaders = new Headers();
     // myHeaders.append("Authorization", "Basic Y2lyY2xlcGVuOnJlZGZhbGNvbg==");
@@ -931,7 +1030,7 @@
     //   });
     // };
     // getUserData();
-    
+
     //document.addEventListener('DOMContentLoaded', function () {
     // $('[data-toggle="tooltip"]').tooltip({html:true});
     // var Calendar = FullCalendar.Calendar;
@@ -1012,7 +1111,7 @@
     //   });
     // });
 
-    // // fullcalendar 
+    // // fullcalendar
     // calendar = new FullCalendar.Calendar(calendarEl, {
     //   timeZone: 'UTC',
     //   editable: false,
@@ -1037,7 +1136,7 @@
     //   slotLabelInterval:{day:1},
     //   slotLabelFormat: [
     //       {weekday: 'short', day:'numeric'},
-    //   ], 
+    //   ],
     //   resourceColumns: [
     //     {
     //       labelText: '員工',
@@ -1060,7 +1159,7 @@
     //       field: 'diff'
     //     }
     //   ],
-      
+
     //   customButtons: {
     //   custom1: {
     //     text: '儲存',
@@ -1108,22 +1207,22 @@
     //     let prop = info.event.extendedProps;
     //     if((prop.shift.shift_type!=="休假")&&(prop.shift.shift_type!=="公假")&&(prop.shift.shift_type!=="例假")){
     //       $(info.el).tooltip({
-    //         html:true, 
+    //         html:true,
     //         title: "<h3 class='pop-up'>"+prop.station.name+'</h3>'+prop.shift.start_time+"~"+prop.shift.end_time,
     //       });
     //     }
     //     info.el.innerHTML = "";
-        
+
     //     if(info.view.type === "resourceTimelineWeek"){
     //       info.el.classList.add("week");
     //       switch(prop.shift.shift_type){
     //         case "白班":
     //           info.el.classList.add("day-shift");
-      
+
     //           info.el.innerHTML += "<h5 class='shift-title'>D</h5>"
     //           + "<div class='day-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
     //           + "<div class='day-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
-              
+
     //           break;
     //         case "小夜":
     //           info.el.classList.add("night-shift");
@@ -1156,7 +1255,7 @@
     //           + "<div class='on-call-station'>" + prop.shift.start_time.split(':')[0] + "-" + prop.shift.end_time.split(':')[0] + "</div>"
     //           + "<div class='on-call-station'>" + prop.station.name.split('')[0] + prop.station.name.split('')[1] + "</div>";
     //           break;
-    //         default: 
+    //         default:
     //           info.el.classList.add("error");
     //           info.el.innerHTML += "<h6>ERROR</h6>";
     //           break;
@@ -1195,12 +1294,12 @@
     //           info.el.classList.add("on-call");
     //           info.el.innerHTML += "<h6 class='on-call-title-m'>OnCall</h6>";
     //           break;
-    //         default: 
+    //         default:
     //           info.el.innerHTML += "<h6 class='error-title'>ERROR</h6>";
     //           break;
     //       };
     //     }
-        
+
     //   },
     //   eventDestroy:function(info){
     //     $(info.el).tooltip('dispose');
@@ -1264,7 +1363,7 @@
     //     calendar.setOption('locale', 'zh-tw');
     // }
     // calendar.render();
-    // document.getElementById('edit-delete').addEventListener('click', 
+    // document.getElementById('edit-delete').addEventListener('click',
     //   function(){
     //     let target = currInfo.event.id
     //     fetch('/api/results/'+target,
@@ -1279,7 +1378,7 @@
     //     currInfo.event.remove();
     //   });
     //   });
-    // document.getElementById('edit-save').addEventListener('click', 
+    // document.getElementById('edit-save').addEventListener('click',
     //   function(){
     //     let e = document.getElementById('edit-shift');
     //     currInfo.event.setProp("title", e.options[e.selectedIndex].innerText);
@@ -1306,7 +1405,7 @@
     //     .then(res=>{
     //       calendar.refetchEvents();
     //     })
-        
+
     //   });
     // });
 </script>
@@ -1399,11 +1498,11 @@
     .rest-title{
       color: #bfbfbf;
       font-weight: 300;
-      
+
     }
     .on-call{
       background: #9C8F96;
-      
+
     }
     .on-call-title-m{
       color: white;
@@ -1597,7 +1696,7 @@
     }
     .user-content-col {
       font-size: 22px;
-      text-align: center; 
+      text-align: center;
       width: 40px;
     }
     .pastDay {
@@ -1625,14 +1724,14 @@
       right: 10px;
       top: 10px;
     }
-    
+
     .cross:hover {
       cursor: pointer;
       fill: #37419A;
     }
     .follow {
       width: 27vw;
-      height: 400px;
+      height: 500px;
       background: white;
       position: absolute;
       top: 25vh;
@@ -1729,6 +1828,11 @@
       height: 2.3rem;
       font-size: 1.2rem;
     }
+    .category-date {
+      width: 8vw;
+      height: 2.3rem;
+      font-size: 1.2rem;
+    }
     .btn-position {
       text-align: center;
       margin-top: 3rem;
@@ -1754,12 +1858,12 @@
     .white-background {
       background: white;
     }
-    
+
     /* html {
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.2);
     } */
-    
+
 </style>
 {% endblock %}
