@@ -1,5 +1,5 @@
 import Vue from 'vue';
-// import DemandList from 'components/demands/List.vue';
+import ReserveHolidays from 'components/reservation/ReserveHolidays.vue';
 import HttpClient from 'common/http';
 Vue.use(HttpClient);
 
@@ -13,6 +13,6 @@ Vue.use(ADJUSTMENT_ITEM);
 new Vue({
   el: '#app',
   components: {
-    // 'demand-list': DemandList,
+    ReserveHolidays,
   },
 });

@@ -20,7 +20,7 @@
           </div>
         </div>
       </div>
-      <div class="rol col-12 p-0" v-if="loaded && demands">
+      <div class="col-12 p-0" v-if="loaded && demands">
         <table class="table table-bordered table-hover text-center rgenda-table shadow-none">
           <thead>
             <tr>
