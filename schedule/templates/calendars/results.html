@@ -228,7 +228,7 @@
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
                     <td class="white-background" style="width: 30px">[[u.level]]</td>
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
-                    <td class="pastDay" style="width: 45px">-</td>
+                    <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
                     <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
                       <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
@@ -248,16 +248,25 @@
                           &nbsp;
                       </div> -->
                     </td>
-                    <td class="white-background">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
-                    <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
+                    <td class="white-background">
+
+                      [[workhr(u.id, month, getYear(year, month), 0)]]
+                    </td>
+                    <td class="pastDay">
+
+                      [[workhr(u.id, month, date, 1)]]
+                    </td>
                     <td class="white-background">[[workhr(u.id, month, date, 3)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 4)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 2)]]</td>
-                    <td class="pastDay">-</td>
-                    <td class="white-background">-</td>
-                    <td class="white-background">-</td>
-                    <td class="white-background">-</td>
-                    <td class="pastDay">-</td>
+                    <td class="pastDay">[[offHours(u.id, month, 4)]]</td>
+                    <td class="white-background">[[offHours(u.id, month, 1)]]</td>
+                    <td class="white-background">[[offHours(u.id, month, 2)]]</td>
+                    <td class="white-background">[[offHours(u.id, month, 3)]]</td>
+                    <td class="pastDay">
+                      <!-- - -->
+                    [[workhr(u.id, month, getYear(year, month), 5)]]
+                    </td>
                     <!-- <td class="white-background">-</td>
                     <td class="white-background">-</td> -->
                   </tr>
@@ -455,7 +464,8 @@
       mentor: -1,
       startDate: '',
       endDate: '',
-      newResultData: []
+      newResultData: [],
+      lastMonthData: []
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -500,7 +510,17 @@
           this.remarkData = data;
         }).catch(err=>{
           console.log(err);
-        })
+        });
+
+        fetch('/api/last-month-continue?month_head=' + this.year.toString() + '-' + (this.month + 1).toString() + '-' + '01')//month-1
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          console.log(data);
+          this.lastMonthData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
     },
 
     methods : {
@@ -624,11 +644,13 @@
       },
 
       workhr(u, m, today, n) {//出勤時數
-        let month = new Date().getMonth() ;//+1
         let total_hr = 0;
         let pub_hr = 0;
         let add_hr = 0;
         let sub_hr = 0;
+        let month = new Date().getMonth() ;//+1
+        let diff = 0;
+
         let arr = this.resultData.filter((userItem)=>{
           if((userItem.user == u)&&(parseInt(userItem.date.split('-')[1]) == m)){
             return parseInt(userItem.date.split('-')[2]) <= today;
@@ -642,48 +664,44 @@
           }
         });
 
+        arr.forEach((i)=>{
+          total_hr += i.shift.work_hours;
+        });
+        adjust.forEach((i)=>{
+          if(i.adjustment_type == 0){
+            add_hr += i.hours;
+          }
+        });
+        adjust.forEach((i)=>{
+          if(i.adjustment_type == 1){
+            sub_hr += i.hours;
+          }
+        });
+        arr.forEach((i)=>{
+          if(i.shift_type == "公") {
+            pub_hr += (i.shift.work_hours / 8);
+          };
+        });
         switch(n) {
           case 0://排班
-            arr.forEach((i)=>{
-              total_hr += i.shift.work_hours;
-            });
             return total_hr;
           case 1://總計
-            arr.forEach((i)=>{
-              total_hr += i.shift.work_hours;
-            });
-            adjust.forEach((i)=>{
-              if(i.adjustment_type == 0){
-                total_hr += i.hours;
-              }
-            });
-            adjust.forEach((i)=>{
-              if(i.adjustment_type == 1){
-                total_hr -= i.hours;
-              }
-            });
-            return total_hr;
+            return total_hr + add_hr + sub_hr;
           case 2://公假
-            arr.forEach((i)=>{
-              if(i.shift_type == "公") {
-                pub_hr += (i.shift.work_hours / 8);
-              };
-            });
             return pub_hr;
           case 3://加班
-            adjust.forEach((i)=>{
-              if(i.adjustment_type == 0){
-                add_hr += i.hours;
-              }
-            });
             return add_hr;
           case 4://減班
-            adjust.forEach((i)=>{
-              if(i.adjustment_type == 1){
-                sub_hr += i.hours;
-              }
-            });
             return sub_hr;
+          case 5://當月差額
+            let a = this.offHours(u, this.month, 4);
+            if(total_hr){
+              diff = total_hr + add_hr - sub_hr + (a * 8) - (today * 8);
+              return diff;
+            }else {
+              return 0;
+            }
+
         }
 
       },
@@ -1028,8 +1046,60 @@
 
         // }
 
-      offHours(u, m, d) {
+      offHours(u, m, index) {
+        let total = 0;
+        let special = 0;
+        let count = 0;
+        let notCount = 0;
 
+        //例休國 index1
+        let arr1 = this.resultData.filter((i)=>{
+          if(i.user == u && parseInt(i.date.split('-')[1]) == m && i.shift.shift_type == 5){
+            return i.shift.name[0] == '例' || i.shift.name[0] == '休' || i.shift.name[0] == '國';
+          };
+        });
+        //計薪 index2
+        let arr2 = this.resultData.filter((i)=>{
+          if(i.user == u && parseInt(i.date.split('-')[1]) == m && i.shift.shift_type == 5){
+            return i.shift.name[0] != '例' && i.shift.name[0] != '休' && i.shift.name[0] != '國';
+          };
+        });
+        //不計薪 index3
+        let arr3 = this.resultData.filter((i)=>{
+          if(i.user == u && parseInt(i.date.split('-')[1]) == m){
+            return i.shift.shift_type == 6;
+          };
+        });
+        //計薪 公假
+        let arrP = this.resultData.filter((i)=>{
+          if(i.user == u && parseInt(i.date.split('-')[1]) == m){
+            return i.shift.shift_type == 3;
+          };
+        });
+
+        special = arr1.length;
+        count = arr2.length + arrP.length;
+        notCount = arr3.length;
+
+        switch(index) {
+          case 1:
+            return special;
+          case 2:
+            return count;
+          case 3:
+            return notCount;
+          case 4:
+            total = special + count + notCount;
+            return total;
+          default:
+            return -1;
+        }
+
+      },
+
+      //前月排班
+      getLastMonth(u) {
+        return this.lastMonthData[u];
       }
     },
 
