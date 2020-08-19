@@ -312,8 +312,8 @@
             return [];
           }
           data.forEach(e => {
-            const shift = shifts.find(i => i.id === e.shift);
-            const station = stations.find(i => i.id === e.station);
+            const shift = shifts.find(i => i.id === e.shift.id);
+            const station = stations.find(i => i.id === e.station.id);
             const date = dates.find(i => i.start === e.date);
             if (date.attribute[shift.department.id] === '0') {
               e.title = '單科休診';
