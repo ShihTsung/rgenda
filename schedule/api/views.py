@@ -199,7 +199,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
-            name = self.request.query_params.get('name')
+            uid = self.request.query_params.get('uid')
             adj_type = self.request.query_params.get('type')
             adj_item = self.request.query_params.get('item')
 
@@ -215,9 +215,9 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(
                     date__range=[start[:10], end[:10]]
                 )
-            if name:
-                target = CustomUser.objects.filter(full_name__contains=name)
-                queryset = queryset.filter(user__in=target)
+            if uid:
+                target = CustomUser.objects.filter(id=uid)
+                queryset = queryset.filter(user=target)
 
         return queryset
 
@@ -225,7 +225,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         operation_summary='加減班清單',
         operation_description='列出所有加減班清單',
         manual_parameters=[
-            start_date, end_date, user_name, adj_type, adj_item
+            start_date, end_date, uid, adj_type, adj_item
         ]
     )
     def list(self, request, *args, **kwargs):
