@@ -158,7 +158,7 @@ export default {
       ]).then(responses => {
         let department = responses[0].data;
         department.date_start = moment(department.date_start).toDate();
-        self.department = department;
+        self.department = Object.assign({}, department, self.department);
         self.userList = responses[1].data;
       }).catch((err) => {
         console.log(err);

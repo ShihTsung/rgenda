@@ -39,11 +39,11 @@
           <div class="icon-bts icon-color" @click="showRowData(props.row.id)" data-tooltip="tooltip" data-toggle="modal" data-target="#infoModal" title="科別內容">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M13 8h-8v-1h8v1zm0 2h-8v-1h8v1zm-3 2h-5v-1h5v1zm11.172 12l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7z"/></svg>
           </div>
-          <a class="icon-bts" :href="'/departments/update/'+props.row.id" data-tooltip="tooltip" title="編輯">
+          <a class="icon-bts btn-sm" :href="'/departments/update/'+props.row.id" data-tooltip="tooltip" title="編輯">
             <i class="fa fa-edit"></i>
           </a>
-          <div class="icon-bts" @click="saveDeleteRowId(props.row.id)" data-tooltip="tooltip" data-toggle="modal" data-target="#deleteModal" title="刪除">
-            <i class="fa fa-eraser"></i>
+          <div class="icon-bts btn-sm" @click="saveDeleteRowId(props.row.id)" data-tooltip="tooltip" data-toggle="modal" data-target="#deleteModal" title="刪除">
+            <i class="fa fa-trash-alt"></i>
           </div>
         </span>
         <span v-else>

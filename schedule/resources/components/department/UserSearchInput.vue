@@ -74,7 +74,11 @@ export default {
   },
   watch: {
     value(newVal) {
-      this.inputValue = newVal.name;
+      if (newVal.name) {
+        this.inputValue = newVal.name;
+      } else {
+        this.inputValue = '';
+      }
     },
   },
 }
