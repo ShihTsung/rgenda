@@ -1,7 +1,7 @@
 from notifications.models import Notification
 from rest_framework import serializers
 from rest_framework.decorators import action
-from account.models import CustomUser, Department, Liscense
+from account.models import CustomUser, Department, Liscense, DepartmentManager
 from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation, DemandUserTable
@@ -16,14 +16,56 @@ import datetime
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Department
         fields = (
             'id', 'name', 'detail', 'limit_pre_schedule',
             'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
-            'admin_in_schedule', 'same_day_notice', 'date_start'
+            'admin_in_schedule', 'same_day_notice', 'date_start',
+            'start_of_week', 'can_rest_redday',
+            'overtime_rule'
         )
         read_only_fields = ('id', )
+
+
+class GetDepartmentSerializer(serializers.ModelSerializer):
+    managers = serializers.SerializerMethodField()
+
+    def get_managers(self, obj):
+        try:
+            mgrs = DepartmentManager.objects.get(department=obj)
+            mgr1 = mgrs.manager_one
+            mgr2 = mgrs.manager_two
+
+            mgr1_dict = {
+                'id': mgr1.id,
+                'name': mgr1.full_name,
+            }
+            mgr2_dict = {
+                'id': mgr2.id,
+                'name': mgr2.full_name
+            }
+            ret = {
+                'manager1': mgr1_dict,
+                'manager2': mgr2_dict
+            }
+        except:
+            ret = {
+
+            }
+
+        return ret
+
+    class Meta:
+        model = Department
+        fields = ('id', 'name', 'detail', 'limit_pre_schedule',
+                  'deadline_pre_schedule', 'reset', 'law_rule',
+                  'schedule_rule', 'admin_in_schedule',
+                  'same_day_notice', 'date_start',
+                  'start_of_week', 'can_rest_redday', 'overtime_rule',
+                  'managers'
+                  )
 
 
 class SimpleDepartmentSerializer(serializers.ModelSerializer):
@@ -62,6 +104,15 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
             'gender', 'role', 'is_superuser', 'type_of_user',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
+        read_only_fields = ('id', )
+
+
+class DepartmentManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DepartmentManager
+        fields = (
+            'id', 'department', 'manager_one', 'manager_two'
+        )
         read_only_fields = ('id', )
 
 

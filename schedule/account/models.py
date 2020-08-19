@@ -86,6 +86,29 @@ class Department(models.Model):
         null=False,
         default=date(2020, 6, 9),
     )
+    start_of_week = models.IntegerField(
+        verbose_name=_('週起始日'),
+        null=False,
+        default=0,
+        choices=(
+            (0, _('星期日')),
+            (1, _('星期一'))
+        )
+    )
+    can_rest_redday = models.IntegerField(
+        verbose_name=_('週末及國定假日可休數量'),
+        default=10,
+        null=True,
+    )
+    overtime_rule = models.IntegerField(
+        verbose_name=_('加班規則'),
+        default=0,
+        null=True,
+        choices=(
+            (0, _('單月46小時')),
+            (1, _('三個月138小時'))
+        )
+    )
     month_cycle = models.IntegerField(
         verbose_name=_('月週期'),
         null=True,
@@ -234,3 +257,24 @@ class Liscense(models.Model):
         null=True,
         blank=True
     )
+
+
+class DepartmentManager(models.Model):
+    manager_one = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name=_('管理者1'),
+        related_name='mgr1',
+        null=True)
+    manager_two = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name=_('管理者2'),
+        related_name='mgr2',
+        null=True)
+    department = models.OneToOneField(
+        Department,
+        on_delete=models.CASCADE,
+        verbose_name=_('科別'),
+        null=True,
+        unique=True)

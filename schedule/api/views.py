@@ -14,13 +14,14 @@ from drf_yasg import openapi
 from rest_framework.parsers import JSONParser
 
 # others
-from datetime import datetime, timedelta
+from datetime import timedelta
+import datetime
 from .check import *
 from .serializers import *
 from notifications.models import Notification
 
 # models
-from account.models import CustomUser, Department, Liscense
+from account.models import CustomUser, Department, Liscense, DepartmentManager
 from station.models import Station
 from shift.models import Shift
 from date.models import H_Calendar
@@ -231,6 +232,17 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = (IsManagerOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetDepartmentSerializer
+        return DepartmentSerializer
+
+
+class DepartmentManagerViewSet(viewsets.ModelViewSet):
+    queryset = DepartmentManager.objects.all()
+    serializer_class = DepartmentManagerSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -521,15 +533,19 @@ class DemandViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, pk=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        d = serializer.validated_data
+        print(d)
+        station = Station.objects.get(id=d['station'].id)
+        shift = Shift.objects.get(id=d['shift'].id)
         try:
             DemandOfStation.objects.get(
-                station=serializer.data['station'],
-                shift=serializers.data['shift'],
-                level=serializers.data['level']
+                station=station,
+                shift=shift,
+                level=d['level']
             )
             return Response({'message': 'already exist'})
         except:
-            serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(
@@ -560,7 +576,8 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         r_data = request.data
         combo = int(r_data['combo'])
-        date_obj = datetime.strptime(r_data['date'], '%Y-%m-%d')
+        date_obj = datetime.datetime.strptime(
+            r_data['date'], '%Y-%m-%d').date()
         if combo > 10:
             return Response(
                 'can not create more than 10 promise per time',
@@ -738,6 +755,8 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
+        results = Result.objects.filter(
+            date__range=[start, end], )
     return Response(results)
 
 
@@ -822,7 +841,7 @@ def last_month_continue(request):
     department = request.user.department
     users = User.objects.filter(department=department, can_be_scheduled=True)
     month_head = request.GET.get('month_head')
-    date0 = datetime.strptime(month_head, '%Y-%m-%d')
+    date0 = datetime.datetime.strptime(month_head, '%Y-%m-%d').date()
     output = dict()
     type_dict = {
         '0': 'A',
