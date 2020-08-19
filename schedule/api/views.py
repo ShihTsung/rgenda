@@ -545,7 +545,7 @@ class DemandViewSet(viewsets.ModelViewSet):
                 level=d['level']
             )
             return Response({'message': 'already exist'})
-        except:
+        except DemandOfStation.DoesNotExist:
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(

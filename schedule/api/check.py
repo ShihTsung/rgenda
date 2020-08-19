@@ -60,7 +60,7 @@ def check_cycle(department, results, invalid):
                     results.insert(0, Result.objects.get(date=d, user=user))
 
                     i -= 1
-                except:
+                except Result.DoesNotExist:
                     break
             else:
                 break
@@ -129,7 +129,7 @@ def check_rest_day(department, results, invalid):
             try:
                 results.insert(0, Result.objects.get(date=d, user=user))
                 ind -= 1
-            except:
+            except Result.DoesNotExist:
                 break
         else:
             break
@@ -189,7 +189,7 @@ def check_rest_hour(results, invalid):
             else:
                 last_off_time = datetime.combine(
                     last_result.date, last_result.shift.end_time)
-    except:
+    except Result.DoesNotExist:
         last_off_time = datetime.combine(results[0].date, time(
             hour=0, minute=0, second=0)) - timedelta(days=1)
     for result in results:

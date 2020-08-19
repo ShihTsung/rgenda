@@ -50,7 +50,7 @@ class GetDepartmentSerializer(serializers.ModelSerializer):
                 'manager1': mgr1_dict,
                 'manager2': mgr2_dict
             }
-        except:
+        except DepartmentManager.DoesNotExist:
             ret = {
 
             }
@@ -508,7 +508,7 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         try:
             ret = Result.objects.get(user=obj.user_apply, date=date)
             ret = GetResultSerializer(ret)
-        except:
+        except Result.DoesNotExist:
             ret = ''
         return ret
 
@@ -518,7 +518,7 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         try:
             ret = Result.objects.get(user=obj.user_receive, date=date)
             ret = GetResultSerializer(ret)
-        except:
+        except Result.DoesNotExist:
             ret = ''
         return ret
 
