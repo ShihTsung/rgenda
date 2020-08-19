@@ -110,7 +110,7 @@ def initial(request):
         user.full_name = names[i]
         user.level = 1
         user.job_title = '職稱'
-        user.type_of_user = 0
+        user.type_of_user = random.randint(0, 1)
         user.gender = 'female'
         user.holiday_rest_num = 40
         user.special_rest_num = 10

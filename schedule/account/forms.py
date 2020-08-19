@@ -1,4 +1,4 @@
-from random import choices
+from random import choice, choices
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Department
@@ -229,6 +229,15 @@ class DepartmentChangeForm(forms.ModelForm):
             (3, '八週變形工時（56休16）'),
         ],
     )
+    overtime_rule = forms.ChoiceField(
+        label=_('加班規則'),
+        required=False,
+        widget=forms.Select,
+        choices=(
+            (0, '單月46小時'),
+            (1, '三個月138小時')
+        )
+    )
     schedule_rule = forms.ChoiceField(
         label=_("班種設定"),
         required=True,
@@ -242,6 +251,15 @@ class DepartmentChangeForm(forms.ModelForm):
     admin_in_schedule = forms.BooleanField(
         label=_("管理者是否排班"),
         required=False,
+    )
+    start_of_week = forms.ChoiceField(
+        label=_('週起始日'),
+        required=False,
+        widget=forms.Select,
+        choices=[
+            (0, '星期日'),
+            (1, '星期一')
+        ],
     )
     same_day_notice = forms.IntegerField(
         label=_("預約休假日人數過多提示"),

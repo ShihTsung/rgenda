@@ -437,6 +437,7 @@ def departmentEdit(request, id=None):
     if form.is_valid() and request.method == "POST":
         form.save()
         new_managers = [form.data['mgr1'], form.data['mgr2']]
+        print(new_managers)
         users = CustomUser.objects.filter(department=department)
         for user in users:
             if user.role != 'admin':

@@ -89,6 +89,12 @@ follower = openapi.Parameter('follower', openapi.IN_QUERY,
                              description="跟班者", type=openapi.TYPE_STRING)
 mentor = openapi.Parameter('mentor', openapi.IN_QUERY,
                            description="帶班者", type=openapi.TYPE_STRING)
+adj_type = openapi.Parameter('type', openapi.IN_QUERY,
+                             description="類別", type=openapi.TYPE_STRING)
+adj_item = openapi.Parameter('item', openapi.IN_QUERY,
+                             description="加減班選項", type=openapi.TYPE_STRING)
+user_name = openapi.Parameter('name', openapi.IN_QUERY,
+                              description="使用者姓名", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -193,30 +199,40 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
-            mode = self.request.query_params.get('mode')
-            uid = self.request.query_params.get('uid')
+            name = self.request.query_params.get('name')
+            adj_type = self.request.query_params.get('type')
+            adj_item = self.request.query_params.get('item')
+
+            if adj_type:
+                queryset = queryset.filter(
+                    adjustment_type=int(adj_type)
+                )
+            if adj_item:
+                queryset = queryset.filter(
+                    adjustment_item=int(adj_item)
+                )
             if start and end:
                 queryset = queryset.filter(
                     date__range=[start[:10], end[:10]]
                 )
-            if mode == 'personal':
-                if uid:
-                    target = CustomUser.objects.get(id=int(uid))
-                    queryset = queryset.filter(user=target)
-                else:
-                    queryset = queryset.filter(user=self.request.user)
+            if name:
+                target = CustomUser.objects.filter(full_name__contains=name)
+                queryset = queryset.filter(user__in=target)
+
         return queryset
 
     @swagger_auto_schema(
-        operation_summary='調班清單',
-        operation_description='列出所有調班清單',
-        manual_parameters=[start_date, end_date, mode, uid]
+        operation_summary='加減班清單',
+        operation_description='列出所有加減班清單',
+        manual_parameters=[
+            start_date, end_date, user_name, adj_type, adj_item
+        ]
     )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_summary='新增調班',
+        operation_summary='新增加減班',
         operation_description='增加一筆加減班',
     )
     def create(self, request, *args, **kwargs):
@@ -776,12 +792,12 @@ def total_per_day_api(request):
             date_str = date.date.strftime('%Y-%m-%d')
             change_dict = {'0': 'D', '1': 'E', '2': 'N'}
             new_obj = {
-                    'date': date_str
-                }
+                'date': date_str
+            }
             for i in ['0', '1', '2']:
                 new_obj[change_dict[i]] = [
                     results[date_str][i], diff_set[date_str][i]
-                    ]
+                ]
             ret.append(new_obj)
 
     return Response(ret)
@@ -981,8 +997,10 @@ def exchangeable_user(request):
         # 2. 是否連續上班(原本休息才需要檢查)
         # 申請者
         if to_change_result.shift.name == '休息':
+
             results = Result.objects.filter(user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
             shift_types = [exchange_shift_type if r.date == exchange_date else r.shift_type for r in results]
+
             count = 0
             for st in shift_types:
                 if st in [0, 1, 2, 3]:
