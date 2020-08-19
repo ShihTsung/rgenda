@@ -545,7 +545,7 @@ class DemandViewSet(viewsets.ModelViewSet):
                 level=d['level']
             )
             return Response({'message': 'already exist'})
-        except:
+        except DemandOfStation.DoesNotExist:
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response(
@@ -741,6 +741,7 @@ def total_per_day_api(request):
         dates = H_Calendar.objects.filter(date__range=[start, end])
         d = request.user.department
         demands = DemandOfStation.objects.all()
+        users = [u for u in CustomUser.objects.filter(department=d)]
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
             results[date_str] = {'0': 0, '1': 0, '2': 0}
@@ -755,9 +756,21 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
-        results = Result.objects.filter(
-            date__range=[start, end], )
-    return Response(results)
+        db_results = Result.objects.filter(
+            date__range=[start, end], user__in=users)
+        diff_set = {}
+        for date in dates:
+            date_str = date.date.strftime('%Y-%m-%d')
+            diff_set[date_str] = {'0': 0, '1': 0, '2': 0}
+        for r in db_results:
+            if r.shift.shift_type in [0, 1, 2]:
+                diff_set[
+                    r.date.strftime('%Y-%m-%d')][str(r.shift.shift_type)] += 1
+
+    return Response({
+        'demand': results,
+        'real': diff_set
+    })
 
 
 @swagger_auto_schema(

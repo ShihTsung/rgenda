@@ -530,11 +530,11 @@
         });
         let sideClicked = $.cookie("sideClicked");
 
-        if (sideClicked) {
-          if (!(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange" || sideClicked ===
-              "sw" || sideClicked === "side-redfalcon" || sideClicked === "da" || sideClicked === "d")) {
-            document.getElementById(sideClicked).classList.add("clicked");
-          }
+        if (sideClicked && document.getElementById(sideClicked)
+        && !(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange"
+          || sideClicked === "sw" || sideClicked === "side-redfalcon" || sideClicked === "da" || sideClicked === "d")
+        ) {
+          document.getElementById(sideClicked).classList.add("clicked");
         };
 
         $(".fold_m").click((e) => {
