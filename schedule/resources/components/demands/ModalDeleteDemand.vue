@@ -67,7 +67,7 @@ export default {
         title: '處理中...',
       });
 
-      let promiseArr = demandIds.map(function(id) {
+      let promiseArr = demandIds.map(function (id) {
         let url = `/api/demands/${id}/`;
         const formConfig = {
           headers: {
@@ -96,7 +96,7 @@ export default {
         popup.success({
           title: '刪除人力配置',
           text: '請求成功',
-        }, function() {
+        }, function () {
           self.cancelDeletion();
           // refresh demand list
           self.$parent.getDemands();

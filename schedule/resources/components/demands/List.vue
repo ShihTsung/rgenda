@@ -137,7 +137,7 @@ export default {
     objectLength(obj) {
       let keys = Object.keys(obj);
       let size = 0;
-      keys.forEach(function(key) {
+      keys.forEach(function (key) {
         if (!isNaN(Number(key))) {
           ++size;
         }
@@ -241,7 +241,7 @@ export default {
         return '';
       }
 
-      return arrObj.map(function(user) {
+      return arrObj.map(function (user) {
         return user.full_name;
       }).join('<br>');
     },
@@ -253,12 +253,18 @@ export default {
       this.editShift = {};
       this.editing = false;
     },
+    exitedShiftOfStation(stationId, shiftId) {
+      if (this.demands.hasOwnProperty(stationId) && this.demands[stationId].hasOwnProperty(shiftId)) {
+        return true;
+      }
+      return false;
+    },
   },
   mounted() {
     this.getDemands();
   },
   updated() {
-    this.$nextTick(function() {
+    this.$nextTick(function () {
       $('[data-tooltip="tooltip"]').on('click', function () {
         $(this).tooltip('hide')
       });

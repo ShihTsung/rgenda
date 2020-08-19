@@ -131,7 +131,7 @@ export default {
         demandId: 0,
         config1: 0,
         config2: 0,
-        level: this.$getUserLevelValue('VALUE_NORMAL'),
+        level: 0,
         checkedUserIds: [],
         assignedUsers: [],
       },
@@ -139,10 +139,11 @@ export default {
         demandId: 0,
         config1: 0,
         config2: 0,
-        level: this.$getUserLevelValue('VALUE_SENIOR'),
+        level: 0,
         checkedUserIds: [],
         assignedUsers: [],
       },
+
     };
   },
   methods: {
@@ -153,7 +154,7 @@ export default {
         demandId: 0,
         config1: 0,
         config2: 0,
-        level: this.$getUserLevelValue('VALUE_NORMAL'),
+        level: 0,
         checkedUserIds: [],
         assignedUsers: [],
       };
@@ -161,7 +162,7 @@ export default {
         demandId: 0,
         config1: 0,
         config2: 0,
-        level: this.$getUserLevelValue('VALUE_SENIOR'),
+        level: 0,
         checkedUserIds: [],
         assignedUsers: [],
       };
@@ -227,7 +228,7 @@ export default {
       let delUserIds = [];
       arrObj.forEach(user => {
         if (!userIdArr.includes(user.id)) {
-          delUserIds.push([user.demand_user_id, demandId, user.id,])
+          delUserIds.push([user.demand_user_id, demandId, user.id, ])
         }
       });
 
@@ -236,7 +237,10 @@ export default {
     $_editDemand_addUerIds(demandId, userIdArr, arrObj) {
       let addUerIds = [];
       userIdArr.forEach(id => {
-        if (!_.find(arrObj, function(user) { return user.id == id; })) {
+        if (!_.find(arrObj, function (user) {
+            return user.id == id;
+          })
+        ) {
           addUerIds.push([demandId, id])
         }
       });
@@ -250,10 +254,11 @@ export default {
           title: '驗證錯誤',
           html: httpRep.messageJoin(errMsg),
         });
-        return;
+        return false;
       }
 
       let self = this;
+      let changed = false;
       let delNormalUsers = [];
       let delSeniorUsers = [];
       delNormalUsers = self.$_editDemand_delUerIds(
@@ -268,6 +273,7 @@ export default {
       );
       // console.log([...delNormalUsers, ...delSeniorUsers]);
       let delUserPromiseArr = [...delNormalUsers, ...delSeniorUsers].map(item => {
+        changed = true;
         let url = `/api/demand-user/${item[0]}/`;
         const formConfig = {
           headers: {
@@ -302,6 +308,7 @@ export default {
         self.seniorDemandOfShift.assignedUsers
       );
       let addUserPromiseArr = [...addNormalUsers, ...addSeniorUsers].map(item => {
+        changed = true;
         let url = `/api/demand-user/`;
         const formConfig = {
           headers: {
@@ -327,7 +334,13 @@ export default {
           });
       });
 
-      let configPromisedArr = [self.normalDemandOfShift, self.seniorDemandOfShift].map(function(obj) {
+      let configPromisedArr = [self.normalDemandOfShift, self.seniorDemandOfShift].map(function (obj) {
+        if (obj.originConfig1 === Number(obj.config1) && obj.originConfig2 === Number(obj.config2)) {
+          // if there are no changes, skip
+          return;
+        }
+
+        changed = true;
         let url = `/api/demands/${obj.demandId}/`;
         const formConfig = {
           headers: {
@@ -345,7 +358,7 @@ export default {
         self.$httpClient.patch(url, params, formConfig)
           .then(function (response) {
             // debug
-            // console.log(`delete demand id = ${id}`);
+            // console.log(`update demand id = ${id}`);
           })
           .catch(function (error) {
             // handle error
@@ -362,15 +375,18 @@ export default {
         ...addUserPromiseArr,
         ...configPromisedArr
       ]).then(function (response) {
-
-        popup.success({
-          title: '編輯人力配置',
-          text: '請求成功',
-        }, function() {
+        if (changed) {
+          popup.success({
+            title: '編輯人力配置',
+            text: '請求成功',
+          }, function () {
+            self.cancelEdit();
+            // refresh demand list if changed
+            self.$parent.getDemands();
+          });
+        } else {
           self.cancelEdit();
-          // refresh demand list
-          self.$parent.getDemands();
-        });
+        }
       }).catch(function (error) {
         // handle error
         popup.error({
@@ -396,6 +412,9 @@ export default {
       self.normalDemandOfShift.demandId = Number(normalDemand.id);
       self.normalDemandOfShift.config1 = Number(normalDemand.config1);
       self.normalDemandOfShift.config2 = Number(normalDemand.config2);
+      self.normalDemandOfShift.originConfig1 = Number(normalDemand.config1);
+      self.normalDemandOfShift.originConfig2 = Number(normalDemand.config2);
+      self.normalDemandOfShift.level = normalDemand.level;
       self.normalDemandOfShift.checkedUserIds = normalDemand.people.map(function (user) {
         return user.id;
       });
@@ -405,6 +424,9 @@ export default {
       self.seniorDemandOfShift.demandId = Number(seniorDemand.id);
       self.seniorDemandOfShift.config1 = Number(seniorDemand.config1);
       self.seniorDemandOfShift.config2 = Number(seniorDemand.config2);
+      self.seniorDemandOfShift.originConfig1 = Number(seniorDemand.config1);
+      self.seniorDemandOfShift.originConfig2 = Number(seniorDemand.config2);
+      self.seniorDemandOfShift.level = seniorDemand.level;
       self.seniorDemandOfShift.checkedUserIds = seniorDemand.people.map(function (user) {
         return user.id;
       });

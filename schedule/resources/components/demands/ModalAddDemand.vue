@@ -110,7 +110,7 @@ export default {
           let data = response.data;
           if (data.length > 0) {
             let filterTypes = [0, 1, 2, 4];
-            self.shifts = data.filter(function(item) {
+            self.shifts = data.filter(function (item) {
               return filterTypes.includes(item.shift_type);
             });
           } else {
@@ -128,11 +128,24 @@ export default {
     },
     store() {
       let self = this;
-      $('#modalAddShift').modal('hide');
 
       if (self.addShift.stationId < 1 || self.addShift.shiftId < 1) {
-        return;
+        popup.error({
+          title: '驗證錯誤',
+          html: '請檢查所有欄位是否已選取',
+        });
+        return false;
       }
+
+      if (self.$parent.exitedShiftOfStation(self.addShift.stationId, self.addShift.shiftId)) {
+        popup.error({
+          title: '驗證錯誤',
+          html: '人力配置已存在',
+        });
+        return false;
+      }
+
+      $('#modalAddShift').modal('hide');
 
       popup.loading({
         title: '處理中...',
@@ -145,7 +158,7 @@ export default {
         }
       };
 
-      let promiseArr = self.levels.map(function(id) {
+      let promiseArr = self.levels.map(function (id) {
         let params = {
           station: self.addShift.stationId,
           shift: self.addShift.shiftId,
@@ -176,7 +189,7 @@ export default {
         popup.success({
           title: '新增人力配置',
           text: '請求成功',
-        }, function() {
+        }, function () {
           self.cancelAddition();
           // refresh demand list
           self.$parent.getDemands();
