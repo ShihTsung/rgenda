@@ -14,7 +14,8 @@ from drf_yasg import openapi
 from rest_framework.parsers import JSONParser
 
 # others
-from datetime import datetime, timedelta
+from datetime import timedelta
+import datetime
 from .check import *
 from .serializers import *
 from notifications.models import Notification
@@ -575,7 +576,8 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         r_data = request.data
         combo = int(r_data['combo'])
-        date_obj = datetime.strptime(r_data['date'], '%Y-%m-%d')
+        date_obj = datetime.datetime.strptime(
+            r_data['date'], '%Y-%m-%d').date()
         if combo > 10:
             return Response(
                 'can not create more than 10 promise per time',
@@ -753,6 +755,8 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
+        results = Result.objects.filter(
+            date__range=[start, end], )
     return Response(results)
 
 
@@ -837,7 +841,7 @@ def last_month_continue(request):
     department = request.user.department
     users = User.objects.filter(department=department, can_be_scheduled=True)
     month_head = request.GET.get('month_head')
-    date0 = datetime.strptime(month_head, '%Y-%m-%d')
+    date0 = datetime.datetime.strptime(month_head, '%Y-%m-%d').date()
     output = dict()
     type_dict = {
         '0': 'A',
