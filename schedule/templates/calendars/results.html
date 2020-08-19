@@ -241,7 +241,10 @@
                       -
                     </td>
                     <td class="user-last-col pastDay">
-                      <input class="remark-gird" type="text" value="" @keyup.13="getRemark($event, u.id)" v-if="edit"/>
+                      <input class="remark-gird" type="text" :value="findRemark(u.id, month)" @keyup.13="getRemark($event, u.id, month)" v-if="edit"/>
+                      <div v-if="!edit">
+                        [[findRemark(u.id, month)]]
+                      </div>
                     </td>
                     <td class="white-background">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
                     <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
@@ -268,9 +271,9 @@
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">白班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.D)">
+                      [[getSecond(day.D)]]
                     </div>
                   </td>
                   <td class="pastDay">-</td>
@@ -282,9 +285,9 @@
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">小夜班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.E)">
+                      [[getSecond(day.E)]]
                     </div>
                   </td>
                   <td class="pastDay">-</td>
@@ -296,9 +299,9 @@
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">大夜班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.N)">
+                      [[getSecond(day.N)]]
                     </div>
                   </td>
                   <td class="pastDay">-</td>
@@ -492,7 +495,7 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          // console.log(data);
+          console.log(data);
           this.remarkData = data;
         }).catch(err=>{
           console.log(err);
@@ -554,7 +557,7 @@
         .then((res)=>{
           return res.json();
         }).then((data)=>{
-          console.log(data);
+          // console.log(data);
           this.resultData = data;
           if(this.resultData.length != 0){
             this.isReady = true;
@@ -777,16 +780,16 @@
         }
       },
 
-      getRemark(ev, i) {
+      getRemark(ev, i , m) {
         let data = {};
 
         console.log(i);
         data.content = ev.target.value.toString();
         data.user = i;
-
+        data.month = m;
         this.remark.push(data);
 
-        // console.log(this.remark);
+        console.log(this.remark);
       },
 
       editShift(ev, info) {
@@ -940,9 +943,10 @@
           //檢查remarkData中有沒有資料
 
           let check = this.remarkData.find(item=>{
-            return item.user == i.user;
+            return item.month == this.month && item.user == i.user;
           });
-
+          console.log('check');
+          console.log(check);
 
           //remarkData有資料
           if(check) {
@@ -974,14 +978,12 @@
               console.log(err);
             });
           };
-
-
-
         });
 
 
         this.changedResult.length = 0;
         this.remark.length = 0;
+        location.reload();
       },
 
       isNull(id, m) {
@@ -1036,10 +1038,18 @@
         location.reload();
       },
 
-      //當月該使用者是否有備註
-        // isRemark(u, m) {
+      // 當月該使用者是否有備註
+      findRemark(u, m) {
+        let remark = this.remarkData.find((i)=>{
+          if(i.user == u){
+            return i.month == m;
+          }
+        });
 
-        // }
+        if(remark) {
+          return remark.content;
+        }
+      },
 
       offHours(u, m, index) {
         let total = 0;
@@ -1097,14 +1107,25 @@
         return this.lastMonthData[u];
       },
 
-      // isEnough(y, m ,d) {
-      //   let demand = this.demandData.demand.filter((i)=>{
-      //     return i.split('-')[0] == y && i.split('-')[1] == m;
-      //   });
-      //   let real = this.demandData.real.filter((i)=>{
-      //     return i.split('-')[0] == y && i.split('-')[1] == m;
-      //   });
-      // }
+      getReal(y, m) {
+        let real = this.demandData.filter((i)=>{
+          return i.date.split('-')[0] == y && i.date.split('-')[1] == m;
+        });
+
+        return real;
+      },
+
+      getSecond(item) {//實際排班人數
+        return item[1];
+      },
+
+      checkDemand(arr) {
+        if(arr[0] > arr[1]) {
+          return 'lack';
+        } else if(arr[0] < arr [1]) {
+          return 'enough';
+        }
+      }
     },
 
       // getWeek(today) {
@@ -1971,7 +1992,14 @@
     .white-background {
       background: white;
     }
-
+    .enough {
+      color: red;
+    }
+    .lack {
+      color: white;
+      background: red;
+      width: 100%;
+    }
     /* html {
       width: 100%;
       height: 100%;
