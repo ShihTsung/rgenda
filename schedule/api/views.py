@@ -81,6 +81,10 @@ department = openapi.Parameter('department', openapi.IN_QUERY,
                                description="科別", type=openapi.TYPE_STRING)
 usertype = openapi.Parameter('type', openapi.IN_QUERY,
                              description="排班身份類型", type=openapi.TYPE_STRING)
+exchange_date = openapi.Parameter('date', openapi.IN_QUERY,
+                                  description="欲換班的日期", type=openapi.TYPE_STRING)
+exchange_shift_type = openapi.Parameter('shift_type', openapi.IN_QUERY,
+                                        description="欲換班的班別", type=openapi.TYPE_STRING)
 follower = openapi.Parameter('follower', openapi.IN_QUERY,
                              description="跟班者", type=openapi.TYPE_STRING)
 mentor = openapi.Parameter('mentor', openapi.IN_QUERY,
@@ -906,6 +910,77 @@ class DemandUserTableViewset(viewsets.ModelViewSet):
             data=res,
             status=status.HTTP_200_OK,
         )
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='取得可換班使用者',
+    manual_parameters=[exchange_date, exchange_shift_type],
+)
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def exchangeable_user(request):
+    """
+    取得可換班的使用者
+    :param user: 欲換班的使用者
+    :return: 申請換班的日期
+    :exchange_shift_type: 申請要換的班別
+    """
+    user = request.user
+    exchange_date = request.GET.get('exchange_date')
+    exchange_shift_type = request.GET.get('exchange_shift_type')
+    to_change_result = Result.objects.get(user=user, date=exchange_date)
+    result_options = Result.objects.filter(user__department=user.department, date=exchange_date,
+                                           shift__shift_type=exchange_shift_type)
+    user_options = [result.user.id for result in result_options]
+    for result in result_options:
+        # 1. 前後班別休息時間是否間隔11小時
+        # 申請者
+        pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
+        if pre_result and pre_result.shift.shift_type in [0, 1, 2] and result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
+            user_options.remove(result.user.id)
+            continue
+        next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
+        if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - result.shift.end_time < timedelta(hours=11):
+            user_options.remove(result.user.id)
+            continue
+        # 接受者
+        pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
+        if pre_result and pre_result.shift.shift_type in [0, 1, 2] and to_change_result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
+            user_options.remove(result.user.id)
+            continue
+        next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
+        if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - to_change_result.shift.end_time < timedelta(hours=11):
+            user_options.remove(result.user.id)
+            continue
+        # 2. 是否連續上班(原本休息才需要檢查)
+        # 申請者
+        if to_change_result.shift.name == '休息':
+            results = Result.objects.filter(user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
+            shift_types = [exchange_shift_type if r.date == exchange_date else r.shift_type for r in results]
+            count = 0
+            for st in shift_types:
+                if st in [0, 1, 2, 3]:
+                    count += 1
+                    if count == 7:
+                        user_options.remove(result.user.id)
+                        break
+                else:
+                    count = 0
+        # 接受者
+        if result.shift.name == '休息':
+            results = Result.objects.filter(user=result.user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
+            shift_types = [to_change_result.shift_type if r.date == exchange_date else r.shift_type for r in results]
+            count = 0
+            for st in shift_types:
+                if st in [0, 1, 2, 3]:
+                    count += 1
+                    if count == 7:
+                        user_options.remove(result.user.id)
+                        break
+                else:
+                    count = 0
+    return Response({'users': user_options})
 
 
 @swagger_auto_schema(
