@@ -180,7 +180,6 @@ def initial(request):
         config2=1,
     )
 
-
     # # 班表假資料
     # department = Department.objects.first()
     # users = list(User.objects.filter(can_be_scheduled=True,

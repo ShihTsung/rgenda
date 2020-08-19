@@ -952,34 +952,32 @@ def exchangeable_user(request):
     for result in result_options:
         # 1. 前後班別休息時間是否間隔11小時
         # 申請者
-        pre_result = Result.objects.get(
-            user=user, date=exchange_date - timedelta(days=1))
+        pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
         if pre_result and pre_result.shift.shift_type in [0, 1, 2] and result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
             user_options.remove(result.user.id)
             continue
-        next_result = Result.objects.get(
-            user=user, date=exchange_date + timedelta(days=1))
+        next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
         if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - result.shift.end_time < timedelta(hours=11):
             user_options.remove(result.user.id)
             continue
         # 接受者
-        pre_result = Result.objects.get(
-            user=result.user, date=exchange_date - timedelta(days=1))
+
+        pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
         if pre_result and pre_result.shift.shift_type in [0, 1, 2] and to_change_result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
             user_options.remove(result.user.id)
             continue
-        next_result = Result.objects.get(
-            user=result.user, date=exchange_date + timedelta(days=1))
+        next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
+
         if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - to_change_result.shift.end_time < timedelta(hours=11):
             user_options.remove(result.user.id)
             continue
         # 2. 是否連續上班(原本休息才需要檢查)
         # 申請者
         if to_change_result.shift.name == '休息':
-            results = Result.objects.filter(
-                user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
-            shift_types = [exchange_shift_type if r.date ==
-                           exchange_date else r.shift_type for r in results]
+
+            results = Result.objects.filter(user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
+            shift_types = [exchange_shift_type if r.date == exchange_date else r.shift_type for r in results]
+
             count = 0
             for st in shift_types:
                 if st in [0, 1, 2, 3]:
@@ -991,10 +989,8 @@ def exchangeable_user(request):
                     count = 0
         # 接受者
         if result.shift.name == '休息':
-            results = Result.objects.filter(user=result.user, date__in=[
-                                            exchange_date + timedelta(days=i) for i in range(-6, 7)])
-            shift_types = [to_change_result.shift_type if r.date ==
-                           exchange_date else r.shift_type for r in results]
+            results = Result.objects.filter(user=result.user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)])
+            shift_types = [to_change_result.shift_type if r.date == exchange_date else r.shift_type for r in results]
             count = 0
             for st in shift_types:
                 if st in [0, 1, 2, 3]:
