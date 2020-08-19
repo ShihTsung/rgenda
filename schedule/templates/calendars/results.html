@@ -167,8 +167,8 @@
                     <td colspan="4">出勤</td>
                     <td colspan="4">不出勤</td>
                     <td rowspan='2'>當月差額</td>
-                    <!-- <td rowspan='2'>剩餘補休</td>
-                    <td rowspan='2'>剩餘年假</td> -->
+                    <td rowspan='2'>剩餘補休</td>
+                    <td rowspan='2'>剩餘年假</td>
                   </tr>
                   <tr class="title-row">
                     <td>總計</td>
@@ -193,8 +193,8 @@
                     <td>天</td>
                     <td>天</td>
                     <td>時</td>
-                    <!-- <td>時</td>
-                    <td>天</td> -->
+                    <td>時</td>
+                    <td>天</td>
                   </tr>
 
 
@@ -219,8 +219,8 @@
                       <td class="white-background">-</td>
                       <td class="white-background">-</td>
                       <td class="pastDay">-</td>
-                      <!-- <td class="white-background">-</td>
-                      <td class="white-background">-</td> -->
+                      <td class="white-background">-</td>
+                      <td class="white-background">-</td>
 
                   </tr>
 
@@ -232,7 +232,6 @@
                     <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
                       <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
-                        <!-- [[userShift.date]] -->
                       </div>
                       <div v-if="isAdjust(userShift.user, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user, userShift.date))">
                         [[isAdjust(userShift.user, userShift.date)]]
@@ -243,19 +242,9 @@
                     </td>
                     <td class="user-last-col pastDay">
                       <input class="remark-gird" type="text" value="" @keyup.13="getRemark($event, u.id)" v-if="edit"/>
-                      <!--
-                      <div v-if="!edit">
-                          &nbsp;
-                      </div> -->
                     </td>
-                    <td class="white-background">
-
-                      [[workhr(u.id, month, getYear(year, month), 0)]]
-                    </td>
-                    <td class="pastDay">
-
-                      [[workhr(u.id, month, date, 1)]]
-                    </td>
+                    <td class="white-background">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
+                    <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 3)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 4)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 2)]]</td>
@@ -263,12 +252,9 @@
                     <td class="white-background">[[offHours(u.id, month, 1)]]</td>
                     <td class="white-background">[[offHours(u.id, month, 2)]]</td>
                     <td class="white-background">[[offHours(u.id, month, 3)]]</td>
-                    <td class="pastDay">
-                      <!-- - -->
-                    [[workhr(u.id, month, getYear(year, month), 5)]]
-                    </td>
-                    <!-- <td class="white-background">-</td>
-                    <td class="white-background">-</td> -->
+                    <td class="pastDay">[[workhr(u.id, month, getYear(year, month), 5)]]</td>
+                    <td class="white-background">-</td>
+                    <td class="white-background">-</td>
                   </tr>
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
