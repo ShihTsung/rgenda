@@ -32,14 +32,16 @@ def check_result(d_id, month_to_check=None):
         if User.objects.get(id=user_id).pregnant:
             check_hour_pregnant(deepcopy(schedule), invalid)
     invalid = dict(invalid)
-    for result_id, inv in invalid.items():
-        print(result_id, inv)
-    return invalid
+    output = [{
+        'id': ind,
+        'reason': val,
+    } for ind, val in invalid.items()]
+    return output
 
 
 def check_cycle(department, results, invalid):
     """
-    檢查 單週/單月/三月 內班種是否相同，增加 unique shift type in a week
+    檢查 單週/單月/三月 內班種是否相同，增加 unique shift type in 1 week/1 month/3 months
     :param department:
     :param results:
     :param invalid:
@@ -70,7 +72,7 @@ def check_cycle(department, results, invalid):
             if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
                 current_shift_type = result.shift.shift_type
             elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result.date >= date0:
-                invalid[result.id].append('unique shift type in a week')
+                invalid[result.id].append('unique shift type in 1 week')
             i += 1
         return None
     # 三月同班種 & 需與前一個月同班種
@@ -88,7 +90,7 @@ def check_cycle(department, results, invalid):
                 current_shift_type = st
         for result in results:
             if result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
-                invalid[result.id].append('unique shift type in a week')
+                invalid[result.id].append('unique shift type in 3 months')
         return None
     # 單月同班種 or 三月同班種且為第一個月
     shift_types = [
@@ -103,7 +105,7 @@ def check_cycle(department, results, invalid):
     invalid_type.remove(current_shift_type)
     for result in results:
         if result.shift.shift_type in invalid_type:
-            invalid[result.id].append('unique shift type in a week')
+            invalid[result.id].append('unique shift type in 1 month')
     return None
 
 

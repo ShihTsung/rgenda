@@ -25,9 +25,9 @@ def initial(request):
     from result.models import Result, PreResult, AfterResult, TimeAdjustment
 
     print('clean database')
+    User.objects.all().delete()
     Department.objects.all().delete()
     TimeAdjustment.objects.all().delete()
-    User.objects.all().delete()
     Station.objects.all().delete()
     Shift.objects.all().delete()
     H_Calendar.objects.all().delete()
@@ -179,7 +179,6 @@ def initial(request):
         config1=2,
         config2=1,
     )
-
 
 
     # # 班表假資料
