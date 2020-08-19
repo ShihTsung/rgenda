@@ -180,10 +180,9 @@ export default {
     store() {
       if (!this.validate()) {
         popup.warning({
-            title: '發生錯誤',
-            text: '請檢查所有欄位是否已填寫，檔案是否已上傳',
-          });
-
+          title: '驗證錯誤',
+          text: '請檢查所有欄位是否已填寫，檔案是否已上傳',
+        });
         return false;
       }
 
