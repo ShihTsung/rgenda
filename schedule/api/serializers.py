@@ -41,11 +41,11 @@ class GetDepartmentSerializer(serializers.ModelSerializer):
             mgr1_dict = {
                 'id': mgr1.id,
                 'name': mgr1.full_name,
-            }
+            } if mgr1 else {}
             mgr2_dict = {
                 'id': mgr2.id,
                 'name': mgr2.full_name
-            }
+            } if mgr2 else {}
             ret = {
                 'manager1': mgr1_dict,
                 'manager2': mgr2_dict

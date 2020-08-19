@@ -8,7 +8,7 @@ from django.contrib.auth import update_session_auth_hash
 
 
 # Create your views here.
-from .models import CustomUser, Department
+from .models import CustomUser, Department, DepartmentManager
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from django.http import FileResponse
@@ -85,7 +85,8 @@ def userList(request):
         for user in users:
             if user.role == 'manager':
                 manager_num[user.departmant.detail] += 1
-        departments = [department.detail for department in Department.objects.all()]
+        departments = [
+            department.detail for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
             row0 = row
         if row0 != (None, '帳號', '密碼', '電子信箱', '員工編號', '姓名', '科別', '職稱', '職級', '性別', '權限', '排班身份', '其他', '排班狀況', '到職日'):
@@ -426,6 +427,12 @@ def departmentDetail(request, id):
     return render(request, 'department/detail.html', context)
 
 
+def get_or_none(classmodel, **kwargs):
+    try:
+        return classmodel.objects.get(**kwargs)
+    except classmodel.DoesNotExist:
+        return None
+
 # 編輯部門
 @login_required
 def departmentEdit(request, id=None):
@@ -436,8 +443,22 @@ def departmentEdit(request, id=None):
                                 )
     if form.is_valid() and request.method == "POST":
         form.save()
+        mgrtable = get_or_none(DepartmentManager, department=department)
+        mgr1 = int(form.data['mgr1']) if form.data['mgr1'] else None
+        mgr2 = int(form.data['mgr2']) if form.data['mgr2'] else None
+        mgr1_obj = get_or_none(CustomUser, id=mgr1)
+        mgr2_obj = get_or_none(CustomUser, id=mgr2)
+
+        if mgrtable:
+            mgrtable.manager_one = mgr1_obj
+            mgrtable.manager_two = mgr2_obj
+        else:
+            mgrtable = DepartmentManager.objects.create(
+                department=department,
+                manager_one=mgr1_obj,
+                manager_two=mgr2_obj
+            )
         new_managers = [form.data['mgr1'], form.data['mgr2']]
-        print(new_managers)
         users = CustomUser.objects.filter(department=department)
         for user in users:
             if user.role != 'admin':

@@ -223,7 +223,22 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         operation_summary='加減班清單',
-        operation_description='列出所有加減班清單',
+        operation_description='''列出所有加減班清單
+
+        type:
+
+            (0, '增加時數'),
+            (1, '減少時數'),
+
+        item:
+
+            (0, '工作日加班'),
+            (1, '休息日出勤'),
+            (2, '國定假日出勤'),
+            (3, '空班出勤'),
+            (4, 'On Call出勤'),
+            (5, '機構減班'),
+        ''',
         manual_parameters=[
             start_date, end_date, uid, adj_type, adj_item
         ]

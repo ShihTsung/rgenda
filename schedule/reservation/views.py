@@ -40,7 +40,8 @@ def get_reserve_leave(department, date_start, date_end):
     :return:
     """
     output = defaultdict(list)
-    reservations = Reservation.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end)
+    reservations = Reservation.objects.filter(
+        user__department=department, date__gte=date_start, date__lte=date_end)
     for reservation in reservations:
         output[reservation.user.id].append(reservation.date)
     return output
@@ -62,3 +63,7 @@ def get_official_leave(department, date_start, date_end):
     for ol in official_leaves:
         output[ol.user.id].append(ol.date)
     return output
+
+
+def time_adjustment(request):
+    return render(request, 'time_adjustment/time_adjustment.html')
