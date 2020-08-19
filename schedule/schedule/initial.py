@@ -110,7 +110,7 @@ def initial(request):
         user.full_name = names[i]
         user.level = 1
         user.job_title = '職稱'
-        user.type_of_user = 0
+        user.type_of_user = random.randint(0, 1)
         user.gender = 'female'
         user.holiday_rest_num = 40
         user.special_rest_num = 10
@@ -180,24 +180,7 @@ def initial(request):
         config2=1,
     )
 
-# demand user table
-    for i in range(3):
-        demand_user = DemandUserTable.objects.create(
-            demand=demand0,
-            user=User.objects.get(id=i+1),
-        )
-        demand_user = DemandUserTable.objects.create(
-            demand=demand1,
-            user=User.objects.get(id=i+4),
-        )
-        demand_user = DemandUserTable.objects.create(
-            demand=demand3,
-            user=User.objects.get(id=i+7)
-        )
-        demand_user = DemandUserTable.objects.create(
-            demand=demand2,
-            user=User.objects.get(id=10)
-        )
+
 
     # # 班表假資料
     # department = Department.objects.first()
