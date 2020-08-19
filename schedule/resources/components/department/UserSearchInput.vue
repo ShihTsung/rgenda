@@ -31,6 +31,9 @@ export default {
         this.open = true;
         this.current = 0;
       }
+      if (this.inputValue === '') {
+        this.$emit('input', {});
+      }
     },
     enter() {
       this.suggestionClick(this.current);

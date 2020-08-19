@@ -122,6 +122,7 @@ import popup from 'common/popup';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import UserSearchInput from './UserSearchInput';
+import {cloneDeep, isEmpty, isEqual} from 'lodash';
 
 export default {
   components: {
@@ -158,8 +159,15 @@ export default {
       ]).then(responses => {
         let department = responses[0].data;
         department.date_start = moment(department.date_start).toDate();
-        self.department = Object.assign({}, department, self.department);
-        self.userList = responses[1].data;
+        department.original_managers = cloneDeep(department.managers);
+        self.department = Object.assign(self.department, department);
+
+        let userList = responses[1].data;
+        if (Array.isArray(userList)) {
+          self.userList = userList.filter(i => [0, 1].indexOf(i.type_of_user) >= 0);
+        } else {
+          self.userList = userList;
+        }
       }).catch((err) => {
         console.log(err);
       });
@@ -170,7 +178,7 @@ export default {
     save() {
       if (!this.validate()) {
         popup.warning({
-          title: '發生錯誤',
+          title: '驗證錯誤',
           text: '請檢查所有欄位是否已填寫',
         });
         return false;
@@ -198,17 +206,33 @@ export default {
       };
       const departmentManagerData = {
         department: this.departmentId,
-        manager_one: this.department.managers.manager1.id,
-        manager_two: this.department.managers.manager2.id,
+        manager_one: this.department.managers.manager1.id || null,
+        manager_two: this.department.managers.manager2.id || null,
       };
 
       popup.loading({
         title: '處理中...',
       });
 
+      let self = this;
+      let departmentManagerPromise = null;
+      if (isEmpty(this.department.original_managers)) {
+        // 若原本資料不存在，直接新增一筆
+        departmentManagerPromise = this.$httpClient.post('/api/department-manager/', departmentManagerData, formConfig);
+      } else {
+        // 若原本資料存在，查詢對應departmentId的`account_departmentmanager`.`id`，並且更新資料內容
+        departmentManagerPromise = this.$httpClient.get('/api/department-manager/')
+          .then(response => {
+            const departmentManager = response.data.find(i => i.department === self.departmentId);
+            if (departmentManager) {
+              return this.$httpClient.patch('/api/department-manager/' + departmentManager.id + '/', departmentManagerData, formConfig);
+            }
+            return Promise.reject('No valid department-manager for update');
+          });
+      }
       Promise.all([
         this.$httpClient.patch('/api/departments/' + this.departmentId + '/', departmentData, formConfig),
-        this.$httpClient.patch('/api/department-manager/' + this.departmentId + '/', departmentManagerData, formConfig),
+        departmentManagerData,
       ]).then(responses => {
         popup.success({
           title: '修改排班規則',
@@ -227,8 +251,7 @@ export default {
     validate() {
       if (this.department.name === ''
       || this.department.detail === ''
-      || isNaN(parseInt(this.department.managers.manager1.id))
-      || isNaN(parseInt(this.department.managers.manager2.id))
+      || (isNaN(parseInt(this.department.managers.manager1.id)) && isNaN(parseInt(this.department.managers.manager2.id)))
       || this.department.limit_pre_schedule < 0 || this.department.limit_pre_schedule > 31
       || this.department.deadline_pre_schedule < 0 || this.department.deadline_pre_schedule > 29
       || this.department.can_rest_redday < 0
