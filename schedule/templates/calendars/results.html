@@ -167,8 +167,8 @@
                     <td colspan="4">出勤</td>
                     <td colspan="4">不出勤</td>
                     <td rowspan='2'>當月差額</td>
-                    <td rowspan='2'>剩餘補休</td>
-                    <td rowspan='2'>剩餘年假</td>
+                    <!-- <td rowspan='2'>剩餘補休</td>
+                    <td rowspan='2'>剩餘年假</td> -->
                   </tr>
                   <tr class="title-row">
                     <td>總計</td>
@@ -193,8 +193,8 @@
                     <td>天</td>
                     <td>天</td>
                     <td>時</td>
-                    <td>時</td>
-                    <td>天</td>
+                    <!-- <td>時</td>
+                    <td>天</td> -->
                   </tr>
 
 
@@ -219,8 +219,8 @@
                       <td class="white-background">-</td>
                       <td class="white-background">-</td>
                       <td class="pastDay">-</td>
-                      <td class="white-background">-</td>
-                      <td class="white-background">-</td>
+                      <!-- <td class="white-background">-</td>
+                      <td class="white-background">-</td> -->
 
                   </tr>
 
@@ -258,8 +258,8 @@
                     <td class="white-background">-</td>
                     <td class="white-background">-</td>
                     <td class="pastDay">-</td>
-                    <td class="white-background">-</td>
-                    <td class="white-background">-</td>
+                    <!-- <td class="white-background">-</td>
+                    <td class="white-background">-</td> -->
                   </tr>
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
@@ -442,7 +442,8 @@
       shiftData: Array,
       selected: String,
       stationData: Array,
-      remark: Array,
+      remark: [],
+      remarkData: [],
       singleEdit: false,
       changedResult: [],
       changeInfo: Object,
@@ -490,6 +491,16 @@
         }).catch(err=>{
           console.log(err);
         });
+
+        fetch('/api/user-remarks/')
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          console.log(data);
+          this.remarkData = data;
+        }).catch(err=>{
+          console.log(err);
+        })
     },
 
     methods : {
@@ -611,14 +622,6 @@
             return "Nn";
         }
       },
-
-      // getUser(u) {
-      //   return this.userData.find((item)=>{
-      //     if(item.user.id == u){
-      //       return item.user.eid;
-      //     }
-      //   });
-      // },
 
       workhr(u, m, today, n) {//出勤時數
         let month = new Date().getMonth() ;//+1
@@ -762,11 +765,15 @@
       },
 
       getRemark(ev, i) {
-        this.remark[i] = ev.target.value;
+        let data = {};
+
         console.log(i);
-        console.log(this.remark[i]);
-        console.log(this.remark[1]);
-        return this.remark[i];
+        data.content = ev.target.value.toString();
+        data.user = i;
+
+        this.remark.push(data);
+
+        // console.log(this.remark);
       },
 
       editShift(ev, info) {
@@ -794,12 +801,12 @@
         this.obj.user = this.changeInfo.user;
         this.changedResult.push(this.obj);//之後丟去api修正
 
-        console.log(this.obj.shift);
+        // console.log(this.obj.shift);
         let shift_id = this.shiftData.find((i)=>{
           return i.id == this.obj.shift;
         });
 
-        console.log(shift_id);
+        // console.log(shift_id);
         //shift id to shift type
         switch (shift_id.shift_type) {
           case 0:
@@ -916,9 +923,52 @@
           });
         });
 
+        this.remark.forEach((i)=>{
+          //檢查remarkData中有沒有資料
+
+          let check = this.remarkData.find(item=>{
+            return item.user == i.user;
+          });
+
+
+          //remarkData有資料
+          if(check) {
+            fetch('http://localhost/api/user-remarks/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {//remarkData沒資料
+            fetch('http://localhost/api/user-remarks/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+
+
+
+        });
+
 
         this.changedResult.length = 0;
-
+        this.remark.length = 0;
       },
 
       isNull(id, m) {
@@ -954,7 +1004,7 @@
         let url = '';
         this.followEdit = false;
 
-        url = 'http://localhost/api/follow-shift/' + this.mentor + '/' + this.follower + '/' + this.startDate + '/' + this.endDate + '/';
+        url = 'http://localhost/api/follow-shift?start=' + this.startDate + '&end=' + this.endDate + '&follower=' + this.follower.toString() + '&mentor=' + this.mentor.toString();
 
 
         fetch(url)
@@ -965,15 +1015,20 @@
           });
 
 
-        console.log(this.follower);
-        console.log(this.mentor);
-        console.log(this.startDate);
-        console.log(this.endDate);
+        this.follower = -1;
+        this.mentor = -1;
+        this.startDate = '';
+        this.endDate = '';
 
-        // this.follower = -1;
-        // this.mentor = -1;
-        // this.startDate = '';
-        // this.endDate = '';
+        location.reload();
+      },
+
+      //當月該使用者是否有備註
+        // isRemark(u, m) {
+
+        // }
+
+      offHours(u, m, d) {
 
       }
     },
