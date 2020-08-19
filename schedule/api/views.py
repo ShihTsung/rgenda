@@ -734,6 +734,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
 @parser_classes([JSONParser])
 def total_per_day_api(request):
     results = {}
+    ret = []
     if request.query_params:
         start = request.query_params.get('start')
         end = request.query_params.get('end')
@@ -766,11 +767,20 @@ def total_per_day_api(request):
             if r.shift.shift_type in [0, 1, 2]:
                 diff_set[
                     r.date.strftime('%Y-%m-%d')][str(r.shift.shift_type)] += 1
+        ret = []
+        for date in dates:
+            date_str = date.date.strftime('%Y-%m-%d')
+            change_dict = {'0': 'D', '1': 'E', '2': 'N'}
+            new_obj = {
+                    'date': date_str
+                }
+            for i in ['0', '1', '2']:
+                new_obj[change_dict[i]] = [
+                    results[date_str][i], diff_set[date_str][i]
+                    ]
+            ret.append(new_obj)
 
-    return Response({
-        'demand': results,
-        'real': diff_set
-    })
+    return Response(ret)
 
 
 @swagger_auto_schema(

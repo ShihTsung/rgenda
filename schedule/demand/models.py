@@ -11,6 +11,8 @@ from account.models import CustomUser
 
 
 class DemandOfStation(models.Model):
+    class Meta:
+        unique_together = (('station', 'shift', 'level'),)
     shift = models.ForeignKey(Shift, verbose_name=_(
         'Shift'), on_delete=models.CASCADE, null=True)
     station = models.ForeignKey(Station, verbose_name=_('Station'),
