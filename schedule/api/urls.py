@@ -23,6 +23,7 @@ router.register(r'remark-squares', views.RemarkSquareViewSet)
 router.register(r'result-remarks', views.ResultRemarkViewSet)
 router.register(r'demand-user', views.DemandUserTableViewset)
 router.register(r'exchange-shift', views.ExchangeApplicationViewSet)
+router.register(r'department-manager', views.DepartmentManagerViewSet)
 
 
 urlpatterns = [
@@ -34,4 +35,5 @@ urlpatterns = [
     path('notification/mark-all-as-read', views.mark_all_notices_read),
     path('last-month-continue', views.last_month_continue),
     path('exchangeable-users', views.exchangeable_user),
+    path('follow-shift', views.follow_shift_api),
 ]

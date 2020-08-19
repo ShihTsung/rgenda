@@ -67,7 +67,7 @@ export default {
         title: '處理中...',
       });
 
-      let promiseArr = demandIds.map(function(id) {
+      let promiseArr = demandIds.map(function (id) {
         let url = `/api/demands/${id}/`;
         const formConfig = {
           headers: {
@@ -92,11 +92,14 @@ export default {
       Promise.all(
         promiseArr
       ).then(function (response) {
+
         popup.success({
           title: '刪除人力配置',
           text: '請求成功',
-        }, function() {
-          location.reload();
+        }, function () {
+          self.cancelDeletion();
+          // refresh demand list
+          self.$parent.getDemands();
         });
       }).catch(function (error) {
         // handle error
@@ -108,12 +111,6 @@ export default {
       });;
     },
     cancelDeletion() {
-      this.deleteShift = {
-        demandIds: [],
-        stationName: '',
-        shiftName: '',
-      };
-
       this.$parent.cancelDeletion();
     },
   },

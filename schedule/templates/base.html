@@ -273,8 +273,8 @@
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
                             調班申請</a>
                         {% endif %}
-                        <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
-                            調班紀錄</a>
+                        <!-- <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
+                            調班紀錄</a> -->
                     </div>
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
@@ -530,11 +530,11 @@
         });
         let sideClicked = $.cookie("sideClicked");
 
-        if (sideClicked) {
-          if (!(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange" || sideClicked ===
-              "sw" || sideClicked === "side-redfalcon" || sideClicked === "da" || sideClicked === "d")) {
-            document.getElementById(sideClicked).classList.add("clicked");
-          }
+        if (sideClicked && document.getElementById(sideClicked)
+        && !(sideClicked === "acm" || sideClicked === "arr-add" || sideClicked === "arrange"
+          || sideClicked === "sw" || sideClicked === "side-redfalcon" || sideClicked === "da" || sideClicked === "d")
+        ) {
+          document.getElementById(sideClicked).classList.add("clicked");
         };
 
         $(".fold_m").click((e) => {

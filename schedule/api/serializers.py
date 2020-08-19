@@ -1,7 +1,7 @@
 from notifications.models import Notification
 from rest_framework import serializers
 from rest_framework.decorators import action
-from account.models import CustomUser, Department, Liscense
+from account.models import CustomUser, Department, Liscense, DepartmentManager
 from station.models import Station
 from shift.models import Shift
 from demand.models import DemandOfStation, DemandUserTable
@@ -11,19 +11,61 @@ from result.models import (Result, PreResult,
                            ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
 from remarks.models import UserRemark, RemarkSquare, ResultRemark
-
+import datetime
 # 部門/科別
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Department
         fields = (
             'id', 'name', 'detail', 'limit_pre_schedule',
             'deadline_pre_schedule', 'reset', 'law_rule', 'schedule_rule',
-            'admin_in_schedule', 'same_day_notice', 'date_start'
+            'admin_in_schedule', 'same_day_notice', 'date_start',
+            'start_of_week', 'can_rest_redday',
+            'overtime_rule'
         )
         read_only_fields = ('id', )
+
+
+class GetDepartmentSerializer(serializers.ModelSerializer):
+    managers = serializers.SerializerMethodField()
+
+    def get_managers(self, obj):
+        try:
+            mgrs = DepartmentManager.objects.get(department=obj)
+            mgr1 = mgrs.manager_one
+            mgr2 = mgrs.manager_two
+
+            mgr1_dict = {
+                'id': mgr1.id,
+                'name': mgr1.full_name,
+            }
+            mgr2_dict = {
+                'id': mgr2.id,
+                'name': mgr2.full_name
+            }
+            ret = {
+                'manager1': mgr1_dict,
+                'manager2': mgr2_dict
+            }
+        except DepartmentManager.DoesNotExist:
+            ret = {
+
+            }
+
+        return ret
+
+    class Meta:
+        model = Department
+        fields = ('id', 'name', 'detail', 'limit_pre_schedule',
+                  'deadline_pre_schedule', 'reset', 'law_rule',
+                  'schedule_rule', 'admin_in_schedule',
+                  'same_day_notice', 'date_start',
+                  'start_of_week', 'can_rest_redday', 'overtime_rule',
+                  'managers'
+                  )
 
 
 class SimpleDepartmentSerializer(serializers.ModelSerializer):
@@ -62,6 +104,15 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
             'gender', 'role', 'is_superuser', 'type_of_user',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
+        read_only_fields = ('id', )
+
+
+class DepartmentManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DepartmentManager
+        fields = (
+            'id', 'department', 'manager_one', 'manager_two'
+        )
         read_only_fields = ('id', )
 
 
@@ -388,7 +439,8 @@ class GetDemandSerializer(serializers.ModelSerializer):
             res.append({
                 'id': p.user.id,
                 'full_name': p.user.full_name,
-                'level': level})
+                'level': level,
+                'demand_user_id': p.id})
         return res
 
     class Meta:
@@ -444,6 +496,38 @@ class ExchangeApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeApplication
         fields = '__all__'
+
+
+class GetExchangeApplicationSerializer(serializers.ModelSerializer):
+    apply_result = serializers.SerializerMethodField()
+    receive_result = serializers.SerializerMethodField()
+
+    def get_apply_result(self, obj):
+        # date = datetime.datetime.strptime(obj.date_start, '%Y-%m-%d').date()
+        date = obj.date_start
+        try:
+            ret = Result.objects.get(user=obj.user_apply, date=date)
+            ret = GetResultSerializer(ret)
+        except Result.DoesNotExist:
+            ret = ''
+        return ret
+
+    def get_receive_result(self, obj):
+        # date = datetime.datetime.strptime(obj.date_start, '%Y-%m-%d').date()
+        date = obj.date_start
+        try:
+            ret = Result.objects.get(user=obj.user_receive, date=date)
+            ret = GetResultSerializer(ret)
+        except Result.DoesNotExist:
+            ret = ''
+        return ret
+
+    class Meta:
+        model = ExchangeApplication
+        fields = (
+            'id', 'user_apply', 'user_receive',
+            'date_start', 'date_end', 'application_status',
+            'receive_result', 'apply_result')
 
 
 class NotificationSerializer(serializers.ModelSerializer):

@@ -40,26 +40,35 @@ class DateInput(forms.DateInput):
 
 # 建立帳號
 class CustomUserCreationForm(UserCreationForm):
+    username = forms.CharField(label=_('帳號'))
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
-        label=_('Department'), required=False)
+        label=_('科別'), required=False)
 
     onboard_date = forms.DateField(
-        label=_('OnboardDate'),
+        label=_('到職日'),
         widget=DateInput(attrs={'type': 'date'}))
 
     can_be_scheduled = forms.BooleanField(
         label='是否可排班',
         required=False,
     )
+    holiday_rest_num = forms.IntegerField(
+        label=_('假日可休日數'),
+        required=False
+    )
+    special_rest_num = forms.IntegerField(
+        label=_('總特休日數'),
+        required=False
+    )
 
     class Meta:
         model = CustomUser
         help_texts = {}
         fields = ['username', 'email', 'password1', 'password2', 'full_name',
-                  'department', 'level', 'gender', 'role',
+                  'department', 'level', 'gender', 'role', 'job_title',
                   'type_of_user', 'can_be_scheduled', 'eid',
-                  'onboard_date']
+                  'onboard_date', 'holiday_rest_num', 'special_rest_num']
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
@@ -70,7 +79,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 # 編輯帳號
 class CustomUserChangeForm(UserChangeForm):
-
+    username = forms.CharField(label=_('帳號'))
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         label=_('科別'), required=False)
@@ -108,22 +117,22 @@ class CustomUserChangeForm(UserChangeForm):
             choices=TYPE_CHOICES)
     )
     pregnant = forms.BooleanField(
-        label=_('其他'),
+        label=_('哺乳期/妊娠'),
         required=False,
     )
     can_be_scheduled = forms.BooleanField(
-        label=_('排班狀況'),
+        label=_('正常排班'),
         required=False,
         initial=False
     )
 
     holiday_rest_num = forms.IntegerField(
-        label=_('假日可休假日數'),
+        label=_('假日可休日數'),
         disabled=True,
         required=False
     )
     special_rest_num = forms.IntegerField(
-        label=_('特休'),
+        label=_('總特休日數'),
         disabled=True,
         required=False
     )
@@ -151,7 +160,8 @@ class CustomUserChangeForm(UserChangeForm):
                   'level', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
                   'special_rest_num', 'hour_required',
-                  'eid', 'onboard_date')
+                  'eid', 'onboard_date', 'holiday_rest_num_used',
+                  'special_rest_num_used')
 
 # 消除 help_text
 

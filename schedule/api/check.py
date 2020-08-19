@@ -58,9 +58,11 @@ def check_cycle(department, results, invalid):
         for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
             if d < date0:
                 try:
+
                     results.insert(0, Result.objects.get(date=d, user=user))
+
                     i -= 1
-                except:
+                except Result.DoesNotExist:
                     break
             else:
                 break
@@ -91,7 +93,8 @@ def check_cycle(department, results, invalid):
                 invalid[result.id].append('unique shift type in 3 months')
         return None
     # 單月同班種 or 三月同班種且為第一個月
-    shift_types = [result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2]]
+    shift_types = [
+        result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2]]
     counter = 0
     current_shift_type = None
     for st in [0, 1, 2]:
@@ -128,7 +131,7 @@ def check_rest_day(department, results, invalid):
             try:
                 results.insert(0, Result.objects.get(date=d, user=user))
                 ind -= 1
-            except:
+            except Result.DoesNotExist:
                 break
         else:
             break
@@ -143,7 +146,8 @@ def check_rest_day(department, results, invalid):
         else:
             continue_workday = 0
     # start checking
-    work_days_limit = 5 * 2 ** department.law_rule * (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
+    work_days_limit = 5 * 2 ** department.law_rule * \
+        (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
     work_days = 0
     for result in results:
         if ind % (5 * 2 ** department.law_rule) == 0:
@@ -187,8 +191,9 @@ def check_rest_hour(results, invalid):
             else:
                 last_off_time = datetime.combine(
                     last_result.date, last_result.shift.end_time)
-    except:
-        last_off_time = datetime.combine(results[0].date, time(hour=0, minute=0, second=0)) - timedelta(days=1)
+    except Result.DoesNotExist:
+        last_off_time = datetime.combine(results[0].date, time(
+            hour=0, minute=0, second=0)) - timedelta(days=1)
     for result in results:
         if result.shift.shift_type in [0, 1, 2]:
             start_time = datetime.combine(result.date, result.shift.start_time)
