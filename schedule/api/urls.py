@@ -32,5 +32,6 @@ urlpatterns = [
     path('checkresult/', views.check_result_api),
     path('total-per-day/', views.total_per_day_api),
     path('notification/mark-all-as-read', views.mark_all_notices_read),
-    path('last-month-continue', views.last_month_continue)
+    path('last-month-continue', views.last_month_continue),
+    path('exchangeable-users', views.exchangeable_user),
 ]
