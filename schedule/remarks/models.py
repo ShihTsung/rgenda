@@ -5,11 +5,17 @@ from result.models import Result
 
 
 class UserRemark(models.Model):
+    class Meta:
+        unique_together = (('user', 'month'),)
 
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         CustomUser,
         verbose_name=_('使用者'),
         on_delete=models.CASCADE,
+        null=True
+    )
+    month = models.IntegerField(
+        verbose_name=_('月份'),
         null=True
     )
     content = models.CharField(
