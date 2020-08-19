@@ -605,6 +605,8 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                 user_current_level = list()
 
                 # 建立參與排班的user池 & output
+                if not demand['users']:
+                    continue
                 for user in demand['users']:
                     user_current_level.append(user.id)
                     user_pool.update({

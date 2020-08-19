@@ -14,11 +14,11 @@ from drf_yasg import openapi
 from rest_framework.parsers import JSONParser
 
 # others
-from datetime import timedelta
-import datetime
+from datetime import datetime, timedelta
 from .check import *
 from .serializers import *
 from notifications.models import Notification
+from result.views import str_to_date
 
 # models
 from account.models import CustomUser, Department, Liscense, DepartmentManager
@@ -926,33 +926,58 @@ def exchangeable_user(request):
     :return: 申請換班的日期
     :exchange_shift_type: 申請要換的班別
     """
+    from datetime import datetime, timedelta
     user = request.user
-    exchange_date = request.GET.get('exchange_date')
+    exchange_date = str_to_date(request.GET.get('exchange_date'))
     exchange_shift_type = request.GET.get('exchange_shift_type')
-    to_change_result = Result.objects.get(user=user, date=exchange_date)
-    result_options = Result.objects.filter(user__department=user.department, date=exchange_date,
-                                           shift__shift_type=exchange_shift_type)
+    try:
+        to_change_result = Result.objects.get(user=user, date=exchange_date)
+    except Result.DoesNotExist:
+        return Response({
+            'users': None,
+            'messages': 'Result Not Found',
+        })
+    try:
+        result_options = Result.objects.filter(user__department=user.department, date=exchange_date,
+                                               shift__shift_type=exchange_shift_type).exclude(user=user)
+    except Result.DoesNotExist:
+        return Response({
+            'users': None,
+            'messages': 'None',
+        })
     user_options = [result.user.id for result in result_options]
     for result in result_options:
         # 1. 前後班別休息時間是否間隔11小時
         # 申請者
-        pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
-        if pre_result and pre_result.shift.shift_type in [0, 1, 2] and result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
-            user_options.remove(result.user.id)
-            continue
-        next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
-        if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - result.shift.end_time < timedelta(hours=11):
-            user_options.remove(result.user.id)
-            continue
+        try:
+            pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
+            if pre_result and pre_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date, result.shift.start_time) - datetime.combine(exchange_date - timedelta(days=1), pre_result.shift.end_time) < timedelta(hours=11):
+                user_options.remove(result.user.id)
+                continue
+        except Result.DoesNotExist:
+            pass
+        try:
+            next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
+            if next_result and next_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date + timedelta(days=1), next_result.shift.start_time) - datetime.combine(exchange_date, result.shift.end_time) < timedelta(hours=11):
+                user_options.remove(result.user.id)
+                continue
+        except Result.DoesNotExist:
+            pass
         # 接受者
-        pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
-        if pre_result and pre_result.shift.shift_type in [0, 1, 2] and to_change_result.shift.start_time - pre_result.shift.end_time < timedelta(hours=11):
-            user_options.remove(result.user.id)
-            continue
-        next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
-        if next_result and next_result.shift.shift_type in [0, 1, 2] and next_result.shift.start_time - to_change_result.shift.end_time < timedelta(hours=11):
-            user_options.remove(result.user.id)
-            continue
+        try:
+            pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
+            if pre_result and pre_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date, to_change_result.shift.start_time) - datetime.combine(exchange_date - timedelta(days=1), pre_result.shift.end_time) < timedelta(hours=11):
+                user_options.remove(result.user.id)
+                continue
+        except Result.DoesNotExist:
+            pass
+        try:
+            next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
+            if next_result and next_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date + timedelta(days=1), next_result.shift.start_time) - datetime.combine(exchange_date, to_change_result.shift.end_time) < timedelta(hours=11):
+                user_options.remove(result.user.id)
+                continue
+        except Result.DoesNotExist:
+            pass
         # 2. 是否連續上班(原本休息才需要檢查)
         # 申請者
         if to_change_result.shift.name == '休息':
@@ -980,7 +1005,10 @@ def exchangeable_user(request):
                         break
                 else:
                     count = 0
-    return Response({'users': user_options})
+    return Response({
+        'users': user_options,
+        'messages': 'Success',
+    })
 
 
 @swagger_auto_schema(
