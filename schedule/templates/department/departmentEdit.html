@@ -1,95 +1,17 @@
 {% extends "base.html" %}
-{% block title %} Edit Department {% endblock %}
+{% block title %} 排班規則管理 {% endblock %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load static %}
+
 {% block content %}
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
-                <div class="title text-center">
-                    <h2>編輯科別</h2>
-                </div>
-                {% csrf_token %}
-
-                {{ form.name |as_crispy_field }}
-                {{ form.detail |as_crispy_field }}
-                <div class="form-group">
-                    <label for="">管理者1</label>
-                    <select name="mgr1" id="manager1" class="form-control">
-                        <option value="NULL" selected="selected">---</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="">管理者2</label>
-                    <select name="mgr2" id="manager2" class="form-control">
-                        <option value="NULL" selected="selected">---</option>
-                    </select>
-                </div>
-                {{ form.limit_pre_schedule |as_crispy_field }}
-                {{ form.deadline_pre_schedule |as_crispy_field }}
-                {{ form.reset |as_crispy_field }}
-                {{ form.law_rule |as_crispy_field }}
-                {{ form.schedule_rule |as_crispy_field }}
-                {{ form.admin_in_schedule |as_crispy_field }}
-                {{ form.same_day_notice |as_crispy_field }}
-                {{ form.date_start |as_crispy_field }}
-
-                <div class="col-12 text-center">
-                    <a href="/departments/list" class="btn btn-secondary btn-lg col-3">取消</a>
-                    <button class="btn btn-primary btn-lg col-3" type="submit">儲存</button>
-                </div>
-            </form>
-        </div>
-    </div>
+<div id="app" class="container">
+  <div class="title text-left mb-4">
+    <h3>排班規則管理</h3>
+  </div>
+  <department-edit :department-id="{{id}}" csrf-token="{{ csrf_token }}"></department-edit>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        let department = "{{id}}";
-        let users = [];
-        let mgr1 = document.getElementById('manager1');
-        let mgr2 = document.getElementById('manager2');
-        let selected = []
-        fetch('/api/users/?department=' + department)
-        .then(res=>{
-            return res.json()
-        })
-        .then(data=>{
-            //過濾出要顯示在選單的人
-            let index = 1
-            data.forEach(e=>{
-                if(e.role!=='admin'){
-                    op = document.createElement('option')
-                    op.value = e.id;
-                    op.text = e.full_name;
-                    mgr1.appendChild(op);
-                    op = document.createElement('option')
-                    op.value = e.id;
-                    op.text = e.full_name;
-                    mgr2.appendChild(op);
-                    if (e.role=='manager' && !selected.includes(index)){
-                        selected.push(index)
-                    }
-                    index ++;
-                }
-            });
-            mgr1.selectedIndex = selected[0];
-            mgr2.selectedIndex = selected[1];
-        });
-    });
-</script>
-<style>
-    .card{
-        margin-top:5rem;
-        box-shadow: 1px 1px 2px 0px;
-        min-width: 20rem;
-    }
-    .card-body{
-        padding: 5rem 10rem;
-    }
-    a.btn{
-        margin: 0;
-    }
-</style>
+<script src="{% static 'assets/department-edit.bundle.js' %}"></script>
+
 {% endblock %}

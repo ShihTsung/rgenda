@@ -9,12 +9,15 @@
             </span>
           </button>
         </div>
-        <div class="modal-body text-center pt-0">
-          <h3 class="modal-title mb-4">科別內容</h3>
-          <div class="mb-4" v-for="column in columns" :key="column.field">
-            <div class="row" v-if="column.label !== '' && rowData.hasOwnProperty(column.field)">
-              <div class="col-sm-6 col-lg-3">{{column.label}}：</div>
-              <div class="col-sm-6 col-lg-9">{{rowData[column.field]}}</div>
+        <div class="modal-body text-left pt-0">
+          <h3 class="modal-title mb-4 mx-">科別內容</h3>
+          <div class="mx-4">
+            <div class="mb-2" v-for="column in columns"
+            :key="column.field"
+            v-show="column.label !== '' && computedRow.hasOwnProperty(column.field)">
+              <div class="font-weight-bold">{{ column.label }}：</div>
+              <div v-if="column.const">{{ getConstString(column) }}</div>
+              <div v-else>{{ computedRow[column.field] }}</div>
             </div>
           </div>
         </div>
@@ -41,11 +44,11 @@ export default {
         },
         {
           label: '管理人1',
-          field: 'user1',
+          field: 'manager1',
         },
         {
           label: '管理人2',
-          field: 'user2',
+          field: 'manager2',
         },
         {
           label: '預約休假數量',
@@ -58,18 +61,27 @@ export default {
         {
           label: '時數重置規則',
           field: 'reset',
+          const: '$getResetTypeString',
+        },
+        {
+          label: '週起始日',
+          field: 'start_of_week',
+          const: '$getStartOfWeekString',
         },
         {
           label: '勞基法工時規則',
           field: 'law_rule',
+          const: '$getLawRuleString',
         },
         {
           label: '加班規則',
           field: 'overtime_rule',
+          const: '$getOvertimeRuleString',
         },
         {
           label: '班種設定',
-          field: 'shift_setting',
+          field: 'schedule_rule',
+          const: '$getScheduleRuleString',
         },
         {
           label: '管理者是否排班',
@@ -80,24 +92,26 @@ export default {
           field: 'pre_schedule_warning',
         },
         {
-          label: '週起始日',
-          field: 'week_begin_date',
-        },
-        {
           label: '起算日期',
           field: 'start_date',
         }
       ],
     }
   },
+  methods: {
+    getConstString(column) {
+      return this[column.const](this.computedRow[column.field]);
+    },
+  },
   computed: {
     computedRow() {
-      return this.rowData.map(field => {
-        let newField = Object.assign({}, field, {
-          user1: field.user1,
-          user2: field.user2,
-        });
-      });
+      if (this.rowData.managers) {
+        return Object.assign(this.rowData, {
+          manager1: this.rowData.managers.manager1 ? this.rowData.managers.manager1.name : '',
+          manager2: this.rowData.managers.manager2 ? this.rowData.managers.manager2.name : '',
+        })
+      }
+      return this.rowData;
     },
   },
   props: ['rowData'],
