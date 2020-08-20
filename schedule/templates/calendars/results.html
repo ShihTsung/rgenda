@@ -3,83 +3,9 @@
 {% load static %}
 {% block title %}{% trans 'Result' %}{% endblock %}
 {% block content %}
-<!-- <script src="{% static "fullcalendar/resource-common/main.min.js" %}"></script> -->
-<!-- <script src="{% static "fullcalendar/resource-timegrid/main.js" %}"></script> -->
-<!-- <script src="{% static "fullcalendar/resource-timeline/main.min.js" %}"></script> -->
-<!-- <script src="{% static "fullcalendar/resource-daygrid/main.min.js" %}"></script> -->
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
-
-<!-- <link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}"> -->
-<!-- <link rel="stylesheet" href="{% static 'css/calendar.css' %}"> -->
-<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-<!-- <div class="container">
-    <div id="calendar">
-
-    </div>
-</div> -->
-<!-- modal  create-->
-<!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">new event</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form action="" id="addEvent">
-          <label for="shift">{%trans 'Shift'%}</label>
-          <select name="shift" id="shift" class="form-control">
-
-          </select>
-          <label for="station">{%trans 'Station'%}</label>
-          <select name="station" id="station" class="form-control">
-
-          </select>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
-        <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-<!-- modal edit-->
-<!-- <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">edit event</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form action="">
-          <label for="shift">{%trans 'Shift'%}</label>
-          <select name="shift" id="edit-shift" class="form-control">
-
-          </select>
-          <label for="station">{%trans 'Station'%}</label>
-          <select name="station" id="edit-station" class="form-control">
-
-          </select>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal" id="edit-delete">{%trans 'Delete'%}</button>
-        <button type="button" class="btn btn-primary" id="edit-save">{%trans 'Save'%}</button>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-
 
   <div id='app'>
     <div class='master'>
@@ -230,6 +156,12 @@
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
                     <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, whichBorder(userShift.id)]">
+                      <div class="forbidden-mark" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"/></svg>
+                      </div>
+                      <div class="alert-mark">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"/></svg>
+                      </div>
                       <div style="font-size: 22px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
                       </div>
@@ -328,19 +260,6 @@
                 </tr>
               </table>
             </div>
-            <!-- <div class="week_table" v-if="month_week_bt">
-                <table class="days_week" width="100%" height="70" border="1" cellspacing="0" bordercolor="#bfbfbf">
-                  <tr class='week-num title-row'>
-                    <td rowspan='2' style='width: 100px'></td>
-                    <td v-for="wn in getWeek(new Date())" :key="wn" class="week-day-grid">[[wn.getDate()]]</td>
-                    <td rowspan='2' style='width: 30px; text-align: center;'>備註</td>
-                  </tr>
-                  <tr class="title-row">
-                    <td v-for="wn in getWeek(new Date())" :key="wn" class="week-day-grid">[[toWeek(wn.getDay())]]</td>
-                  </tr>
-                </table>
-            </div> -->
-
           </div>
       </div>
       <div class='changeShift' v-if="edit && singleEdit && !rsShow" >
@@ -1314,7 +1233,6 @@
 
       },
 
-
       getCheckResult() {
         this.isChecked = true;
 
@@ -1497,6 +1415,7 @@
       font-size: 22px;
       text-align: center;
       width: 40px;
+      position: relative;
     }
     .pastDay {
       background: #f2f2f2;
@@ -1683,6 +1602,19 @@
     .rs3 {
       border: 3px solid #37419A;
     }
-
+    .forbidden-mark {
+      fill: red;
+      opacity: 0.5;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .alert-mark {
+      fill: red;
+      /* opacity: 0.7; */
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
 </style>
 {% endblock %}
