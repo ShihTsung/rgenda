@@ -136,10 +136,10 @@ export default {
     rows() {
       return this.departmentList.map(department => {
         let departmentUsers = [];
-        if (department.managers.manager1) {
+        if (department.managers.manager1 && department.managers.manager1.name) {
           departmentUsers.push(department.managers.manager1.name);
         }
-        if (department.managers.manager2) {
+        if (department.managers.manager2 && department.managers.manager2.name) {
           departmentUsers.push(department.managers.manager2.name);
         }
         let newDepartment = Object.assign({}, department, {
