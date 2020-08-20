@@ -279,9 +279,9 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #58B4AE;"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(1, $event)" />
+                    <input type="text" class="mark-explanation" v-if="edit" value="" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 1)" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
-                      [[getRemarkSquare(1)]]
+                      [[getRemarkSquare(remarkS1)]]
                     </div>
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
                       請填寫標誌說明
@@ -298,9 +298,9 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #84B1ED;"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(2, $event)" />
+                    <input type="text" class="mark-explanation" v-if="edit" value="" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 2)" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
-                      [[getRemarkSquare(2)]]
+                      [[getRemarkSquare(remarkS2)]]
                     </div>
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
                       請填寫標誌說明
@@ -317,9 +317,9 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark" style="border: 1px solid #37419A;"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(3, $event)" />
+                    <input type="text" class="mark-explanation" v-if="edit" value="" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 3)" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
-                      [[getRemarkSquare(3)]]
+                      [[getRemarkSquare(remarkS3)]]
                     </div>
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
                       請填寫標誌說明
@@ -471,7 +471,10 @@
       lastMonthData: [],
       demandData: [],
       remarkSquareData: [],
-      remarkS: []
+      remarkS: [],
+      remarkS1: -1,
+      remarkS2: -1,
+      remarkS3: -1
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -1201,16 +1204,26 @@
         return f.content;
       },
 
-      getRemarkS(index, ev) {
+      getRemarkS(ev, index) {
         let data = {};
 
-        console.log(index);
-        data.id = index;
+        data.id = this.remarkS.length + 1;
         data.content = ev.target.value.toString();
 
-        this.remarkS.push(data)
+        this.remarkS.push(data);
 
-        console.log(this.remarkS);
+        switch(index) {
+          case 1:
+            this.remarkS1 = data.id;
+            break;
+          case 2:
+            this.remarkS2 = data.id;
+            break;
+          case 3:
+            this.remarkS3 =data.id;
+            break;
+        }
+
       }
     },
 
