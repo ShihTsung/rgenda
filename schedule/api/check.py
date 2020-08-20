@@ -72,7 +72,7 @@ def check_cycle(department, results, invalid):
             if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
                 current_shift_type = result.shift.shift_type
             elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result.date >= date0:
-                invalid[result.id].append('unique shift type in 1 week')
+                invalid[result.id].append('不合排班條件：每週排同一種班')
             i += 1
         return None
     # 三月同班種 & 需與前一個月同班種
@@ -90,7 +90,7 @@ def check_cycle(department, results, invalid):
                 current_shift_type = st
         for result in results:
             if result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
-                invalid[result.id].append('unique shift type in 3 months')
+                invalid[result.id].append('不合排班條件：三個月排同一種班')
         return None
     # 單月同班種 or 三月同班種且為第一個月
     shift_types = [
@@ -105,7 +105,10 @@ def check_cycle(department, results, invalid):
     invalid_type.remove(current_shift_type)
     for result in results:
         if result.shift.shift_type in invalid_type:
-            invalid[result.id].append('unique shift type in 1 month')
+            if department.schedule_rule == 2:
+                invalid[result.id].append('不合排班條件：三個月排同一種班')
+            else:
+                invalid[result.id].append('不合排班條件：每月排同一種班')
     return None
 
 
@@ -163,11 +166,12 @@ def check_rest_day(department, results, invalid):
             if H_Calendar.objects.filter(date=result.date).first().attribute in ['weekend', 'holiday']:
                 holiday_rest_remain -= 1
         if continue_workday > 6 and result in results:
-            invalid[result.id].append('continue working over 6 days')
+            invalid[result.id].append('不合法規：7天需有1天例假')
         if work_days > work_days_limit and result in results:
-            invalid[result.id].append('workday too much in the cycle')
+            # invalid[result.id].append('workday too much in the cycle')
+            pass
         if holiday_rest_remain < 0:
-            invalid[result.id].append('holiday rest out of limit')
+            invalid[result.id].append('超過可休週末及國定假日數')
         ind += 1
     return None
 
@@ -198,7 +202,7 @@ def check_rest_hour(results, invalid):
         if result.shift.shift_type in [0, 1, 2]:
             start_time = datetime.combine(result.date, result.shift.start_time)
             if start_time - last_off_time < timedelta(hours=11):
-                invalid[result.id].append('rest time less than 11 hours')
+                invalid[result.id].append('不合法規：兩班之間需間隔11小時')
             if result.shift.start_time > result.shift.end_time:
                 last_off_time = datetime.combine(
                     result.date, result.shift.end_time) + timedelta(days=1)
@@ -219,5 +223,5 @@ def check_hour_pregnant(results, invalid):
         if result.shift.shift_type in [0, 1, 2] and not (
                 result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
             invalid[result.id].append(
-                'pregnant woman work between 22 PM to 6 AM')
+                '不合排班身份：妊娠或哺乳期間不得於晚上10點後工作')
     return None
