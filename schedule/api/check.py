@@ -168,8 +168,7 @@ def check_rest_day(department, results, invalid):
         if continue_workday > 6 and result in results:
             invalid[result.id].append('不合法規：7天需有1天例假')
         if work_days > work_days_limit and result in results:
-            # invalid[result.id].append('workday too much in the cycle')
-            pass
+            invalid[result.id].append('不合法規：週期內休息日不足')
         if holiday_rest_remain < 0:
             invalid[result.id].append('超過可休週末及國定假日數')
         ind += 1
