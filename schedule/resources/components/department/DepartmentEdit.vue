@@ -155,7 +155,7 @@ export default {
       let self = this;
       Promise.all([
         this.$httpClient.get('/api/departments/'+this.departmentId+'/'),
-        this.$httpClient.get('/api/users/?mode=onlyUser&department=' + this.departmentId),
+        this.$httpClient.get('/api/users/?department=' + this.departmentId),
       ]).then(responses => {
         let department = responses[0].data;
         department.date_start = moment(department.date_start).toDate();
