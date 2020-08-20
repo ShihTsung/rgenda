@@ -97,14 +97,14 @@
                     <div class="mark-title">
                       加標誌
                     </div>
-                    <div class="mark-content">
-                      <div class="marks" style="border: 1px solid #58B4AE;">
+                    <div class="mark-content" @click="getRS($event)">
+                      <div class="marks rs1">
 
                       </div>
-                      <div class="marks" style="border: 1px solid #84B1ED;">
+                      <div class="marks rs2">
 
                       </div>
-                      <div class="marks" style="border: 1px solid #37419A;">
+                      <div class="marks rs3">
 
                       </div>
                     </div>
@@ -167,8 +167,8 @@
                     <td colspan="4">出勤</td>
                     <td colspan="4">不出勤</td>
                     <td rowspan='2'>當月差額</td>
-                    <!-- <td rowspan='2'>剩餘補休</td>
-                    <td rowspan='2'>剩餘年假</td> -->
+                    <td rowspan='2'>剩餘補休</td>
+                    <td rowspan='2'>剩餘年假</td>
                   </tr>
                   <tr class="title-row">
                     <td>總計</td>
@@ -193,8 +193,8 @@
                     <td>天</td>
                     <td>天</td>
                     <td>時</td>
-                    <!-- <td>時</td>
-                    <td>天</td> -->
+                    <td>時</td>
+                    <td>天</td>
                   </tr>
 
 
@@ -219,8 +219,8 @@
                       <td class="white-background">-</td>
                       <td class="white-background">-</td>
                       <td class="pastDay">-</td>
-                      <!-- <td class="white-background">-</td>
-                      <td class="white-background">-</td> -->
+                      <td class="white-background">-</td>
+                      <td class="white-background">-</td>
 
                   </tr>
 
@@ -229,10 +229,9 @@
                     <td class="white-background" style="width: 30px">[[u.level]]</td>
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
-                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="{pastDay: isPast(userShift), futureDay: !isPast(userShift)}">
-                      <div style="font-size: 22px; width: 37px; display: block;" :class="shiftColor(userShift.shift_type)">
+                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, whichBorder(userShift.id)]">
+                      <div style="font-size: 22px; display: block;" :class="shiftColor(userShift.shift_type)">
                         [[userShift.shift_type]]
-                        <!-- [[userShift.date]] -->
                       </div>
                       <div v-if="isAdjust(userShift.user, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user, userShift.date))">
                         [[isAdjust(userShift.user, userShift.date)]]
@@ -242,20 +241,13 @@
                       -
                     </td>
                     <td class="user-last-col pastDay">
-                      <input class="remark-gird" type="text" value="" @keyup.13="getRemark($event, u.id)" v-if="edit"/>
-                      <!--
+                      <input class="remark-gird" type="text" :value="findRemark(u.id, month)" @keyup.13="getRemark($event, u.id, month)" v-if="edit"/>
                       <div v-if="!edit">
-                          &nbsp;
-                      </div> -->
+                        [[findRemark(u.id, month)]]
+                      </div>
                     </td>
-                    <td class="white-background">
-
-                      [[workhr(u.id, month, getYear(year, month), 0)]]
-                    </td>
-                    <td class="pastDay">
-
-                      [[workhr(u.id, month, date, 1)]]
-                    </td>
+                    <td class="white-background">[[workhr(u.id, month, getYear(year, month), 0)]]</td>
+                    <td class="pastDay">[[workhr(u.id, month, date, 1)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 3)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 4)]]</td>
                     <td class="white-background">[[workhr(u.id, month, date, 2)]]</td>
@@ -263,12 +255,9 @@
                     <td class="white-background">[[offHours(u.id, month, 1)]]</td>
                     <td class="white-background">[[offHours(u.id, month, 2)]]</td>
                     <td class="white-background">[[offHours(u.id, month, 3)]]</td>
-                    <td class="pastDay">
-                      <!-- - -->
-                    [[workhr(u.id, month, getYear(year, month), 5)]]
-                    </td>
-                    <!-- <td class="white-background">-</td>
-                    <td class="white-background">-</td> -->
+                    <td class="pastDay">[[workhr(u.id, month, getYear(year, month), 5)]]</td>
+                    <td class="white-background">-</td>
+                    <td class="white-background">-</td>
                   </tr>
                 <tr class="pastDay">
                   <td colspan="4">排班統計</td>
@@ -277,48 +266,63 @@
                       [[day]]
                     </div>
                   </td>
-                  <td>-</td>
+                  <td></td>
                   <td colspan="12">標誌說明</td>
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">白班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.D)">
+                      [[getSecond(day.D)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #58B4AE;">
-
+                    <div class="mark rs1"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(1)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 1)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
+                      [[getRemarkSquare(1)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">小夜班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.E)">
+                      [[getSecond(day.E)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #84B1ED;">
-
+                    <div class="mark rs2"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(2)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 2)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
+                      [[getRemarkSquare(2)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
                 <tr class="white-background" >
                   <td colspan="4">大夜班</td>
-                  <td v-for="day in getYear(this.year, this.month)" :key="day" class="day-grid">
-                    <div style="font-size: 22px; width: 1vw; display: inline-block;">
-                      -
+                  <td v-for="day in getReal(year, month)" :key="day" class="day-grid">
+                    <div style="font-size: 22px; display: inline-block;" :class="checkDemand(day.N)">
+                      [[getSecond(day.N)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #37419A;">
-
+                    <div class="mark rs3"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(3)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 3)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
+                      [[getRemarkSquare(3)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
@@ -339,7 +343,7 @@
 
           </div>
       </div>
-      <div class='changeShift' v-if="edit && singleEdit" >
+      <div class='changeShift' v-if="edit && singleEdit && !rsShow" >
         <div @click="singleEdit = false" class='cross'>
           <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
         </div>
@@ -465,7 +469,13 @@
       endDate: '',
       newResultData: [],
       lastMonthData: [],
-      demandData: []
+      demandData: [],
+      remarkSquareData: [],
+      remarkS: [],
+      rsShow: false,
+      rsClass: '',
+      resultRemarksData:[],
+      resultRS: []
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -531,6 +541,26 @@
         }).catch(err=>{
           console.log(err);
         });
+
+        fetch('/api/remark-squares/')
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          console.log(data);
+          this.remarkSquareData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
+
+        fetch('/api/result-remarks/')
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          console.log(data);
+          this.resultRemarksData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
     },
 
     methods : {
@@ -568,7 +598,7 @@
         .then((res)=>{
           return res.json();
         }).then((data)=>{
-          console.log(data);
+          // console.log(data);
           this.resultData = data;
           if(this.resultData.length != 0){
             this.isReady = true;
@@ -791,19 +821,39 @@
         }
       },
 
-      getRemark(ev, i) {
+      getRemark(ev, i , m) {
         let data = {};
 
         console.log(i);
         data.content = ev.target.value.toString();
         data.user = i;
-
+        data.month = m;
         this.remark.push(data);
 
-        // console.log(this.remark);
+        console.log(this.remark);
       },
 
       editShift(ev, info) {
+        //加標誌到各筆班別資料
+        if(this.rsShow == true && this.rsClass != '') {
+          if(ev.target.parentNode.className.split(' ')[1] == 'futureDay') {
+            let data = {};
+            data.result = info.id;
+            ev.target.parentNode.classList.add(this.rsClass);
+            switch(this.rsClass) {
+              case 'rs1':
+                data.content = 1;
+                break;
+              case 'rs2':
+                data.content = 2;
+                break;
+              case 'rs3':
+                data.content = 3;
+                break;
+            };
+            this.resultRS.push(data);
+          };
+        };
         if(this.edit == true && (ev.target.parentElement.className.split(' ')[1]) == 'futureDay') {
           this.singleEdit = true;
           this.changeInfo = info;
@@ -924,6 +974,8 @@
       sendToResults() {
         this.edit = false;
         this.followEdit = false;
+        this.rsShow = false;
+
         this.changedResult.forEach((i)=>{
           let data = {};
           data.user = i.user;
@@ -954,9 +1006,10 @@
           //檢查remarkData中有沒有資料
 
           let check = this.remarkData.find(item=>{
-            return item.user == i.user;
+            return item.month == this.month && item.user == i.user;
           });
-
+          console.log('check');
+          console.log(check);
 
           //remarkData有資料
           if(check) {
@@ -988,14 +1041,89 @@
               console.log(err);
             });
           };
-
-
-
         });
 
 
+        //標誌說明
+        this.remarkS.forEach((item)=>{
+          let check = this.remarkSquareData.find((i)=>{
+            return i.id == item.id;
+          });
+          console.log('check');
+          console.log(item);
+          if(check) {
+            fetch('http://localhost/api/remark-squares/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(item),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('http://localhost/api/remark-squares/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(this.remarkS[item]),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+        this.resultRS.forEach((i)=>{
+          let check = this.resultRemarksData.find((item)=>{
+            return i.result == item.result;
+          });
+
+          if(check) {
+            fetch('http://localhost/api/result-remarks/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('http://localhost/api/result-remarks/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+
+        })
+
         this.changedResult.length = 0;
         this.remark.length = 0;
+        this.remarkS.length = 0;
+        this.resultRS.length = 0;
+        location.reload();
       },
 
       isNull(id, m) {
@@ -1050,10 +1178,18 @@
         location.reload();
       },
 
-      //當月該使用者是否有備註
-        // isRemark(u, m) {
+      // 當月該使用者是否有備註
+      findRemark(u, m) {
+        let remark = this.remarkData.find((i)=>{
+          if(i.user == u){
+            return i.month == m;
+          }
+        });
 
-        // }
+        if(remark) {
+          return remark.content;
+        }
+      },
 
       offHours(u, m, index) {
         let total = 0;
@@ -1111,14 +1247,69 @@
         return this.lastMonthData[u];
       },
 
-      // isEnough(y, m ,d) {
-      //   let demand = this.demandData.demand.filter((i)=>{
-      //     return i.split('-')[0] == y && i.split('-')[1] == m;
-      //   });
-      //   let real = this.demandData.real.filter((i)=>{
-      //     return i.split('-')[0] == y && i.split('-')[1] == m;
-      //   });
-      // }
+      getReal(y, m) {
+        let real = this.demandData.filter((i)=>{
+          return i.date.split('-')[0] == y && i.date.split('-')[1] == m;
+        });
+
+        return real;
+      },
+
+      getSecond(item) {//實際排班人數
+        return item[1];
+      },
+
+      checkDemand(arr) {
+        if(arr[0] > arr[1]) {
+          return 'lack';
+        } else if(arr[0] < arr [1]) {
+          return 'enough';
+        }
+      },
+
+      getRemarkSquare(index) {
+        let f = this.remarkSquareData.find((i)=>{
+          return i.id == index;
+        });
+        // console.log(index);
+        // console.log(f);
+        return f.content;
+      },
+
+      getRemarkS(ev, index) {
+        let data = {};
+
+        data.id = this.remarkS.length + 1;
+        data.content = ev.target.value.toString();
+
+        this.remarkS.push(data);
+
+      },
+
+      getRS(ev) {
+        this.rsShow = true;
+
+        this.rsClass = ev.target.className.split(' ')[1];
+      },
+
+      whichBorder(index) {
+        let f = this.resultRemarksData.find((i)=>{
+          return i.result == index;
+        });
+
+
+        if(f){
+          switch(f.content) {
+            case 1:
+              return 'rs1';
+            case 2:
+              return 'rs2';
+            case 3:
+              return 'rs3';
+          };
+        };
+
+      }
     },
 
       // getWeek(today) {
@@ -1881,11 +2072,15 @@
       display: inline-block;
       float: left;
       margin-left: 1rem;
+      margin-top: 10px;
+      margin-right: 1rem;
     }
     .marks {
-      width: 15px;
-      height: 15px;
-      display: inline-block;
+      width: 20px;
+      height: 20px;
+      float: left;
+      margin-right: 10px;
+      margin-top: 3px;
     }
     .marks:hover {
       background: white;
@@ -1899,7 +2094,8 @@
       display: inline-block;
       float: left;
       margin-right: 10px;
-      font-size: 16px;
+      font-size: 18px;
+      margin-top: 3px;
     }
     .mark-content {
       display: inline-block;
@@ -1985,12 +2181,27 @@
     .white-background {
       background: white;
     }
-
-    /* html {
+    .enough {
+      color: red;
+    }
+    .lack {
+      color: white;
+      background: red;
       width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.2);
-    } */
+    }
+    .mark-explanation {
+      border: none;
+      float: left;
+    }
+    .rs1 {
+      border: 3px solid #58B4AE;
+    }
+    .rs2 {
+      border: 3px solid #84B1ED;
+    }
+    .rs3 {
+      border: 3px solid #37419A;
+    }
 
 </style>
 {% endblock %}

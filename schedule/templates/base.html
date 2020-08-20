@@ -168,7 +168,7 @@
 
     .fold_obj {
       display: block;
-      width: 80px !important;
+      width: 100px !important;
       padding: 5px 0px;
     }
 
@@ -269,13 +269,13 @@
 
                     <div id="arr_fold" class="fold arr">
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
-                            調班審核</a>
+                            部門調班審核</a>
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
-                            調班申請</a>
+                            我的調班申請</a>
                         {% endif %}
-                        <!-- <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
-                            調班紀錄</a> -->
+                        <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
+                            我的調班紀錄</a>
                     </div>
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
@@ -382,7 +382,7 @@
                         <a id="side-arrange-add" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
                             工作站管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
-                            人力管理</a>
+                            人力配置管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
                             班別管理</a>
 
