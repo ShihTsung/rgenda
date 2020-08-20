@@ -266,7 +266,7 @@
                       [[day]]
                     </div>
                   </td>
-                  <td>-</td>
+                  <td></td>
                   <td colspan="12">標誌說明</td>
                 </tr>
                 <tr class="white-background" >
@@ -276,10 +276,15 @@
                       [[getSecond(day.D)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #58B4AE;">
-
+                    <div class="mark" style="border: 1px solid #58B4AE;"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(1, $event)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
+                      [[getRemarkSquare(1)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
@@ -290,10 +295,15 @@
                       [[getSecond(day.E)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #84B1ED;">
-
+                    <div class="mark" style="border: 1px solid #84B1ED;"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(2, $event)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
+                      [[getRemarkSquare(2)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
@@ -304,10 +314,15 @@
                       [[getSecond(day.N)]]
                     </div>
                   </td>
-                  <td class="pastDay">-</td>
+                  <td class="pastDay"></td>
                   <td colspan="12">
-                    <div class="mark" style="border: 1px solid #37419A;">
-
+                    <div class="mark" style="border: 1px solid #37419A;"></div>
+                    <input type="text" class="mark-explanation" v-if="edit" value="請填寫標誌說明" @keyup.13="getRemarkS(3, $event)" />
+                    <div style="float: left;" v-if="!edit && (remarkSquareData != 0)">
+                      [[getRemarkSquare(3)]]
+                    </div>
+                    <div style="float: left;" v-if="!edit && (remarkSquareData.length == 0)">
+                      請填寫標誌說明
                     </div>
                   </td>
                 </tr>
@@ -454,7 +469,9 @@
       endDate: '',
       newResultData: [],
       lastMonthData: [],
-      demandData: []
+      demandData: [],
+      remarkSquareData: [],
+      remarkS: []
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -517,6 +534,16 @@
         }).then(data=>{
           // console.log(data);
           this.demandData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
+
+        fetch('/api/remark-squares/')
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          // console.log(data);
+          this.remarkSquareData = data;
         }).catch(err=>{
           console.log(err);
         });
@@ -981,8 +1008,47 @@
         });
 
 
+        //標誌說明
+        this.remarkS.forEach((item)=>{
+          let check = this.remarkSquareData.find((i)=>{
+            return i.id == item.id;
+          });
+          if(check) {
+            fetch('http://localhost/api/remark-squares/' + i + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(this.remarkS[i]),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('http://localhost/api/remark-squares/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(this.remarkS[i]),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+
+
         this.changedResult.length = 0;
         this.remark.length = 0;
+        this.remarkS.length = 0;
         location.reload();
       },
 
@@ -1125,6 +1191,26 @@
         } else if(arr[0] < arr [1]) {
           return 'enough';
         }
+      },
+
+      getRemarkSquare(index) {
+        let f = this.remarkSquareData.find((i)=>{
+          return i.id == index;
+        });
+
+        return f.content;
+      },
+
+      getRemarkS(index, ev) {
+        let data = {};
+
+        console.log(index);
+        data.id = index;
+        data.content = ev.target.value.toString();
+
+        this.remarkS.push(data)
+
+        console.log(this.remarkS);
       }
     },
 
@@ -1888,11 +1974,13 @@
       display: inline-block;
       float: left;
       margin-left: 1rem;
+      margin-top: 10px;
+      margin-right: 1rem;
     }
     .marks {
       width: 15px;
       height: 15px;
-      display: inline-block;
+      float: left;
     }
     .marks:hover {
       background: white;
@@ -1999,6 +2087,10 @@
       color: white;
       background: red;
       width: 100%;
+    }
+    .mark-explanation {
+      border: none;
+      float: left;
     }
     /* html {
       width: 100%;
