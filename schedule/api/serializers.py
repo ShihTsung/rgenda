@@ -507,7 +507,19 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         date = obj.date_start
         try:
             ret = Result.objects.get(user=obj.user_apply, date=date)
-            ret = GetResultSerializer(ret)
+            ret = {
+                'user': {'id': ret.user.id, 'name': ret.user.full_name},
+                'date': ret.date.strftime('%Y-%m-%d'),
+                'shift': {
+                    'id': ret.shift.id, 'name': ret.shift.name,
+                    'shift_type': ret.shift.shift_type,
+                    'start': ret.shift.start_time,
+                    'end': ret.shift.end_time
+                },
+                'station': {
+                    'id': ret.station.id, 'name': ret.station.name,
+                }
+            }
         except Result.DoesNotExist:
             ret = ''
         return ret
@@ -517,7 +529,17 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         date = obj.date_start
         try:
             ret = Result.objects.get(user=obj.user_receive, date=date)
-            ret = GetResultSerializer(ret)
+            ret = {
+                'user': {'id': ret.user.id, 'name': ret.user.full_name},
+                'date': ret.date.strftime('%Y-%m-%d'),
+                'shift': {
+                    'id': ret.shift.id, 'name': ret.shift.name,
+                    'shift_type': ret.shift.shift_type,
+                    'start': ret.shift.start_time,
+                    'end': ret.shift.end_time
+                    },
+                'station': {'id': ret.station.id, 'name': ret.station.name}
+            }
         except Result.DoesNotExist:
             ret = ''
         return ret
