@@ -220,7 +220,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                     date__range=[start[:10], end[:10]]
                 )
             if uid:
-                target = CustomUser.objects.filter(id=uid)
+                target = CustomUser.objects.get(id=uid)
                 queryset = queryset.filter(user=target)
 
         return queryset
