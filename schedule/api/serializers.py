@@ -510,8 +510,15 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
             ret = {
                 'user': {'id': ret.user.id, 'name': ret.user.full_name},
                 'date': ret.date.strftime('%Y-%m-%d'),
-                'shift': {'id': ret.shift.id, 'name': ret.shift.name},
-                'station': {'id': ret.station.id, 'name': ret.station.name}
+                'shift': {
+                    'id': ret.shift.id, 'name': ret.shift.name,
+                    'shift_type': ret.shift.shift_type,
+                    'start': ret.shift.start_time,
+                    'end': ret.shift.end_time
+                },
+                'station': {
+                    'id': ret.station.id, 'name': ret.station.name,
+                }
             }
         except Result.DoesNotExist:
             ret = ''
@@ -525,7 +532,12 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
             ret = {
                 'user': {'id': ret.user.id, 'name': ret.user.full_name},
                 'date': ret.date.strftime('%Y-%m-%d'),
-                'shift': {'id': ret.shift.id, 'name': ret.shift.name},
+                'shift': {
+                    'id': ret.shift.id, 'name': ret.shift.name,
+                    'shift_type': ret.shift.shift_type,
+                    'start': ret.shift.start_time,
+                    'end': ret.shift.end_time
+                    },
                 'station': {'id': ret.station.id, 'name': ret.station.name}
             }
         except Result.DoesNotExist:
