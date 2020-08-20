@@ -244,7 +244,7 @@ export default {
           title: '修改排班規則',
           text: '請求成功',
         }, () => {
-          history.back();
+          location.replace('/departments/list');
         });
       }).catch(errors => {
         popup.error({
