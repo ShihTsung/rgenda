@@ -14,7 +14,7 @@ module.exports = {
     'department-edit': './department/department-edit.js',
     'account-detail': './accounts/account-detail.js',
     'demand-list': './demands/list.js',
-    'application-audit': './exchange/application-audit.js',
+    'exchange-application-audit': './exchange/application-audit.js',
     'rgenda': './rgenda.scss',
   },
   output: {
