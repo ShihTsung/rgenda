@@ -160,7 +160,13 @@ export default {
         let department = responses[0].data;
         department.date_start = moment(department.date_start).toDate();
         department.original_managers = cloneDeep(department.managers);
-        self.department = Object.assign(self.department, department);
+        if (!department.managers.manager1) {
+          department.managers.manager1 = {};
+        }
+        if (!department.managers.manager2) {
+          department.managers.manager2 = {};
+        }
+        self.department = department;
 
         let userList = responses[1].data;
         if (Array.isArray(userList)) {
@@ -238,7 +244,7 @@ export default {
           title: '修改排班規則',
           text: '請求成功',
         }, () => {
-          history.back();
+          location.replace('/departments/list');
         });
       }).catch(errors => {
         popup.error({

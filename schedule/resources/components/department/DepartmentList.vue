@@ -76,7 +76,6 @@ export default {
         {
           label: '科別名稱',
           field: 'detail',
-          width: '140px',
         },
         {
           label: '管理人',
@@ -136,11 +135,15 @@ export default {
   computed: {
     rows() {
       return this.departmentList.map(department => {
-        let departmentUsers = this.users.filter(user => user.department.id === department.id)
-          .map(user => user.full_name)
-          .join('、');
+        let departmentUsers = [];
+        if (department.managers.manager1 && department.managers.manager1.name) {
+          departmentUsers.push(department.managers.manager1.name);
+        }
+        if (department.managers.manager2 && department.managers.manager2.name) {
+          departmentUsers.push(department.managers.manager2.name);
+        }
         let newDepartment = Object.assign({}, department, {
-          users: departmentUsers,
+          users: departmentUsers.join('、'),
           actions: '',
         });
         return newDepartment;
