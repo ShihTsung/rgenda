@@ -963,6 +963,7 @@ def exchangeable_user(request):
     exchange_shift_type = request.GET.get('exchange_shift_type')
     try:
         to_change_result = Result.objects.get(user=user, date=exchange_date)
+        to_change_work_time, to_change_off_time = get_work_time(to_change_result)
     except Result.DoesNotExist:
         return Response({
             'users': None,
@@ -978,30 +979,21 @@ def exchangeable_user(request):
         })
     user_options = [result.user.id for result in result_options]
     for result in result_options:
+        work_time, off_time = get_work_time(result)
         # 1. 前後班別休息時間是否間隔11小時
         # 申請者
         try:
             pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
-            if pre_result.shift.shift_type == 2 and pre_result.shift.end_time < pre_result.shift.start_time:
-                last_off_time = datetime.combine(exchange_date, pre_result.shift.end_time)
-            elif pre_result.shift.shift_type in [0, 1, 2]:
-                last_off_time = datetime.combine(pre_result.date, pre_result.shift.end_time)
-            else:
-                last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
-            if datetime.combine(exchange_date, result.shift.start_time) - last_off_time < timedelta(hours=11):
+            _, last_off_time = get_work_time(pre_result)
+            if work_time - last_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
                 continue
         except Result.DoesNotExist:
             pass
         try:
             next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
-            if result.shift.shift_type == 2 and result.shift.start_time > result.shift.end_time:
-                off_time = datetime.combine(exchange_date + timedelta(days=1), result.shift.end_time)
-            elif result.shift.shift_type in [0, 1, 2]:
-                off_time = datetime.combine(exchange_date, result.shift.end_time)
-            else:
-                off_time = datetime.combine(exchange_date, time(0, 0, 0))
-            if next_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date + timedelta(days=1), next_result.shift.start_time) - datetime.combine(exchange_date, result.shift.end_time) < timedelta(hours=11):
+            next_work_time, _ = get_work_time(next_result)
+            if next_work_time - off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
                 continue
         except Result.DoesNotExist:
@@ -1009,14 +1001,16 @@ def exchangeable_user(request):
         # 接受者
         try:
             pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
-            if pre_result and pre_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date, to_change_result.shift.start_time) - datetime.combine(exchange_date - timedelta(days=1), pre_result.shift.end_time) < timedelta(hours=11):
+            _, last_off_time = get_work_time(pre_result)
+            if to_change_work_time - last_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
                 continue
         except Result.DoesNotExist:
             pass
         try:
             next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
-            if next_result and next_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date + timedelta(days=1), next_result.shift.start_time) - datetime.combine(exchange_date, to_change_result.shift.end_time) < timedelta(hours=11):
+            next_work_time, _ = get_work_time(next_result)
+            if next_work_time - to_change_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
                 continue
         except Result.DoesNotExist:
@@ -1103,42 +1097,56 @@ def follow_shift_api(request):
 def users_can_support(request):
     from datetime import datetime, timedelta
     target_date = str_to_date(request.GET.get('date'))
+    shifts = Shift.objects.filter(department=request.user.department, shift_type__in=[0, 1, 2])
     output = list()
     try:
-        results = Result.objects.filter(date=target_date, shift__name__in=['休息', 'oncall'])
+        results = Result.objects.filter(date=target_date, shift__shift_type__in=[4, 5, 6])
     except Result.DoesNotExist:
         return Response(output)
 
     for result in results:
         output.append({
             'id': result.user.id,
-            'shift_type': result.shift.shift_type,
-            'can_support': list(),
+            'shift': result.shift.id,
+            'can_support_shift': list(),
         })
+        # 篩選班別名稱
+        if result.shift.name not in ['休息', 'oncall']:
+            continue
+        # 篩選連續工作超過6天
         result_list = Result.objects.filter(user=result.user, date__in=[target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+        working_list = [1 if r.shift.shift_type in [0, 1, 2, 3] or r.date == target_date else 0 for r in result_list]
         count = 0
-        for r in result_list:
-            if r.shift.shift_type in [0, 1, 2, 3]:
+        continue_over_6 = False
+        for r in working_list:
+            if r:
                 count += 1
             else:
                 count = 0
             if count > 6:
-                continue
+                continue_over_6 = True
+                break
+        if continue_over_6:
+            continue
+        # 篩選前後班表休息時間不足11小時
         try:
             pre_result = Result.objects.get(user=result.user, date=target_date - timedelta(days=1))
-            if pre_result.shift.shift_type == 2 and pre_result.shift.start_time > pre_result.shift.end_time:
-                last_off_time = datetime.combine(target_date, pre_result.shift.end_time)
-            elif pre_result.shift.shift_type in [0, 1, 2]:
-                last_off_time = datetime.combine(pre_result.date, pre_result.shift.end_time)
-            else:
-                last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
+            _, last_off_time = get_work_time(pre_result)
         except Result.DoesNotExist:
-            last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
+            last_off_time = datetime.combine(target_date - timedelta(days=1), time(0, 0, 0))
         try:
             next_result = Result.objects.get(user=result.user, date=target_date + timedelta(days=1))
-            if next_result.shift.shift_type in [0, 1, 2]:
-                next_start_time = datetime.combine(target_date + timedelta(days=1), next_result.shift.start_time)
-            else:
-                next_start_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+            next_work_time, _ = get_work_time(next_result)
         except Result.DoesNotExist:
-            next_start_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+            next_work_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+
+        for shift in shifts:
+            if shift.start_time > shift.end_time:
+                work_time = datetime.combine(target_date, shift.start_time)
+                off_time = datetime.combine(target_date, shift.end_time) + timedelta(days=1)
+            else:
+                work_time = datetime.combine(target_date, shift.start_time)
+                off_time = datetime.combine(target_date, shift.end_time)
+            if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
+                output[-1]['can_support_shift'].append(shift.id)
+    return Response(output)

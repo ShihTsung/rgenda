@@ -4,13 +4,9 @@ from account.models import CustomUser
 
 
 TYPE_CHOICES = (
-    (0, '白班'),
-    (1, '小夜'),
-    (2, '大夜'),
     (3, '公假'),
-    (4, 'oncall'),
-    (5, '有薪假'),
-    (6, '無薪假'),
+    (5, '例/休'),
+
 )
 
 # 預排假
