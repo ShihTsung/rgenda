@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from .check import *
 from .serializers import *
 from notifications.models import Notification
+from notifications.signals import notify
 from result.views import str_to_date
 
 # models
@@ -1175,3 +1176,25 @@ def users_can_support(request):
         except Result.DoesNotExist:
             next_start_time = datetime.combine(
                 target_date + timedelta(days=1), time(23, 59, 59))
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='發布班表通知',
+    manual_parameters=[month],
+)
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def publish_results(request):
+    month = request.query_params.get('month')
+    department = request.user.department
+    if month:
+        notify.send(
+            sender=request.user,
+            recipient=CustomUser.objects.filter(
+                department=department
+            ),
+            verb=f'{month}月班表已經發布！'
+
+        )
+    return Response({})

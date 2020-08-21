@@ -384,11 +384,14 @@ def departmentCreate(request):
                 work_hours=8)
             messages.success(
                 request,
-                "Department was created for "+department.name)
-            notify.send(sender=request.user, recipient=CustomUser.objects.all(),
-                        target=department,
-                        level='info',
-                        verb='department created by ')
+                f'科別{department.name}新增成功'
+                )
+            notify.send(
+                sender=request.user,
+                recipient=CustomUser.objects.all(),
+                target=department,
+                level='info',
+                verb='department created by ')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
