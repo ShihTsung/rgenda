@@ -447,7 +447,6 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
 class GetPromiseShiftSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
-    shift = SimpleShiftSerializer()
 
     class Meta:
         model = PromiseShift
