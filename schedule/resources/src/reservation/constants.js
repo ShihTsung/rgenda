@@ -55,8 +55,11 @@ TIME_ADJUSTMENT_ITEM.install = function (Vue, options) {
     return TIME_ADJUSTMENT_ITEM[key]
   }
 
-  Vue.prototype.$getTimeAdjustmentItemText = (key) => {
-    let obj = timeAdjustmentItemTextList.find(function (item) {
+  Vue.prototype.$getTimeAdjustmentItemText = (typeKey, key) => {
+    if (!timeAdjustmentItemTextList.hasOwnProperty(typeKey)) {
+      return 'NA';
+    }
+    let obj = timeAdjustmentItemTextList[typeKey].find(function (item) {
       return item.id === key;
     });
     if (undefined === obj) {

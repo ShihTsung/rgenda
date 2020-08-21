@@ -73,6 +73,12 @@
             <div class="form-group" v-if="isSelectSingleType">
               <label class="font-weight-bold">項目</label>
               <div class="form-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio"
+                  id="rdo_item_all" value="all"
+                  v-model="selectedItem">
+                  <label class="form-check-label" for="rdo_item_all">全選</label>
+                </div>
                 <div class="form-check form-check-inline"
                 v-for="(item, idx) in itemList"
                 :key="['item', idx, item.id].join('_')">
@@ -93,37 +99,43 @@
             </div>
           </div>
           <div class="card-footer">
-            <button type="button" class="btn btn-rgenda" @click="query()">查詢</button>
+            <button type="button" class="btn btn-rgenda" @click="query(true)">查詢</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="mt-5">
+  <div class="mt-5" v-if="loaded">
     <hr class="">
+    <div class="row mb-2">
+      <div class="col-12">
+        <div class="float-right h-2p2">
+          &nbsp;
+          <!-- 批次刪除出缺勤補登 -->
+          <button type="button" class="btn btn-sm icon-bts m-0"
+          @click="confirmDelete()"
+          v-show="isReadyDelete">批次刪除</button>
+          <!-- \批次刪除出缺勤補登 -->
+        </div>
+      </div>
+    </div>
     <!-- users table -->
-    <vue-good-table v-if="loaded"
+    <vue-good-table
       :columns="columns"
       :rows="rows">
       <template slot="table-row" slot-scope="props">
-        <template v-if="props.column.field == 'canBeScheduled'">
+        <template v-if="props.column.field == 'actions'">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" :id="'canBeScheduled_' + props.row.id"
-            @change="changeSchedule(props.row.id, props.row.username, !props.row.canBeScheduled)"
-            :checked="props.row.canBeScheduled">
-            <label class="form-check-label" :for="'canBeScheduled_' + props.row.id">
-              正常排班
-            </label>
-        </div>
-        </template>
-        <template v-else-if="props.column.field == 'actions'">
-          <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
-          :href="'/accounts/' + props.row.id"><i class="fas fa-edit"></i></a>
-          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDelete"
-          @click="comfirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
+            <input class="form-check-input position-static" type="checkbox"
+            :value="props.row.id"
+            v-model="deleteItems">
+          </div>
         </template>
       </template>
+      <div slot="emptystate" class="text-center">
+        無資料
+      </div>
     </vue-good-table>
     <!-- \users table -->
   </div>
@@ -131,13 +143,18 @@
   <modal-add-time-adjustment v-if="suggestions.length > 0"
     :suggestions="suggestions"
     :csrf-token="csrfToken"></modal-add-time-adjustment>
+
+  <modal-delete-time-adjustment v-if="deleteItems.length > 0"
+    :delete-items="deleteItems"
+    :csrf-token="csrfToken"></modal-delete-time-adjustment>
 </div>
 </template>
 
 <script>
 import popup from 'common/popup';
 import {
-  httpRep
+  httpRep,
+  nl2br,
 } from 'common/helpers';
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table';
@@ -145,6 +162,7 @@ import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import Autocomplete from 'components/partial/Autocomplete.vue';
 import ModalAddTimeAdjustment from './ModalAddTimeAdjustment.vue';
+import ModalDeleteTimeAdjustment from './ModalDeleteTimeAdjustment.vue';
 
 export default {
   components: {
@@ -152,6 +170,7 @@ export default {
     DatePicker,
     Autocomplete,
     ModalAddTimeAdjustment,
+    ModalDeleteTimeAdjustment,
   },
   props: {
     csrfToken: {
@@ -175,6 +194,7 @@ export default {
         {
           label: '編號',
           field: 'id',
+          type: 'number',
           sortable: false,
         },
         {
@@ -185,7 +205,6 @@ export default {
         {
           label: '日期',
           field: 'date',
-          type: 'date',
         },
         {
           label: '項目',
@@ -206,6 +225,7 @@ export default {
         {
           label: '備註',
           field: 'remark',
+          html: true,
           sortable: false,
         },
         {
@@ -215,6 +235,7 @@ export default {
         },
       ],
       rows: [],
+      deleteItems: [],
     };
   },
   methods: {
@@ -269,8 +290,11 @@ export default {
 
       return [valid, errMsg];
     },
-    query() {
+    query(showWarningPopup) {
+      showWarningPopup = showWarningPopup || false;
       let self = this;
+      self.deleteItems = [];
+
       let [bool, errMsg] = this.$_timeAdjustment_query_validate();
       if (!bool) {
         popup.error({
@@ -285,10 +309,10 @@ export default {
         end: moment(self.endDate).format('YYYY-MM-DD'),
         uid: self.selection.id,
       };
-      if (Number.isInteger(self.selectedType)) {
+      if (0 <= Number(self.selectedType)) {
         params.type = self.selectedType;
       }
-      if (Number.isInteger(self.selectedItem)) {
+      if (0 <= Number(self.selectedItem)) {
         params.item = self.selectedItem;
       }
       let queryString = Object.keys(params).map((key) => {
@@ -300,11 +324,17 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            console.log(data);
-            // self.suggestions = self.transformer(data);
+            self.rows = self.$_timeAdjustment_query_result_transformer(data);
             self.loaded = true;
           } else {
             self.rows = [];
+            self.loaded = false;
+            if (showWarningPopup) {
+              popup.info({
+                title: '查詢出缺勤補登記錄',
+                html: '查無資料',
+              });
+            }
           }
         })
         .catch(function (error) {
@@ -316,52 +346,28 @@ export default {
           console.log(error);
         });
     },
-    comfirmDeletion(row) {
-      this.deleteUser = {
-        id: row.id,
-        fullName: row.fullName,
-      };
-    },
-    destory() {
+    $_timeAdjustment_query_result_transformer(data) {
       let self = this;
-
-      $('#modalDelete').modal('hide');
-
-      popup.loading({
-        title: '處理中...',
+      return data.map(function(obj) {
+        return {
+          id: obj.id,
+          adjustmentType: self.$getTimeAdjustmentTypeText(obj.adjustment_type),
+          date: obj.date,
+          adjustmentItem: self.$getTimeAdjustmentItemText(obj.adjustment_type, obj.adjustment_item),
+          hours: obj.hours,
+          fullName: self.selection.text,
+          remark: nl2br(obj.remark),
+          // remark: obj.remark,
+        };
       });
-
-      let url = `/api/users/${self.deleteUser.id}/`;
-      const formConfig = {
-        headers: {
-          'X-CSRFToken': `${this.csrfToken}`
-        }
-      }
-      self.$httpClient.delete(url, formConfig)
-        .then(function (response) {
-          self.rows = self.rows.filter(function(obj) {
-            return obj.id !== self.deleteUser.id;
-          });
-
-          popup.success({
-            title: '刪除人員',
-            text: '請求成功',
-          });
-        })
-        .catch(function (error) {
-          // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
-          });
-          console.log(error);
-        });
     },
-    cancelDeletion() {
-      this.deleteUser = {
-        id: 0,
-        fullName: '',
-      };
+    confirmDelete() {
+      if (0 < this.deleteItems.length) {
+        $('#modalDeleteTimeAdjustment').modal('show');
+      }
+    },
+    cancelDelete() {
+      this.deleteItems = [];
     },
   },
   mounted() {
@@ -372,10 +378,8 @@ export default {
       if ('all' === value) {
         this.selectedItem = 'all';
       } else {
-        console.log(374, this.selectedType, value)
         if (oldValue !== value) {
-          this.selectedItem = this.selectedType == this.$getTimeAdjustmentTypeValue('TYPE_INCREASE_HOURS') ? this.$getTimeAdjustmentItemValue('ITEM_WORK_OVERTIME') : this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS');
-          console.log(376, this.selectedItem)
+          this.selectedItem = 'all';
         }
       }
     },
@@ -387,6 +391,15 @@ export default {
     itemList() {
       return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
     },
+    isReadyDelete() {
+      return 0 < this.deleteItems.length;
+    },
   },
 }
 </script>
+
+<style scoped>
+.h-2p2 {
+  height: 2.2rem;
+}
+</style>
