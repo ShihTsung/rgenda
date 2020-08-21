@@ -65,5 +65,13 @@ def get_official_leave(department, date_start, date_end):
     return output
 
 
+def get_promise_other(department, date_start, date_end):
+    output = defaultdict(dict)
+    promise_rest = PromiseShift.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end).exclude(shift_type__in=[3, 5])
+    for pr in promise_rest:
+        output[pr.user.id][str(pr.date)] = pr.shift_type
+    return output
+
+
 def time_adjustment(request):
     return render(request, 'time_adjustment/time_adjustment.html')
