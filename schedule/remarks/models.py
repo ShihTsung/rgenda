@@ -18,10 +18,10 @@ class UserRemark(models.Model):
         verbose_name=_('月份'),
         null=True
     )
-    content = models.CharField(
+    content = models.TextField(
         max_length=100,
         verbose_name=_('備註'),
-        null=True
+        blank=True
     )
 
 
@@ -29,7 +29,8 @@ class RemarkSquare(models.Model):
     content = models.CharField(
         max_length=100,
         verbose_name=_('內容'),
-        null=True
+        null=True,
+        blank=True
     )
 
     def __str__(self):

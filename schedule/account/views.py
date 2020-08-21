@@ -121,7 +121,7 @@ def userList(request):
                 job_title=raw_data[name]['job title'],
             )
             user.save()
-            messages.success(request, 'Users import success')
+        messages.success(request, '使用者建立成功!')
         return redirect('/accounts/list')
     if request.user.role == 'admin' or request.user.is_superuser:
         users = CustomUser.objects.all()
