@@ -3,12 +3,12 @@
   <div class="row mb-2">
     <div class="col-12">
       <div class="float-right">
-        <!-- 新增人力配置 -->
-        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="出缺勤補登">
+        <!-- 出缺勤補登 -->
+        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="出缺勤補登" data-toggle="modal" data-target="#modalAddTimeAdjustment">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
         </div>
-        <!-- 、新增人力配置 -->
+        <!-- \出缺勤補登 -->
       </div>
     </div>
   </div>
@@ -23,7 +23,7 @@
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label for="staticEmail">時間</label>
+              <label class="font-weight-bold">時間</label>
               <div class="row">
                 <div class="col-4">
                   <date-picker
@@ -51,10 +51,16 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="staticEmail">類別</label>
+              <label class="font-weight-bold">類別</label>
               <div class="form-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio"
+                  id="rdo_type_all" value="all"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_all">全選</label>
+                </div>
                 <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllAdjustmentTypeText()"
+                v-for="(item, idx) in $getAllTimeAdjustmentTypeText()"
                 :key="['type', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
                   v-model="selectedType"
@@ -64,11 +70,11 @@
                 </div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="staticEmail">項目</label>
+            <div class="form-group" v-if="isSelectSingleType">
+              <label class="font-weight-bold">項目</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllAdjustmentItemText()"
+                v-for="(item, idx) in itemList"
                 :key="['item', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
                   v-model="selectedItem"
@@ -79,14 +85,14 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="inputFullName">姓名</label>
+              <label class="font-weight-bold">姓名</label>
               <autocomplete class="col-6 p-0" v-if="suggestions.length > 0"
               :suggestions="suggestions"
               :placeholder="'輸入姓名以選取人員'"
               v-model="selection"></autocomplete>
             </div>
           </div>
-          <div class="card-footer text-center">
+          <div class="card-footer">
             <button type="button" class="btn btn-rgenda" @click="query()">查詢</button>
           </div>
         </div>
@@ -121,6 +127,10 @@
     </vue-good-table>
     <!-- \users table -->
   </div>
+
+  <modal-add-time-adjustment v-if="suggestions.length > 0"
+    :suggestions="suggestions"
+    :csrf-token="csrfToken"></modal-add-time-adjustment>
 </div>
 </template>
 
@@ -129,17 +139,19 @@ import popup from 'common/popup';
 import {
   httpRep
 } from 'common/helpers';
-import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css'
 import { VueGoodTable } from 'vue-good-table';
+import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import Autocomplete from 'components/partial/Autocomplete.vue';
+import ModalAddTimeAdjustment from './ModalAddTimeAdjustment.vue';
 
 export default {
   components: {
     VueGoodTable,
     DatePicker,
     Autocomplete,
+    ModalAddTimeAdjustment,
   },
   props: {
     csrfToken: {
@@ -152,8 +164,8 @@ export default {
       loaded: false,
       startDate: moment().toDate(), // Must be Date Object
       endDate: moment().toDate(), // Must be Date Object,
-      selectedType: 0,
-      selectedItem: 0,
+      selectedType: 'all',
+      selectedItem: 'all',
       selection: {
         id: 0,
         text: '',
@@ -272,14 +284,16 @@ export default {
         start: moment(self.startDate).format('YYYY-MM-DD'),
         end: moment(self.endDate).format('YYYY-MM-DD'),
         uid: self.selection.id,
-        type: self.selectedType,
-        item: self.selectedItem,
       };
+      if (Number.isInteger(self.selectedType)) {
+        params.type = self.selectedType;
+      }
+      if (Number.isInteger(self.selectedItem)) {
+        params.item = self.selectedItem;
+      }
       let queryString = Object.keys(params).map((key) => {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
       }).join('&');
-
-      console.log(queryString);
 
       let url = `/api/time-adjustment/?${queryString}`;
       self.$httpClient.get(url)
@@ -352,6 +366,27 @@ export default {
   },
   mounted() {
     this.getUsers();
+  },
+  watch: {
+    selectedType: function(value, oldValue) {
+      if ('all' === value) {
+        this.selectedItem = 'all';
+      } else {
+        console.log(374, this.selectedType, value)
+        if (oldValue !== value) {
+          this.selectedItem = this.selectedType == this.$getTimeAdjustmentTypeValue('TYPE_INCREASE_HOURS') ? this.$getTimeAdjustmentItemValue('ITEM_WORK_OVERTIME') : this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS');
+          console.log(376, this.selectedItem)
+        }
+      }
+    },
+  },
+  computed: {
+    isSelectSingleType() {
+      return this.selectedType !== 'all';
+    },
+    itemList() {
+      return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
+    },
   },
 }
 </script>
