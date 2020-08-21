@@ -42,7 +42,7 @@
                   <div class="icon-bts" @click="edit = true" v-if="!edit">
                       <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M5 21h-5v-2h5v2zm3.424-5.718l4.402 4.399-5.826 1.319 1.424-5.718zm15.576-6.748l-9.689 9.804-4.536-4.536 9.689-9.802 4.536 4.534z"/></svg>
                   </div>
-                  <div class="icon-bts" @click="getCheckResult()">
+                  <div class="icon-bts" @click="isChecked = true">
                       <svg class="icon-color" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z"/></svg>
                   </div>
                   <div class="icon-bts" @click="isChecked">
@@ -156,10 +156,10 @@
                     <td class="user-first-col white-background" style="width: 140px">[[u.full_name]]</td>
                     <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
                     <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, whichBorder(userShift.id)]">
-                      <div class="forbidden-mark" style="display: none;">
+                      <div class="forbidden-mark" v-if="isChecked && (checkResults(userShift.id) == 1)" @mouseenter="checkText(userShift.id, $event)"  @mouseleave="checkTextShow = false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"/></svg>
                       </div>
-                      <div class="alert-mark">
+                      <div class="alert-mark" v-if="isChecked && (checkResults(userShift.id) == 2)" @mouseenter="checkText(userShift.id, $event)"  @mouseleave="checkTextShow = false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"/></svg>
                       </div>
                       <div style="font-size: 22px; display: block;" :class="shiftColor(userShift.shift_type)">
@@ -345,6 +345,9 @@
           <button class="cate-btn" @click="whoFollows()">儲存</button>
         </div>
       </div>
+      <div class="check-info" v-if="checkTextShow" :style="{}">
+        [[text]]
+      </div>
     </div>
   </div>
 
@@ -396,7 +399,10 @@
       resultRemarksData:[],
       resultRS: [],
       checkResult: [],
-      isChecked: false
+      isChecked: false,
+      problemList: [],
+      checkTextShow: false,
+      text: ''
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -406,12 +412,15 @@
           // console.log(data);
           this.userNumber = data.length;
           this.userData = data;
+          this.getCheckResult();
         }).catch(err=>{
           console.log(err);
         });
 
         this.getResults(this.month, this.year);
         this.getAdjustment(this.month, this.year);
+        this.getLastMonthData(this.month, this.year);
+        this.getTotalPerDayData(this.month, this.year);
 
         fetch('/api/shifts')
         .then(res=>{
@@ -443,26 +452,6 @@
           console.log(err);
         });
 
-        fetch('/api/last-month-continue?month_head=' + this.year.toString() + '-' + this.month.toString() + '-' + '01')
-        .then(res=>{
-          return res.json();
-        }).then(data=>{
-          // console.log(data);
-          this.lastMonthData = data;
-        }).catch(err=>{
-          console.log(err);
-        });
-
-        fetch('/api/total-per-day/?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
-        .then(res=>{
-          return res.json();
-        }).then(data=>{
-          // console.log(data);
-          this.demandData = data;
-        }).catch(err=>{
-          console.log(err);
-        });
-
         fetch('/api/remark-squares/')
         .then(res=>{
           return res.json();
@@ -482,6 +471,8 @@
         }).catch(err=>{
           console.log(err);
         });
+
+
 
     },
 
@@ -675,6 +666,8 @@
             this.month = 12;
           };
           this.getResults(this.month, this.year);
+          this.getLastMonthData(this.month, this.year);
+          this.getTotalPerDayData(this.month, this.year);
         }else if(ev.target.id === "next") {
           this.month++;
           if(this.month > 12) {
@@ -682,10 +675,14 @@
             this.month = 1;
           }
           this.getResults(this.month, this.year);
+          this.getLastMonthData(this.month, this.year);
+          this.getTotalPerDayData(this.month, this.year);
         }else {
           this.year = new Date().getFullYear();
           this.month = new Date().getMonth() + 1;
           this.getResults(this.month, this.year);
+          this.getLastMonthData(this.month, this.year);
+          this.getTotalPerDayData(this.month, this.year);
         };
       },
 
@@ -1164,6 +1161,18 @@
 
       },
 
+      getLastMonthData(m, y) {
+        fetch('/api/last-month-continue?month_head=' + y.toString() + '-' + m.toString() + '-' + '01')
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          // console.log(data);
+          this.lastMonthData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
+      },
+
       //前月排班
       getLastMonth(u) {
         return this.lastMonthData[u];
@@ -1181,6 +1190,18 @@
         return item[1];
       },
 
+      getTotalPerDayData(m, y) {
+        fetch('/api/total-per-day/?start=' + y.toString() + '-' + m.toString() + '-' + '01' + '&end=' + y.toString() + '-' + m.toString() + '-' + this.getYear(y, m).toString())
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          // console.log(data);
+          this.demandData = data;
+        }).catch(err=>{
+          console.log(err);
+        });
+      },
+
       checkDemand(arr) {
         if(arr[0] > arr[1]) {
           return 'lack';
@@ -1193,9 +1214,10 @@
         let f = this.remarkSquareData.find((i)=>{
           return i.id == index;
         });
-        // console.log(index);
-        // console.log(f);
-        return f.content;
+        if(f) {
+          return f.content;
+        };
+
       },
 
       getRemarkS(ev, index) {
@@ -1234,8 +1256,6 @@
       },
 
       getCheckResult() {
-        this.isChecked = true;
-
         fetch('/api/checkresult/?department='+ this.userData[0].department + '&month=' + this.month)
         .then(res=>{
           return res.json();
@@ -1245,7 +1265,45 @@
         }).catch(err=>{
           console.log(err);
         });
+      },
+
+      checkResults(index) {
+        let c = this.checkResult.find((item)=>{
+          return item.id == index;
+        });
+
+        let text = '';
+
+        if(c){
+          c.reason.forEach((i)=>{
+            text += i;
+          });
+          if(text.indexOf('不合法規') != -1) {
+            return 1;
+          }else {
+            if(text.indexOf('不合排班條件') != -1) {
+              return 2;
+            }
+          };
+        };
+      },
+
+      checkText(index, ev) {
+        this.checkTextShow = true;
+        console.log(ev);
+        let c = this.checkResult.find((item)=>{
+          return item.id == index;
+        });
+        let text = '';
+        if(c) {
+          c.reason.forEach((i)=>{
+            text += i + '\n';
+          });
+        };
+
+        this.text = text;
       }
+
     },
 
   });
@@ -1594,13 +1652,16 @@
       float: left;
     }
     .rs1 {
-      border: 3px solid #58B4AE;
+      border: 5px solid #58B4AE;
     }
     .rs2 {
-      border: 3px solid #84B1ED;
+      border: 5px solid #84B1ED;
     }
     .rs3 {
-      border: 3px solid #37419A;
+      border: 5px solid #37419A;
+    }
+    .forbidBorder {
+      border: 5px solid red;
     }
     .forbidden-mark {
       fill: red;
@@ -1611,10 +1672,18 @@
     }
     .alert-mark {
       fill: red;
-      /* opacity: 0.7; */
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+    }
+    .check-info {
+      background: red;
+      color: white;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 120px;
+      white-space: pre-line;
     }
 </style>
 {% endblock %}
