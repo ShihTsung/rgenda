@@ -221,6 +221,22 @@ def check_hour_pregnant(results, invalid):
     for result in results:
         if result.shift.shift_type in [0, 1, 2] and not (
                 result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
-            invalid[result.id].append(
-                '不合排班身份：妊娠或哺乳期間不得於晚上10點後工作')
+            invalid[result.id].append('不合排班身份：妊娠或哺乳期間不得於晚上10點後工作')
     return None
+
+
+def get_work_time(result):
+    """
+    取得上下班時間，若為休假則上班時間為 23:59:59、下班時間為 00:00:00
+    :param result:
+    :return:
+    """
+    if result.shift.shift_type in [0, 1, 2]:
+        work_time = datetime.combine(result.date, result.shift.start_time)
+        off_time = datetime.combine(result.date, result.shift.end_time)
+        if result.shift.end_time < result.shift.start_time:
+            off_time += timedelta(days=1)
+    else:
+        work_time = datetime.combine(result.date, time(0, 0, 0)) + timedelta(days=1)
+        off_time = datetime.combine(result.date, time(0, 0, 0))
+    return work_time, off_time

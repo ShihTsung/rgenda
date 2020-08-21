@@ -282,7 +282,10 @@ def download_empty_excel(request):
 def userDetail(request, id):
     user = CustomUser.objects.get(id=id)
     colors = ["#EAEAEA", '#A6C2CE', '#84B1ED', '#37419A']
-    user_color = colors[user.level-1]
+    if user.level <= 4:
+        user_color = colors[user.level-1]
+    else:
+        user_color = '#000000'
     applications = ExchangeApplication.objects.filter(user_receive=user)
     unused = user.special_rest_num - user.special_rest_num_used
     rules = ['一般工時，7休2', '雙週變形工時，14休4',

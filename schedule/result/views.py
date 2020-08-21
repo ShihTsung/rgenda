@@ -540,6 +540,15 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
     date_start = str_to_date(start)
     date_end = str_to_date(end)
 
+    # 檢查班表是否已建立
+    try:
+        exist = Result.objects.filter(date=date_start, user__department=department)
+        if len(exist):
+            return redirect('/' + request.LANGUAGE_CODE + '/results')
+    except Result.DoesNotExist:
+        print('GOGO')
+        pass
+
     # 日期資料
     date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
     attrs = attr_list(department.id, date_start, date_end)
@@ -933,6 +942,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
             # 移除date_pre
             # 將0指派為 例假/休假
             for user_id in user_pool:
+                print(user_id)
                 output[user_id].pop('date_pre')
                 q = used_rest[user_id]
                 for ind, cycle in enumerate(cycle_list):
@@ -941,7 +951,10 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                     if ind == 0:
                         for st in q:
                             if st in ['例', '休']:
+                                print(st)
                                 options.remove(st)
+                            if '休' not in options:
+                                options.append('休')
                     q = q[-6:]
                     for d in cycle:
                         if date_start <= d <= date_end:
@@ -954,15 +967,18 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                     station=station,
                                 )
                             else:
-                                if '例' in q and '休' in options:
-                                    output[user_id][str(d)] = '休'
-                                    Result.objects.create(
-                                        user=User.objects.get(id=user_id),
-                                        shift=shift_rest1,
-                                        date=d,
-                                        station=station_rest,
-                                    )
-                                elif '例' not in q and '例' in options:
+                                # if '例' in q and '休' in options:
+                                #     options.remove('休')
+                                #     output[user_id][str(d)] = '休'
+                                #     Result.objects.create(
+                                #         user=User.objects.get(id=user_id),
+                                #         shift=shift_rest1,
+                                #         date=d,
+                                #         station=station_rest,
+                                #     )
+                                # elif '例' not in q and '例' in options:
+                                if '例' not in q and '例' in options:
+                                    options.remove('例')
                                     output[user_id][str(d)] = '例'
                                     Result.objects.create(
                                         user=User.objects.get(id=user_id),
@@ -971,24 +987,28 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                         station=station_rest,
                                     )
                                 else:
-                                    output[user_id][str(d)] = options.pop(0)
-                                    if output[user_id][str(d)] == '例':
-                                        Result.objects.create(
-                                            user=User.objects.get(id=user_id),
-                                            shift=shift_rest0,
-                                            date=d,
-                                            station=station_rest,
-                                        )
-                                    else:
-                                        Result.objects.create(
-                                            user=User.objects.get(id=user_id),
-                                            shift=shift_rest1,
-                                            date=d,
-                                            station=station_rest,
-                                        )
+                                    # output[user_id][str(d)] = options.pop(0)
+                                    # if output[user_id][str(d)] == '例':
+                                    #     Result.objects.create(
+                                    #         user=User.objects.get(id=user_id),
+                                    #         shift=shift_rest0,
+                                    #         date=d,
+                                    #         station=station_rest,
+                                    #     )
+                                    # else:
+                                    options.pop(0)
+                                    output[user_id][str(d)] = '休'
+                                    Result.objects.create(
+                                        user=User.objects.get(id=user_id),
+                                        shift=shift_rest1,
+                                        date=d,
+                                        station=station_rest,
+                                    )
                             q.append(output[user_id][str(d)])
                             if len(q) > 6:
                                 q.pop(0)
+                            if '休' not in options:
+                                options.append('休')
 
     # for user_id, result in output.items():
     #     print(user_id)
