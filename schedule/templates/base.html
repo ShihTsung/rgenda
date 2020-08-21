@@ -4,6 +4,7 @@
   {% load i18n %}
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %}</title>
   <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="bookmark" href="{% static 'images/favicon.ico' %}" />
@@ -167,7 +168,7 @@
 
     .fold_obj {
       display: block;
-      width: 80px !important;
+      width: 100px !important;
       padding: 5px 0px;
     }
 
@@ -257,25 +258,25 @@
                     </div>
                     {% endif %}
 
-                    <div id="side-arrange" class="list-group-item list-group-item-action sidebar_w fold_m">
+                    <!-- <div id="side-arrange" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 18c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm-14-3c-1.654 0-3 1.346-3 3s1.346 3 3 3h14c1.654 0 3-1.346 3-3s-1.346-3-3-3h-14zm19 3c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm0-12c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm-15 0c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2z"/></svg>
                         調班管理
-                    </div>
+                    </div> -->
                     <!-- sidebar shrink -->
-                    <div class="side_s" id="arrange" style="visibility: hidden;">
+                    <!-- <div class="side_s" id="arrange" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 18c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm-14-3c-1.654 0-3 1.346-3 3s1.346 3 3 3h14c1.654 0 3-1.346 3-3s-1.346-3-3-3h-14zm19 3c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm0-12c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm-15 0c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2z"/></svg>
-                    </div>
+                    </div> -->
 
-                    <div id="arr_fold" class="fold arr">
+                    <!-- <div id="arr_fold" class="fold arr">
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
-                            調班審核</a>
+                            部門調班審核</a>
                         {% if user.role in 'admin, manager' or user.is_superuser %}
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
-                            調班申請</a>
+                            我的調班申請</a>
                         {% endif %}
-                        <!-- <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
-                            調班紀錄</a> -->
-                    </div>
+                        <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
+                            我的調班紀錄</a>
+                    </div> -->
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-work-manage" class="list-group-item list-group-item-action sidebar_w fold_m">
@@ -295,30 +296,30 @@
                     </div>
                     {% endif %}
 
-                    {% if user.role in 'admin, manager' or user.is_superuser %}
+                    <!-- {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-data-analysis" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
                         資料分析
-                    </div>
+                    </div> -->
                     <!-- sidebar shrink -->
-                    <div class="side_s" id="da" style="visibility: hidden;">
+                    <!-- <div class="side_s" id="da" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
-                    </div>
+                    </div> -->
 
-                    <div id="da_fold" class="fold arr">
+                    <!-- <div id="da_fold" class="fold arr">
                         <a id="side-data-analysis" style="color: #37419A;" href="/reserves/reserve" class="fold_obj sidebar_w">部門查詢</a>
                         <a id="side-data-analysis" style="color: #37419A;" href="" class="fold_obj sidebar_w">個人查詢</a>
-                    </div>
-                    {% else %}
-                    <a id="side-data-analysis" href="/" class="list-group-item list-group-item-action sidebar_w fold_m">
+                    </div> -->
+                    <!-- {% else %} -->
+                    <!-- <a id="side-data-analysis" href="/" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
                         資料分析
-                    </a>
+                    </a> -->
                     <!-- sidebar shrink -->
-                    <div class="side_s" id="da" style="visibility: hidden;">
+                    <!-- <div class="side_s" id="da" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M20.043 11.76c-.141-.427-.314-.844-.516-1.242l-2.454 1.106c.217.393.39.81.517 1.242l2.453-1.106zm-12.572-.904c.271-.354.579-.674.918-.957l-1.89-1.968c-.328.293-.637.614-.919.957l1.891 1.968zm1.714-1.514c.38-.221.781-.396 1.198-.523l-1.033-2.569c-.412.142-.813.317-1.2.524l1.035 2.568zm-2.759 3.615c.121-.435.287-.854.498-1.25l-2.47-1.066c-.196.403-.364.823-.498 1.25l2.47 1.066zm9.434-6.2c-.387-.205-.79-.379-1.2-.519l-1.023 2.573c.418.125.82.299 1.2.519l1.023-2.573zm2.601 2.131c-.281-.342-.59-.664-.918-.957l-1.891 1.968c.34.283.648.604.919.957l1.89-1.968zm-5.791-3.06c-.219-.017-.437-.026-.648-.026-.213 0-.432.009-.65.026v2.784c.216-.025.434-.038.65-.038.215 0 .434.013.648.038v-2.784zm11.33 8.172c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 2.583.816 5.042 2.205 7h19.59c1.389-1.958 2.205-4.417 2.205-7zm-9.08 5c-.007-1.086-.606-2.031-1.496-2.522l-1.402-6.571-1.402 6.571c-.889.491-1.489 1.436-1.496 2.522h-5.821c-.845-1.5-1.303-3.242-1.303-5 0-5.514 4.486-10 10-10s10 4.486 10 10c0 1.758-.458 3.5-1.303 5h-5.777z"/></svg>
-                    </div>
-                    {% endif %}
+                    </div> -->
+                    <!-- {% endif %} -->
 
                     {% if user.role in "manager,admin" or user.is_superuser%}
                     <div id="side-account" class="list-group-item list-group-item-action sidebar_w fold_m">
@@ -381,7 +382,7 @@
                         <a id="side-arrange-add" style="color: #37419A;" href="/stations/list" class="fold_obj sidebar_w">
                             工作站管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/demands/list" class="fold_obj sidebar_w">
-                            人力管理</a>
+                            人力配置管理</a>
                         <a id="side-arrange-add" style="color: #37419A;" href="/shifts/list" class="fold_obj sidebar_w">
                             班別管理</a>
 

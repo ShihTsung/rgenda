@@ -95,6 +95,10 @@ adj_item = openapi.Parameter('item', openapi.IN_QUERY,
                              description="加減班選項", type=openapi.TYPE_STRING)
 user_name = openapi.Parameter('name', openapi.IN_QUERY,
                               description="使用者姓名", type=openapi.TYPE_STRING)
+month = openapi.Parameter('month', openapi.IN_QUERY,
+                          description="月份(整數)", type=openapi.TYPE_INTEGER)
+department = openapi.Parameter('department', openapi.IN_QUERY,
+                               description="部門(id)", type=openapi.TYPE_INTEGER)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -216,7 +220,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                     date__range=[start[:10], end[:10]]
                 )
             if uid:
-                target = CustomUser.objects.filter(id=uid)
+                target = CustomUser.objects.get(id=uid)
                 queryset = queryset.filter(user=target)
 
         return queryset
@@ -273,6 +277,9 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             return GetDepartmentSerializer
         return DepartmentSerializer
 
+    def get_queryset(self):
+        return Department.objects.filter(id=self.request.user.department.id)
+
 
 class DepartmentManagerViewSet(viewsets.ModelViewSet):
     queryset = DepartmentManager.objects.all()
@@ -286,15 +293,17 @@ class ShiftViewSet(viewsets.ModelViewSet):
     permission_classes = (IsManagerOrReadOnly,)
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = Shift.objects.all()
         user = self.request.user
         if self.request.query_params:
             if self.request.query_params.get('all') == "True":
-                return queryset
+                queryset = queryset
             else:
-                return queryset.filter(department=user.department)
+                queryset = queryset.filter(department=user.department)
         else:
-            return queryset.filter(department=user.department)
+            queryset = queryset.filter(department=user.department)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -725,6 +734,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 @swagger_auto_schema(
     methods=['get', 'post'],
     operation_summary='檢查排班結果，回傳有問題的班',
+    manual_parameters=[month, department]
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1019,8 +1029,10 @@ def exchangeable_user(request):
         # 申請者
         if to_change_result.shift.name == '休息':
 
-            results = Result.objects.filter(user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-            shift_types = [exchange_shift_type if r.date == exchange_date else r.shift_type for r in results]
+            results = Result.objects.filter(user=user, date__in=[
+                                            exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+            shift_types = [exchange_shift_type if r.date ==
+                           exchange_date else r.shift_type for r in results]
 
             count = 0
             for st in shift_types:
@@ -1033,8 +1045,10 @@ def exchangeable_user(request):
                     count = 0
         # 接受者
         if result.shift.name == '休息':
-            results = Result.objects.filter(user=result.user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-            shift_types = [to_change_result.shift_type if r.date == exchange_date else r.shift_type for r in results]
+            results = Result.objects.filter(user=result.user, date__in=[
+                                            exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+            shift_types = [to_change_result.shift_type if r.date ==
+                           exchange_date else r.shift_type for r in results]
             count = 0
             for st in shift_types:
                 if st in [0, 1, 2, 3]:

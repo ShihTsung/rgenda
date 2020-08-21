@@ -41,6 +41,7 @@ class Department(models.Model):
     detail = models.CharField(
         max_length=100,
         verbose_name=_('科別名稱'),
+        unique=True
     )
     limit_pre_schedule = models.IntegerField(
         verbose_name=_("預約休假數量"),

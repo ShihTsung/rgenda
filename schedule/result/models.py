@@ -51,11 +51,10 @@ class TimeAdjustment(models.Model):
         ),
         null=False,
     )
-    remark = models.TextField(
+    remark = models.CharField(
         verbose_name=_('Remark'),
-        default=None,
         max_length=100,
-        null=True,
+        blank=True
     )
 
 
@@ -169,10 +168,10 @@ class ExchangeApplication(models.Model):
         choices=(
             (0, '待確認'),
             (1, '審核中'),
-            (2, '拒絕-待歸檔'),
-            (3, '核准-待歸檔'),
-            (4, '拒絕-已歸檔'),
-            (5, '核准-已歸檔'),
+            (2, '拒絕'),
+            (3, '核准-待確認'),
+            (4, '審核駁回'),
+            (5, '核准-已確認'),
         ),
     )
     remark = models.CharField(

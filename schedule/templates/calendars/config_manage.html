@@ -7,12 +7,12 @@
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 
 <div class="container">
-<!-- 警告訊息 -->
+  <!-- 警告訊息 -->
   <div class="alert" role="alert" style="visibility:hidden;" id="message">
     permission denied
   </div>
 
-<!-- 日歷 -->
+  <!-- 日歷 -->
   <div id="calendar">
 
   </div>
@@ -53,8 +53,9 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
-        <button type="button" class="btn btn-primary" id="save" >{%trans 'Save'%}</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans
+          'Cancel'%}</button>
+        <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
       </div>
     </div>
   </div>
@@ -176,17 +177,20 @@
                   }
                   if(info.event.extendedProps.attribute.hasOwnProperty(department.id)){
                     if (info.event.extendedProps.attribute[department.id.toString()]==1){
+                      info.el.classList.add('one');
                       info.el.innerHTML += "<div style='font-size: 14px;'>配置一</div>";
                     }else if(info.event.extendedProps.attribute[department.id.toString()]==2){
+                      info.el.classList.add('two');
                       info.el.innerHTML += "<div style='font-size: 14px;'>配置二</div>";
                     }else{
+                      info.el.classList.add('closed-day');
                       info.el.innerHTML += "<div style='font-size: 14px;'>休診</div>";
                     }
                   }
                 },
                 events: {
-                  'url': '/api/dates',
-                },
+                    'url': '/api/dates',
+                    }
             });
             if ("{{LANG}}" == 'zh-hant') {
                 calendar.setOption('locale', 'zh-tw');
@@ -205,20 +209,22 @@
   .fc-event.fc-draggable{
     color: white;
   }
-  .workday{
+  .one{
     background: #4a95bb;
     border: none;
+    height: 3rem;
 
   }
-  .workday:hover{
+  .one:hover{
     background: #387594;
     color: white !important;
   }
-  .holiday{
+  .two{
     background: #70bb8d !important;
     border: none;
+    height: 3rem;
   }
-  .holiday:hover{
+  .two:hover{
     background: #538a68 !important;
     color: white !important;
   }
@@ -226,9 +232,8 @@
     color: #b5b5b5 !important;
     background: white !important;
     border: 1px solid #b5b5b5;
-    height: 46px;
-    width: 106px;
-    font-size: 15px;
+    height: 3rem;
+    font-size: 14px;
   }
   .closed-day:hover{
     color:#838080 !important;

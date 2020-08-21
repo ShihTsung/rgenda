@@ -7,7 +7,7 @@
 <!-- 加入full calendar套件 -->
 {% block content %}
 <div class="container">
-  
+
   <div class="greet text-center">
     {% if user.is_authenticated %}
     <h1> {%trans 'ReservingHoliday'%}</h1>
@@ -67,7 +67,7 @@
 <!-- 自訂 scripts -->
 {% block scripts %}
 <script>
-    
+
     document.addEventListener('DOMContentLoaded', function () {
         var Calendar = FullCalendar.Calendar;
         var Draggable = FullCalendarInteraction.Draggable;
@@ -79,7 +79,7 @@
         let curr_user = {}
         let days = {}
         let max = parseInt("{{max}}")
-        
+
         fetch('/api/users/curr')
         .then(response=>{
           return response.json()
@@ -88,7 +88,7 @@
           curr_user = data;
         })
 
-        
+
         //  fullcalender define
         var calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: ['interaction', 'dayGrid'],
@@ -123,7 +123,7 @@
                     year: info.dateStr.split('-')[0],
                     date: info.dateStr.split('T')[0]
                     }
-                    fetch('/api/reservations/', 
+                    fetch('/api/reservations/',
                           {
                             method: "POST",
                             headers:{
@@ -148,7 +148,7 @@
                       calendar.refetchEvents();
                     });
                   }else{
-                    alert('too many');
+                    alert('超過限制天數！');
                   }
                 }
               }
@@ -189,7 +189,7 @@
                   e.overlap=true;
                 })
                 successCallback(jsonData);
-                  
+
               })
             }
             },{
@@ -221,7 +221,7 @@
               fetch('/api/reservations/' + info.event.id + '/', {
                     method: "DELETE",
                     headers:{
-                      'X-CSRFToken': '{{ csrf_token }}',  
+                      'X-CSRFToken': '{{ csrf_token }}',
                     },
               }).then(res=>{
                   calendar.refetchEvents();
@@ -229,14 +229,14 @@
               // 點擊事件可以刪除
               // index = choosed_days.indexOf(info.event.start.toISOString().split('T')[0])
               // console.log(index)
-              
+
               // info.event.remove();
-              
+
             },
             header: {
-                left: 'today',
+                left: 'prev',
                 center: 'title',
-                right: 'prev,next'
+                right: 'next'
             },
             footer: {
                 center: 'submitButton'
@@ -249,9 +249,9 @@
         }
         calendar.render();
 
-        
+
         // 印出目前顯示的最早與最晚時間
-        
+
         //console.log(calendar.view.activeStart);
         //console.log(calendar.view.activeEnd);
     });
