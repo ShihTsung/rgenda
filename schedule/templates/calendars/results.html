@@ -1195,7 +1195,10 @@
         });
         // console.log(index);
         // console.log(f);
-        return f.content;
+        if(f) {
+          return f.content;
+        }
+
       },
 
       getRemarkS(ev, index) {

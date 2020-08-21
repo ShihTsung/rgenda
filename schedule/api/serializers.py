@@ -256,13 +256,12 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
     start = serializers.CharField(source="date")
     id = serializers.CharField()
     extendedProps = serializers.SerializerMethodField()
-    color = serializers.SerializerMethodField()
     className = serializers.SerializerMethodField()
     attribute = serializers.JSONField()
 
     class Meta:
         model = H_Calendar
-        fields = ('id', 'title', 'start', 'color',
+        fields = ('id', 'title', 'start',
                   'className', 'extendedProps', 'red_day', 'attribute')
         read_only_fields = ("id",)
 
@@ -275,11 +274,6 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
     def get_className(self, obj):
         return 'bigEvent'
 
-    def get_color(self, obj):
-        if obj.red_day:
-            return 'red'
-        else:
-            return ''
 
     def get_extendedProps(self, obj):
 
@@ -453,6 +447,7 @@ class GetDemandSerializer(serializers.ModelSerializer):
 
 class GetPromiseShiftSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer()
+    shift = SimpleShiftSerializer()
 
     class Meta:
         model = PromiseShift
