@@ -293,15 +293,17 @@ class ShiftViewSet(viewsets.ModelViewSet):
     permission_classes = (IsManagerOrReadOnly,)
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = Shift.objects.all()
         user = self.request.user
         if self.request.query_params:
             if self.request.query_params.get('all') == "True":
-                return queryset
+                queryset = queryset
             else:
-                return queryset.filter(department=user.department)
+                queryset = queryset.filter(department=user.department)
         else:
-            return queryset.filter(department=user.department)
+            queryset = queryset.filter(department=user.department)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -989,24 +991,31 @@ def exchangeable_user(request):
         # 1. 前後班別休息時間是否間隔11小時
         # 申請者
         try:
-            pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
+            pre_result = Result.objects.get(
+                user=user, date=exchange_date - timedelta(days=1))
             if pre_result.shift.shift_type == 2 and pre_result.shift.end_time < pre_result.shift.start_time:
-                last_off_time = datetime.combine(exchange_date, pre_result.shift.end_time)
+                last_off_time = datetime.combine(
+                    exchange_date, pre_result.shift.end_time)
             elif pre_result.shift.shift_type in [0, 1, 2]:
-                last_off_time = datetime.combine(pre_result.date, pre_result.shift.end_time)
+                last_off_time = datetime.combine(
+                    pre_result.date, pre_result.shift.end_time)
             else:
-                last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
+                last_off_time = datetime.combine(
+                    pre_result.date, time(0, 0, 0))
             if datetime.combine(exchange_date, result.shift.start_time) - last_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
                 continue
         except Result.DoesNotExist:
             pass
         try:
-            next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
+            next_result = Result.objects.get(
+                user=user, date=exchange_date + timedelta(days=1))
             if result.shift.shift_type == 2 and result.shift.start_time > result.shift.end_time:
-                off_time = datetime.combine(exchange_date + timedelta(days=1), result.shift.end_time)
+                off_time = datetime.combine(
+                    exchange_date + timedelta(days=1), result.shift.end_time)
             elif result.shift.shift_type in [0, 1, 2]:
-                off_time = datetime.combine(exchange_date, result.shift.end_time)
+                off_time = datetime.combine(
+                    exchange_date, result.shift.end_time)
             else:
                 off_time = datetime.combine(exchange_date, time(0, 0, 0))
             if next_result.shift.shift_type in [0, 1, 2] and datetime.combine(exchange_date + timedelta(days=1), next_result.shift.start_time) - datetime.combine(exchange_date, result.shift.end_time) < timedelta(hours=11):
@@ -1035,8 +1044,10 @@ def exchangeable_user(request):
         # 申請者
         if to_change_result.shift.name == '休息':
 
-            results = Result.objects.filter(user=user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-            shift_types = [exchange_shift_type if r.date == exchange_date else r.shift_type for r in results]
+            results = Result.objects.filter(user=user, date__in=[
+                                            exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+            shift_types = [exchange_shift_type if r.date ==
+                           exchange_date else r.shift_type for r in results]
 
             count = 0
             for st in shift_types:
@@ -1049,8 +1060,10 @@ def exchangeable_user(request):
                     count = 0
         # 接受者
         if result.shift.name == '休息':
-            results = Result.objects.filter(user=result.user, date__in=[exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-            shift_types = [to_change_result.shift_type if r.date == exchange_date else r.shift_type for r in results]
+            results = Result.objects.filter(user=result.user, date__in=[
+                                            exchange_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+            shift_types = [to_change_result.shift_type if r.date ==
+                           exchange_date else r.shift_type for r in results]
             count = 0
             for st in shift_types:
                 if st in [0, 1, 2, 3]:
@@ -1115,7 +1128,8 @@ def users_can_support(request):
     target_date = str_to_date(request.GET.get('date'))
     output = list()
     try:
-        results = Result.objects.filter(date=target_date, shift__name__in=['休息', 'oncall'])
+        results = Result.objects.filter(
+            date=target_date, shift__name__in=['休息', 'oncall'])
     except Result.DoesNotExist:
         return Response(output)
 
@@ -1125,7 +1139,8 @@ def users_can_support(request):
             'shift_type': result.shift.shift_type,
             'can_support': list(),
         })
-        result_list = Result.objects.filter(user=result.user, date__in=[target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+        result_list = Result.objects.filter(user=result.user, date__in=[
+                                            target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
         count = 0
         for r in result_list:
             if r.shift.shift_type in [0, 1, 2, 3]:
@@ -1135,20 +1150,28 @@ def users_can_support(request):
             if count > 6:
                 continue
         try:
-            pre_result = Result.objects.get(user=result.user, date=target_date - timedelta(days=1))
+            pre_result = Result.objects.get(
+                user=result.user, date=target_date - timedelta(days=1))
             if pre_result.shift.shift_type == 2 and pre_result.shift.start_time > pre_result.shift.end_time:
-                last_off_time = datetime.combine(target_date, pre_result.shift.end_time)
+                last_off_time = datetime.combine(
+                    target_date, pre_result.shift.end_time)
             elif pre_result.shift.shift_type in [0, 1, 2]:
-                last_off_time = datetime.combine(pre_result.date, pre_result.shift.end_time)
+                last_off_time = datetime.combine(
+                    pre_result.date, pre_result.shift.end_time)
             else:
-                last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
+                last_off_time = datetime.combine(
+                    pre_result.date, time(0, 0, 0))
         except Result.DoesNotExist:
             last_off_time = datetime.combine(pre_result.date, time(0, 0, 0))
         try:
-            next_result = Result.objects.get(user=result.user, date=target_date + timedelta(days=1))
+            next_result = Result.objects.get(
+                user=result.user, date=target_date + timedelta(days=1))
             if next_result.shift.shift_type in [0, 1, 2]:
-                next_start_time = datetime.combine(target_date + timedelta(days=1), next_result.shift.start_time)
+                next_start_time = datetime.combine(
+                    target_date + timedelta(days=1), next_result.shift.start_time)
             else:
-                next_start_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+                next_start_time = datetime.combine(
+                    target_date + timedelta(days=1), time(23, 59, 59))
         except Result.DoesNotExist:
-            next_start_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+            next_start_time = datetime.combine(
+                target_date + timedelta(days=1), time(23, 59, 59))
