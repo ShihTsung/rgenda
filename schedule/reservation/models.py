@@ -29,7 +29,7 @@ class Reservation(models.Model):
     date = models.DateField(verbose_name=_('Date'))
 
     def __str__(self):
-        return self.user.username + self.date
+        return self.user.username + str(self.date)
 
 
 # 保證假，班
@@ -48,4 +48,4 @@ class PromiseShift(models.Model):
     )
 
     def __str__(self):
-        return self.user.username + self.date
+        return self.user.username + str(self.date)

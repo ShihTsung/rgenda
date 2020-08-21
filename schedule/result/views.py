@@ -12,7 +12,7 @@ from demand.views import get_demands
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from numpy.random import choice
-from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave
+from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave, get_promise_other
 from scripts.get_date_range import *
 from shift.models import Shift
 from shift.views import get_shifts
@@ -496,10 +496,12 @@ def get_used_rest(department, date_start, date_end):
         for result in results:
             if result.shift.name == '例假':
                 output[user.id].append('例')
-            elif result.shift.name == '休息':
+            elif result.shift.name in ['休息', 'oncall']:
                 output[user.id].append('休')
-            else:
+            elif result.shift.shift_type in [0, 1, 2, 3]:
                 output[user.id].append('工')
+            else:
+                output[user.id].append('特')
     return output
 
 
@@ -527,7 +529,7 @@ def str_to_date(s):
     return date(year=int(sp[0]), month=int(sp[1]), day=int(sp[2]))
 
 
-def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'):
+def create_result(request, department_id, start, end):
     """
 
     :param department_id:
@@ -558,6 +560,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
     continue_dict = get_continue_days(department, date_start)
     reserve_leave_dict = get_reserve_leave(department, date_start, date_end)
     promise_leave_dict = get_promise_leave(department, date_start, date_end)
+    promise_other_dict = get_promise_other(department, date_start, date_end)
     official_leave_dict = get_official_leave(department, date_start, date_end)
 
     # create cycle list
@@ -623,6 +626,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                             'holiday_rest': user.holiday_rest_num - user.holiday_rest_num_used,
                             'reserve_leave': reserve_leave_dict[user.id],
                             'promise_leave': promise_leave_dict[user.id],
+                            'promise_other': [str_to_date(d) for d in promise_other_dict[user.id]],
                             'official_leave': official_leave_dict[user.id],
                         },
                     })
@@ -679,8 +683,9 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                     # user可排人選
                                     options = list()
                                     for user_id, user_data in user_pool.items():
-                                        if d in (user_data['promise_leave'] + user_data['official_leave']) or \
-                                                weight_workday[user_id] == 0 or temp_output[user_id][str(d)] != 0:
+                                        if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
+                                            'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
+                                            str(d)] != 0:
                                             continue
                                         s = 0
                                         d_n = d - timedelta(days=1)
@@ -770,8 +775,9 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                         # user可排人選
                                         options = list()
                                         for user_id, user_data in user_pool.items():
-                                            if d in (user_data['promise_leave'] + user_data['official_leave']) or \
-                                                    weight_workday[user_id] == 0 or temp_output[user_id][str(d)] != 0:
+                                            if d in (user_data['promise_leave'] + user_data['official_leave'] +
+                                                     user_data['promise_other']) or weight_workday[user_id] == 0 or \
+                                                    temp_output[user_id][str(d)] != 0:
                                                 continue
                                             s = 0
                                             d_n = d - timedelta(days=1)
@@ -866,8 +872,9 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                     # user可排人選
                                     options = list()
                                     for user_id, user_data in user_pool.items():
-                                        if d in (user_data['promise_leave'] + user_data['official_leave']) or \
-                                                weight_workday[user_id] == 0 or temp_output[user_id][str(d)] != 0:
+                                        if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
+                                            'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
+                                            str(d)] != 0:
                                             continue
                                         s = 0
                                         d_n = d - timedelta(days=1)
@@ -940,7 +947,7 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                             user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
 
             # 移除date_pre
-            # 將0指派為 例假/休假
+            # 將0指派為 例假/休假/特殊假
             for user_id in user_pool:
                 print(user_id)
                 output[user_id].pop('date_pre')
@@ -966,17 +973,15 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                     date=d,
                                     station=station,
                                 )
+                            elif d in user_pool[user_id]['promise_other']:
+                                output[user_id][str(d)] = '特'
+                                Result.objects.create(
+                                    user=User.objects.get(id=user_id),
+                                    shift=Shift.objects.get(department=department, name=promise_other_dict[user_id][str(d)]),
+                                    date=d,
+                                    station=station,
+                                )
                             else:
-                                # if '例' in q and '休' in options:
-                                #     options.remove('休')
-                                #     output[user_id][str(d)] = '休'
-                                #     Result.objects.create(
-                                #         user=User.objects.get(id=user_id),
-                                #         shift=shift_rest1,
-                                #         date=d,
-                                #         station=station_rest,
-                                #     )
-                                # elif '例' not in q and '例' in options:
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
@@ -987,15 +992,6 @@ def create_result(request, department_id=1, start='2020-08-01', end='2020-08-31'
                                         station=station_rest,
                                     )
                                 else:
-                                    # output[user_id][str(d)] = options.pop(0)
-                                    # if output[user_id][str(d)] == '例':
-                                    #     Result.objects.create(
-                                    #         user=User.objects.get(id=user_id),
-                                    #         shift=shift_rest0,
-                                    #         date=d,
-                                    #         station=station_rest,
-                                    #     )
-                                    # else:
                                     options.pop(0)
                                     output[user_id][str(d)] = '休'
                                     Result.objects.create(
