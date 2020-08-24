@@ -4,7 +4,7 @@
     <div class="col-12">
       <div class="float-right">
         <!-- 新增假勤 -->
-        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="新增假勤" data-toggle="modal" data-target="#modalAddPromiseShift">
+        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="新增假勤" data-toggle="modal" data-target="#modalAddPromiseLeave">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
         </div>
@@ -59,34 +59,23 @@
                   v-model="selectedType">
                   <label class="form-check-label" for="rdo_type_all">全選</label>
                 </div>
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllTimeAdjustmentTypeText()"
-                :key="['type', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="selectedType"
-                  :id="['rdo_type', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group" v-if="isSelectSingleType">
-              <label class="font-weight-bold">項目</label>
-              <div class="form-group">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_item_all" value="all"
-                  v-model="selectedItem">
-                  <label class="form-check-label" for="rdo_item_all">全選</label>
+                  id="rdo_type_all" value="all"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_all">預排公假</label>
                 </div>
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in itemList"
-                :key="['item', idx, item.id].join('_')">
+                <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  v-model="selectedItem"
-                  :id="['rdo_item', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['rdo_item', idx, item.id].join('_')">{{ item.text }}</label>
+                  id="rdo_type_all" value="all"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_all">預排特休</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio"
+                  id="rdo_type_all" value="all"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_all">預排其他假別</label>
                 </div>
               </div>
             </div>
@@ -140,13 +129,13 @@
     <!-- \users table -->
   </div>
 
-  <modal-add-promise-shift v-if="suggestions.length > 0"
+  <modal-add-promise-leave v-if="suggestions.length > 0"
     :suggestions="suggestions"
-    :csrf-token="csrfToken"></modal-add-promise-shift>
+    :csrf-token="csrfToken"></modal-add-promise-leave>
 
-  <modal-delete-promise-shift v-if="deleteItems.length > 0"
+  <modal-delete-promise-leave v-if="deleteItems.length > 0"
     :delete-items="deleteItems"
-    :csrf-token="csrfToken"></modal-delete-promise-shift>
+    :csrf-token="csrfToken"></modal-delete-promise-leave>
 </div>
 </template>
 
@@ -161,16 +150,16 @@ import { VueGoodTable } from 'vue-good-table';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import Autocomplete from 'components/partial/Autocomplete.vue';
-import ModalAddPromiseShift from './ModalAddPromiseShift.vue';
-import ModalDeletePromiseShift from './ModalDeletePromiseShift.vue';
+import ModalAddPromiseLeave from './ModalAddPromiseLeave.vue';
+import ModalDeletePromiseLeave from './ModalDeletePromiseLeave.vue';
 
 export default {
   components: {
     VueGoodTable,
     DatePicker,
     Autocomplete,
-    ModalAddPromiseShift,
-    ModalDeletePromiseShift,
+    ModalAddPromiseLeave,
+    ModalDeletePromiseLeave,
   },
   props: {
     csrfToken: {
@@ -184,7 +173,6 @@ export default {
       startDate: moment().toDate(), // Must be Date Object
       endDate: moment().toDate(), // Must be Date Object,
       selectedType: 'all',
-      selectedItem: 'all',
       selection: {
         id: 0,
         text: '',
@@ -267,7 +255,7 @@ export default {
         };
       });
     },
-    $_promiseShifts_query_validate() {
+    $_promiseLeave_query_validate() {
       let errMsg = [];
       let valid = true;
       if (null === this.startDate) {
@@ -290,7 +278,7 @@ export default {
       let self = this;
       self.deleteItems = [];
 
-      let [bool, errMsg] = this.$_promiseShifts_query_validate();
+      let [bool, errMsg] = this.$_promiseLeave_query_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -307,9 +295,6 @@ export default {
       if (0 <= Number(self.selectedType)) {
         params.type = self.selectedType;
       }
-      if (0 <= Number(self.selectedItem)) {
-        params.item = self.selectedItem;
-      }
       let queryString = Object.keys(params).map((key) => {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
       }).join('&');
@@ -325,7 +310,7 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            self.rows = self.$_timeAdjustment_query_result_transformer(data);
+            self.rows = self.$_promiseLeave_query_result_transformer(data);
             self.loaded = true;
             if (showWarningPopup) {
               popup.success({
@@ -353,14 +338,14 @@ export default {
           console.log(error);
         });
     },
-    $_promiseShifts_query_result_transformer(data) {
+    $_promiseLeave_query_result_transformer(data) {
       let self = this;
       return data.map(function(obj) {
         return {
           id: obj.id,
-          adjustmentType: self.$getTimeAdjustmentTypeText(obj.adjustment_type),
+          // adjustmentType: self.$getTimeAdjustmentTypeText(obj.adjustment_type),
           date: obj.date,
-          adjustmentItem: self.$getTimeAdjustmentItemText(obj.adjustment_type, obj.adjustment_item),
+          // adjustmentItem: self.$getTimeAdjustmentItemText(obj.adjustment_type, obj.adjustment_item),
           hours: obj.hours,
           fullName: self.selection.text,
           remark: nl2br(obj.remark),
@@ -369,7 +354,7 @@ export default {
     },
     confirmDelete() {
       if (0 < this.deleteItems.length) {
-        $('#modalDeletePromiseShift').modal('show');
+        $('#modalDeletePromiseLeave').modal('show');
       }
     },
     cancelDelete() {
@@ -379,24 +364,7 @@ export default {
   mounted() {
     this.getUsers();
   },
-  watch: {
-    selectedType: function(value, oldValue) {
-      if ('all' === value) {
-        this.selectedItem = 'all';
-      } else {
-        if (oldValue !== value) {
-          this.selectedItem = 'all';
-        }
-      }
-    },
-  },
   computed: {
-    isSelectSingleType() {
-      return this.selectedType !== 'all';
-    },
-    itemList() {
-      return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
-    },
     isReadyDelete() {
       return 0 < this.deleteItems.length;
     },

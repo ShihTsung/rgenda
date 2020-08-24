@@ -1,6 +1,6 @@
 <template>
-  <!-- modal - add time adjustment -->
-  <div class="modal fade" id="modalAddPromiseShift" tabindex="-1" role="dialog" aria-hidden="true"
+  <!-- modal - add promise leave -->
+  <div class="modal fade" id="modalAddPromiseLeave" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -13,36 +13,8 @@
           </button>
         </div>
         <div class="modal-body text-center pt-0">
-          <h3 class="modal-title rgenda-text-dark-blue mb-4">出缺勤補登</h3>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增假勤</h3>
           <div class="container-fluid text-left">
-            <div class="form-group">
-              <label class="font-weight-bold">類別</label>
-              <div class="form-group">
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllTimeAdjustmentTypeText()"
-                :key="['type', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="selectedType"
-                  :id="['add_rdo_type', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['add_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group" v-if="isSelectSingleType">
-              <label class="font-weight-bold">項目</label>
-              <div class="form-group">
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in itemList"
-                :key="['item', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="selectedItem"
-                  :id="['add_rdo_item', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['add_rdo_item', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
             <div class="form-group">
               <label class="font-weight-bold">日期</label>
                 <date-picker
@@ -56,11 +28,36 @@
                 ></date-picker>
             </div>
             <div class="form-group">
+              <label class="font-weight-bold">類別</label>
+              <div class="form-group">
+                <div class="form-check form-check-inline"
+                v-for="(item, idx) in $getAllPromiseLeaveCategoryText()"
+                :key="['type', idx, item.id].join('_')">
+                  <input class="form-check-input" type="radio"
+                  v-model="selectedType"
+                  :id="['add_rdo_type', idx, item.id].join('_')"
+                  :value="item.id">
+                  <label class="form-check-label" :for="['add_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="font-weight-bold">假別</label>
+              <div class="form-group">
+                <div class="form-check form-check-inline"
+                v-for="(item, idx) in itemList"
+                :key="['item', idx, item.id].join('_')">
+                  <input class="form-check-input" type="radio"
+                  v-model="selectedItem"
+                  :id="['add_rdo_item', idx, item.id].join('_')"
+                  :value="item.id">
+                  <label class="form-check-label" :for="['add_rdo_item', idx, item.id].join('_')">{{ item.text }}</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
               <label class="font-weight-bold">時數</label>
               <input type="number" class="form-control" v-model="addTimeAdjustment.hours">
-              <small class="form-text text-danger" v-if="isOverHours">
-                超過法定上限 12 小時
-              </small>
             </div>
             <div class="form-group">
               <label class="font-weight-bold">姓名</label>
@@ -88,7 +85,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - add time adjustment -->
+  <!-- \modal - add promise leave -->
 </template>
 
 <script>
@@ -167,7 +164,7 @@ export default {
         return false;
       }
 
-      $('#modalAddPromiseShift').modal('hide');
+      $('#modalAddPromiseLeave').modal('hide');
 
       popup.loading({
         title: '處理中...',
@@ -191,7 +188,7 @@ export default {
       self.$httpClient.post(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: '出缺勤補登',
+            title: '新增假勤',
             text: '請求成功',
           }, function () {
             self.cancelAddition();
@@ -218,20 +215,14 @@ export default {
         this.selectedItem = 'all';
       } else {
         if (oldValue !== value) {
-          this.selectedItem = this.selectedType == this.$getTimeAdjustmentTypeValue('TYPE_INCREASE_HOURS') ? this.$getTimeAdjustmentItemValue('ITEM_WORK_OVERTIME') : this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS');
+          this.selectedItem = this.selectedType == this.$getPromiseLeaveCategoryValue('UNPAID_LEAVE') ? this.$getPromiseLeaveItemValue('ITEM_PERSONAL_LEAVE') : this.$getPromiseLeaveItemValue('ITEM_OFFICIAL_LEAVE');
         }
       }
     },
   },
   computed: {
-    isSelectSingleType() {
-      return this.selectedType !== 'all';
-    },
     itemList() {
-      return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
-    },
-    isOverHours() {
-      return 12 < Number(this.addTimeAdjustment.hours);
+      return this.$getPromiseLeaveItemsByCategoryKey(Number(this.selectedType));
     },
   },
 }
