@@ -434,7 +434,7 @@ def get_type(shift):
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
-    permission_classes = (IsManagerOrReadOnly,)
+    permission_classes = (IsManagerOrReadOnly, IsAuthenticated)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
