@@ -52,6 +52,15 @@ class PromiseShift(models.Model):
         null=True,
         choices=TYPE_CHOICES
     )
+    hours = models.IntegerField(
+        verbose_name=_('時數'),
+        null=True
+    )
+    remark = models.CharField(
+        max_length=100,
+        verbose_name=_('備註'),
+        blank=True
+    )
 
     def __str__(self):
         return self.user.username + str(self.date)
