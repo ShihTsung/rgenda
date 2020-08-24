@@ -428,7 +428,7 @@
           console.log(err);
         });
 
-        this.getResults(this.month, this.year);
+        this.getPreResults(this.month, this.year);
         this.getAdjustment(this.month, this.year);
         this.getLastMonthData(this.month, this.year);
         this.getTotalPerDayData(this.month, this.year);
@@ -512,10 +512,31 @@
         });
       },
 
-      getResults(month, year) {
+      // getResults(month, year) {
+      //   this.isReady = false;
+      //   this.url = "http://localhost/api/results/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
+      //              + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString();
+
+      //   fetch(this.url)
+      //   .then((res)=>{
+      //     return res.json();
+      //   }).then((data)=>{
+      //     // console.log(data);
+      //     this.resultData = data;
+      //     if(this.resultData.length != 0){
+      //       this.isReady = true;
+      //     };
+      //     this.resultData.forEach((i)=>{
+      //       i.isModified = false;
+      //     });
+      //   }).catch((err)=>{
+      //     console.log(err);
+      //   });
+      // },
+
+      getPreResults() {
         this.isReady = false;
-        this.url = "http://localhost/api/results/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
-                   + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString();
+        this.url = "http://localhost/api/preresults/";
 
         fetch(this.url)
         .then((res)=>{
@@ -678,7 +699,7 @@
             this.year--;
             this.month = 12;
           };
-          this.getResults(this.month, this.year);
+          this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
         }else if(ev.target.id === "next") {
@@ -687,13 +708,13 @@
             this.year++;
             this.month = 1;
           }
-          this.getResults(this.month, this.year);
+          this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
         }else {
           this.year = new Date().getFullYear();
           this.month = new Date().getMonth() + 1;
-          this.getResults(this.month, this.year);
+          this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
         };
