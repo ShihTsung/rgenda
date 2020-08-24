@@ -84,7 +84,7 @@ def userList(request):
         manager_num = defaultdict(int)
         for user in users:
             if user.role == 'manager':
-                manager_num[user.departmant.detail] += 1
+                manager_num[user.department.detail] += 1
         departments = [
             department.detail for department in Department.objects.all()]
         for row in ws.iter_rows(values_only=True, max_row=1):
