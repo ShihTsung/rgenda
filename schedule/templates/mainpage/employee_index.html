@@ -9,7 +9,7 @@
     <h1>使用者首頁</h1>
   </div>
   <div class="dash">
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-header text-center">
         <button class="btn" id="toggle-btn">
           <i class="fa fa-bars"></i>
@@ -77,7 +77,7 @@
           </canvas>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <div id="calendar"></div>
@@ -95,121 +95,121 @@
     var localeSelectorEl = document.getElementById('locale-selector');
     var Draggable = FullCalendarInteraction.Draggable;
     var calendarEl = document.getElementById('calendar');
-    var nextPeriod = {}
-    let btn = document.getElementById('toggle-btn')
-    btn.addEventListener('click', function () {
-      let contents = document.querySelectorAll('.DashCollapse');
-      contents.forEach(e => {
-        e.classList.toggle('collapse')
-      });
-    });
+    // var nextPeriod = {}
+    // let btn = document.getElementById('toggle-btn')
+    // btn.addEventListener('click', function () {
+    //   let contents = document.querySelectorAll('.DashCollapse');
+    //   contents.forEach(e => {
+    //     e.classList.toggle('collapse')
+    //   });
+    // });
 
     // 第一個圖
-    var ctx = document.getElementById('chart1').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'horizontalBar',
-      data: {
-        labels: ['白班', '小夜', '大夜', 'On call', '空班'],
-        datasets: [{
-          barThickness: 30,
-          data: [12, 7, 5, 5, 2],
-          backgroundColor: [
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-          ],
-          borderColor: [
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            gridLines: {
-              offsetGridLines: false,
-              display: false
-            }
-          }],
-          xAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            gridLines: {
-              offsetGridLines: false,
-            }
-          }]
-        },
-        legend: {
-          display: false,
-        },
-        aspectRatio: 1.6,
-        maintainAspectRatio: false
-      }
-    });
+    // var ctx = document.getElementById('chart1').getContext('2d');
+    // var myChart = new Chart(ctx, {
+    //   type: 'horizontalBar',
+    //   data: {
+    //     labels: ['白班', '小夜', '大夜', 'On call', '空班'],
+    //     datasets: [{
+    //       barThickness: 30,
+    //       data: [12, 7, 5, 5, 2],
+    //       backgroundColor: [
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //       ],
+    //       borderColor: [
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //       ],
+    //       borderWidth: 1
+    //     }]
+    //   },
+    //   options: {
+    //     scales: {
+    //       yAxes: [{
+    //         ticks: {
+    //           beginAtZero: true
+    //         },
+    //         gridLines: {
+    //           offsetGridLines: false,
+    //           display: false
+    //         }
+    //       }],
+    //       xAxes: [{
+    //         ticks: {
+    //           beginAtZero: true
+    //         },
+    //         gridLines: {
+    //           offsetGridLines: false,
+    //         }
+    //       }]
+    //     },
+    //     legend: {
+    //       display: false,
+    //     },
+    //     aspectRatio: 1.6,
+    //     maintainAspectRatio: false
+    //   }
+    // });
 
 
     // 第二個圖
-    var ctx = document.getElementById('chart2').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'horizontalBar',
-      data: {
-        labels: ['排班', '出勤', '公假', '自假'],
-        datasets: [{
-          barThickness: 30,
-          data: [12, 7, 5, 5],
-          backgroundColor: [
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-          ],
-          borderColor: [
-            '#37419A',
-            '#37419A',
-            '#37419A',
-            '#37419A',
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            gridLines: {
-              offsetGridLines: false,
-              display: false
-            }
-          }],
-          xAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            gridLines: {
-              offsetGridLines: false,
-            }
-          }]
-        },
-        legend: {
-          display: false,
-        },
-        aspectRatio: 1.6,
-        maintainAspectRatio: false
-      }
-    });
+    // var ctx = document.getElementById('chart2').getContext('2d');
+    // var myChart = new Chart(ctx, {
+    //   type: 'horizontalBar',
+    //   data: {
+    //     labels: ['排班', '出勤', '公假', '自假'],
+    //     datasets: [{
+    //       barThickness: 30,
+    //       data: [12, 7, 5, 5],
+    //       backgroundColor: [
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //       ],
+    //       borderColor: [
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //         '#37419A',
+    //       ],
+    //       borderWidth: 1
+    //     }]
+    //   },
+    //   options: {
+    //     scales: {
+    //       yAxes: [{
+    //         ticks: {
+    //           beginAtZero: true
+    //         },
+    //         gridLines: {
+    //           offsetGridLines: false,
+    //           display: false
+    //         }
+    //       }],
+    //       xAxes: [{
+    //         ticks: {
+    //           beginAtZero: true
+    //         },
+    //         gridLines: {
+    //           offsetGridLines: false,
+    //         }
+    //       }]
+    //     },
+    //     legend: {
+    //       display: false,
+    //     },
+    //     aspectRatio: 1.6,
+    //     maintainAspectRatio: false
+    //   }
+    // });
     // fullcalendar
     const shiftColor = {
       0: '#ebc57c',
@@ -273,7 +273,7 @@
           }
         } else if (info.event.extendedProps.adjustment_type) {
           let adjustItem = document.createElement('span');
-          adjustItem.innerHTML = info.event.extendedProps.adjustment_item;
+          adjustItem.innerHTML = info.event.extendedProps.remark;
           adjustItem.className = 'adjust-item';
           info.el.firstChild.appendChild(adjustItem);
         }
