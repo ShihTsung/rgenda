@@ -534,9 +534,11 @@
       //   });
       // },
 
-      getPreResults() {
+      getPreResults(month, year) {
         this.isReady = false;
-        this.url = "http://localhost/api/preresults/";
+        this.url = "http://localhost/api/preresults/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
+                   + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString();
+
 
         fetch(this.url)
         .then((res)=>{
@@ -790,9 +792,21 @@
         //加標誌到各筆班別資料
         if(this.rsShow == true && this.rsClass != '') {
           if(ev.target.parentNode.className.split(' ')[1] == 'futureDay') {
+
             let data = {};
             data.result = info.id;
+            let classListStr = JSON.stringify(ev.target.parentNode.classList);
             ev.target.parentNode.classList.add(this.rsClass);
+
+            if(classListStr.indexOf('rs1') != -1) {
+              ev.target.parentNode.classList.remove('rs1');
+            } else if(classListStr.indexOf('rs2') != -1) {
+              ev.target.parentNode.classList.remove('rs2');
+            } else if(classListStr.indexOf('rs3') != -1) {
+              ev.target.parentNode.classList.remove('rs3');
+            }
+
+
             switch(this.rsClass) {
               case 'rs1':
                 data.content = 1;
@@ -804,7 +818,22 @@
                 data.content = 3;
                 break;
             };
-            this.resultRS.push(data);
+            let exist = this.resultRS.find((i)=>{
+              return i.result == info.id;
+            });
+
+            if(!exist) {
+              this.resultRS.push(data);
+            }else {
+              this.resultRS.forEach((i)=>{
+                if(i.result == info.id){
+                  i.content = data.content;
+                };
+              });
+            };
+
+            this.whichBorder(info.id);
+
           };
         };
         if(this.edit == true && (ev.target.parentElement.className.split(' ')[1]) == 'futureDay') {
@@ -938,7 +967,7 @@
             data.station = i.station;
           };
 
-          this.url = "http://localhost/api/results/" + i.id + '/';
+          this.url = "http://localhost/api/preresults/" + i.id + '/';
 
           fetch(this.url, {
             headers:{
@@ -1039,6 +1068,7 @@
           let check = this.resultRemarksData.find((item)=>{
             return i.result == item.result;
           });
+
 
           if(check) {
             fetch('http://localhost/api/result-remarks/' + check.id + '/',{
@@ -1268,6 +1298,8 @@
         this.rsShow = true;
 
         this.rsClass = ev.target.className.split(' ')[1];
+
+        console.log(this.rsClass);
       },
 
       whichBorder(index) {
@@ -1276,7 +1308,9 @@
         });
 
 
+
         if(f){
+          console.log(f);
           switch(f.content) {
             case 1:
               return 'rs1';
@@ -1294,7 +1328,7 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          console.log(data);
+          // console.log(data);
           this.checkResult = data;
         }).catch(err=>{
           console.log(err);
