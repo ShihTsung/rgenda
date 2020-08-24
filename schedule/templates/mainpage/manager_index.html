@@ -11,48 +11,78 @@
 <link rel="stylesheet" href="{% static 'fullcalendar/resource-timeline/main.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 <div class="container">
-    <div class="dash">
-      <div class="card" style="margin-left: 50px;">
-        <div class="card-header text-center">
-          <button class="btn" id="toggle-btn">
-            <i class="fa fa-bars"></i>
-          </button>人力分析<span class="unit">單位：人</span>
+  <div class="dash">
+    <!-- <div class="card" style="margin-left: 50px;">
+      <div class="card-header text-center">
+        <button class="btn" id="toggle-btn">
+          <i class="fa fa-bars"></i>
+        </button>人力分析<span class="unit">單位：人</span>
+      </div>
+      <div class="card-body DashCollapse">
+        <div class="left">
+          <div class='data'>
+            <div class="label">工作日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">休息日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">例假日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">國定假日</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">特休</div>
+            <div class="nums">1</div>
+          </div>
         </div>
-        <div class="card-body DashCollapse" >
-          <div class="left">
-            <div class='data'><div class="label">工作日</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">休息日</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">例假日</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">國定假日</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">特休</div><div class="nums">1</div></div>
-          </div>
-          <div class="right">
-            <canvas  id='chart1'>
-            </canvas>
-          </div>
-
+        <div class="right">
+          <canvas id='chart1'>
+          </canvas>
         </div>
 
       </div>
 
-      <div class="card" style="margin-right: 50px;">
-        <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
-        <div class="card-body DashCollapse" >
-          <div class="left">
-            <div class='data'><div class="label">排班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">on call</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">加班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">減班</div><div class="nums">1</div></div>
-            <div class='data'><div class="label">差額</div><div class="nums">1</div></div>
+    </div>
+
+    <div class="card" style="margin-right: 50px;">
+      <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
+      <div class="card-body DashCollapse">
+        <div class="left">
+          <div class='data'>
+            <div class="label">排班</div>
+            <div class="nums">1</div>
           </div>
-          <div class="right">
-            <canvas  id='chart2'>
-            </canvas>
+          <div class='data'>
+            <div class="label">on call</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">加班</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">減班</div>
+            <div class="nums">1</div>
+          </div>
+          <div class='data'>
+            <div class="label">差額</div>
+            <div class="nums">1</div>
           </div>
         </div>
+        <div class="right">
+          <canvas id='chart2'>
+          </canvas>
+        </div>
       </div>
+    </div>
 
-      <!-- <div class="card">
+    <div class="card">
         <div class="card-header text-center">兼職人力出勤分析<span class="unit">單位：時</span></div>
           <div class="card-body DashCollapse" >
             <div class="left">
@@ -69,180 +99,182 @@
           </div>
         </div>
       </div> -->
-    </div>
-    <div id="calendar"></div>
+  </div>
+  <div id="calendar"></div>
 </div> <!-- end container -->
 <!-- chart.js CDN -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js">
 </script>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+  integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+  crossorigin="anonymous"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var nextPeriod = {}
-    let btn = document.getElementById('toggle-btn')
-    btn.addEventListener('click', function(){
-      let contents = document.querySelectorAll('.DashCollapse');
-      contents.forEach(e=>{
-        e.classList.toggle('collapse')
-        });
-    });
+    // let btn = document.getElementById('toggle-btn')
+    // btn.addEventListener('click', function () {
+    //   let contents = document.querySelectorAll('.DashCollapse');
+    //   contents.forEach(e => {
+    //     e.classList.toggle('collapse')
+    //   });
+    // });
     // 第一個圖
-    var ctx = document.getElementById('chart1').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'horizontalBar',
-      data: {
-          labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
-          datasets: [{
-              barThickness: 30,
-              data: [12, 7, 5, 5],
-              backgroundColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A'
-              ],
-              borderColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A'
-              ],
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                      offsetGridLines: false,
-                      display: false
-                  }
-              }],
-              xAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                  offsetGridLines: false,
-                }
-              }]
-          },
-          legend:{
-            display: false,
-          },
-          aspectRatio: 1.6,
-          maintainAspectRatio: false
-      }
-    });
+    // var ctx = document.getElementById('chart1').getContext('2d');
+    // var myChart = new Chart(ctx, {
+    //   type: 'horizontalBar',
+    //   data: {
+    //       labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
+    //       datasets: [{
+    //           barThickness: 30,
+    //           data: [12, 7, 5, 5],
+    //           backgroundColor: [
+    //           '#37419A',
+    //           '#37419A',
+    //           '#37419A',
+    //           '#37419A'
+    //           ],
+    //           borderColor: [
+    //           '#37419A',
+    //           '#37419A',
+    //           '#37419A',
+    //           '#37419A'
+    //           ],
+    //           borderWidth: 1
+    //       }]
+    //   },
+    //   options: {
+    //       scales: {
+    //           yAxes: [{
+    //               ticks: {
+    //                   beginAtZero: true
+    //               },
+    //               gridLines: {
+    //                   offsetGridLines: false,
+    //                   display: false
+    //               }
+    //           }],
+    //           xAxes: [{
+    //               ticks: {
+    //                   beginAtZero: true
+    //               },
+    //               gridLines: {
+    //               offsetGridLines: false,
+    //             }
+    //           }]
+    //       },
+    //       legend:{
+    //         display: false,
+    //       },
+    //       aspectRatio: 1.6,
+    //       maintainAspectRatio: false
+    //   }
+    // });
 
 
     // 第二個圖
-    var ctx = document.getElementById('chart2').getContext('2d');
-      var myChart = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: ['排班', '出勤', '公假', '自假'],
-            datasets: [{
-                barThickness: 30,
-                data: [12, 7, 5, 5],
-                backgroundColor: [
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                ],
-                borderColor: [
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                        offsetGridLines: false,
-                        display: false
-                    }
-                }],
-                xAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                    offsetGridLines: false,
-                  }
-                }]
-            },
-            legend:{
-              display: false,
-            },
-            aspectRatio: 1.6,
-            maintainAspectRatio: false
-        }
-    });
+    // var ctx = document.getElementById('chart2').getContext('2d');
+    //   var myChart = new Chart(ctx, {
+    //     type: 'horizontalBar',
+    //     data: {
+    //         labels: ['排班', '出勤', '公假', '自假'],
+    //         datasets: [{
+    //             barThickness: 30,
+    //             data: [12, 7, 5, 5],
+    //             backgroundColor: [
+    //                 '#37419A',
+    //                 '#37419A',
+    //                 '#37419A',
+    //                 '#37419A',
+    //             ],
+    //             borderColor: [
+    //                 '#37419A',
+    //                 '#37419A',
+    //                 '#37419A',
+    //                 '#37419A',
+    //             ],
+    //             borderWidth: 1
+    //         }]
+    //     },
+    //     options: {
+    //         scales: {
+    //             yAxes: [{
+    //                 ticks: {
+    //                     beginAtZero: true
+    //                 },
+    //                 gridLines: {
+    //                     offsetGridLines: false,
+    //                     display: false
+    //                 }
+    //             }],
+    //             xAxes: [{
+    //                 ticks: {
+    //                     beginAtZero: true
+    //                 },
+    //                 gridLines: {
+    //                 offsetGridLines: false,
+    //               }
+    //             }]
+    //         },
+    //         legend:{
+    //           display: false,
+    //         },
+    //         aspectRatio: 1.6,
+    //         maintainAspectRatio: false
+    //     }
+    // });
 
-// 第三個圖
-// var ctx = document.getElementById('chart3').getContext('2d');
-//   var myChart = new Chart(ctx, {
-//     type: 'horizontalBar',
-//     data: {
-//         labels: ['排班', '出勤', '公假', '自假'],
-//         datasets: [{
-//             barThickness: 30,
-//             data: [12, 7, 5, 5],
-//             backgroundColor: [
-//               '#37419A',
-//               '#37419A',
-//               '#37419A',
-//               '#37419A',
-//             ],
-//             borderColor: [
-//               '#37419A',
-//               '#37419A',
-//               '#37419A',
-//               '#37419A',
-//             ],
-//             borderWidth: 1
-//         }]
-//     },
-//     options: {
-//         scales: {
-//             yAxes: [{
-//                 ticks: {
-//                     beginAtZero: true
-//                 },
-//                 gridLines: {
-//                     offsetGridLines: false,
-//                     display: false
-//                 }
-//             }],
-//             xAxes: [{
-//                 ticks: {
-//                     beginAtZero: true
-//                 },
-//                 gridLines: {
-//                 offsetGridLines: false,
-//               }
-//             }]
-//         },
-//         legend:{
-//           display: false,
-//         },
-//         aspectRatio: 1.6,
-//         maintainAspectRatio: false
-//     }
-// });
+    // 第三個圖
+    // var ctx = document.getElementById('chart3').getContext('2d');
+    //   var myChart = new Chart(ctx, {
+    //     type: 'horizontalBar',
+    //     data: {
+    //         labels: ['排班', '出勤', '公假', '自假'],
+    //         datasets: [{
+    //             barThickness: 30,
+    //             data: [12, 7, 5, 5],
+    //             backgroundColor: [
+    //               '#37419A',
+    //               '#37419A',
+    //               '#37419A',
+    //               '#37419A',
+    //             ],
+    //             borderColor: [
+    //               '#37419A',
+    //               '#37419A',
+    //               '#37419A',
+    //               '#37419A',
+    //             ],
+    //             borderWidth: 1
+    //         }]
+    //     },
+    //     options: {
+    //         scales: {
+    //             yAxes: [{
+    //                 ticks: {
+    //                     beginAtZero: true
+    //                 },
+    //                 gridLines: {
+    //                     offsetGridLines: false,
+    //                     display: false
+    //                 }
+    //             }],
+    //             xAxes: [{
+    //                 ticks: {
+    //                     beginAtZero: true
+    //                 },
+    //                 gridLines: {
+    //                 offsetGridLines: false,
+    //               }
+    //             }]
+    //         },
+    //         legend:{
+    //           display: false,
+    //         },
+    //         aspectRatio: 1.6,
+    //         maintainAspectRatio: false
+    //     }
+    // });
 
     // calendar
     var calendarEl = document.getElementById('calendar');
@@ -251,13 +283,66 @@
     let currInfo = {};
     let calendar;
     let users = [];
+    const shiftColor = {
+      0: '#ebc57c',
+      1: '#84b1ed',
+      2: '#6b799e',
+      4: '#9c8f96',
+      default: '#c2c2c2',
+    };
+    const adjustColor = {
+      0: '#eb8f90',
+      1: '#3d313f',
+    };
+    const userTypeColor = {
+      0: '#84b1ed', //正職
+      1: '#37419a', //資深正職
+      2: '#83b1ed', //行政職
+      3: '#83b1ed', //新進人員
+      4: '#83b1ed', //兼職人員
+      5: '#83b1ed', //實習生
+    };
+    class ShiftGroup {
+      constructor(shift) {
+        this.isOff = [3, 5, 6].indexOf(shift.shift_type) >= 0;
+        this.shift = shift;
+        this.users = [];
+        // Property for event render
+        const color = shiftColor.hasOwnProperty(shift.shift_type) ? shiftColor[shift.shift_type] : shiftColor.default;
+        if (this.isOff) {
+          this.title = '';
+          this.backgroundColor = color;
+          this.textColor = '#000000';
+        } else {
+          this.title = shift.name;
+          this.backgroundColor = color;
+          this.textColor = color;
+        }
+      }
+
+      compare(date, stationId, shiftId) {
+        return this.date === date && this.station.id === stationId && this.shift.id === shiftId;
+      }
+
+      addUser(username, userType) {
+        this.users.push({
+          name: username,
+          type: userType,
+        });
+      }
+
+      attainable() {
+        //TODO:
+        return this.shift.shift_type !== 5;
+      }
+    }
+
     calendar = new FullCalendar.Calendar(calendarEl, {
       timeZone: 'UTC',
       editable: false,
       schedulerLicenseKey: '0780359527-fcs-1573633868',
       plugins: ['interaction', 'resourceTimeline'],
-      height: 600,
-      contentHeight: 600,
+      height: '100%',
       header: {
         left: 'prev,next, custom2',
         center: 'title',
@@ -267,230 +352,174 @@
         weekday: 'short',
       },
       aspectRatio: 2,
-      expandRows:true,
-      visibleRange:{
-        start:"{{start}}",
+      expandRows: true,
+      visibleRange: {
+        start: "{{start}}",
         end: "{{end}}"
       },
       // validRange: {
       //   start: "{{start}}",
       //   end: "{{end}}"
       // },
-      resourceAreaWidth: "15rem",
+      resourceAreaWidth: "8rem",
       defaultView: 'resourceTimelineWeek',
       defaultDate: "{{default}}",
-      slotLabelInterval:{day:1},
+      slotLabelInterval: { day: 1 },
       slotLabelFormat: [
-          {weekday: 'short', day:'numeric'},
+        { weekday: 'short', day: 'numeric' },
       ],
       resourceLabelText: '工作站列表',
-      resources: function(fetchInfo, successCallback, failureCallback) {
+      resourceOrder: 'sort',
+      resources: function (fetchInfo, successCallback, failureCallback) {
         fetch('/api/stations/?mode=resource/')
-        .then(res=>{
-          return res.json();
-        })
-        .then(data=>{
-          data.forEach(e=>{
-            e.title = e.name
+          .then(res => res.json())
+          .then(data => {
+            data.forEach(e => {
+              if (e.name === '休假') {
+                e.title = '休假(可出勤)'
+              } else {
+                e.title = e.name;
+              }
+
+              if (e.name === '公假') {
+                e.sort = 2;
+              } else if (e.name === '休假') {
+                e.sort = 3;
+              } else {
+                e.sort = 1;
+              }
+            });
+            data.push({
+              id: 0,
+              title: '休假(不可出勤)',
+              sort: 4,
+            });
+            successCallback(data);
           });
-          successCallback(data);
-        });
       },
-      eventRender: function(info) {
+      eventRender: function (info) {
         let prop = info.event.extendedProps;
+        let shiftGroup = [];
 
-        if (prop.shift.shift_type==5||prop.shift.shift_type==6){
-          info.event.remove();
-        }else if(prop.shift.shift_type==4){
-          info.event.remove();
-        }else{
-          $(info.el).tooltip({
-            html:true,
-            title: prop.shift.start_time+"~"+prop.shift.end_time,
-          });
-        };
+        for (const shiftId in prop.shifts) {
+          if (prop.shifts.hasOwnProperty(shiftId)) {
+            const shift = prop.shifts[shiftId];
+            const resourceId = info.event.getResources()[0].id;
 
-        info.el.innerHTML = "";
-        switch(prop.user.level) {
-          case 1:
-            switch(prop.shift.shift_type){
-              case 0:
-                info.el.classList.add("day-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level1'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 1:
-                info.el.classList.add("night-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level1'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 2:
-                info.el.classList.add("graveyard-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level1'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 4:
-                info.el.classList.add("on-call-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level1'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-            };
-            break;
-          case 2:
-            switch(prop.shift.shift_type){
-              case 0:
-                info.el.classList.add("day-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level2'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 1:
-                info.el.classList.add("night-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level2'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 2:
-                info.el.classList.add("graveyard-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level2'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 4:
-                info.el.classList.add("on-call-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level2'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-            };
-            break;
-          case 3:
-            switch(prop.shift.shift_type){
-              case 0:
-                info.el.classList.add("day-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level3'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 1:
-                info.el.classList.add("night-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level3'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 2:
-                info.el.classList.add("graveyard-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level3'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 4:
-                info.el.classList.add("on-call-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level3'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-            };
-            break;
-          case 4:
-            switch(prop.shift.shift_type){
-              case 0:
-                info.el.classList.add("day-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>D</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level4'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 1:
-                info.el.classList.add("night-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>E</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level4'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 2:
-                info.el.classList.add("graveyard-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>N</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level4'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-              case 4:
-                info.el.classList.add("on-call-shift");
-                info.el.innerHTML += "<h6 class='shift-title'>O</h6>"
-                + "<div class='user-wrapper'>"
-                + "<span class='level-group level4'></span>"
-                + "<span class='username'>" + prop.user.full_name + "</span>"
-                + "</div>";
-                break;
-            };
-            break;
-          default:
-            info.el.innerHTML += "<span class='level-group err'></span>"
-            + "<span class='username'>" + prop.user.full_name + "</span>";
-            break;
+            let shiftGroup = null;
+            if (shift.isOff) {
+              shiftGroup = info.el.firstChild.getElementsByClassName('resource-'+resourceId)[0];
+            }
+            if (!shiftGroup) {
+              shiftGroup = document.createElement('div');
+              shiftGroup.classList.add('shift-group', 'pb-1', 'mx-1', 'mt-1', 'resource-'+resourceId);
+              shiftGroup.setAttribute('style', `background-color: ${shift.backgroundColor}; color: ${shift.textColor};`);
+            }
+
+            if (!shift.isOff) {
+              let shiftName = document.createElement('span');
+              shiftName.innerHTML = shift.title;
+              shiftName.classList.add('h5', 'shift-name', 'ml-2', 'mr-1');
+              shiftGroup.append(shiftName);
+            }
+
+            shift.users.forEach(user => {
+              let userGroup = document.createElement('span');
+              userGroup.classList.add('user-group', 'ml-1', 'mt-1');
+
+              let level = document.createElement('i');
+              level.classList.add('fas', 'fa-circle', 'mx-1', 'align-middle');
+              if ([0, 1, 2, 3, 4, 5].indexOf(user.type) >= 0) {
+                level.classList.add('level' + user.type);
+              }
+
+              let userName = document.createElement('span');
+              userName.innerHTML = user.name;
+
+              userGroup.prepend(level);
+              userGroup.append(userName);
+              shiftGroup.append(userGroup);
+            });
+
+            if (!shift.isOff) {
+              $(shiftGroup).tooltip({
+                html: true,
+                title: shift.shift.start_time + "~" + shift.shift.end_time,
+              });
+            }
+            info.el.firstChild.appendChild(shiftGroup);
+          }
         }
-
-
+        info.el.firstChild.firstChild.remove();
       },
-      eventDestroy:function(info){
+      eventDestroy: function (info) {
         $(info.el).tooltip('dispose');
       },
-      events: function(fetchInfo, successCallback, failureCallback){
-        let url = '/api/{{results}}/?start='
-        url += fetchInfo.startStr + '&end=' + fetchInfo.endStr
-        fetch(url)
-        .then(res=>{
-          return res.json();
-        })
-        .then(data=>{
-          data.forEach(e=>{
-            e.title = e.user.full_name;
-            if(!e.station){
-              delete e
+      events: function (fetchInfo, successCallback, failureCallback) {
+        let url = '/api/results/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr;
+        Promise.all([
+          fetch('/api/results/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr).then(res => res.json()),
+          fetch('/api/users/').then(res => res.json()),
+          fetch('/api/shifts/?all=true').then(res => res.json()),
+          fetch('/api/users-can-support/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr).then(res => res.json()),
+        ]).then(dataArr => {
+          const data = dataArr[0];
+          const users = dataArr[1];
+          const shifts = dataArr[2];
+          const usersCanSupport = dataArr[3];
+
+          let processedData = [];
+
+          function getResourceId(e) {
+            if ([3, 5, 6].indexOf(shift.shift_type) >= 0) {
+              let canSupport = usersCanSupport.find(i => i.date === e.date && i.id === e.user && i.shift === shift.id);
+              if (canSupport && canSupport.can_support_shift.length === 0) {
+                return 0;
+              }
             }
-            e.resourceId = e.station.id;
-            if (e.shift.shift_type == 5 || e.shift.shift_type==6){
-              e.color = 'red';
+            return e.station.id;
+          }
+
+          data.forEach(e => {
+            if ([5, 6].indexOf(e.shift.shift_type) >= 0 && ['例假', '休息'].indexOf(e.shift.name) < 0) {
+              return;
             }
+
+            let user = users.find(u => u.id === e.user && u.department.id === parseInt('{{department.id}}'));
+            if (!user) {
+              return;
+            }
+
+            const shift = shifts.find(s => s.id === e.shift.id);
+            e.shift = shift;
+            e.resourceId = getResourceId(e);
+            let index = processedData.findIndex(d => d.date === e.date && d.resourceId === e.resourceId);
+            if (index < 0) {
+              processedData.push({
+                title: '',
+                date: e.date,
+                resourceId: e.resourceId,
+                backgroundColor: '#ffffff',
+                borderColor: '#ffffff',
+                station: e.station,
+                shifts: {},
+              });
+              index = processedData.length - 1;
+            }
+
+            if (!processedData[index].shifts[shift.id]) {
+              processedData[index].shifts[shift.id] = new ShiftGroup(shift);
+            }
+            processedData[index].shifts[shift.id].addUser(user.full_name, user.type_of_user);
           });
-          successCallback(data);
+          console.log(data);
+          console.log(processedData);
+          successCallback(processedData);
         });
       }
     });
-    if("{{LANG}}" == 'zh-hant'){
-        calendar.setOption('locale', 'zh-tw');
+    if ("{{LANG}}" == 'zh-hant') {
+      calendar.setOption('locale', 'zh-tw');
     }
     calendar.render();
   });
@@ -500,160 +529,160 @@
 
 {% block styles %}
 <style>
+  .container {
+    /* background-color:green; */
+    padding: auto;
+    margin-right: 0;
+    max-width: 90vw;
+  }
 
-    .container {
-        /* background-color:green; */
-        padding: auto;
-        margin-right:0;
-        max-width: 90vw;
-    }
+  a,
+  a:hover {
+    text-decoration: none;
+  }
+  #calendar {
+    width: 100%;
+    overflow: hidden;
 
+  }
+  .dash {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    margin-bottom: 2rem;
+  }
+  .DashCollapse {
+    height: 20rem;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+  .card {
+    width: 40%;
+    float: left;
+  }
+  .card-header {
+    font-size: 1.6rem;
+  }
+  .card-header .btn {
+    margin: 0;
+    float: left;
+  }
+  #calendar {
+    width: 100%;
+    height: 100%;
 
-    a, a:hover{
-        text-decoration: none;
-    }
-    #calendar{
-        width: 100%;
-        overflow: hidden;
+  }
+  .content {
+    width: 100%;
+    height: 30rem;
+    display: flex;
+    justify-content: space-around;
+  }
+  .right {
+    width: 65%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    display: inline-flex;
+    max-width: 25rem;
+    position: relative;
+  }
+  .unit {
+    float: right;
+    font-size: 14px;
+  }
 
-    }
+  .left {
+    width: 30%;
+    height: 100%;
+    min-width: 10rem;
+    margin: 0;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-around;
+    font-size: 1rem;
+  }
 
-    .dash{
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      flex-wrap: nowrap;
-      margin-bottom: 2rem;
-    }
+  .data {
+    display: flex;
+  }
 
-    .DashCollapse{
-      height: 20rem;
-      display:inline-flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-    }
+  .label {
+    width: 60%;
+  }
 
-    .card{
-      width: 40%;
-      float: left;
-    }
-    .card-header{
-      font-size: 1.6rem;
-    }
+  .card-header .fa-bars::before {
+    color: #666;
+  }
+  .shift-name {
+    color: white !important;
+  }
+  .shift-group {
+    white-space: break-spaces;
+    border-radius: 5px;
+  }
+  .user-group {
+    font-size: 14px;
+    background: white;
+    margin: auto 1px;
+    padding: 1px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .user-group i {
+    font-size: 10px;
+  }
+  .level0 {
+    color: #84b1ed;
+  }
+  .level1 {
+    color: #37419a;
+  }
 
-    .card-header .btn{
-      margin: 0;
-      float:left;
-    }
-
-    #calendar{
-      width: 100%;
-      height: 100%;
-
-    }
-
-    .content{
-      width: 100%;
-      height: 30rem;
-      display: flex;
-      justify-content: space-around;
-    }
-
-    .right{
-      width: 65%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      display:inline-flex;
-      max-width: 25rem;
-      position: relative;
-    }
-    .unit{
-      float:right;
-      font-size: 14px;
-    }
-    .left{
-      width: 30%;
-      height: 100%;
-      min-width: 10rem;
-      margin: 0;
-      display: inline-flex;
-      flex-direction: column;
-      justify-content: space-around;
-      font-size: 1rem;
-    }
-    .data{
-      display: flex;
-    }
-    .label{
-      width: 60%;
-    }
-    .card-header .fa-bars::before{
-      color: #666;
-    }
-    .user-wrapper {
-      width: 75px;
-      height: 30px;
-      background: white;
-      border-radius: 5px;
-      margin-left: 3px;
-      margin-top: 1px;
-    }
-    .level-group {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin: 10px 5px 0px 5px;
-    }
-    .level1 {
-      background: #eaeaea;
-    }
-    .level2 {
-      background: #A6C2CE;
-    }
-    .level3 {
-      background: #84B1ED;
-    }
-    .level4 {
-      background: #37419A;
-    }
-    .day-shift {
-      background: #EBC57C;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 2px;
-      line-height: 31px;
-    }
-    .night-shift {
-      background: #84B1ED;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 2px;
-      line-height: 31px;
-    }
-    .graveyard-shift {
-      background: #6B799E;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 2px;
-      line-height: 31px;
-    }
-    .on-call-shift {
-      background: #9C8F96;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 2px;
-      line-height: 31px;
-    }
-    .shift-title {
-      color: white;
-      margin-top: 6px;
-      margin-left: 3px;
-    }
-    .username {
-      font-size: 15px;
-    }
+  .level2,
+  .level3,
+  .level4,
+  .level5 {
+    color: #83b1ed;
+  }
+  .day-shift {
+    background: #EBC57C;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    line-height: 31px;
+  }
+  .night-shift {
+    background: #84B1ED;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    line-height: 31px;
+  }
+  .graveyard-shift {
+    background: #6B799E;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    line-height: 31px;
+  }
+  .on-call-shift {
+    background: #9C8F96;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 2px;
+    line-height: 31px;
+  }
+  .shift-title {
+    color: white;
+    margin-top: 6px;
+    margin-left: 3px;
+  }
+  .username {
+    font-size: 15px;
+  }
 </style>
 {% endblock %}
