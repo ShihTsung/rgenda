@@ -572,12 +572,19 @@ class NotificationSerializer(serializers.ModelSerializer):
     target = serializers.SerializerMethodField()
 
     def get_actor(self, obj):
-        id = int(obj.actor_object_id)
-        return CustomUser.objects.get(id=id).full_name
+        if obj.actor_object_id:
+            id = int(obj.actor_object_id)
+            return CustomUser.objects.get(id=id).full_name
+        else:
+            return None
 
     def get_target(self, obj):
-        id = int(obj.target_object_id)
-        return Department.objects.get(id=id).detail
+
+        if obj.target_object_id:
+            id = int(obj.target_object_id)
+            return Department.objects.get(id=id).detail
+        else:
+            return None
 
     class Meta:
         model = Notification

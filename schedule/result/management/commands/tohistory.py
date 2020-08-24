@@ -8,14 +8,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = datetime.date.today()
+        this_month = datetime.date(now.year, now.month, 1)
 
-        results = Result.objects.filter(date__lte=now)
+        results = Result.objects.filter(date__lte=this_month)
         for result in results:
             AfterResult.objects.create(
                 user=result.user,
                 shift=result.shift,
+                station=result.station,
                 date=result.date,
-                overtime=result.overtime
             )
             result.delete()
         self.stdout.write(self.style.SUCCESS(
