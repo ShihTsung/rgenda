@@ -7,7 +7,6 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-                <form method="post">
                         <div class="title text-center">
                                 <h3>使用者註冊</h3>
                         </div>
@@ -18,71 +17,11 @@
                             </div>
                             {% endfor %}
                         </div>
+                    <form method="post" action="{% url 'register' %}">
                     {% csrf_token %}
-                    <div class="form-row">
-                        <div class="col-6">
-                            {{ form.username |as_crispy_field }}
-                        </div>
-                        <div class="col-6">
-                            {{ form.email |as_crispy_field }}
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-6">
-                            {{ form.password1 |as_crispy_field }}
-                        </div>
-                        <div class="col-6">
-                            {{ form.password2 |as_crispy_field }}
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-6">
-                            {{ form.full_name |as_crispy_field}}
-                        </div>
-                        <div class="col-6">
-                            {{ form.department |as_crispy_field }}
-                        </div>
-                    </div>
-                  <div class="form-row">
-                      <div class="col-4">
-                        {{ form.level |as_crispy_field }}
-                      </div>
-                      <div class="col-4">
-                        {{ form.gender |as_crispy_field }}
-                      </div>
-                      <div class="col-4">
-                        {{ form.role |as_crispy_field }}
-                      </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="col-6">
-                        {{ form.can_be_scheduled |as_crispy_field }}
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-6">
-                        {{ form.holiday_rest_num |as_crispy_field }}
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-6">
-                        {{ form.special_rest_num |as_crispy_field }}
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-4">
-                        {{ form.type_of_user |as_crispy_field }}
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-6">
-                        {{ form.eid |as_crispy_field }}
-                    </div>
-                    <div class="col-6">
-                        {{ form.onboard_date |as_crispy_field }}
-                    </div>
-                  </div>
+                      {% for field in form %}
+                      {{field|as_crispy_field}}
+                      {% endfor %}
                     <div>
                         {{form.error}}
                     </div>
