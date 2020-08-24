@@ -170,7 +170,7 @@ export default {
 
         let userList = responses[1].data;
         if (Array.isArray(userList)) {
-          self.userList = userList.filter(i => [0, 1].indexOf(i.type_of_user) >= 0);
+          self.userList = userList.filter(i => [0, 1, 2].indexOf(i.type_of_user) >= 0);
         } else {
           self.userList = userList;
         }

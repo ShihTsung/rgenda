@@ -566,17 +566,21 @@ def create_result(request, department_id, start, end):
     """
     # testing data
     department = Department.objects.get(id=department_id)
-    date_start = str_to_date(start)
-    date_end = str_to_date(end)
+    try:
+        date_start = str_to_date(start)
+        date_end = str_to_date(end)
+    except ValueError:
+        print('WRONG DATE INPUT')
+        return redirect('/' + request.LANGUAGE_CODE + '/results')
 
     # 檢查班表是否已建立
     try:
-        exist = PreResult.objects.filter(
-            date=date_start, user__department=department)
-        if len(exist):
+        exist = Result.objects.filter(date=date_start, user__department=department)
+        exist_pre = PreResult.objects.filter(date=date_start, user__department=department)
+        if len(exist) + len(exist_pre):
+            print('RESULT ALREADY EXIST')
             return redirect('/' + request.LANGUAGE_CODE + '/results')
     except Result.DoesNotExist:
-        print('GOGO')
         pass
 
     # 日期資料
@@ -591,6 +595,24 @@ def create_result(request, department_id, start, end):
     promise_leave_dict = get_promise_leave(department, date_start, date_end)
     promise_other_dict = get_promise_other(department, date_start, date_end)
     official_leave_dict = get_official_leave(department, date_start, date_end)
+
+    rest_dict = {
+        0: '事假',
+        1: '家庭照顧假',
+        2: '無薪病假',
+        # 3: '公假',
+        4: '產假',
+        # 5: '例/休',
+        6: '生理假',
+        7: '特休',
+        8: '補休',
+        9: '婚假',
+        10: '計薪病假',
+        11: '喪假',
+        12: '安胎休養假',
+        13: '產檢假',
+        14: '陪產假',
+    }
 
     # create cycle list
     ca = cycle_analysis(department, date_start)
@@ -642,8 +664,7 @@ def create_result(request, department_id, start, end):
             workday_dict = dict()
             demands = get_demands(station, shift)
             for demand in demands:
-                # --print--
-                print('DEMAND ID:', str(demand['demand'].id))
+
                 # 當前level的user
                 user_current_level = list()
 
@@ -680,9 +701,6 @@ def create_result(request, department_id, start, end):
                         demand_dict[str(d)] = demand['demand'].config1
                     elif attrs[ind] == '2':
                         demand_dict[str(d)] = demand['demand'].config2
-
-                # --print--
-                print(demand_dict.values())
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -1028,7 +1046,17 @@ def create_result(request, department_id, start, end):
                     q = q[-6:]
                     for d in cycle:
                         if date_start <= d <= date_end:
-                            if output[user_id][str(d)] == 1:
+                            # 增加公假Result
+                            if d in user_pool[user_id]['official_leave']:
+                                output[user_id][str(d)] = '工'
+                                PreResult.objects.create(
+                                    user=user,
+                                    shift=shift_official_leave,
+                                    date=d,
+                                    station=station_official_leave,
+                                )
+                            # 增加上班Result
+                            elif output[user_id][str(d)] == 1:
                                 output[user_id][str(d)] = '工'
                                 PreResult.objects.create(
                                     user=user,
@@ -1036,16 +1064,20 @@ def create_result(request, department_id, start, end):
                                     date=d,
                                     station=station,
                                 )
+                            # 增加特殊假Result
                             elif d in user_pool[user_id]['promise_other']:
                                 output[user_id][str(d)] = '特'
                                 PreResult.objects.create(
                                     user=user,
-                                    shift=Shift.objects.get(
-                                        department=department, name=promise_other_dict[user_id][str(d)]),
+                                    shift=Shift.objects.get(department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
                                     date=d,
                                     station=station,
                                 )
+                            # 增加例假 or 休息Result
                             else:
+                                # 排休且為假日，已使用假日休假數+1
+                                if reds[str(d)]:
+                                    user.holiday_rest_num_used += 1
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
@@ -1069,36 +1101,6 @@ def create_result(request, department_id, start, end):
                                 q.pop(0)
                             if '休' not in options:
                                 options.append('休')
-
-    # for user_id, result in output.items():
-    #     print(user_id)
-    #     print(list(result.values()))
-
-    # 將公假補回去
-    for user_id, dates in official_leave_dict.items():
-        for d in dates:
-            result = PreResult.objects.get(user__id=user_id, date=d)
-            result.station = station_official_leave
-            result.shift = shift_official_leave
-            result.save()
-
-    # 將特殊假補回去
-    other_shift_dict = {
-        0: '特休',
-        1: '婚嫁',
-        2: '喪假',
-        4: '產假',
-        6: '生理假',
-        7: '事假',
-        8: '家庭照顧假',
-    }
-
-    for user_id, rests in promise_other_dict.items():
-        user = User.objects.get(id=user_id)
-        for d, st in rests.items():
-            result = PreResult.objects.get(user=user, date=d)
-            result.shift = Shift.objects.get(
-                department=department, name=other_shift_dict[st])
-            result.save()
+                user.save()
 
     return redirect('/' + request.LANGUAGE_CODE + '/results')
