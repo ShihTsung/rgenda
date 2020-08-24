@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import ReserveHolidays from 'components/reservation/ReserveHolidays.vue';
+import TimeAdjustment from 'components/time-adjustment/TimeAdjustment.vue';
 import HttpClient from 'common/http';
 Vue.use(HttpClient);
 
@@ -13,6 +13,6 @@ Vue.use(TIME_ADJUSTMENT_ITEM);
 new Vue({
   el: '#app',
   components: {
-    ReserveHolidays,
+    TimeAdjustment,
   },
 });

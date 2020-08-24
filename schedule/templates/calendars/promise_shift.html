@@ -10,12 +10,12 @@
     <h3>預排假勤</h3>
   </div>
 
-  <reserve-holidays
-  csrf-token="{{ csrf_token }}"></reserve-holidays>
+  <promise-shifts
+  csrf-token="{{ csrf_token }}"></promise-shifts>
 </div>
 
 {% block head %}
-<script src="{% static 'assets/reserve-holidays.bundle.js' %}"></script>
+<script src="{% static 'assets/promise-shift.bundle.js' %}"></script>
 {% endblock %}
 
 {% endblock %}

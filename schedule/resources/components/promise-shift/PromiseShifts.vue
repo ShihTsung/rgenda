@@ -3,12 +3,12 @@
   <div class="row mb-2">
     <div class="col-12">
       <div class="float-right">
-        <!-- 出缺勤補登 -->
-        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="出缺勤補登" data-toggle="modal" data-target="#modalAddTimeAdjustment">
+        <!-- 新增假勤 -->
+        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="新增假勤" data-toggle="modal" data-target="#modalAddPromiseShift">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
         </div>
-        <!-- \出缺勤補登 -->
+        <!-- \新增假勤 -->
       </div>
     </div>
   </div>
@@ -140,13 +140,13 @@
     <!-- \users table -->
   </div>
 
-  <modal-add-time-adjustment v-if="suggestions.length > 0"
+  <modal-add-promise-shift v-if="suggestions.length > 0"
     :suggestions="suggestions"
-    :csrf-token="csrfToken"></modal-add-time-adjustment>
+    :csrf-token="csrfToken"></modal-add-promise-shift>
 
-  <modal-delete-time-adjustment v-if="deleteItems.length > 0"
+  <modal-delete-promise-shift v-if="deleteItems.length > 0"
     :delete-items="deleteItems"
-    :csrf-token="csrfToken"></modal-delete-time-adjustment>
+    :csrf-token="csrfToken"></modal-delete-promise-shift>
 </div>
 </template>
 
@@ -161,16 +161,16 @@ import { VueGoodTable } from 'vue-good-table';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import Autocomplete from 'components/partial/Autocomplete.vue';
-import ModalAddTimeAdjustment from './ModalAddTimeAdjustment.vue';
-import ModalDeleteTimeAdjustment from './ModalDeleteTimeAdjustment.vue';
+import ModalAddPromiseShift from './ModalAddPromiseShift.vue';
+import ModalDeletePromiseShift from './ModalDeletePromiseShift.vue';
 
 export default {
   components: {
     VueGoodTable,
     DatePicker,
     Autocomplete,
-    ModalAddTimeAdjustment,
-    ModalDeleteTimeAdjustment,
+    ModalAddPromiseShift,
+    ModalDeletePromiseShift,
   },
   props: {
     csrfToken: {
@@ -205,11 +205,6 @@ export default {
         {
           label: '日期',
           field: 'date',
-        },
-        {
-          label: '項目',
-          field: 'adjustmentItem',
-          sortable: false,
         },
         {
           label: '時數',
@@ -272,7 +267,7 @@ export default {
         };
       });
     },
-    $_timeAdjustment_query_validate() {
+    $_promiseShifts_query_validate() {
       let errMsg = [];
       let valid = true;
       if (null === this.startDate) {
@@ -295,7 +290,7 @@ export default {
       let self = this;
       self.deleteItems = [];
 
-      let [bool, errMsg] = this.$_timeAdjustment_query_validate();
+      let [bool, errMsg] = this.$_promiseShifts_query_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -319,6 +314,12 @@ export default {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
       }).join('&');
 
+      if (showWarningPopup) {
+        popup.loading({
+          title: '處理中...',
+        });
+      }
+
       let url = `/api/time-adjustment/?${queryString}`;
       self.$httpClient.get(url)
         .then(function (response) {
@@ -326,6 +327,12 @@ export default {
           if (data.length > 0) {
             self.rows = self.$_timeAdjustment_query_result_transformer(data);
             self.loaded = true;
+            if (showWarningPopup) {
+              popup.success({
+                title: '查詢出缺勤補登記錄',
+                html: '請求成功',
+              });
+            }
           } else {
             self.rows = [];
             self.loaded = false;
@@ -346,7 +353,7 @@ export default {
           console.log(error);
         });
     },
-    $_timeAdjustment_query_result_transformer(data) {
+    $_promiseShifts_query_result_transformer(data) {
       let self = this;
       return data.map(function(obj) {
         return {
@@ -357,13 +364,12 @@ export default {
           hours: obj.hours,
           fullName: self.selection.text,
           remark: nl2br(obj.remark),
-          // remark: obj.remark,
         };
       });
     },
     confirmDelete() {
       if (0 < this.deleteItems.length) {
-        $('#modalDeleteTimeAdjustment').modal('show');
+        $('#modalDeletePromiseShift').modal('show');
       }
     },
     cancelDelete() {

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import TimeAdjustment from 'components/reservation/TimeAdjustment.vue';
+import PromiseShifts from 'components/promise-shift/PromiseShifts.vue';
 import HttpClient from 'common/http';
 Vue.use(HttpClient);
 
@@ -13,6 +13,6 @@ Vue.use(TIME_ADJUSTMENT_ITEM);
 new Vue({
   el: '#app',
   components: {
-    TimeAdjustment,
+    PromiseShifts,
   },
 });

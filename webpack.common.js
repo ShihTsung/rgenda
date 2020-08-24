@@ -15,8 +15,8 @@ module.exports = {
     'account-detail': './accounts/account-detail.js',
     'demand-list': './demands/list.js',
     'exchange-application-audit': './exchange/application-audit.js',
-    'reserve-holidays': './reservation/reserve-holidays.js',
-    'time-adjustment': './reservation/time-adjustment.js',
+    'promise-shift': './promise-shift/promise-shift.js',
+    'time-adjustment': './time-adjustment/time-adjustment.js',
     'rgenda': './rgenda.scss',
   },
   output: {
