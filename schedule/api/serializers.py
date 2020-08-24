@@ -475,7 +475,7 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station','shift_type')
 
 
 class ReservationSerializer(serializers.ModelSerializer):

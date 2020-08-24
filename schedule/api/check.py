@@ -39,6 +39,35 @@ def check_result(d_id, month_to_check=None):
     return output
 
 
+def check_pre_result(d_id, month_to_check=None):
+    """
+    """
+    invalid = defaultdict(list)
+    # demand_unsatisfied = defaultdict()
+    if month_to_check:
+        results = PreResult.objects.filter(
+            date__month=month_to_check).order_by('date')
+    else:
+        results = PreResult.objects.order_by('date')
+    to_check = defaultdict(list)
+    for result in results:
+        # print('check_result', type(result))
+        to_check[result.user.id].append(result)
+    department = Department.objects.get(id=d_id)
+    for user_id, schedule in to_check.items():
+        check_cycle(department, deepcopy(schedule), invalid)
+        check_rest_day(department, deepcopy(schedule), invalid)
+        check_rest_hour(deepcopy(schedule), invalid)
+        if User.objects.get(id=user_id).pregnant:
+            check_hour_pregnant(deepcopy(schedule), invalid)
+    invalid = dict(invalid)
+    output = [{
+        'id': ind,
+        'reason': val,
+    } for ind, val in invalid.items()]
+    return output
+
+
 def check_cycle(department, results, invalid):
     """
     檢查 單週/單月/三月 內班種是否相同，增加 unique shift type in 1 week/1 month/3 months
@@ -237,6 +266,7 @@ def get_work_time(result):
         if result.shift.end_time < result.shift.start_time:
             off_time += timedelta(days=1)
     else:
-        work_time = datetime.combine(result.date, time(0, 0, 0)) + timedelta(days=1)
+        work_time = datetime.combine(
+            result.date, time(0, 0, 0)) + timedelta(days=1)
         off_time = datetime.combine(result.date, time(0, 0, 0))
     return work_time, off_time
