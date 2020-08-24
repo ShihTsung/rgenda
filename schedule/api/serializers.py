@@ -10,7 +10,9 @@ from result.models import (Result, PreResult,
                            AfterResult, TimeAdjustment,
                            ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
-from remarks.models import UserRemark, RemarkSquare, ResultRemark
+from remarks.models import (
+    UserRemark, RemarkSquare,
+    ResultRemark, PreResultRemark)
 import datetime
 # 部門/科別
 
@@ -689,6 +691,12 @@ class RemarkSquareSerializer(serializers.ModelSerializer):
 class ResultRemarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResultRemark
+        fields = '__all__'
+
+
+class PreResultRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreResultRemark
         fields = '__all__'
 
 

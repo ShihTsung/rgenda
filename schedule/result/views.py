@@ -20,6 +20,7 @@ from station.models import Station
 from station.views import get_stations
 from calendar import monthrange
 from notifications.signals import notify
+from remarks.models import ResultRemark, PreResultRemark
 
 
 # 計算總工時
@@ -109,6 +110,7 @@ def publish_result(request):
     start = datetime.date(now.year, next_month, 1)
     end = datetime.date(now.year, next_month, days_in_month)
     results = PreResult.objects.filter(date__range=[start, end])
+    remarks = PreResultRemark.objects.all()
     if results:
         notify.send(
             request.user,
@@ -116,12 +118,18 @@ def publish_result(request):
             verb='班表發佈了！')
     for result in results:
         if result.shift.department == request.user.department:
-            Result.objects.create(
+            new_result = Result.objects.create(
                 shift=result.shift,
                 user=result.user,
                 date=result.date,
                 station=result.station
             )
+            remark = remarks.filter(result=result).first()
+            if remark:
+                ResultRemark.objects.create(
+                    result=new_result,
+                    content=remark.content
+                )
             result.delete()
 
     start, end = date_range(0, 2)
@@ -563,7 +571,8 @@ def create_result(request, department_id, start, end):
 
     # 檢查班表是否已建立
     try:
-        exist = PreResult.objects.filter(date=date_start, user__department=department)
+        exist = PreResult.objects.filter(
+            date=date_start, user__department=department)
         if len(exist):
             return redirect('/' + request.LANGUAGE_CODE + '/results')
     except Result.DoesNotExist:
@@ -1031,7 +1040,8 @@ def create_result(request, department_id, start, end):
                                 output[user_id][str(d)] = '特'
                                 PreResult.objects.create(
                                     user=user,
-                                    shift=Shift.objects.get(department=department, name=promise_other_dict[user_id][str(d)]),
+                                    shift=Shift.objects.get(
+                                        department=department, name=promise_other_dict[user_id][str(d)]),
                                     date=d,
                                     station=station,
                                 )
@@ -1087,7 +1097,8 @@ def create_result(request, department_id, start, end):
         user = User.objects.get(id=user_id)
         for d, st in rests.items():
             result = PreResult.objects.get(user=user, date=d)
-            result.shift = Shift.objects.get(department=department, name=other_shift_dict[st])
+            result.shift = Shift.objects.get(
+                department=department, name=other_shift_dict[st])
             result.save()
 
     return redirect('/' + request.LANGUAGE_CODE + '/results')

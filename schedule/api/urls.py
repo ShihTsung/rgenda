@@ -24,6 +24,7 @@ router.register(r'result-remarks', views.ResultRemarkViewSet)
 router.register(r'demand-user', views.DemandUserTableViewset)
 router.register(r'exchange-shift', views.ExchangeApplicationViewSet)
 router.register(r'department-manager', views.DepartmentManagerViewSet)
+router.register(r'preresult-remarks', views.PreResultRemarkViewSet)
 
 
 urlpatterns = [
