@@ -36,6 +36,5 @@ urlpatterns = [
     path('last-month-continue', views.last_month_continue),
     path('exchangeable-users/', views.exchangeable_user),
     path('follow-shift', views.follow_shift_api),
-    path('results/publish', views.publish_results),
     path('users-can-support/', views.users_can_support),
 ]

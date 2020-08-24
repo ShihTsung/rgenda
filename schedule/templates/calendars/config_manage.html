@@ -162,6 +162,18 @@
                 },
                 showNonCurrentDates: false,
                 droppable: true,
+                dayRender: function(info){
+                  let d_str = info.date.toISOString().split('T')[0];
+                  fetch('/api/dates/?start='+d_str+'&end='+d_str)
+                  .then(res=>{
+                    return res.json();
+                  })
+                  .then(data=>{
+                    if(data[0].title=='假日'){
+                      info.el.style.backgroundColor='#A6C2CE';
+                    }
+                  })
+                },
                 eventClick: function(info){
                     currInfo = info;
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
@@ -210,30 +222,29 @@
     color: white;
   }
   .one{
-    background: #4a95bb;
+    background: #37419A;
     border: none;
-    height: 3rem;
+    height: 2.5rem;
 
   }
   .one:hover{
-    background: #387594;
+    background: #37419A;
     color: white !important;
   }
   .two{
-    background: #70bb8d !important;
+    background: #84B1ED !important;
     border: none;
-    height: 3rem;
+    height: 2.5rem;
   }
   .two:hover{
-    background: #538a68 !important;
+    background: #84B1ED !important;
     color: white !important;
   }
   .closed-day{
     color: #b5b5b5 !important;
     background: white !important;
     border: 1px solid #b5b5b5;
-    height: 3rem;
-    font-size: 14px;
+    height: 2.5rem;
   }
   .closed-day:hover{
     color:#838080 !important;
