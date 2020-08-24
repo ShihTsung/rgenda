@@ -8,7 +8,7 @@ from django.contrib.auth import update_session_auth_hash
 
 
 # Create your views here.
-from .models import CustomUser, Department, DepartmentManager
+from .models import TYPE_CHOICES, CustomUser, Department, DepartmentManager
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ImportForm
 from .forms import DepartmentChangeForm, DepartmentCreationForm
 from django.http import FileResponse
@@ -27,7 +27,6 @@ from result.models import ExchangeApplication
 """
 帳號管理
 """
-
 
 # 新增使用者
 @login_required
@@ -282,7 +281,14 @@ def download_empty_excel(request):
 def userDetail(request, id):
     user = CustomUser.objects.get(id=id)
     colors = ["#EAEAEA", '#A6C2CE', '#84B1ED', '#37419A']
-    user_color = colors[user.level-1]
+    if user.level <= 4:
+        user_color = colors[user.level-1]
+    else:
+        user_color = '#000000'
+
+    user.gender_text = '男' if user.gender == 'male' else '女'
+    user.type_of_user_text = TYPE_CHOICES[user.type_of_user][1]
+
     applications = ExchangeApplication.objects.filter(user_receive=user)
     unused = user.special_rest_num - user.special_rest_num_used
     rules = ['一般工時，7休2', '雙週變形工時，14休4',
@@ -384,11 +390,14 @@ def departmentCreate(request):
                 work_hours=8)
             messages.success(
                 request,
-                "Department was created for "+department.name)
-            notify.send(sender=request.user, recipient=CustomUser.objects.all(),
-                        target=department,
-                        level='info',
-                        verb='department created by ')
+                f'科別{department.name}新增成功'
+                )
+            notify.send(
+                sender=request.user,
+                recipient=CustomUser.objects.all(),
+                target=department,
+                level='info',
+                verb='department created by ')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)

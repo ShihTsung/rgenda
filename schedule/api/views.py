@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from .check import *
 from .serializers import *
 from notifications.models import Notification
+from notifications.signals import notify
 from result.views import str_to_date
 
 # models
@@ -265,6 +266,19 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                  '機構減班', '員工自假']
         data['adjustment_item_text'] = texts[data['adjustment_item']]
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @swagger_auto_schema(
+        operation_summary='刪除加減班',
+        operation_description='DELETE 的說明',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -617,14 +631,39 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     permission_classes = (IsManagerOrReadOnly,)
 
 # 重寫 create 根據 combo 產生複數的班
+    @swagger_auto_schema(
+        operation_summary='新增預排假勤',
+    )
     def create(self, request, *args, **kwargs):
+        """
+
+        shift_type 分類
+        0, 1, 2是無薪假
+        2 之後的是有薪假
+
+        (0, '事假'),
+        (1, '家庭照顧假'),
+        (2, '無薪病假'),
+        (3, '公假'),
+        (4, '產假'),
+        (5, '例/休'),
+        (6, '生理假'),
+        (7, '特休'),
+        (8, '補休'),
+        (9, '婚假'),
+        (10, '計薪病假'),
+        (11, '喪假'),
+        (12, '安胎休養假'),
+        (13, '產檢假'),
+        (14, '陪產假'),
+        """
         r_data = request.data
         combo = int(r_data['combo'])
         date_obj = datetime.datetime.strptime(
             r_data['date'], '%Y-%m-%d').date()
         if combo > 10:
             return Response(
-                'can not create more than 10 promise per time',
+                '每次不能見超過十筆資料',
                 status=status.HTTP_400_BAD_REQUEST)
         for i in range(combo):
             r_data['date'] = date_obj.strftime('%Y-%m-%d')
@@ -973,7 +1012,8 @@ def exchangeable_user(request):
     exchange_shift_type = request.GET.get('exchange_shift_type')
     try:
         to_change_result = Result.objects.get(user=user, date=exchange_date)
-        to_change_work_time, to_change_off_time = get_work_time(to_change_result)
+        to_change_work_time, to_change_off_time = get_work_time(
+            to_change_result)
     except Result.DoesNotExist:
         return Response({
             'users': None,
@@ -993,7 +1033,8 @@ def exchangeable_user(request):
         # 1. 前後班別休息時間是否間隔11小時
         # 申請者
         try:
-            pre_result = Result.objects.get(user=user, date=exchange_date - timedelta(days=1))
+            pre_result = Result.objects.get(
+                user=user, date=exchange_date - timedelta(days=1))
             _, last_off_time = get_work_time(pre_result)
             if work_time - last_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
@@ -1001,7 +1042,8 @@ def exchangeable_user(request):
         except Result.DoesNotExist:
             pass
         try:
-            next_result = Result.objects.get(user=user, date=exchange_date + timedelta(days=1))
+            next_result = Result.objects.get(
+                user=user, date=exchange_date + timedelta(days=1))
             next_work_time, _ = get_work_time(next_result)
             if next_work_time - off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
@@ -1010,7 +1052,8 @@ def exchangeable_user(request):
             pass
         # 接受者
         try:
-            pre_result = Result.objects.get(user=result.user, date=exchange_date - timedelta(days=1))
+            pre_result = Result.objects.get(
+                user=result.user, date=exchange_date - timedelta(days=1))
             _, last_off_time = get_work_time(pre_result)
             if to_change_work_time - last_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
@@ -1018,7 +1061,8 @@ def exchangeable_user(request):
         except Result.DoesNotExist:
             pass
         try:
-            next_result = Result.objects.get(user=result.user, date=exchange_date + timedelta(days=1))
+            next_result = Result.objects.get(
+                user=result.user, date=exchange_date + timedelta(days=1))
             next_work_time, _ = get_work_time(next_result)
             if next_work_time - to_change_off_time < timedelta(hours=11):
                 user_options.remove(result.user.id)
@@ -1111,10 +1155,12 @@ def follow_shift_api(request):
 def users_can_support(request):
     from datetime import datetime, timedelta
     target_date = str_to_date(request.GET.get('date'))
-    shifts = Shift.objects.filter(department=request.user.department, shift_type__in=[0, 1, 2])
+    shifts = Shift.objects.filter(
+        department=request.user.department, shift_type__in=[0, 1, 2])
     output = list()
     try:
-        results = Result.objects.filter(date=target_date, shift__shift_type__in=[4, 5, 6])
+        results = Result.objects.filter(
+            date=target_date, shift__shift_type__in=[4, 5, 6])
     except Result.DoesNotExist:
         return Response(output)
 
@@ -1128,8 +1174,10 @@ def users_can_support(request):
         if result.shift.name not in ['休息', 'oncall']:
             continue
         # 篩選連續工作超過6天
-        result_list = Result.objects.filter(user=result.user, date__in=[target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-        working_list = [1 if r.shift.shift_type in [0, 1, 2, 3] or r.date == target_date else 0 for r in result_list]
+        result_list = Result.objects.filter(user=result.user, date__in=[
+                                            target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+        working_list = [1 if r.shift.shift_type in [0, 1, 2, 3]
+                        or r.date == target_date else 0 for r in result_list]
         count = 0
         continue_over_6 = False
         for r in working_list:
@@ -1144,23 +1192,50 @@ def users_can_support(request):
             continue
         # 篩選前後班表休息時間不足11小時
         try:
-            pre_result = Result.objects.get(user=result.user, date=target_date - timedelta(days=1))
+            pre_result = Result.objects.get(
+                user=result.user, date=target_date - timedelta(days=1))
             _, last_off_time = get_work_time(pre_result)
         except Result.DoesNotExist:
-            last_off_time = datetime.combine(target_date - timedelta(days=1), time(0, 0, 0))
+            last_off_time = datetime.combine(
+                target_date - timedelta(days=1), time(0, 0, 0))
         try:
-            next_result = Result.objects.get(user=result.user, date=target_date + timedelta(days=1))
+            next_result = Result.objects.get(
+                user=result.user, date=target_date + timedelta(days=1))
             next_work_time, _ = get_work_time(next_result)
         except Result.DoesNotExist:
-            next_work_time = datetime.combine(target_date + timedelta(days=1), time(23, 59, 59))
+            next_work_time = datetime.combine(
+                target_date + timedelta(days=1), time(23, 59, 59))
 
         for shift in shifts:
             if shift.start_time > shift.end_time:
                 work_time = datetime.combine(target_date, shift.start_time)
-                off_time = datetime.combine(target_date, shift.end_time) + timedelta(days=1)
+                off_time = datetime.combine(
+                    target_date, shift.end_time) + timedelta(days=1)
             else:
                 work_time = datetime.combine(target_date, shift.start_time)
                 off_time = datetime.combine(target_date, shift.end_time)
             if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
                 output[-1]['can_support_shift'].append(shift.id)
     return Response(output)
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='發布班表通知',
+    manual_parameters=[month],
+)
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def publish_results(request):
+    month = request.query_params.get('month')
+    department = request.user.department
+    if month:
+        notify.send(
+            sender=request.user,
+            recipient=CustomUser.objects.filter(
+                department=department
+            ),
+            verb=f'{month}月班表已經發布！'
+
+        )
+    return Response({})
