@@ -2,11 +2,20 @@
 {% load i18n %}
 {% load static %}
 {% block title %}出缺勤補登{% endblock %}
-{% block header %}
 
-{% endblock %}
 {% block content %}
 
-<!-- 內容寫在這 -->
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>出缺勤補登</h3>
+  </div>
+
+  <time-adjustment
+  csrf-token="{{ csrf_token }}"></time-adjustment>
+</div>
+
+{% block head %}
+<script src="{% static 'assets/time-adjustment.bundle.js' %}"></script>
+{% endblock %}
 
 {% endblock %}

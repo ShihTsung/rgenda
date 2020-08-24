@@ -949,7 +949,7 @@ def create_result(request, department_id, start, end):
             # 移除date_pre
             # 將0指派為 例假/休假/特殊假
             for user_id in user_pool:
-                print(user_id)
+                user = User.objects.get(id=user_id)
                 output[user_id].pop('date_pre')
                 q = used_rest[user_id]
                 for ind, cycle in enumerate(cycle_list):
@@ -967,16 +967,16 @@ def create_result(request, department_id, start, end):
                         if date_start <= d <= date_end:
                             if output[user_id][str(d)] == 1:
                                 output[user_id][str(d)] = '工'
-                                Result.objects.create(
-                                    user=User.objects.get(id=user_id),
+                                PreResult.objects.create(
+                                    user=user,
                                     shift=shift,
                                     date=d,
                                     station=station,
                                 )
                             elif d in user_pool[user_id]['promise_other']:
                                 output[user_id][str(d)] = '特'
-                                Result.objects.create(
-                                    user=User.objects.get(id=user_id),
+                                PreResult.objects.create(
+                                    user=user,
                                     shift=Shift.objects.get(department=department, name=promise_other_dict[user_id][str(d)]),
                                     date=d,
                                     station=station,
@@ -985,8 +985,8 @@ def create_result(request, department_id, start, end):
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
-                                    Result.objects.create(
-                                        user=User.objects.get(id=user_id),
+                                    PreResult.objects.create(
+                                        user=user,
                                         shift=shift_rest0,
                                         date=d,
                                         station=station_rest,
@@ -994,8 +994,8 @@ def create_result(request, department_id, start, end):
                                 else:
                                     options.pop(0)
                                     output[user_id][str(d)] = '休'
-                                    Result.objects.create(
-                                        user=User.objects.get(id=user_id),
+                                    PreResult.objects.create(
+                                        user=user,
                                         shift=shift_rest1,
                                         date=d,
                                         station=station_rest,
@@ -1013,9 +1013,27 @@ def create_result(request, department_id, start, end):
     # 將公假補回去
     for user_id, dates in official_leave_dict.items():
         for d in dates:
-            result = Result.objects.get(user__id=user_id, date=d)
+            result = PreResult.objects.get(user__id=user_id, date=d)
             result.station = station_official_leave
             result.shift = shift_official_leave
+            result.save()
+
+    # 將特殊假補回去
+    other_shift_dict = {
+        0: '特休',
+        1: '婚嫁',
+        2: '喪假',
+        4: '產假',
+        6: '生理假',
+        7: '事假',
+        8: '家庭照顧假',
+    }
+
+    for user_id, rests in promise_other_dict.items():
+        user = User.objects.get(id=user_id)
+        for d, st in rests.items():
+            result = PreResult.objects.get(user=user, date=d)
+            result.shift = Shift.objects.get(department=department, name=other_shift_dict[st])
             result.save()
 
     return redirect('/' + request.LANGUAGE_CODE + '/results')

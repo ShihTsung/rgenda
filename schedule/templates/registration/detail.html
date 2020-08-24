@@ -46,7 +46,7 @@
           </tr>
           <tr>
             <td>性別</td>
-            <td>{{target_user.gender}}</td>
+            <td>{{target_user.gender_text}}</td>
           </tr>
           <tr>
             <td>到職日</td>
@@ -79,7 +79,7 @@
           <tr>
             <td>排班身份</td>
             <td>
-              {{target_user.type_of_user}}
+              {{target_user.type_of_user_text}}
             </td>
           </tr>
           <tr>
@@ -145,9 +145,10 @@
     </div>
 
   </div>
-
+  {% if target_user == user %}
   <a href="/accounts/change_password" class="btn btn-rgenda">
     {% trans 'ChangePassword' %}</a>
+  {% endif %}
   {% if user.is_staff %}
   <a href="/accounts/update/{{target_user.id}}" class="btn btn-rgenda">{% trans 'Edit' %}</a>
   {% endif %}

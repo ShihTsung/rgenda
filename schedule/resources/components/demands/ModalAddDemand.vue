@@ -88,7 +88,9 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            self.stations = data;
+            self.stations = data.filter(station => {
+              return !['休假', '公假'].includes(station.name);
+            });
           } else {
             self.stations = [];
           }
