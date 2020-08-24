@@ -694,11 +694,11 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
                 queryset = PromiseShift.objects.filter(
                     date__range=[start[:10], end[:10]])
             if htype:
-                if htype == 0:
+                if htype == '3':
                     queryset = queryset.filter(
                         shift_type=3
                     )
-                elif htype == 1:
+                elif htype == '7':
                     queryset = queryset.filter(
                         shift_type=7
                     )

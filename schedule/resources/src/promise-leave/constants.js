@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const PROMISE_LEAVE_CATEGORY = {
   UNPAID_LEAVE: 0,
   PAID_LEAVE: 1,
@@ -21,16 +23,23 @@ PROMISE_LEAVE_CATEGORY.install = function (Vue, options) {
 }
 
 export const PROMISE_LEAVE_ITEM = {
-  ITEM_PERSONAL_LEAVE: 0, // 工作日加班
-  ITEM_FAMILY_CARE_LEAVE: 1, // 休息日出勤
-  ITEM_UNPAID_SICK_LEAVE: 2, // 國定假日出勤
-  ITEM_OFFICIAL_LEAVE: 3, // 空班出勤
-  ITEM_ON_CALL_ATTENDANCE: 4, // On Call 出勤
-  ITEM_INSTITUTION_REDUCE_CLASS: 5, // 機構減班
-  ITEM_EMPLOYEE_LEAVE: 6, // 員工自假
+  ITEM_PERSONAL_LEAVE: 0, // 事假
+  ITEM_FAMILY_CARE_LEAVE: 1, // 家庭照顧假
+  ITEM_UNPAID_SICK_LEAVE: 2, // 無薪病假
+  ITEM_OFFICIAL_LEAVE: 3, // 公假
+  ITEM_MATERNITY_LEAVE: 4, // 產假
+  ITEM_OFFICIAL_HOLIDAY: 5, // 例/休
+  ITEM_MENSTRUAL_LEAVE: 6, // 生理假
+  ITEM_ANNUAL_LEAVE: 7, // 特休
+  ITEM_COMPENSATORY_LEAVE: 8, // 補休
+  ITEM_MARRIAGE_LEAVE: 9, // 婚假
+  ITEM_PAID_SICK_LEAVE: 10, // 計薪病假
+  ITEM_BEREAVEMENT_LEAVE: 11, // 喪假
+  ITEM_TOCOLYSIS_LEAVE: 12, // 安胎休養假
+  ITEM_PREGNANCY_CHECKUP: 13, // 產檢假
+  ITEM_PARENTAL_LEAVE: 14, // 陪產假
 };
-
-let promiseLeaveItemTextList = {
+let groupedPromiseLeaveItemTextList = {
   [PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE]: [{
       id: PROMISE_LEAVE_ITEM.ITEM_PERSONAL_LEAVE,
       text: "事假"
@@ -94,30 +103,27 @@ let promiseLeaveItemTextList = {
     },
   ]
 };
+let promiseLeaveItems = [...groupedPromiseLeaveItemTextList[PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE], ...groupedPromiseLeaveItemTextList[PROMISE_LEAVE_CATEGORY.PAID_LEAVE]];
 PROMISE_LEAVE_ITEM.install = function (Vue, options) {
   Vue.prototype.$getPromiseLeaveItemValue = (key) => {
     return PROMISE_LEAVE_ITEM[key]
   }
 
-  Vue.prototype.$getPromiseLeaveItemText = (categoryKey, key) => {
-    if (!promiseLeaveItemTextList.hasOwnProperty(categoryKey)) {
-      return 'NA';
-    }
-    let obj = promiseLeaveItemTextList[categoryKey].find(function (item) {
-      return item.id === key;
+  Vue.prototype.$getPromiseLeaveItemText = (key) => {
+    let obj = _.find(promiseLeaveItems, function (element) {
+      return element.id == key;
     });
-    if (undefined === obj) {
-      return 'NA';
-    } else {
+    if (undefined !== obj) {
       return obj.text;
     }
+    return 'NA';
   }
 
   Vue.prototype.$getPromiseLeaveItemsByCategoryKey = (categoryKey) => {
-    if (!promiseLeaveItemTextList.hasOwnProperty(categoryKey)) {
+    if (!groupedPromiseLeaveItemTextList.hasOwnProperty(categoryKey)) {
       return [];
     }
 
-    return promiseLeaveItemTextList[categoryKey];
+    return groupedPromiseLeaveItemTextList[categoryKey];
   }
 }

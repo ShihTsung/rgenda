@@ -71,7 +71,8 @@
             </div>
             <div class="form-group">
               <label class="font-weight-bold">備註</label>
-              <textarea class="form-control" row="3" v-model="addTimeAdjustment.remark"></textarea>
+              <textarea class="form-control" row="3" v-model="addTimeAdjustment.remark"
+              placeholder="不得超過 100 字"></textarea>
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
@@ -152,6 +153,10 @@ export default {
       if (1 > this.addTimeAdjustment.selection.id) {
         valid = false;
         errMsg.push('姓名欄位未填寫');
+      }
+      if (100 < this.addPromiseLeave.remark.length) {
+        valid = false;
+        errMsg.push('備註不得超過 100 字');
       }
 
       return [valid, errMsg];

@@ -93,7 +93,7 @@ export default {
           text: '請求成功',
         }, function () {
           self.cancelDelete();
-          // refresh demand list
+          // refresh query result
           self.$parent.query(false);
         });
       }).catch(function (error) {

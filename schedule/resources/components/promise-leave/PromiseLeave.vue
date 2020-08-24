@@ -61,21 +61,21 @@
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_type_all" value="all"
+                  id="rdo_type_3" :value="getLeaveValut('ITEM_OFFICIAL_LEAVE')"
                   v-model="selectedType">
-                  <label class="form-check-label" for="rdo_type_all">預排公假</label>
+                  <label class="form-check-label" for="rdo_type_3">預排公假</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_type_all" value="all"
+                  id="rdo_type_7" :value="getLeaveValut('ITEM_ANNUAL_LEAVE')"
                   v-model="selectedType">
-                  <label class="form-check-label" for="rdo_type_all">預排特休</label>
+                  <label class="form-check-label" for="rdo_type_7">預排特休</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_type_all" value="all"
+                  id="rdo_type_others" value="others"
                   v-model="selectedType">
-                  <label class="form-check-label" for="rdo_type_all">預排其他假別</label>
+                  <label class="form-check-label" for="rdo_type_others">預排其他假別</label>
                 </div>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default {
         },
         {
           label: '類別',
-          field: 'adjustmentType',
+          field: 'shiftType',
           sortable: false,
         },
         {
@@ -292,8 +292,11 @@ export default {
         end: moment(self.endDate).format('YYYY-MM-DD'),
         uid: self.selection.id,
       };
-      if (0 <= Number(self.selectedType)) {
-        params.type = self.selectedType;
+      if ('all' !== self.selectedType) {
+        params.shift_type = 'others';
+        if (0 <= Number(self.selectedType)) {
+          params.shift_type = self.selectedType;
+        }
       }
       let queryString = Object.keys(params).map((key) => {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
@@ -305,7 +308,7 @@ export default {
         });
       }
 
-      let url = `/api/time-adjustment/?${queryString}`;
+      let url = `/api/promises/?${queryString}`;
       self.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -314,7 +317,7 @@ export default {
             self.loaded = true;
             if (showWarningPopup) {
               popup.success({
-                title: '查詢出缺勤補登記錄',
+                title: '查詢假勤記錄',
                 html: '請求成功',
               });
             }
@@ -323,7 +326,7 @@ export default {
             self.loaded = false;
             if (showWarningPopup) {
               popup.info({
-                title: '查詢出缺勤補登記錄',
+                title: '查詢假勤記錄',
                 html: '查無資料',
               });
             }
@@ -343,9 +346,8 @@ export default {
       return data.map(function(obj) {
         return {
           id: obj.id,
-          // adjustmentType: self.$getTimeAdjustmentTypeText(obj.adjustment_type),
+          shiftType: self.$getPromiseLeaveItemText(obj.shift_type),
           date: obj.date,
-          // adjustmentItem: self.$getTimeAdjustmentItemText(obj.adjustment_type, obj.adjustment_item),
           hours: obj.hours,
           fullName: self.selection.text,
           remark: nl2br(obj.remark),
@@ -360,6 +362,9 @@ export default {
     cancelDelete() {
       this.deleteItems = [];
     },
+    getLeaveValut(key) {
+      return this.$getPromiseLeaveItemValue(key);
+    }
   },
   mounted() {
     this.getUsers();
