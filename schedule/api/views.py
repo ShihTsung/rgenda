@@ -27,7 +27,8 @@ from station.models import Station
 from shift.models import Shift
 from date.models import H_Calendar
 from result.models import (Result, PreResult,
-                           AfterResult, TimeAdjustment, ExchangeApplication)
+                           AfterResult, TimeAdjustment,
+                           ExchangeApplication, HistoryResult)
 from reservation.models import Reservation, PromiseShift
 from demand.models import DemandOfStation
 
@@ -434,7 +435,7 @@ def get_type(shift):
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
-    permission_classes = (IsManagerOrReadOnly,)
+    permission_classes = (IsManagerOrReadOnly, IsAuthenticated)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -937,6 +938,24 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
         )
 
 
+class PreResultRemarkViewSet(viewsets.ModelViewSet):
+    queryset = PreResultRemark.objects.all()
+    serializer_class = PreResultRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_summary='刪除預排班表備註',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
+
 @swagger_auto_schema(
     methods=['get'],
     operation_summary='前月班表紀錄',
@@ -1217,25 +1236,3 @@ def users_can_support(request):
             if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
                 output[-1]['can_support_shift'].append(shift.id)
     return Response(output)
-
-
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='發布班表通知',
-    manual_parameters=[month],
-)
-@api_view(['GET'])
-@parser_classes([JSONParser])
-def publish_results(request):
-    month = request.query_params.get('month')
-    department = request.user.department
-    if month:
-        notify.send(
-            sender=request.user,
-            recipient=CustomUser.objects.filter(
-                department=department
-            ),
-            verb=f'{month}月班表已經發布！'
-
-        )
-    return Response({})

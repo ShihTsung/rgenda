@@ -180,3 +180,28 @@ class ExchangeApplication(models.Model):
         default="",
         max_length=100,
     )
+
+
+class HistoryResult(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name=_('User'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    shift = models.ForeignKey(
+        Shift,
+        verbose_name=_('Shift'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    date = models.DateField(
+        verbose_name=_('Date'),
+        null=True
+    )
+    station = models.ForeignKey(
+        Station,
+        verbose_name=_('Station'),
+        on_delete=models.CASCADE,
+        null=True
+    )

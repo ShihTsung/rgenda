@@ -10,7 +10,9 @@ from result.models import (Result, PreResult,
                            AfterResult, TimeAdjustment,
                            ExchangeApplication)
 from reservation.models import Reservation, PromiseShift
-from remarks.models import UserRemark, RemarkSquare, ResultRemark
+from remarks.models import (
+    UserRemark, RemarkSquare,
+    ResultRemark, PreResultRemark)
 import datetime
 # 部門/科別
 
@@ -274,7 +276,6 @@ class GetHCalendarSerializer(serializers.ModelSerializer):
     def get_className(self, obj):
         return 'bigEvent'
 
-
     def get_extendedProps(self, obj):
 
         return{
@@ -320,13 +321,55 @@ class AfterResultSerializer(serializers.ModelSerializer):
 
 
 class GetPreResultSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
-    shift = GetShiftSerializer()
-    station = StationSerializer()
+    shift = SimpleShiftSerializer()
+    station = SimpleStationSerializer()
+    shift_type = serializers.SerializerMethodField()
+
+    def get_shift_type(self, obj):
+        if obj.shift.shift_type == 0:
+            return 'A'
+        elif obj.shift.shift_type == 1:
+            return 'E'
+        elif obj.shift.shift_type == 2:
+            return 'N'
+        elif obj.shift.shift_type == 5:
+            if obj.shift.name == "休息":
+                return '休'
+            if obj.shift.name == "例假":
+                return '例'
+            if obj.shift.name == "補休":
+                return "補"
+            if obj.shift.name == "特休":
+                return "特"
+            if obj.shift.name == "空班":
+                return "空"
+            if obj.shift.name == "婚假":
+                return "婚"
+            if obj.shift.name == "喪假":
+                return "喪"
+            if obj.shift.name == "產假":
+                return "產"
+            if obj.shift.name == "生理假":
+                return "生"
+            if obj.shift.name == "國定假日":
+                return "國"
+        elif obj.shift.shift_type == 6:
+            if obj.shift.name == "無薪病假":
+                return '病'
+            if obj.shift.name == "事假":
+                return '事'
+            if obj.shift.name == "家庭照顧假":
+                return '家'
+        elif obj.shift.shift_type == 4:
+            return 'On'
+        elif obj.shift.shift_type == 3:
+            return '公'
+        else:
+            return ''
 
     class Meta:
         model = PreResult
-        fields = ('id', 'user', 'shift', 'date', 'station')
+        fields = ('id', 'user', 'shift', 'date', 'station', 'shift_type')
 
 
 class GetResultSerializer(serializers.ModelSerializer):
@@ -384,9 +427,51 @@ class GetResultSerializer(serializers.ModelSerializer):
 
 
 class GetAfterResultSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer()
-    shift = GetShiftSerializer()
-    station = StationSerializer()
+    shift = SimpleShiftSerializer()
+    station = SimpleStationSerializer()
+    shift_type = serializers.SerializerMethodField()
+
+    def get_shift_type(self, obj):
+        if obj.shift.shift_type == 0:
+            return 'A'
+        elif obj.shift.shift_type == 1:
+            return 'E'
+        elif obj.shift.shift_type == 2:
+            return 'N'
+        elif obj.shift.shift_type == 5:
+            if obj.shift.name == "休息":
+                return '休'
+            if obj.shift.name == "例假":
+                return '例'
+            if obj.shift.name == "補休":
+                return "補"
+            if obj.shift.name == "特休":
+                return "特"
+            if obj.shift.name == "空班":
+                return "空"
+            if obj.shift.name == "婚假":
+                return "婚"
+            if obj.shift.name == "喪假":
+                return "喪"
+            if obj.shift.name == "產假":
+                return "產"
+            if obj.shift.name == "生理假":
+                return "生"
+            if obj.shift.name == "國定假日":
+                return "國"
+        elif obj.shift.shift_type == 6:
+            if obj.shift.name == "無薪病假":
+                return '病'
+            if obj.shift.name == "事假":
+                return '事'
+            if obj.shift.name == "家庭照顧假":
+                return '家'
+        elif obj.shift.shift_type == 4:
+            return 'On'
+        elif obj.shift.shift_type == 3:
+            return '公'
+        else:
+            return ''
 
     class Meta:
         model = AfterResult
@@ -531,7 +616,7 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
                     'shift_type': ret.shift.shift_type,
                     'start': ret.shift.start_time,
                     'end': ret.shift.end_time
-                    },
+                },
                 'station': {'id': ret.station.id, 'name': ret.station.name}
             }
         except Result.DoesNotExist:
@@ -572,12 +657,19 @@ class NotificationSerializer(serializers.ModelSerializer):
     target = serializers.SerializerMethodField()
 
     def get_actor(self, obj):
-        id = int(obj.actor_object_id)
-        return CustomUser.objects.get(id=id).full_name
+        if obj.actor_object_id:
+            id = int(obj.actor_object_id)
+            return CustomUser.objects.get(id=id).full_name
+        else:
+            return None
 
     def get_target(self, obj):
-        id = int(obj.target_object_id)
-        return Department.objects.get(id=id).detail
+
+        if obj.target_object_id:
+            id = int(obj.target_object_id)
+            return Department.objects.get(id=id).detail
+        else:
+            return None
 
     class Meta:
         model = Notification
@@ -599,6 +691,12 @@ class RemarkSquareSerializer(serializers.ModelSerializer):
 class ResultRemarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResultRemark
+        fields = '__all__'
+
+
+class PreResultRemarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreResultRemark
         fields = '__all__'
 
 

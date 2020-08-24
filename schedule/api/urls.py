@@ -24,6 +24,7 @@ router.register(r'result-remarks', views.ResultRemarkViewSet)
 router.register(r'demand-user', views.DemandUserTableViewset)
 router.register(r'exchange-shift', views.ExchangeApplicationViewSet)
 router.register(r'department-manager', views.DepartmentManagerViewSet)
+router.register(r'preresult-remarks', views.PreResultRemarkViewSet)
 
 
 urlpatterns = [
@@ -36,6 +37,5 @@ urlpatterns = [
     path('last-month-continue', views.last_month_continue),
     path('exchangeable-users/', views.exchangeable_user),
     path('follow-shift', views.follow_shift_api),
-    path('results/publish', views.publish_results),
     path('users-can-support/', views.users_can_support),
 ]
