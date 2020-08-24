@@ -544,7 +544,7 @@ def create_result(request, department_id, start, end):
 
     # 檢查班表是否已建立
     try:
-        exist = Result.objects.filter(date=date_start, user__department=department)
+        exist = PreResult.objects.filter(date=date_start, user__department=department)
         if len(exist):
             return redirect('/' + request.LANGUAGE_CODE + '/results')
     except Result.DoesNotExist:
@@ -613,6 +613,8 @@ def create_result(request, department_id, start, end):
             workday_dict = dict()
             demands = get_demands(station, shift)
             for demand in demands:
+                # --print--
+                print('DEMAND ID:', str(demand['demand'].id))
                 # 當前level的user
                 user_current_level = list()
 
@@ -649,6 +651,9 @@ def create_result(request, department_id, start, end):
                         demand_dict[str(d)] = demand['demand'].config1
                     elif attrs[ind] == '2':
                         demand_dict[str(d)] = demand['demand'].config2
+
+                # --print--
+                print(demand_dict.values())
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -945,12 +950,18 @@ def create_result(request, department_id, start, end):
                         for user_id in user_pool:
                             workday_dict[user_id][ind] = best_weight_workday[user_id]
                             user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
+            # --print--
+            print('RESULTS')
 
             # 移除date_pre
             # 將0指派為 例假/休假/特殊假
             for user_id in user_pool:
                 user = User.objects.get(id=user_id)
                 output[user_id].pop('date_pre')
+
+                # --print--
+                print(user_id, output[user_id].values())
+
                 q = used_rest[user_id]
                 for ind, cycle in enumerate(cycle_list):
                     options = ['例', '休'] * 2 ** department.schedule_rule
