@@ -180,7 +180,7 @@
                       -
                     </td>
                     <td class="user-last-col pastDay">
-                      <input class="remark-gird" type="text" :value="findRemark(u.id, month)" @keyup.13="getRemark($event, u.id, month)" v-if="edit"/>
+                      <input class="remark-gird" type="text" :value="findRemark(u.id, month)" @blur="getRemark($event, u.id, month)" @keyup.13="$event.target.blur" v-if="edit"/>
                       <div v-if="!edit">
                         [[findRemark(u.id, month)]]
                       </div>
@@ -218,7 +218,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs1"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(1)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 1)" />
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(1)" placeholder="請填寫標誌說明" @blur="getRemarkS($event, 1)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(1)]]
                     </div>
@@ -237,7 +237,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs2"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(2)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 2)" />
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(2)" placeholder="請填寫標誌說明" @blur="getRemarkS($event, 2)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(2)]]
                     </div>
@@ -256,7 +256,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs3"></div>
-                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(3)" placeholder="請填寫標誌說明" @keyup.13="getRemarkS($event, 3)" />
+                    <input type="text" class="mark-explanation" v-if="edit" :value="getRemarkSquare(3)" placeholder="請填寫標誌說明" @blur="getRemarkS($event, 3)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(3)]]
                     </div>
