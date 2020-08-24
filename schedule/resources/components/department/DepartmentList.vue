@@ -82,7 +82,7 @@ export default {
           field: 'users',
         },
         {
-          label: '',
+          label: '功能',
           field: 'actions',
           width: '200px',
           sortable: false,

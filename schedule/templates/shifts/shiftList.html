@@ -55,7 +55,7 @@
     <thead class="thead-dark">
       <tr>
         <th scope="col">名稱</th>
-        <th scope="col">班別類型</th>
+        <!-- <th scope="col">班別類型</th> -->
         <th scope="col">開始時間</th>
         <th scope="col">結束時間</th>
         <th scope="col">科別</th>
@@ -70,7 +70,7 @@
       {% if not shift.name in '休息, 例假, 公假, oncall'%}
       <tr idx="{{shift.id}}">
         <td class="name">{{shift.name}}</td>
-        <td>{{shift.shift_type}}</td>
+        <!-- <td>{{shift.shift_type}}</td> -->
         <td>{{shift.start_time|time:'H:i'}}</td>
         <td>{{shift.end_time|time:'H:i'}}</td>
         <td>{{shift.department}}</td>

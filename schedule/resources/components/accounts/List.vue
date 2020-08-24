@@ -103,7 +103,7 @@ export default {
       },
       columns: [
         {
-          label: '部門',
+          label: '科別',
           field: 'department',
         },
         {
@@ -133,7 +133,7 @@ export default {
           sortable: false,
         },
         {
-          label: '動作',
+          label: '功能',
           field: 'actions',
           sortable: false,
         },
