@@ -938,6 +938,24 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
         )
 
 
+class PreResultRemarkViewSet(viewsets.ModelViewSet):
+    queryset = PreResultRemark.objects.all()
+    serializer_class = PreResultRemarkSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_summary='刪除預排班表備註',
+    )
+    def destroy(self, request, pk=None, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        res = {'message': 'success'}
+        return Response(
+            data=res,
+            status=status.HTTP_200_OK,
+        )
+
+
 @swagger_auto_schema(
     methods=['get'],
     operation_summary='前月班表紀錄',

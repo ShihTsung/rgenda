@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from account.models import CustomUser
-from result.models import Result
+from result.models import Result, PreResult
 
 
 class UserRemark(models.Model):
@@ -40,6 +40,21 @@ class RemarkSquare(models.Model):
 class ResultRemark(models.Model):
     result = models.OneToOneField(
         Result,
+        verbose_name=_('班表'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    content = models.ForeignKey(
+        RemarkSquare,
+        on_delete=models.CASCADE,
+        verbose_name=_('備註'),
+        null=True
+    )
+
+
+class PreResultRemark(models.Model):
+    result = models.OneToOneField(
+        PreResult,
         verbose_name=_('班表'),
         on_delete=models.CASCADE,
         null=True
