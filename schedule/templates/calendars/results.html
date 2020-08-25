@@ -1189,7 +1189,7 @@
       },
 
       getTotalPerDayData(m, y) {
-        fetch('/api/total-per-day/?start=' + y.toString() + '-' + m.toString() + '-' + '01' + '&end=' + y.toString() + '-' + m.toString() + '-' + this.getYear(y, m).toString())
+        fetch('/api/total-per-day/?start=' + y.toString() + '-' + m.toString() + '-' + '01' + '&end=' + y.toString() + '-' + m.toString() + '-' + this.getYear(y, m).toString() + '&set=result')
         .then(res=>{
           return res.json();
         }).then(data=>{
