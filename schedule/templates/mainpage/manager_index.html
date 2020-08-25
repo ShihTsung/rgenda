@@ -100,6 +100,11 @@
         </div>
       </div> -->
   </div>
+  <div id="loading" class="text-center">
+    <div class="mask"></div>
+    <div class="loader"></div>
+    <div class="h5 text-center">載入中...</div>
+  </div>
   <div id="calendar"></div>
 </div> <!-- end container -->
 <!-- chart.js CDN -->
@@ -459,25 +464,45 @@
             info.el.firstChild.appendChild(shiftGroup);
           }
         }
-        // Fix for disappearing table line
-        $(info.el).css('background-color', 'transparent');
-        $(info.el).css('border-color', 'transparent');
-        info.el.firstChild.firstChild.remove();
+        if (prop.shifts) {
+          // 排除全科休診events
+          // Fix for disappearing table line
+          $(info.el).css('background-color', 'transparent');
+          $(info.el).css('border-color', 'transparent');
+          info.el.firstChild.firstChild.remove();
+        } else {
+          // 只限全科休診
+          // Fix for background event height
+          $(info.el).css('height', '100%');
+        }
+      },
+      eventPositioned: function (info) {
+        if (!info.event.extendedProps.shifts) {
+          // 只限全科休診
+          // Fix for background event height
+          let ancestor = $(info.el).parent().parent();
+          $(info.el).detach().appendTo(ancestor);
+        }
       },
       eventDestroy: function (info) {
         $(info.el).tooltip('dispose');
       },
       events: function (fetchInfo, successCallback, failureCallback) {
+
         const startStr = fetchInfo.startStr.slice(0, 10);
         const endStr = fetchInfo.endStr.slice(0, 10);
         Promise.all([
           fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users/').then(res => res.json()),
           fetch('/api/shifts/?all=true').then(res => res.json()),
+          fetch('/api/dates/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
+          fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr).then(res => res.json())
         ]).then(dataArr => {
           const data = dataArr[0];
           const users = dataArr[1];
           const shifts = dataArr[2];
+          const dates = dataArr[3];
+          const usersCanSupport = dataArr[4];
 
           let processedData = [];
 
@@ -493,7 +518,7 @@
 
             const shift = shifts.find(s => s.id === e.shift.id);
             e.shift = shift;
-            e.resourceId = e.station.id;
+            e.resourceId = getResourceId(shift, e.date, e.user, e.station.id);
             let index = processedData.findIndex(d => d.date === e.date && d.resourceId === e.resourceId);
             if (index < 0) {
               processedData.push({
@@ -514,69 +539,39 @@
             }
             processedData[index].shifts[shift.id].addUser(user.id, user.full_name, user.type_of_user);
           });
-          successCallback(processedData);
-        });
 
-        fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr)
-          .then(res => res.json())
-          .then(usersCanSupport => {
-            let events = calendar.getEvents();
-            events.forEach(e => {
-              let prop = e.extendedProps;
-              const station = prop.station;
-              const date = e.start.toISOString().slice(0, 10);
-              const currentResourceId = e.getResources()[0].id;
-
-              if (['公假', '休假'].indexOf(station.name) < 0) {
-                return;
-              }
-
-              for (const shiftId in prop.shifts) {
-                if (prop.shifts.hasOwnProperty(shiftId)) {
-                  const shift = prop.shifts[shiftId];
-                  shift.users.map(user => {
-                    let targetResourceId = getResourceId(shift.shift, date, user.id, station.id);
-                    if (targetResourceId !== parseInt(currentResourceId, 10)) {
-                      prop.shifts[shiftId].delUser(user.id);
-                      e.setExtendedProp('shifts', prop.shifts);
-
-                      let targetEvent = calendar.getEventById(date+'_'+targetResourceId);
-                      if (!targetEvent) {
-                        targetEvent = calendar.addEvent({
-                          id: date+'_'+targetResourceId,
-                          title: '',
-                          date: date,
-                          resourceId: targetResourceId,
-                          backgroundColor: 'transparent',
-                          borderColor: 'transparent',
-                          station: prop.station,
-                          shifts: {},
-                        });
-                      }
-                      let targetShifts = targetEvent.extendedProps.shifts;
-                      if (!targetShifts[shiftId]) {
-                        targetShifts[shiftId] = new ShiftGroup(shift.shift);
-                      }
-                      targetShifts[shiftId].addUser(user.id, user.name, user.type);
-                      targetEvent.setExtendedProp('shifts', targetShifts);
-                      return false;
-                    }
-                    return true;
-                  })
-                }
-              }
-            });
-
-            function getResourceId(shift, date, userId, stationId) {
-              if ([3, 5, 6].indexOf(shift.shift_type) >= 0) {
-                let canSupport = usersCanSupport[date].find(i => i.id === userId && i.shift === shift.id);
-                if (!canSupport || canSupport.can_support_shift.length === 0) {
-                  return 0;
-                }
-              }
-              return stationId;
+          dates.forEach(date => {
+            if (date.attribute['{{department.id}}'] === '0') {
+              processedData.push({
+                id: date.start,
+                title: '',
+                date: date.start,
+                resourceIds: calendar.getTopLevelResources().map(r => r.id),
+                color: shiftColor.default,
+                display: 'background'
+              });
             }
           });
+
+          successCallback(processedData);
+
+          function getResourceId(shift, date, userId, stationId) {
+            if ([3, 5, 6].indexOf(shift.shift_type) >= 0) {
+              let canSupport = usersCanSupport[date].find(i => i.id === userId && i.shift === shift.id);
+              if (!canSupport || canSupport.can_support_shift.length === 0) {
+                return 0;
+              }
+            }
+            return stationId;
+          }
+        });
+      },
+      loading: function (isLoading) {
+        if (isLoading) {
+          $('#loading').show();
+        } else {
+          $('#loading').hide();
+        }
       }
     });
     if ("{{LANG}}" == 'zh-hant') {
@@ -595,6 +590,81 @@
     padding: auto;
     margin-right: 0;
     max-width: 90vw;
+  }
+
+  #loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9;
+  }
+
+  .mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #222222;
+    opacity: 0.5;
+  }
+
+  .loader,
+  .loader:after {
+    border-radius: 50%;
+    width: 10em;
+    height: 10em;
+  }
+
+  .loader {
+    margin: 60px auto;
+    font-size: 10px;
+    position: relative;
+    top: 10em;
+    text-indent: -9999em;
+    border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+    border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+    border-left: 1.1em solid #ffffff;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+  }
+  @-webkit-keyframes load8 {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes load8 {
+    0% {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+  #loading .h5 {
+    color: white;
+    position: relative;
+    top: 4em;
+    width: 10em;
+    height: 3em;
+    border-radius: 5px;
+    margin: auto;
+    background-color: rgba(10, 10, 10, 0.8);
+    line-height: 3em;
   }
 
   a,
