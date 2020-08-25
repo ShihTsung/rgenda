@@ -39,78 +39,80 @@ export const PROMISE_LEAVE_ITEM = {
   ITEM_PREGNANCY_CHECKUP: 13, // 產檢假
   ITEM_PARENTAL_LEAVE: 14, // 陪產假
 };
-let groupedPromiseLeaveItemTextList = {
-  [PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE]: [{
-      id: PROMISE_LEAVE_ITEM.ITEM_PERSONAL_LEAVE,
-      text: "事假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_FAMILY_CARE_LEAVE,
-      text: "家庭照顧假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_UNPAID_SICK_LEAVE,
-      text: "無薪病假"
-    },
-  ],
-  [PROMISE_LEAVE_CATEGORY.PAID_LEAVE]: [{
-      id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_LEAVE,
-      text: "公假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_MATERNITY_LEAVE,
-      text: "產假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_HOLIDAY,
-      text: "例/休"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_MENSTRUAL_LEAVE,
-      text: "生理假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_ANNUAL_LEAVE,
-      text: "特休"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_COMPENSATORY_LEAVE,
-      text: "補休"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_MARRIAGE_LEAVE,
-      text: "婚假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_PAID_SICK_LEAVE,
-      text: "計薪病假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_BEREAVEMENT_LEAVE,
-      text: "喪假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_TOCOLYSIS_LEAVE,
-      text: "安胎休養假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_PREGNANCY_CHECKUP,
-      text: "產檢假"
-    },
-    {
-      id: PROMISE_LEAVE_ITEM.ITEM_PARENTAL_LEAVE,
-      text: "陪產假"
-    },
-  ]
+let unpaidLeaveItems = [{
+    id: PROMISE_LEAVE_ITEM.ITEM_PERSONAL_LEAVE,
+    text: "事假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_FAMILY_CARE_LEAVE,
+    text: "家庭照顧假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_UNPAID_SICK_LEAVE,
+    text: "無薪病假"
+  },
+];
+let paidLeaveItems = [{
+    id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_LEAVE,
+    text: "公假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_MATERNITY_LEAVE,
+    text: "產假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_HOLIDAY,
+    text: "例/休"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_MENSTRUAL_LEAVE,
+    text: "生理假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_ANNUAL_LEAVE,
+    text: "特休"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_COMPENSATORY_LEAVE,
+    text: "補休"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_MARRIAGE_LEAVE,
+    text: "婚假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_PAID_SICK_LEAVE,
+    text: "計薪病假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_BEREAVEMENT_LEAVE,
+    text: "喪假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_TOCOLYSIS_LEAVE,
+    text: "安胎休養假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_PREGNANCY_CHECKUP,
+    text: "產檢假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_PARENTAL_LEAVE,
+    text: "陪產假"
+  },
+];
+let groupedPromiseLeaveItems = {
+  [PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE]: unpaidLeaveItems,
+  [PROMISE_LEAVE_CATEGORY.PAID_LEAVE]: paidLeaveItems
 };
-let promiseLeaveItems = [...groupedPromiseLeaveItemTextList[PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE], ...groupedPromiseLeaveItemTextList[PROMISE_LEAVE_CATEGORY.PAID_LEAVE]];
 PROMISE_LEAVE_ITEM.install = function (Vue, options) {
   Vue.prototype.$getPromiseLeaveItemValue = (key) => {
     return PROMISE_LEAVE_ITEM[key]
   }
 
   Vue.prototype.$getPromiseLeaveItemText = (key) => {
-    let obj = _.find(promiseLeaveItems, function (element) {
+    let leaveItemArr = [...unpaidLeaveItems, ...paidLeaveItems];
+    let obj = _.find(leaveItemArr, function (element) {
       return element.id == key;
     });
     if (undefined !== obj) {
@@ -120,10 +122,10 @@ PROMISE_LEAVE_ITEM.install = function (Vue, options) {
   }
 
   Vue.prototype.$getPromiseLeaveItemsByCategoryKey = (categoryKey) => {
-    if (!groupedPromiseLeaveItemTextList.hasOwnProperty(categoryKey)) {
+    if (!groupedPromiseLeaveItems.hasOwnProperty(categoryKey)) {
       return [];
     }
 
-    return groupedPromiseLeaveItemTextList[categoryKey];
+    return groupedPromiseLeaveItems[categoryKey];
   }
 }
