@@ -54,7 +54,7 @@ class TimeAdjustment(models.Model):
     remark = models.CharField(
         verbose_name=_('Remark'),
         max_length=100,
-        blank=True
+        blank=True,
     )
 
 

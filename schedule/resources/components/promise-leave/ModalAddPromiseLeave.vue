@@ -1,6 +1,6 @@
 <template>
-  <!-- modal - add time adjustment -->
-  <div class="modal fade" id="modalAddTimeAdjustment" tabindex="-1" role="dialog" aria-hidden="true"
+  <!-- modal - add promise leave -->
+  <div class="modal fade" id="modalAddPromiseLeave" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -13,13 +13,26 @@
           </button>
         </div>
         <div class="modal-body text-center pt-0">
-          <h3 class="modal-title rgenda-text-dark-blue mb-4">出缺勤補登</h3>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增假勤</h3>
           <div class="container-fluid text-left">
+            <div class="form-group">
+              <label class="font-weight-bold">日期</label>
+                <date-picker
+                v-model="addPromiseLeave.startDate"
+                :masks="{L: 'YYYY-MM-DD'}"
+                :is-required="true"
+                :popover="{visibility: 'focus'}"
+                :input-props='{
+                  placeholder: "日期"
+                }'
+                :min-date='new Date()'
+                ></date-picker>
+            </div>
             <div class="form-group">
               <label class="font-weight-bold">類別</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllTimeAdjustmentTypeText()"
+                v-for="(item, idx) in $getAllPromiseLeaveCategoryText()"
                 :key="['type', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
                   v-model="selectedType"
@@ -29,8 +42,8 @@
                 </div>
               </div>
             </div>
-            <div class="form-group" v-if="isSelectSingleType">
-              <label class="font-weight-bold">項目</label>
+            <div class="form-group">
+              <label class="font-weight-bold">假別</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
                 v-for="(item, idx) in itemList"
@@ -44,34 +57,20 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="font-weight-bold">日期</label>
-                <date-picker
-                v-model="addTimeAdjustment.startDate"
-                :masks="{L: 'YYYY-MM-DD'}"
-                :is-required="true"
-                :popover="{visibility: 'focus'}"
-                :input-props='{
-                  placeholder: "開始日期"
-                }'
-                ></date-picker>
-            </div>
-            <div class="form-group">
               <label class="font-weight-bold">時數</label>
-              <input type="number" class="form-control" v-model="addTimeAdjustment.hours">
-              <small class="form-text text-danger" v-if="isOverHours">
-                超過法定上限 12 小時
-              </small>
+              <input type="number" class="form-control" v-model="addPromiseLeave.hours">
             </div>
             <div class="form-group">
               <label class="font-weight-bold">姓名</label>
               <autocomplete class="p-0" v-if="suggestions.length > 0"
               :suggestions="suggestions"
               :placeholder="'輸入姓名以選取人員'"
-              v-model="addTimeAdjustment.selection"></autocomplete>
+              v-model="addPromiseLeave.selection"></autocomplete>
             </div>
             <div class="form-group">
               <label class="font-weight-bold">備註</label>
-              <textarea class="form-control" row="3" v-model="addTimeAdjustment.remark"></textarea>
+              <textarea class="form-control" row="3" v-model="addPromiseLeave.remark"
+              placeholder="不得超過 100 字"></textarea>
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
@@ -88,7 +87,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - add time adjustment -->
+  <!-- \modal - add promise leave -->
 </template>
 
 <script>
@@ -122,7 +121,7 @@ export default {
       levels: [],
       selectedType: 0,
       selectedItem: 0,
-      addTimeAdjustment: {
+      addPromiseLeave: {
         startDate: moment().toDate(), // Must be Date Object
         hours: 0,
         selection: {
@@ -134,31 +133,32 @@ export default {
     };
   },
   methods: {
-    $_timeAdjustment_store_validate() {
+    $_promiseLeave_store_validate() {
       let errMsg = [];
       let valid = true;
-      if (null === this.addTimeAdjustment.startDate) {
+      if (null === this.addPromiseLeave.startDate) {
         valid = false;
         errMsg.push('日期欄位格式錯誤');
       }
-      if (0 >= Number(this.addTimeAdjustment.hours)) {
+      this.addPromiseLeave.hours = Number(this.addPromiseLeave.hours);
+      if (0 >= Number(this.addPromiseLeave.hours)) {
         valid = false;
         errMsg.push('時數欄位值不能小於 0 ');
       }
-      if (12 < Number(this.addTimeAdjustment.hours)) {
-        valid = false;
-        errMsg.push('時數欄位值超過法定上限 12 小時');
-      }
-      if (1 > this.addTimeAdjustment.selection.id) {
+      if (1 > this.addPromiseLeave.selection.id) {
         valid = false;
         errMsg.push('姓名欄位未填寫');
+      }
+      if (100 < this.addPromiseLeave.remark.length) {
+        valid = false;
+        errMsg.push('備註不得超過 100 字');
       }
 
       return [valid, errMsg];
     },
     store() {
       let self = this;
-      let [bool, errMsg] = this.$_timeAdjustment_store_validate();
+      let [bool, errMsg] = this.$_promiseLeave_store_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -167,13 +167,13 @@ export default {
         return false;
       }
 
-      $('#modalAddTimeAdjustment').modal('hide');
+      $('#modalAddPromiseLeave').modal('hide');
 
       popup.loading({
         title: '處理中...',
       });
 
-      let url = `/api/time-adjustment/`;
+      let url = `/api/promises/`;
       const formConfig = {
         headers: {
           'X-CSRFToken': `${self.csrfToken}`
@@ -181,17 +181,16 @@ export default {
       };
 
       let params = {
-        user: self.addTimeAdjustment.selection.id,
-        date: moment(self.addTimeAdjustment.startDate).format('YYYY-MM-DD'),
-        hours: self.addTimeAdjustment.hours,
-        adjustment_type: self.selectedType,
-        adjustment_item: self.selectedItem,
-        remark: self.addTimeAdjustment.remark,
+        user: self.addPromiseLeave.selection.id,
+        date: moment(self.addPromiseLeave.startDate).format('YYYY-MM-DD'),
+        hours: Number(self.addPromiseLeave.hours),
+        shift_type: self.selectedItem,
+        remark: self.addPromiseLeave.remark,
       };
       self.$httpClient.post(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: '出缺勤補登',
+            title: '新增假勤',
             text: '請求成功',
           }, function () {
             self.cancelAddition();
@@ -218,20 +217,14 @@ export default {
         this.selectedItem = 'all';
       } else {
         if (oldValue !== value) {
-          this.selectedItem = this.selectedType == this.$getTimeAdjustmentTypeValue('TYPE_INCREASE_HOURS') ? this.$getTimeAdjustmentItemValue('ITEM_WORK_OVERTIME') : this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS');
+          this.selectedItem = this.selectedType == this.$getPromiseLeaveCategoryValue('UNPAID_LEAVE') ? this.$getPromiseLeaveItemValue('ITEM_PERSONAL_LEAVE') : this.$getPromiseLeaveItemValue('ITEM_OFFICIAL_LEAVE');
         }
       }
     },
   },
   computed: {
-    isSelectSingleType() {
-      return this.selectedType !== 'all';
-    },
     itemList() {
-      return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
-    },
-    isOverHours() {
-      return 12 < Number(this.addTimeAdjustment.hours);
+      return this.$getPromiseLeaveItemsByCategoryKey(Number(this.selectedType));
     },
   },
 }

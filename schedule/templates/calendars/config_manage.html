@@ -161,6 +161,9 @@
                 },
                 showNonCurrentDates: false,
                 droppable: true,
+                datesRender: function(){
+
+                },
                 dayRender: function(info){
                   let d_str = info.date.toISOString().split('T')[0];
                   fetch('/api/dates/?start='+d_str+'&end='+d_str)

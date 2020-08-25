@@ -12,17 +12,17 @@ class UserRemark(models.Model):
         CustomUser,
         verbose_name=_('使用者'),
         on_delete=models.CASCADE,
-        null=True
+        null=True,
     )
     month = models.IntegerField(
         verbose_name=_('月份'),
-        null=True
+        null=True,
     )
     content = models.TextField(
         max_length=100,
         verbose_name=_('備註'),
         blank=True,
-        null=True
+        null=True,
     )
 
 
@@ -31,7 +31,7 @@ class RemarkSquare(models.Model):
         max_length=100,
         verbose_name=_('內容'),
         null=True,
-        blank=True
+        blank=True,
     )
 
     def __str__(self):
@@ -43,13 +43,13 @@ class ResultRemark(models.Model):
         Result,
         verbose_name=_('班表'),
         on_delete=models.CASCADE,
-        null=True
+        null=True,
     )
     content = models.ForeignKey(
         RemarkSquare,
         on_delete=models.CASCADE,
         verbose_name=_('備註'),
-        null=True
+        null=True,
     )
 
 
@@ -58,11 +58,11 @@ class PreResultRemark(models.Model):
         PreResult,
         verbose_name=_('班表'),
         on_delete=models.CASCADE,
-        null=True
+        null=True,
     )
     content = models.ForeignKey(
         RemarkSquare,
         on_delete=models.CASCADE,
         verbose_name=_('備註'),
-        null=True
+        null=True,
     )

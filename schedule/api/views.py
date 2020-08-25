@@ -694,11 +694,11 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
                 queryset = PromiseShift.objects.filter(
                     date__range=[start[:10], end[:10]])
             if htype:
-                if htype == 0:
+                if htype == '3':
                     queryset = queryset.filter(
                         shift_type=3
                     )
-                elif htype == 1:
+                elif htype == '7':
                     queryset = queryset.filter(
                         shift_type=7
                     )
@@ -782,7 +782,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 @swagger_auto_schema(
     methods=['get', 'post'],
     operation_summary='檢查排班結果，回傳有問題的班',
-    manual_parameters=[start_date, department]
+    manual_parameters=[date, department]
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1224,72 +1224,70 @@ def preResult_follow_shift_api(request):
 @swagger_auto_schema(
     methods=['get'],
     operation_summary='可支援人力',
-    manual_parameters=[date],
+    manual_parameters=[start_date, end_date],
 )
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def users_can_support(request):
     from datetime import datetime, timedelta
-    target_date = str_to_date(request.GET.get('date'))
+    date_start = str_to_date(request.GET.get('start_date'))
+    date_end = str_to_date(request.GET.get('end_date'))
+    date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
+    output = dict()
+    for d in date_list:
+        output[str(d)] = list()
     shifts = Shift.objects.filter(
         department=request.user.department, shift_type__in=[0, 1, 2])
-    output = list()
-    try:
-        results = Result.objects.filter(
-            date=target_date, shift__shift_type__in=[4, 5, 6])
-    except Result.DoesNotExist:
-        return Response(output)
-
-    for result in results:
-        output.append({
-            'id': result.user.id,
-            'shift': result.shift.id,
-            'can_support_shift': list(),
-        })
-        # 篩選班別名稱
-        if result.shift.name not in ['休息', 'oncall']:
-            continue
-        # 篩選連續工作超過6天
-        result_list = Result.objects.filter(user=result.user, date__in=[
-                                            target_date + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-        working_list = [1 if r.shift.shift_type in [0, 1, 2, 3]
-                        or r.date == target_date else 0 for r in result_list]
-        count = 0
-        continue_over_6 = False
-        for r in working_list:
-            if r:
-                count += 1
-            else:
-                count = 0
-            if count > 6:
-                continue_over_6 = True
-                break
-        if continue_over_6:
-            continue
-        # 篩選前後班表休息時間不足11小時
+    for d in date_list:
         try:
-            pre_result = Result.objects.get(
-                user=result.user, date=target_date - timedelta(days=1))
-            _, last_off_time = get_work_time(pre_result)
+            results = Result.objects.filter(date=d, shift__shift_type__in=[4, 5, 6])
         except Result.DoesNotExist:
-            last_off_time = datetime.combine(
-                target_date - timedelta(days=1), time(0, 0, 0))
-        try:
-            next_result = Result.objects.get(
-                user=result.user, date=target_date + timedelta(days=1))
-            next_work_time, _ = get_work_time(next_result)
-        except Result.DoesNotExist:
-            next_work_time = datetime.combine(
-                target_date + timedelta(days=1), time(23, 59, 59))
+            continue
 
-        for shift in shifts:
-            if shift.start_time > shift.end_time:
-                work_time = datetime.combine(target_date, shift.start_time)
-                off_time = datetime.combine(
-                    target_date, shift.end_time) + timedelta(days=1)
-            else:
-                work_time = datetime.combine(target_date, shift.start_time)
-                off_time = datetime.combine(target_date, shift.end_time)
-            if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
-                output[-1]['can_support_shift'].append(shift.id)
+        for result in results:
+            output[str(d)].append({
+                'id': result.user.id,
+                'shift': result.shift.id,
+                'can_support_shift': list(),
+            })
+            # 篩選班別名稱
+            if result.shift.name not in ['休息', 'oncall']:
+                continue
+            # 篩選連續工作超過6天
+            result_list = Result.objects.filter(user=result.user, date__in=[
+                                                d + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
+            working_list = [1 if r.shift.shift_type in [0, 1, 2, 3] or r.date == d else 0 for r in result_list]
+            count = 0
+            continue_over_6 = False
+            for r in working_list:
+                if r:
+                    count += 1
+                else:
+                    count = 0
+                if count > 6:
+                    continue_over_6 = True
+                    break
+            if continue_over_6:
+                continue
+            # 篩選前後班表休息時間不足11小時
+            try:
+                pre_result = Result.objects.get(user=result.user, date=d - timedelta(days=1))
+                _, last_off_time = get_work_time(pre_result)
+            except Result.DoesNotExist:
+                last_off_time = datetime.combine(d - timedelta(days=1), time(0, 0, 0))
+            try:
+                next_result = Result.objects.get(user=result.user, date=d + timedelta(days=1))
+                next_work_time, _ = get_work_time(next_result)
+            except Result.DoesNotExist:
+                next_work_time = datetime.combine(d + timedelta(days=1), time(23, 59, 59))
+
+            for shift in shifts:
+                if shift.start_time > shift.end_time:
+                    work_time = datetime.combine(d, shift.start_time)
+                    off_time = datetime.combine(d, shift.end_time) + timedelta(days=1)
+                else:
+                    work_time = datetime.combine(d, shift.start_time)
+                    off_time = datetime.combine(d, shift.end_time)
+                if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
+                    output[str(d)][-1]['can_support_shift'].append(shift.id)
     return Response(output)

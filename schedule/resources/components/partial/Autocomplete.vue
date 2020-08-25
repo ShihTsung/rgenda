@@ -68,7 +68,7 @@ export default {
       });
     },
     enter() {
-      this.$emit('input', this.matches[this.current])
+      this.$emit('input', this.matches.length < 1 ? { id: 0, text: '' } : this.matches[this.current])
       this.open = false
     },
     up() {
