@@ -564,8 +564,11 @@ def create_result(request, department_id, start, end):
     :param end:
     :return:
     """
-    # testing data
-    department = Department.objects.get(id=department_id)
+    try:
+        department = Department.objects.get(id=department_id)
+    except Department.DoesNotExist:
+        print('DEPARTMENT NOT EXIST')
+        return redirect('/' + request.LANGUAGE_CODE + '/results')
     try:
         date_start = str_to_date(start)
         date_end = str_to_date(end)

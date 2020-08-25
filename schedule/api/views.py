@@ -71,8 +71,12 @@ get_all = openapi.Parameter('all', openapi.IN_QUERY,
                             description="全部或是單一部門", type=openapi.TYPE_BOOLEAN)
 start_date = openapi.Parameter('start', openapi.IN_QUERY,
                                description="開始日期", type=openapi.TYPE_STRING)
+start = openapi.Parameter('start', openapi.IN_QUERY,
+                          description="開始日期", type=openapi.TYPE_STRING)
 end_date = openapi.Parameter('end', openapi.IN_QUERY,
                              description="結束日期", type=openapi.TYPE_STRING)
+end = openapi.Parameter('end', openapi.IN_QUERY,
+                        description="結束日期", type=openapi.TYPE_STRING)
 mode = openapi.Parameter('mode', openapi.IN_QUERY,
                          description="模式", type=openapi.TYPE_STRING)
 month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
@@ -1224,14 +1228,14 @@ def preResult_follow_shift_api(request):
 @swagger_auto_schema(
     methods=['get'],
     operation_summary='可支援人力',
-    manual_parameters=[start_date, end_date],
+    manual_parameters=[start, end],
 )
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def users_can_support(request):
     from datetime import datetime, timedelta
-    date_start = str_to_date(request.GET.get('start_date'))
-    date_end = str_to_date(request.GET.get('end_date'))
+    date_start = str_to_date(request.GET.get('start'))
+    date_end = str_to_date(request.GET.get('end'))
     date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
     output = dict()
     for d in date_list:
