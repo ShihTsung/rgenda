@@ -21,8 +21,8 @@ LEVEL_CHOICES = (
     (5, _('Nn'))
 )
 GENDER_CHOICES = (
-    ('M', _('Male')),
-    ('F', _('Female'))
+    ('male', _('Male')),
+    ('female', _('Female'))
 )
 TYPE_CHOICES = (
     (0, _('正職')),
