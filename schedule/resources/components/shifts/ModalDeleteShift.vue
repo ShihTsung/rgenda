@@ -1,6 +1,6 @@
 <template>
   <!-- modal - del time adjustment -->
-  <div class="modal fade" id="modalDeleteShifts" tabindex="-1" role="dialog" aria-hidden="true"
+  <div class="modal fade" id="modalDeleteShift" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -52,7 +52,7 @@ export default {
   methods: {
     destory() {
       let self = this;
-      $('#modalDeleteShifts').modal('hide');
+      $('#modalDeleteShift').modal('hide');
 
       if (self.deleteItems.length < 1) {
         return;
