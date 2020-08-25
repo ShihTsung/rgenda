@@ -1054,7 +1054,7 @@
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
               },
-              body: JSON.stringify(this.remarkS[item]),
+              body: JSON.stringify(item),
               method: 'POST',
             })
             .then((res)=>{
@@ -1311,7 +1311,7 @@
 
 
         if(f){
-          console.log(f);
+          // console.log(f);
           switch(f.content) {
             case 1:
               return 'rs1';
@@ -1325,11 +1325,12 @@
       },
 
       getCheckResult() {
-        fetch('/api/checkresult/?department='+ this.userData[0].department + '&month=' + this.month)
+        fetch('/api/checkresult/?date=' + this.year.toString() + '-' + this.month.toString() + '-01' + '&department=' + this.userData[0].department)
         .then(res=>{
           return res.json();
         }).then(data=>{
-          // console.log(data);
+
+          console.log(data);
           this.checkResult = data;
         }).catch(err=>{
           console.log(err);
@@ -1337,9 +1338,13 @@
       },
 
       checkResults(index) {
-        let c = this.checkResult.find((item)=>{
-          return item.id == index;
-        });
+        let c = {};
+
+        if(this.checkResult) {
+          c = this.checkResult.find((item)=>{
+            return item.id == index;
+          });
+        };
 
         let text = '';
 
