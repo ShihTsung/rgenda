@@ -8,7 +8,7 @@ from rest_framework.decorators import (
     permission_classes)
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import JSONParser
@@ -202,7 +202,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     queryset = TimeAdjustment.objects.all()
     serializer_class = TimeAdjustmentSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         queryset = TimeAdjustment.objects.all()
@@ -305,7 +305,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 class DepartmentManagerViewSet(viewsets.ModelViewSet):
     queryset = DepartmentManager.objects.all()
     serializer_class = DepartmentManagerSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -441,7 +441,7 @@ def get_type(shift):
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
-    permission_classes = (IsManagerOrReadOnly, IsAuthenticated)
+    permission_classes = (IsManagerOrReadOnly, permissions.IsAuthenticated)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -791,7 +791,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     manual_parameters=[date, department]
 )
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def check_result_api(request):
     res_data = {}
@@ -832,7 +832,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     operation_summary='取得指定期間，每天三班的總人數',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def total_per_day_api(request):
     results = {}
@@ -895,7 +895,7 @@ def total_per_day_api(request):
     operation_summary='把所有通知標為已讀',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def mark_all_notices_read(request):
     notices = Notification.objects.all()
@@ -983,7 +983,7 @@ class PreResultRemarkViewSet(viewsets.ModelViewSet):
     operation_summary='前月班表紀錄',
     manual_parameters=[month_head])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def last_month_continue(request):
     department = request.user.department
@@ -1155,7 +1155,7 @@ def exchangeable_user(request):
     manual_parameters=[start_date, end_date, follower, mentor]
 )
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def follow_shift_api(request):
     mentor = request.query_params.get('mentor')
@@ -1192,7 +1192,7 @@ def follow_shift_api(request):
     manual_parameters=[start_date, end_date, follower, mentor]
 )
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated,])
 @parser_classes([JSONParser])
 def preResult_follow_shift_api(request):
     mentor = request.query_params.get('mentor')
@@ -1234,7 +1234,8 @@ def users_can_support(request):
     from datetime import datetime, timedelta
     date_start = str_to_date(request.GET.get('start'))
     date_end = str_to_date(request.GET.get('end'))
-    date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
+    date_list = [date_start + timedelta(days=i)
+                 for i in range((date_end - date_start).days + 1)]
     output = dict()
     for d in date_list:
         output[str(d)] = list()
@@ -1242,7 +1243,8 @@ def users_can_support(request):
         department=request.user.department, shift_type__in=[0, 1, 2])
     for d in date_list:
         try:
-            results = Result.objects.filter(date=d, shift__shift_type__in=[4, 5, 6])
+            results = Result.objects.filter(
+                date=d, shift__shift_type__in=[4, 5, 6])
         except Result.DoesNotExist:
             continue
 
@@ -1258,7 +1260,8 @@ def users_can_support(request):
             # 篩選連續工作超過6天
             result_list = Result.objects.filter(user=result.user, date__in=[
                                                 d + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
-            working_list = [1 if r.shift.shift_type in [0, 1, 2, 3] or r.date == d else 0 for r in result_list]
+            working_list = [1 if r.shift.shift_type in [
+                0, 1, 2, 3] or r.date == d else 0 for r in result_list]
             count = 0
             continue_over_6 = False
             for r in working_list:
@@ -1273,20 +1276,25 @@ def users_can_support(request):
                 continue
             # 篩選前後班表休息時間不足11小時
             try:
-                pre_result = Result.objects.get(user=result.user, date=d - timedelta(days=1))
+                pre_result = Result.objects.get(
+                    user=result.user, date=d - timedelta(days=1))
                 _, last_off_time = get_work_time(pre_result)
             except Result.DoesNotExist:
-                last_off_time = datetime.combine(d - timedelta(days=1), time(0, 0, 0))
+                last_off_time = datetime.combine(
+                    d - timedelta(days=1), time(0, 0, 0))
             try:
-                next_result = Result.objects.get(user=result.user, date=d + timedelta(days=1))
+                next_result = Result.objects.get(
+                    user=result.user, date=d + timedelta(days=1))
                 next_work_time, _ = get_work_time(next_result)
             except Result.DoesNotExist:
-                next_work_time = datetime.combine(d + timedelta(days=1), time(23, 59, 59))
+                next_work_time = datetime.combine(
+                    d + timedelta(days=1), time(23, 59, 59))
 
             for shift in shifts:
                 if shift.start_time > shift.end_time:
                     work_time = datetime.combine(d, shift.start_time)
-                    off_time = datetime.combine(d, shift.end_time) + timedelta(days=1)
+                    off_time = datetime.combine(
+                        d, shift.end_time) + timedelta(days=1)
                 else:
                     work_time = datetime.combine(d, shift.start_time)
                     off_time = datetime.combine(d, shift.end_time)

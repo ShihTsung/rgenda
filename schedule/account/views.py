@@ -333,7 +333,12 @@ def update(request, id=None):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
+        if form.cleaned_data['pregnant'] == True:
+            user = CustomUser.objects.get(id=id)
+            user.can_be_scheduled = False
+            user.save()
         return redirect('/accounts/list')
+
 
     context = {'form': form, 'target': choosed_user}
     return render(request, 'registration/userEdit.html', context)
@@ -394,7 +399,7 @@ def departmentCreate(request):
                 recipient=CustomUser.objects.all(),
                 target=department,
                 level='info',
-                verb='department created by ')
+                verb=f'{request.user}建立了新的科別')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
