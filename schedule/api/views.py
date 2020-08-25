@@ -499,13 +499,14 @@ class PreResultViewSet(viewsets.ModelViewSet):
         return PreResultSerializer
 
     def get_queryset(self):
+        queryset = PreResult.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
-            if not end:
-                end = start
-            return PreResult.objects.filter(date__range=[start[:10], end[:10]])
-        return PreResult.objects.all()
+            if start and end:
+                queryset = PreResult.objects.filter(
+                    date__range=[start[:10], end[:10]])
+        return queryset
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
@@ -519,14 +520,14 @@ class AfterResultViewSet(viewsets.ModelViewSet):
         return AfterResultSerializer
 
     def get_queryset(self):
+        queryset = AfterResult.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
-            if not end:
-                end = start
-            return AfterResult.objects.filter(
-                date__range=[start[:10], end[:10]])
-        return AfterResult.objects.all()
+            if start and end:
+                queryset = AfterResult.objects.filter(
+                    date__range=[start[:10], end[:10]])
+        return queryset
 
 
 # 預排假 api
@@ -637,7 +638,6 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         """
-
         shift_type 分類
         0, 1, 2是無薪假
         2 之後的是有薪假
@@ -658,25 +658,12 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
         (13, '產檢假'),
         (14, '陪產假'),
         """
-        r_data = request.data
-        combo = int(r_data['combo'])
-        date_obj = datetime.datetime.strptime(
-            r_data['date'], '%Y-%m-%d').date()
-        if combo > 10:
-            return Response(
-                '每次不能見超過十筆資料',
-                status=status.HTTP_400_BAD_REQUEST)
-        for i in range(combo):
-            r_data['date'] = date_obj.strftime('%Y-%m-%d')
-            r_data['year'] = r_data['date'][:4]
-            serializer = self.get_serializer(data=r_data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            date_obj += timedelta(days=1)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(
-            serializer.data,
-            status=status.HTTP_201_CREATED,
+            serializer.data, status=status.HTTP_201_CREATED,
             headers=headers)
 
     @swagger_auto_schema(
@@ -697,13 +684,34 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
         return PromiseShiftSerializer
 
     def get_queryset(self):
+        queryset = PromiseShift.objects.all()
         start = self.request.query_params.get('start', None)
         end = self.request.query_params.get('end', None)
+        htype = self.request.query_params.get('shift_type', None)
+        uid = self.request.query_params.get('uid', None)
         if self.request.query_params:
-            return PromiseShift.objects.filter(
-                date__range=[start[:10], end[:10]])
-        else:
-            return PromiseShift.objects.all()
+            if start and end:
+                queryset = PromiseShift.objects.filter(
+                    date__range=[start[:10], end[:10]])
+            if htype:
+                if htype == 0:
+                    queryset = queryset.filter(
+                        shift_type=3
+                    )
+                elif htype == 1:
+                    queryset = queryset.filter(
+                        shift_type=7
+                    )
+                else:
+                    queryset = queryset.exclude(
+                        shift_type__in=[3, 7]
+                    )
+            if uid:
+                queryset = queryset.filter(
+                    user=CustomUser.objects.get(id=int(uid))
+                )
+
+        return queryset
 
 
 # 證照管理 api
@@ -774,7 +782,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 @swagger_auto_schema(
     methods=['get', 'post'],
     operation_summary='檢查排班結果，回傳有問題的班',
-    manual_parameters=[month, department]
+    manual_parameters=[start_date, department]
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -783,9 +791,16 @@ def check_result_api(request):
     res_data = {}
     if request.query_params:
         department = request.query_params.get('department')
-        month = request.query_params.get('month')
-
-        res_data = check_result(department, int(month))
+        start_date = request.query_params.get('date')
+        if start_date and department:
+            date = datetime.datetime.strptime(
+                start_date, '%Y-%m-%d'
+            )
+            now = datetime.datetime.now()
+            if date >= now:
+                res_data = check_pre_result(department, date.month)
+            else:
+                res_data = check_result(department, date.month)
     return Response(res_data)
 
 
@@ -823,6 +838,7 @@ def total_per_day_api(request):
     if request.query_params:
         start = request.query_params.get('start')
         end = request.query_params.get('end')
+        q_set = request.query_params.get('set')
 
         dates = H_Calendar.objects.filter(date__range=[start, end])
         d = request.user.department
@@ -842,8 +858,12 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
-        db_results = Result.objects.filter(
-            date__range=[start, end], user__in=users)
+        if q_set == 'result':
+            db_results = Result.objects.filter(
+                date__range=[start, end], user__in=users)
+        else:
+            db_results = PreResult.objects.filter(
+                date__range=[start, end], user__in=users)
         diff_set = {}
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
@@ -1152,6 +1172,43 @@ def follow_shift_api(request):
     ).delete()
     for r in mentor_results:
         Result.objects.create(
+            user=follower_object,
+            date=r.date,
+            station=r.station,
+            shift=r.shift
+        )
+
+    return Response(
+        data={'status': 'success'},
+        status=status.HTTP_200_OK,
+    )
+
+
+@swagger_auto_schema(
+    methods=['get', ],
+    operation_summary='預排班表跟班設定',
+    manual_parameters=[start_date, end_date, follower, mentor]
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@parser_classes([JSONParser])
+def preResult_follow_shift_api(request):
+    mentor = request.query_params.get('mentor')
+    follower = request.query_params.get('follower')
+    start = request.query_params.get('start')
+    end = request.query_params.get('end')
+    mentor_object = CustomUser.objects.get(id=int(mentor))
+    follower_object = CustomUser.objects.get(id=int(follower))
+    mentor_results = PreResult.objects.filter(
+        user=mentor_object,
+        date__range=[start, end]
+    )
+    PreResult.objects.filter(
+        user=follower_object,
+        date__range=[start, end]
+    ).delete()
+    for r in mentor_results:
+        PreResult.objects.create(
             user=follower_object,
             date=r.date,
             station=r.station,
