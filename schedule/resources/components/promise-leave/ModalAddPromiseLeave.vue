@@ -133,7 +133,7 @@ export default {
     };
   },
   methods: {
-    $_timeAdjustment_store_validate() {
+    $_promiseLeave_store_validate() {
       let errMsg = [];
       let valid = true;
       if (null === this.addPromiseLeave.startDate) {
@@ -158,7 +158,7 @@ export default {
     },
     store() {
       let self = this;
-      let [bool, errMsg] = this.$_timeAdjustment_store_validate();
+      let [bool, errMsg] = this.$_promiseLeave_store_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
