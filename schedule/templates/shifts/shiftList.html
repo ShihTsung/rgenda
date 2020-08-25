@@ -1,34 +1,13 @@
 {% extends "base.html" %}
-{% block title %} shifts {% endblock %}
+{% block title %} 班別管理 {% endblock %}
 {% load i18n %}
 {% load static %}
 
 {% block content %}
-<div class="container">
-  <!-- modal -->
-  <div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title" id="exampleModalScrollableTitle">刪除班別</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-            <div class="modal-body">
-                <p>確定刪除?</p>
-                <div class="row">
-                    <div class="col text-right"><button class="btn btn-primary" type="button" data-dismiss="modal">取消</button></div>
-                    <div class="col text-left"><button id="btn-delete" class="btn btn-danger" type="button">刪除</button></div>
-                </div>
-            </div>
-        </div>
-    </div>
-  </div>
-  <!-- End modal -->
 
-  <div class="title text-center">
-    <h1>班別管理</h1>
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>班別管理</h3>
   </div>
 
   {% for message in messages %}
@@ -36,6 +15,12 @@
         {{message}}
     </div>
   {% endfor %}
+
+  <shifts-list
+  csrf-token="{{ csrf_token }}"></shifts-list>
+</div>
+
+
   <a href="/shifts/create" class="btn btn-primary" id="register"> 新增班別 </a>
 
   <!-- 搜尋欄 -->
@@ -104,6 +89,7 @@
 </style>
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+<script src="{% static 'assets/shifts-list.bundle.js' %}"></script>
 {% endblock %}
 <script>
   function searchFilter() {
