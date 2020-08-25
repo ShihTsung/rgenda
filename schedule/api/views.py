@@ -297,6 +297,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         return DepartmentSerializer
 
     def get_queryset(self):
+        if self.request.user.role == 'admin':
+            return Department.objects.all()
         return Department.objects.filter(id=self.request.user.department.id)
 
 

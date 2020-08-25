@@ -327,10 +327,11 @@ def update(request, id=None):
     if choosed_user.is_superuser:
         if not request.user.is_superuser:
             # raise PermissionError("you don't have permission")
-            messages.error(request, "you don't have permission ")
+            messages.error(request, "權限不足")
             return redirect('/accounts/list')
     form = CustomUserChangeForm(request.POST or None, instance=choosed_user)
-    if form.is_valid():
+
+    if request.method == 'POST' and form.is_valid():
         form.save()
         return redirect('/accounts/list')
 
@@ -387,7 +388,7 @@ def departmentCreate(request):
             messages.success(
                 request,
                 f'科別{department.name}新增成功'
-                )
+            )
             notify.send(
                 sender=request.user,
                 recipient=CustomUser.objects.all(),
