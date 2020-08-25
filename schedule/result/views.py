@@ -1052,8 +1052,7 @@ def create_result(request, department_id, start, end):
                             # 增加公假Result
                             if d in user_pool[user_id]['official_leave']:
                                 output[user_id][str(d)] = '工'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=shift_official_leave,
                                     date=d,
@@ -1062,8 +1061,7 @@ def create_result(request, department_id, start, end):
                             # 增加上班Result
                             elif output[user_id][str(d)] == 1:
                                 output[user_id][str(d)] = '工'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=shift,
                                     date=d,
@@ -1072,8 +1070,7 @@ def create_result(request, department_id, start, end):
                             # 增加特殊假Result
                             elif d in user_pool[user_id]['promise_other']:
                                 output[user_id][str(d)] = '特'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=Shift.objects.get(department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
                                     date=d,
@@ -1087,8 +1084,7 @@ def create_result(request, department_id, start, end):
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
-                                    # PreResult.objects.create(
-                                    Result.objects.create(
+                                    PreResult.objects.create(
                                         user=user,
                                         shift=shift_rest0,
                                         date=d,
@@ -1097,8 +1093,7 @@ def create_result(request, department_id, start, end):
                                 else:
                                     options.pop(0)
                                     output[user_id][str(d)] = '休'
-                                    # PreResult.objects.create(
-                                    Result.objects.create(
+                                    PreResult.objects.create(
                                         user=user,
                                         shift=shift_rest1,
                                         date=d,
