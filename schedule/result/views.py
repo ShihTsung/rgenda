@@ -118,8 +118,8 @@ def publish_result(request):
         end = datetime.date(year, next_month, days_in_month)
 
     results = PreResult.objects.filter(date__range=[start, end])
+    published_results = Result.objects.filter(date__range=[start, end])
     remarks = PreResultRemark.objects.all()
-
 
     if results:
         notify.send(
@@ -128,23 +128,30 @@ def publish_result(request):
             verb='下個月班表發佈了！')
     for result in results:
         if result.shift.department == request.user.department:
-            new_result = Result.objects.create(
-                shift=result.shift,
+            published = published_results.filter(
                 user=result.user,
-                date=result.date,
-                station=result.station
-            )
+                date=result.date).first()
+            if published:
+                published.shift = result.shift
+                published.station = result.station
+                published.save()
+            else:
+                new_result = Result.objects.create(
+                    shift=result.shift,
+                    user=result.user,
+                    date=result.date,
+                    station=result.station
+                )
             remark = remarks.filter(result=result).first()
             if remark:
                 ResultRemark.objects.create(
                     result=new_result,
                     content=remark.content
                 )
-            result.delete()
 
     start, end = date_range(0, 2)
     context = {'LANG': lang, 'start': start, 'end': end}
-    return redirect('/'+lang+'/results')
+    return redirect('/'+lang+'/pre_results')
 
 # 現在班表轉歷史班表
 @login_required
@@ -588,8 +595,10 @@ def create_result(request, department_id, start, end):
 
     # 檢查班表是否已建立
     try:
-        exist = Result.objects.filter(date=date_start, user__department=department)
-        exist_pre = PreResult.objects.filter(date=date_start, user__department=department)
+        exist = Result.objects.filter(
+            date=date_start, user__department=department)
+        exist_pre = PreResult.objects.filter(
+            date=date_start, user__department=department)
         if len(exist) + len(exist_pre):
             print('RESULT ALREADY EXIST')
             return redirect('/' + request.LANGUAGE_CODE + '/results')
@@ -1082,7 +1091,8 @@ def create_result(request, department_id, start, end):
                                 output[user_id][str(d)] = '特'
                                 PreResult.objects.create(
                                     user=user,
-                                    shift=Shift.objects.get(department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
+                                    shift=Shift.objects.get(
+                                        department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
                                     date=d,
                                     station=station,
                                 )

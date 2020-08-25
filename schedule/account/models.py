@@ -13,8 +13,8 @@ LEVEL_CHOICES = (
     (5, _('Nn'))
 )
 GENDER_CHOICES = (
-    ('M', _('Male')),
-    ('F', _('Female'))
+    ('male', _('Male')),
+    ('female', _('Female'))
 )
 ROLE_CHOICES = (
     ('admin', _('Admin')),
