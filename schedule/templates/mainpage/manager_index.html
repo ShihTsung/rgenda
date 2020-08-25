@@ -311,8 +311,8 @@
         const color = shiftColor.hasOwnProperty(shift.shift_type) ? shiftColor[shift.shift_type] : shiftColor.default;
         if (this.isOff) {
           this.title = '';
-          this.backgroundColor = color;
-          this.textColor = '#000000';
+          this.backgroundColor = 'transparent';
+          this.textColor = 'black';
         } else {
           this.title = shift.name;
           this.backgroundColor = color;
@@ -320,20 +320,17 @@
         }
       }
 
-      compare(date, stationId, shiftId) {
-        return this.date === date && this.station.id === stationId && this.shift.id === shiftId;
-      }
-
-      addUser(username, userType) {
+      addUser(userId, username, userType) {
         this.users.push({
+          id: userId,
           name: username,
           type: userType,
         });
       }
 
-      attainable() {
-        //TODO:
-        return this.shift.shift_type !== 5;
+      delUser(userId) {
+        let idx = this.users.findIndex(u => u.id === userId);
+        this.users.splice(idx, 1);
       }
     }
 
@@ -369,6 +366,12 @@
         { weekday: 'short', day: 'numeric' },
       ],
       resourceLabelText: '工作站列表',
+      resourceLabelClassNames: function(arg) {
+        if (['公假', '休假'].indexOf(arg.resource.extendedProps.name) >= 0) {
+          return 'off-resource';
+        }
+        return '';
+      },
       resourceOrder: 'sort',
       resources: function (fetchInfo, successCallback, failureCallback) {
         fetch('/api/stations/?mode=resource/')
@@ -428,9 +431,15 @@
               userGroup.classList.add('user-group', 'ml-1', 'mt-1');
 
               let level = document.createElement('i');
-              level.classList.add('fas', 'fa-circle', 'mx-1', 'align-middle');
+              level.classList.add('fas', 'mx-1', 'align-middle');
               if ([0, 1, 2, 3, 4, 5].indexOf(user.type) >= 0) {
                 level.classList.add('level' + user.type);
+                if ([3, 5].indexOf(user.type) >= 0) {
+                  // 新進人員、實習生以空心圓圈表示
+                  level.classList.add('fa-dot-circle');
+                } else {
+                  level.classList.add('fa-circle');
+                }
               }
 
               let userName = document.createElement('span');
@@ -450,57 +459,50 @@
             info.el.firstChild.appendChild(shiftGroup);
           }
         }
+        // Fix for disappearing table line
+        $(info.el).css('background-color', 'transparent');
+        $(info.el).css('border-color', 'transparent');
         info.el.firstChild.firstChild.remove();
       },
       eventDestroy: function (info) {
         $(info.el).tooltip('dispose');
       },
       events: function (fetchInfo, successCallback, failureCallback) {
-        let url = '/api/results/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr;
+        const startStr = fetchInfo.startStr.slice(0, 10);
+        const endStr = fetchInfo.endStr.slice(0, 10);
         Promise.all([
-          fetch('/api/results/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr).then(res => res.json()),
+          fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users/').then(res => res.json()),
           fetch('/api/shifts/?all=true').then(res => res.json()),
-          fetch('/api/users-can-support/?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr).then(res => res.json()),
         ]).then(dataArr => {
           const data = dataArr[0];
           const users = dataArr[1];
           const shifts = dataArr[2];
-          const usersCanSupport = dataArr[3];
 
           let processedData = [];
-
-          function getResourceId(e) {
-            if ([3, 5, 6].indexOf(shift.shift_type) >= 0) {
-              let canSupport = usersCanSupport.find(i => i.date === e.date && i.id === e.user && i.shift === shift.id);
-              if (canSupport && canSupport.can_support_shift.length === 0) {
-                return 0;
-              }
-            }
-            return e.station.id;
-          }
 
           data.forEach(e => {
             if ([5, 6].indexOf(e.shift.shift_type) >= 0 && ['例假', '休息'].indexOf(e.shift.name) < 0) {
               return;
             }
 
-            let user = users.find(u => u.id === e.user && u.department.id === parseInt('{{department.id}}'));
+            let user = users.find(u => u.id === e.user && u.department.id === parseInt('{{department.id}}', 10));
             if (!user) {
               return;
             }
 
             const shift = shifts.find(s => s.id === e.shift.id);
             e.shift = shift;
-            e.resourceId = getResourceId(e);
+            e.resourceId = e.station.id;
             let index = processedData.findIndex(d => d.date === e.date && d.resourceId === e.resourceId);
             if (index < 0) {
               processedData.push({
+                id: e.date+'_'+e.resourceId,
                 title: '',
                 date: e.date,
                 resourceId: e.resourceId,
-                backgroundColor: '#ffffff',
-                borderColor: '#ffffff',
+                backgroundColor: 'transparent',
+                borderColor: 'transparent',
                 station: e.station,
                 shifts: {},
               });
@@ -510,12 +512,71 @@
             if (!processedData[index].shifts[shift.id]) {
               processedData[index].shifts[shift.id] = new ShiftGroup(shift);
             }
-            processedData[index].shifts[shift.id].addUser(user.full_name, user.type_of_user);
+            processedData[index].shifts[shift.id].addUser(user.id, user.full_name, user.type_of_user);
           });
-          console.log(data);
-          console.log(processedData);
           successCallback(processedData);
         });
+
+        fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr)
+          .then(res => res.json())
+          .then(usersCanSupport => {
+            let events = calendar.getEvents();
+            events.forEach(e => {
+              let prop = e.extendedProps;
+              const station = prop.station;
+              const date = e.start.toISOString().slice(0, 10);
+              const currentResourceId = e.getResources()[0].id;
+
+              if (['公假', '休假'].indexOf(station.name) < 0) {
+                return;
+              }
+
+              for (const shiftId in prop.shifts) {
+                if (prop.shifts.hasOwnProperty(shiftId)) {
+                  const shift = prop.shifts[shiftId];
+                  shift.users.map(user => {
+                    let targetResourceId = getResourceId(shift.shift, date, user.id, station.id);
+                    if (targetResourceId !== parseInt(currentResourceId, 10)) {
+                      prop.shifts[shiftId].delUser(user.id);
+                      e.setExtendedProp('shifts', prop.shifts);
+
+                      let targetEvent = calendar.getEventById(date+'_'+targetResourceId);
+                      if (!targetEvent) {
+                        targetEvent = calendar.addEvent({
+                          id: date+'_'+targetResourceId,
+                          title: '',
+                          date: date,
+                          resourceId: targetResourceId,
+                          backgroundColor: 'transparent',
+                          borderColor: 'transparent',
+                          station: prop.station,
+                          shifts: {},
+                        });
+                      }
+                      let targetShifts = targetEvent.extendedProps.shifts;
+                      if (!targetShifts[shiftId]) {
+                        targetShifts[shiftId] = new ShiftGroup(shift.shift);
+                      }
+                      targetShifts[shiftId].addUser(user.id, user.name, user.type);
+                      targetEvent.setExtendedProp('shifts', targetShifts);
+                      return false;
+                    }
+                    return true;
+                  })
+                }
+              }
+            });
+
+            function getResourceId(shift, date, userId, stationId) {
+              if ([3, 5, 6].indexOf(shift.shift_type) >= 0) {
+                let canSupport = usersCanSupport[date].find(i => i.id === userId && i.shift === shift.id);
+                if (!canSupport || canSupport.can_support_shift.length === 0) {
+                  return 0;
+                }
+              }
+              return stationId;
+            }
+          });
       }
     });
     if ("{{LANG}}" == 'zh-hant') {
@@ -617,6 +678,9 @@
   .card-header .fa-bars::before {
     color: #666;
   }
+  .off-resource {
+    background-color: #404040;
+  }
   .shift-name {
     color: white !important;
   }
@@ -647,42 +711,6 @@
   .level4,
   .level5 {
     color: #83b1ed;
-  }
-  .day-shift {
-    background: #EBC57C;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 2px;
-    line-height: 31px;
-  }
-  .night-shift {
-    background: #84B1ED;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 2px;
-    line-height: 31px;
-  }
-  .graveyard-shift {
-    background: #6B799E;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 2px;
-    line-height: 31px;
-  }
-  .on-call-shift {
-    background: #9C8F96;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 2px;
-    line-height: 31px;
-  }
-  .shift-title {
-    color: white;
-    margin-top: 6px;
-    margin-left: 3px;
-  }
-  .username {
-    font-size: 15px;
   }
 </style>
 {% endblock %}
