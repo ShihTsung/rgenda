@@ -120,6 +120,7 @@ def publish_result(request):
     results = PreResult.objects.filter(date__range=[start, end])
     published_results = Result.objects.filter(date__range=[start, end])
     remarks = PreResultRemark.objects.all()
+    p_remarks = ResultRemark.objects.all()
 
     if results:
         notify.send(
@@ -136,11 +137,16 @@ def publish_result(request):
                 published.station = result.station
                 published.save()
                 remark = remarks.filter(result=result).first()
+                p_remark = p_remarks.filter(result=published).first()
                 if remark:
-                    ResultRemark.objects.create(
-                        result=published,
-                        content=remark.content
-                    )
+                    if not p_remark:
+                        ResultRemark.objects.create(
+                            result=published,
+                            content=remark.content
+                        )
+                else:
+                    if p_remark:
+                        p_remark.delete()
             else:
                 new_result = Result.objects.create(
                     shift=result.shift,

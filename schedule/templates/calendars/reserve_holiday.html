@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}{% trans 'ReservingHoliday' %}{% endblock %}
+{% block title %}預約休假{% endblock %}
 
 
 <!-- 加入full calendar套件 -->
@@ -10,7 +10,7 @@
 
   <div class="greet text-center">
     {% if user.is_authenticated %}
-    <h1> {%trans 'ReservingHoliday'%}</h1>
+    <h1> 預約休假 </h1>
     {% endif%}
   </div>
   <!-- 警告訊息 -->
@@ -208,7 +208,7 @@
                 .then(function(data){
                   data.forEach(e=>{
                     e.className = 'bigEvent';
-                    e.title = "排休";
+                    e.title = "預約休假";
                     e.textColor = 'white';
                     e.overlap = false;
                     choosed_days.push(e.date)
