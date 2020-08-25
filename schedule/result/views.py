@@ -135,6 +135,12 @@ def publish_result(request):
                 published.shift = result.shift
                 published.station = result.station
                 published.save()
+                remark = remarks.filter(result=result).first()
+                if remark:
+                    ResultRemark.objects.create(
+                        result=published,
+                        content=remark.content
+                    )
             else:
                 new_result = Result.objects.create(
                     shift=result.shift,
@@ -142,16 +148,16 @@ def publish_result(request):
                     date=result.date,
                     station=result.station
                 )
-            remark = remarks.filter(result=result).first()
-            if remark:
-                ResultRemark.objects.create(
-                    result=new_result,
-                    content=remark.content
-                )
+                remark = remarks.filter(result=result).first()
+                if remark:
+                    ResultRemark.objects.create(
+                        result=new_result,
+                        content=remark.content
+                    )
 
     start, end = date_range(0, 2)
     context = {'LANG': lang, 'start': start, 'end': end}
-    return redirect('/'+lang+'/pre_results')
+    return redirect('/'+lang+'/results/pre_results')
 
 # 現在班表轉歷史班表
 @login_required
