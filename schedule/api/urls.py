@@ -36,6 +36,6 @@ urlpatterns = [
     path('notification/mark-all-as-read', views.mark_all_notices_read),
     path('last-month-continue', views.last_month_continue),
     path('exchangeable-users/', views.exchangeable_user),
-    path('follow-shift', views.follow_shift_api),
+    path('follow-shift', views.preResult_follow_shift_api),
     path('users-can-support/', views.users_can_support),
 ]
