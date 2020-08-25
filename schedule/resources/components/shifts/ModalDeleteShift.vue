@@ -14,7 +14,7 @@
         </div>
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
-          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要將記錄刪除嗎？</p>
+          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要刪除 班別-{{ deleteShift.name }} 嗎？</p>
           <div class="row">
             <div class="col mb-2">
               <button class="btn btn-rgenda" type="button"
@@ -44,9 +44,9 @@ export default {
       type: String,
       default: '',
     },
-    deleteItems: {
-      type: Array,
-      default: []
+    deleteShift: {
+      type: Object,
+      default: {},
     }
   },
   methods: {
@@ -54,7 +54,7 @@ export default {
       let self = this;
       $('#modalDeleteShift').modal('hide');
 
-      if (self.deleteItems.length < 1) {
+      if (self.deleteShift.length < 1) {
         return;
       }
 
@@ -62,48 +62,32 @@ export default {
         title: '處理中...',
       });
 
-      let promiseArr = self.deleteItems.map(function (id) {
-        let url = `/api/shifts/${id}/`;
-        const formConfig = {
-          headers: {
-            'X-CSRFToken': `${self.csrfToken}`
-          }
+      let url = `/api/shifts/${self.deleteShift.id}/`;
+      const formConfig = {
+        headers: {
+          'X-CSRFToken': `${self.csrfToken}`
         }
-        self.$httpClient.delete(url, formConfig)
-          .then(function (response) {
-            // debug
-            // console.log(`delete time adjustment id = ${id}`);
-          })
-          .catch(function (error) {
-            // handle error
-            popup.error({
-              title: error.title,
-              html: httpRep.messageJoin(error.message),
-            });
-            console.log(error);
+      }
+      self.$httpClient.delete(url, formConfig)
+        .then(function (response) {
+          popup.success({
+            title: '刪除班別',
+            text: '請求成功',
+          }, function () {
+            self.cancelDelete();
+            // refresh query result
+            self.$parent.getShifts(false);
           });
-      });
-
-      Promise.all(
-        promiseArr
-      ).then(function (response) {
-
-        popup.success({
-          title: '刪除班別',
-          text: '請求成功',
-        }, function () {
-          self.cancelDelete();
-          // refresh query result
-          self.$parent.query(false);
+        })
+        .catch(function (error) {
+          // handle error
+          popup.error({
+            title: error.title,
+            html: httpRep.messageJoin(error.message),
+          });
+          console.log(error);
         });
-      }).catch(function (error) {
-        // handle error
-        popup.error({
-          title: error.title,
-          html: httpRep.messageJoin(error.message),
-        });
-        console.log(error);
-      });;
+
     },
     cancelDelete() {
       this.$parent.cancelDelete();

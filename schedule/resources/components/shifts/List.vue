@@ -24,8 +24,8 @@
         <template v-if="props.column.field == 'actions'">
           <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
           :href="'/shifts/update/' + props.row.id"><i class="fas fa-edit"></i></a>
-          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShit"
-          @click="comfirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
+          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
+          @click="comfirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
     </vue-good-table>
@@ -40,6 +40,10 @@
     :csrf-token="csrfToken"
     :department-list="filteredDepartments"
     :my-department-id="myDepartmentId"></modal-add-shift>
+
+    <modal-delete-shift
+    :csrf-token="csrfToken"
+    :delete-shift="deleteShift"></modal-delete-shift>
   </div>
 </template>
 
@@ -53,11 +57,13 @@ import {
   VueGoodTable
 } from 'vue-good-table';
 import ModalAddShift from './ModalAddShift.vue';
+import ModalDeleteShift from './ModalDeleteShift.vue';
 
 export default {
   components: {
     VueGoodTable,
     ModalAddShift,
+    ModalDeleteShift,
   },
   props: {
     myDepartmentId: {
@@ -73,9 +79,9 @@ export default {
     return {
       loaded: false,
       noData: false,
-      deleteShifts: {
+      deleteShift: {
         id: 0,
-        fullName: '',
+        name: '',
       },
       columns: [{
           label: '編號',
@@ -183,16 +189,16 @@ export default {
           console.log(error);
         });
     },
-    comfirmDeletion(row) {
-      this.deleteShifts = {
+    comfirmDelete(row) {
+      this.deleteShift = {
         id: row.id,
-        fullName: row.fullName,
+        name: row.name,
       };
     },
-    cancelDeletion() {
-      this.deleteShifts = {
+    cancelDelete() {
+      this.deleteShift = {
         id: 0,
-        fullName: '',
+        name: '',
       };
     },
   },
