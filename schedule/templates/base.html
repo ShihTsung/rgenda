@@ -229,22 +229,23 @@
                 <div class="side_shrink" style="visibility: hidden;"></div>
 
                 <div class="list-group list-group-flush">
+                    <a id="side-results-read" href="/results/" class="list-group-item list-group-item-action sidebar_w">
+                      <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
+                        查閱總班表</a>
+                    <!-- sidebar shrink -->
+                    <div class="side_s" style="visibility: hidden;">
+                        <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
+                    </div>
                     {% if user.role in 'admin, manager' or user.is_superuser %}
-                    <a id="side-results" href="/results/" class="list-group-item list-group-item-action sidebar_w">
+                    <a id="side-results" href="/results/pre_results" class="list-group-item list-group-item-action sidebar_w">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
                         總班表管理</a>
                     <!-- sidebar shrink -->
                     <div class="side_s" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
                     </div>
-                    {% else %}
-                    <a id="side-results" href="/results/" class="list-group-item list-group-item-action sidebar_w">
-                        <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
-                        查閱總班表</a>
-                    <!-- sidebar shrink -->
-                    <div class="side_s" style="visibility: hidden;">
-                        <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M4 4v20h20v-20h-20zm18 18h-16v-13h16v13zm-3-3h-10v-1h10v1zm0-3h-10v-1h10v1zm0-3h-10v-1h10v1zm2-11h-19v19h-2v-21h21v2z"/></svg>
-                    </div>
+                    <!-- {% else %} -->
+
                     {% endif %}
 
                     {% if user.role == "user" %}
