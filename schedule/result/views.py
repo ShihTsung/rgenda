@@ -100,22 +100,32 @@ def show_after_result(request):
 @login_required
 def publish_result(request):
     lang = request.LANGUAGE_CODE
-
+    month = request.GET.get('month')
     now = datetime.datetime.now()
     next_month = now.month + 1
+    year = now.year
     if next_month > 12:
         next_month = 1
-    days_in_month = monthrange(now.year, next_month)[1]
+        year += 1
+    if month:
+        days_in_month = monthrange(now.year, int(month))[1]
+        start = datetime.date(now.year, int(month), 1)
+        end = datetime.date(now.year, int(month), days_in_month)
 
-    start = datetime.date(now.year, next_month, 1)
-    end = datetime.date(now.year, next_month, days_in_month)
+    else:
+        days_in_month = monthrange(year, int(month))[1]
+        start = datetime.date(year, next_month, 1)
+        end = datetime.date(year, next_month, days_in_month)
+
     results = PreResult.objects.filter(date__range=[start, end])
     remarks = PreResultRemark.objects.all()
+
+
     if results:
         notify.send(
             request.user,
             recipient=User.objects.filter(role="user"),
-            verb='班表發佈了！')
+            verb='下個月班表發佈了！')
     for result in results:
         if result.shift.department == request.user.department:
             new_result = Result.objects.create(
