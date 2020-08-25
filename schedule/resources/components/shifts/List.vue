@@ -22,8 +22,8 @@
       }">
       <template slot="table-row" slot-scope="props">
         <template v-if="props.column.field == 'actions'">
-          <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
-          :href="'/shifts/update/' + props.row.id"><i class="fas fa-edit"></i></a>
+          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
+          @click="comfirmEdit(props.row)"><i class="fas fa-edit"></i></div>
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
           @click="comfirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
@@ -44,6 +44,12 @@
     <modal-delete-shift
     :csrf-token="csrfToken"
     :delete-shift="deleteShift"></modal-delete-shift>
+
+    <modal-edit-shift
+    :csrf-token="csrfToken"
+    :department-list="filteredDepartments"
+    :shift-data="editShift"></modal-edit-shift>
+
   </div>
 </template>
 
@@ -58,12 +64,14 @@ import {
 } from 'vue-good-table';
 import ModalAddShift from './ModalAddShift.vue';
 import ModalDeleteShift from './ModalDeleteShift.vue';
+import ModalEditShift from './ModalEditShift.vue';
 
 export default {
   components: {
     VueGoodTable,
     ModalAddShift,
     ModalDeleteShift,
+    ModalEditShift,
   },
   props: {
     myDepartmentId: {
@@ -79,6 +87,7 @@ export default {
     return {
       loaded: false,
       noData: false,
+      editShift: {},
       deleteShift: {
         id: 0,
         name: '',
@@ -158,8 +167,10 @@ export default {
         return {
           id: obj.id,
           department: obj.department.detail,
+          departmentId: obj.department.id,
           name: obj.name,
           shiftType: self.$getShiftTypeText(obj.shift_type),
+          shiftTypeId: obj.shift_type,
           startTime: obj.start_time,
           endTime: obj.end_time,
           workHours: obj.work_hours,
@@ -173,7 +184,7 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            self.filteredDepartments = data.filter(function(obj) {
+            self.filteredDepartments = data.filter(function (obj) {
               return obj.id == self.myDepartmentId;
             });
           } else {
@@ -200,6 +211,22 @@ export default {
         id: 0,
         name: '',
       };
+    },
+    comfirmEdit(row) {
+      this.editShift = {
+        id: row.id,
+        departmentId: row.departmentId,
+        name: row.name,
+        shiftTypeId: row.shiftTypeId,
+        startTime: row.startTime,
+        endTime: row.endTime,
+        workHours: row.workHours,
+      };
+
+      $('#modalEditShift').modal('show');
+    },
+    cancelEdit() {
+      this.editShift = {};
     },
   },
   mounted() {
