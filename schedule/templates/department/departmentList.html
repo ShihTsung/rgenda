@@ -15,6 +15,7 @@
   </div>
   {% endfor %}
 
+  {% if user.role in 'admin' or user.is_superuser %}
   <div class="row">
     <div class="col-sm-12">
       <a href="/departments/create" class="icon-bts float-right" data-tooltip="tooltip" title="新增科別">
@@ -22,6 +23,7 @@
       </a>
     </div>
   </div>
+  {% endif %}
 
   <department-list role="{{user.role}}" csrf-token="{{ csrf_token }}"></department-list>
 </div>
