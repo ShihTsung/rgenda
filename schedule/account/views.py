@@ -112,9 +112,9 @@ def userList(request):
                 onboard_date=raw_data[name]['onboard date'],
                 pregnant=raw_data[name]['pregnant'],
                 can_be_scheduled=raw_data[name]['can be scheduled'],
-                password=raw_data[name]['password'],
                 job_title=raw_data[name]['job title'],
             )
+            user.set_password(raw_data[name]['password'])
             user.save()
         messages.success(request, '使用者建立成功!')
         return redirect('/accounts/list')
