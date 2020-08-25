@@ -1,6 +1,6 @@
 <template>
   <!-- modal - del time adjustment -->
-  <div class="modal fade" id="modalDeleteTimeAdjustment" tabindex="-1" role="dialog" aria-hidden="true"
+  <div class="modal fade" id="modalDeletePromiseLeave" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -52,7 +52,7 @@ export default {
   methods: {
     destory() {
       let self = this;
-      $('#modalDeleteTimeAdjustment').modal('hide');
+      $('#modalDeletePromiseLeave').modal('hide');
 
       if (self.deleteItems.length < 1) {
         return;
@@ -63,7 +63,7 @@ export default {
       });
 
       let promiseArr = self.deleteItems.map(function (id) {
-        let url = `/api/time-adjustment/${id}/`;
+        let url = `/api/promises/${id}/`;
         const formConfig = {
           headers: {
             'X-CSRFToken': `${self.csrfToken}`
@@ -89,11 +89,11 @@ export default {
       ).then(function (response) {
 
         popup.success({
-          title: '刪除出缺勤補登紀錄',
+          title: '刪除假勤紀錄',
           text: '請求成功',
         }, function () {
           self.cancelDelete();
-          // refresh demand list
+          // refresh query result
           self.$parent.query(false);
         });
       }).catch(function (error) {

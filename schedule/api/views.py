@@ -698,11 +698,11 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
                 queryset = PromiseShift.objects.filter(
                     date__range=[start[:10], end[:10]])
             if htype:
-                if htype == 0:
+                if htype == '3':
                     queryset = queryset.filter(
                         shift_type=3
                     )
-                elif htype == 1:
+                elif htype == '7':
                     queryset = queryset.filter(
                         shift_type=7
                     )
@@ -786,7 +786,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 @swagger_auto_schema(
     methods=['get', 'post'],
     operation_summary='檢查排班結果，回傳有問題的班',
-    manual_parameters=[start_date, department]
+    manual_parameters=[date, department]
 )
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
