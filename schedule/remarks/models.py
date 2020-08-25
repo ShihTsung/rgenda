@@ -21,7 +21,7 @@ class UserRemark(models.Model):
     content = models.TextField(
         max_length=100,
         verbose_name=_('備註'),
-        blank=True
+        blank=True,
     )
 
 
