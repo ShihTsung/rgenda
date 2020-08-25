@@ -792,14 +792,15 @@ def check_result_api(request):
     if request.query_params:
         department = request.query_params.get('department')
         start_date = request.query_params.get('date')
-        date = datetime.datetime.strptime(
-            start_date, '%Y-%m-%d'
-        )
-        now = datetime.datetime.now()
-        if date >= now:
-            res_data = check_pre_result(department, date.month)
-        else:
-            res_data = check_result(department, date.month)
+        if start_date and department:
+            date = datetime.datetime.strptime(
+                start_date, '%Y-%m-%d'
+            )
+            now = datetime.datetime.now()
+            if date >= now:
+                res_data = check_pre_result(department, date.month)
+            else:
+                res_data = check_result(department, date.month)
     return Response(res_data)
 
 

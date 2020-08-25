@@ -52,10 +52,6 @@ def registerPage(request):
             form.save()
             user = form.cleaned_data.get('username')
             messages.success(request, "Account was created for " + user)
-            notify.send(
-                request.user,
-                recipient=CustomUser.objects.filter(role="admin"),
-                verb='department created')
             return redirect('/accounts/list')
     context = {'form': form}
     return render(request, 'registration/register.html', context)

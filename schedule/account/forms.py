@@ -53,14 +53,6 @@ class CustomUserCreationForm(UserCreationForm):
         label='是否可排班',
         required=False,
     )
-    holiday_rest_num = forms.IntegerField(
-        label=_('假日可休日數'),
-        required=False
-    )
-    special_rest_num = forms.IntegerField(
-        label=_('總特休日數'),
-        required=False
-    )
 
     class Meta:
         model = CustomUser
@@ -68,7 +60,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2', 'full_name',
                   'department', 'level', 'gender', 'role', 'job_title',
                   'type_of_user', 'can_be_scheduled', 'eid',
-                  'onboard_date', 'holiday_rest_num', 'special_rest_num']
+                  'onboard_date']
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
