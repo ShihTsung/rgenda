@@ -151,7 +151,7 @@ class CustomUserChangeForm(UserChangeForm):
         fields = ('username', 'full_name', 'email', 'department', 'job_title',
                   'level', 'gender', 'role', 'type_of_user',
                   'can_be_scheduled', 'holiday_rest_num',
-                  'special_rest_num', 'hour_required',
+                  'special_rest_num', 'hour_required', 'pregnant',
                   'eid', 'onboard_date', 'holiday_rest_num_used',
                   'special_rest_num_used')
 
