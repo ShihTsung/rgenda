@@ -61,13 +61,13 @@ def initial(request):
             department=department,
             work_hours=hours[i])
 
-    names = ['D', 'E']
-    shift_types = [0, 1]
-    start_hours = [8, 16]
-    start_mins = [0, 0]
-    end_hours = [15, 23]
-    end_mins = [59, 59]
-    for i in range(2):
+    names = ['D', 'E', '行政']
+    shift_types = [0, 1, 0]
+    start_hours = [8, 16, 8]
+    start_mins = [0, 0, 0]
+    end_hours = [15, 23, 17]
+    end_mins = [59, 59, 0]
+    for i in range(3):
         shift = Shift.objects.create(
             name=names[i],
             shift_type=shift_types[i],
@@ -141,7 +141,7 @@ def initial(request):
         newday.save()
         daystmp += datetime.timedelta(days=1)
 # station
-    names = ['護理站1F', '護理站2F', '休假', '公假']
+    names = ['護理站1F', '護理站2F', '休假', '公假', '行政']
 
     print('create station')
     for name in names:

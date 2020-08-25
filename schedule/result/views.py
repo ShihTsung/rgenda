@@ -1094,7 +1094,7 @@ def create_result(request, department_id, start, end):
                                     shift=Shift.objects.get(
                                         department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
                                     date=d,
-                                    station=station,
+                                    station=station_rest,
                                 )
                             # 增加例假 or 休息Result
                             else:
@@ -1111,7 +1111,7 @@ def create_result(request, department_id, start, end):
                                         station=station_rest,
                                     )
                                 else:
-                                    options.pop(0)
+                                    options.remove('休')
                                     output[user_id][str(d)] = '休'
                                     PreResult.objects.create(
                                         user=user,
@@ -1125,5 +1125,52 @@ def create_result(request, department_id, start, end):
                             if '休' not in options:
                                 options.append('休')
                 user.save()
+
+    # 行政職
+    try:
+        user_admin = User.objects.get(type_of_user=2)
+        station_admin = Station.objects.get(department=department, name='行政')
+        shift_admin = Shift.objects.get(department=department, name='行政')
+
+        for user in user_admin:
+            for d in date_list:
+                if reds[str(d)]:
+                    if d.isoweekday() == 7:
+                        PreResult.objects.create(
+                            user=user,
+                            shift=shift_rest0,
+                            date=d,
+                            station=station_rest,
+                        )
+                    else:
+                        PreResult.objects.create(
+                            user=user,
+                            shift=shift_rest1,
+                            date=d,
+                            station=station_rest,
+                        )
+                elif d in official_leave_dict[user.id]:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=shift_official_leave,
+                        date=d,
+                        station=station_official_leave,
+                    )
+                elif str(d) in promise_other_dict[user.id]:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=Shift.objects.get(department=department, name=rest_dict[promise_other_dict[user.id][str(d)]]),
+                        date=d,
+                        station=station_rest,
+                    )
+                else:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=shift_admin,
+                        date=d,
+                        station=station_admin,
+                    )
+    except User.DoesNotExist:
+        pass
 
     return redirect('/' + request.LANGUAGE_CODE + '/results')

@@ -255,7 +255,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
         'full name': row[5],
         'department': Department.objects.get(detail=row[6]),
         'level': role_dict[row[8]],
-        'gender': 'M' if row[9] == '男' else 'F',
+        'gender': 'male' if row[9] == '男' else 'female',
         'role': 'manager' if row[10] == '管理員' else 'user',
         'user type': user_type_dict[row[11]],
         'pregnant': True if row[12] == '妊娠或哺乳期' else False,
