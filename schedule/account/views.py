@@ -255,7 +255,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
         'full name': row[5],
         'department': Department.objects.get(detail=row[6]),
         'level': role_dict[row[8]],
-        'gender': 'M' if row[9] == '男' else 'F',
+        'gender': 'male' if row[9] == '男' else 'female',
         'role': 'manager' if row[10] == '管理員' else 'user',
         'user type': user_type_dict[row[11]],
         'pregnant': True if row[12] == '妊娠或哺乳期' else False,
@@ -327,10 +327,11 @@ def update(request, id=None):
     if choosed_user.is_superuser:
         if not request.user.is_superuser:
             # raise PermissionError("you don't have permission")
-            messages.error(request, "you don't have permission ")
+            messages.error(request, "權限不足")
             return redirect('/accounts/list')
     form = CustomUserChangeForm(request.POST or None, instance=choosed_user)
-    if form.is_valid():
+
+    if request.method == 'POST' and form.is_valid():
         form.save()
         return redirect('/accounts/list')
 
@@ -387,7 +388,7 @@ def departmentCreate(request):
             messages.success(
                 request,
                 f'科別{department.name}新增成功'
-                )
+            )
             notify.send(
                 sender=request.user,
                 recipient=CustomUser.objects.all(),

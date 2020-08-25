@@ -154,7 +154,7 @@ export default {
         valid = false;
         errMsg.push('姓名欄位未填寫');
       }
-      if (100 < this.addPromiseLeave.remark.length) {
+      if (100 < this.addTimeAdjustment.remark.length) {
         valid = false;
         errMsg.push('備註不得超過 100 字');
       }
