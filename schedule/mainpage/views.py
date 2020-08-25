@@ -61,7 +61,8 @@ def index(request):
         'start': start,
         'end': end,
         'results': 'results',
-        'default': start
+        'default': start,
+        'department': request.user.department
     }
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html', context)
