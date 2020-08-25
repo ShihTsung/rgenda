@@ -100,22 +100,32 @@ def show_after_result(request):
 @login_required
 def publish_result(request):
     lang = request.LANGUAGE_CODE
-
+    month = request.GET.get('month')
     now = datetime.datetime.now()
     next_month = now.month + 1
+    year = now.year
     if next_month > 12:
         next_month = 1
-    days_in_month = monthrange(now.year, next_month)[1]
+        year += 1
+    if month:
+        days_in_month = monthrange(now.year, int(month))[1]
+        start = datetime.date(now.year, int(month), 1)
+        end = datetime.date(now.year, int(month), days_in_month)
 
-    start = datetime.date(now.year, next_month, 1)
-    end = datetime.date(now.year, next_month, days_in_month)
+    else:
+        days_in_month = monthrange(year, int(month))[1]
+        start = datetime.date(year, next_month, 1)
+        end = datetime.date(year, next_month, days_in_month)
+
     results = PreResult.objects.filter(date__range=[start, end])
     remarks = PreResultRemark.objects.all()
+
+
     if results:
         notify.send(
             request.user,
             recipient=User.objects.filter(role="user"),
-            verb='班表發佈了！')
+            verb='下個月班表發佈了！')
     for result in results:
         if result.shift.department == request.user.department:
             new_result = Result.objects.create(
@@ -564,8 +574,11 @@ def create_result(request, department_id, start, end):
     :param end:
     :return:
     """
-    # testing data
-    department = Department.objects.get(id=department_id)
+    try:
+        department = Department.objects.get(id=department_id)
+    except Department.DoesNotExist:
+        print('DEPARTMENT NOT EXIST')
+        return redirect('/' + request.LANGUAGE_CODE + '/results')
     try:
         date_start = str_to_date(start)
         date_end = str_to_date(end)
@@ -1049,8 +1062,7 @@ def create_result(request, department_id, start, end):
                             # 增加公假Result
                             if d in user_pool[user_id]['official_leave']:
                                 output[user_id][str(d)] = '工'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=shift_official_leave,
                                     date=d,
@@ -1059,8 +1071,7 @@ def create_result(request, department_id, start, end):
                             # 增加上班Result
                             elif output[user_id][str(d)] == 1:
                                 output[user_id][str(d)] = '工'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=shift,
                                     date=d,
@@ -1069,8 +1080,7 @@ def create_result(request, department_id, start, end):
                             # 增加特殊假Result
                             elif d in user_pool[user_id]['promise_other']:
                                 output[user_id][str(d)] = '特'
-                                # PreResult.objects.create(
-                                Result.objects.create(
+                                PreResult.objects.create(
                                     user=user,
                                     shift=Shift.objects.get(department=department, name=rest_dict[promise_other_dict[user_id][str(d)]]),
                                     date=d,
@@ -1084,8 +1094,7 @@ def create_result(request, department_id, start, end):
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
-                                    # PreResult.objects.create(
-                                    Result.objects.create(
+                                    PreResult.objects.create(
                                         user=user,
                                         shift=shift_rest0,
                                         date=d,
@@ -1094,8 +1103,7 @@ def create_result(request, department_id, start, end):
                                 else:
                                     options.pop(0)
                                     output[user_id][str(d)] = '休'
-                                    # PreResult.objects.create(
-                                    Result.objects.create(
+                                    PreResult.objects.create(
                                         user=user,
                                         shift=shift_rest1,
                                         date=d,
