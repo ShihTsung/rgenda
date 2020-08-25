@@ -192,8 +192,8 @@ MESSAGE_TAGS = {
 # email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'circlepen1252@gmail.com'
-EMAIL_HOST_PASSWORD = 'godhand810699'
+EMAIL_HOST_USER = 'service@redfalcon-hpc.com'
+EMAIL_HOST_PASSWORD = 'qzvlwieykdwwyjfzg'
 EMAIL_USE_TLS = 'True'
 EMAIL_POST = '587'
 
