@@ -535,7 +535,7 @@ class GetPromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift_type', 'hours', 'remark')
 
 # 保證假/班
 
@@ -544,7 +544,7 @@ class PromiseShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PromiseShift
-        fields = ('id', 'user', 'date', 'shift_type')
+        fields = ('id', 'user', 'date', 'shift_type', 'hours', 'remark')
 
 
 class TimeAdjustmentSerializer(serializers.ModelSerializer):

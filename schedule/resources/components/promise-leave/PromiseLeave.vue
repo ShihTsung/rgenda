@@ -3,12 +3,12 @@
   <div class="row mb-2">
     <div class="col-12">
       <div class="float-right">
-        <!-- 出缺勤補登 -->
-        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="出缺勤補登" data-toggle="modal" data-target="#modalAddTimeAdjustment">
+        <!-- 新增假勤 -->
+        <div class="btn icon-bts m-0" data-tooltip="tooltip" title="新增假勤" data-toggle="modal" data-target="#modalAddPromiseLeave">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
         </div>
-        <!-- \出缺勤補登 -->
+        <!-- \新增假勤 -->
       </div>
     </div>
   </div>
@@ -59,34 +59,23 @@
                   v-model="selectedType">
                   <label class="form-check-label" for="rdo_type_all">全選</label>
                 </div>
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getAllTimeAdjustmentTypeText()"
-                :key="['type', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="selectedType"
-                  :id="['rdo_type', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group" v-if="isSelectSingleType">
-              <label class="font-weight-bold">項目</label>
-              <div class="form-group">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_item_all" value="all"
-                  v-model="selectedItem">
-                  <label class="form-check-label" for="rdo_item_all">全選</label>
+                  id="rdo_type_3" :value="getLeaveValut('ITEM_OFFICIAL_LEAVE')"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_3">預排公假</label>
                 </div>
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in itemList"
-                :key="['item', idx, item.id].join('_')">
+                <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  v-model="selectedItem"
-                  :id="['rdo_item', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['rdo_item', idx, item.id].join('_')">{{ item.text }}</label>
+                  id="rdo_type_7" :value="getLeaveValut('ITEM_ANNUAL_LEAVE')"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_7">預排特休</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio"
+                  id="rdo_type_others" value="others"
+                  v-model="selectedType">
+                  <label class="form-check-label" for="rdo_type_others">預排其他假別</label>
                 </div>
               </div>
             </div>
@@ -140,13 +129,13 @@
     <!-- \users table -->
   </div>
 
-  <modal-add-time-adjustment v-if="suggestions.length > 0"
+  <modal-add-promise-leave v-if="suggestions.length > 0"
     :suggestions="suggestions"
-    :csrf-token="csrfToken"></modal-add-time-adjustment>
+    :csrf-token="csrfToken"></modal-add-promise-leave>
 
-  <modal-delete-time-adjustment v-if="deleteItems.length > 0"
+  <modal-delete-promise-leave v-if="deleteItems.length > 0"
     :delete-items="deleteItems"
-    :csrf-token="csrfToken"></modal-delete-time-adjustment>
+    :csrf-token="csrfToken"></modal-delete-promise-leave>
 </div>
 </template>
 
@@ -161,16 +150,16 @@ import { VueGoodTable } from 'vue-good-table';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import Autocomplete from 'components/partial/Autocomplete.vue';
-import ModalAddTimeAdjustment from './ModalAddTimeAdjustment.vue';
-import ModalDeleteTimeAdjustment from './ModalDeleteTimeAdjustment.vue';
+import ModalAddPromiseLeave from './ModalAddPromiseLeave.vue';
+import ModalDeletePromiseLeave from './ModalDeletePromiseLeave.vue';
 
 export default {
   components: {
     VueGoodTable,
     DatePicker,
     Autocomplete,
-    ModalAddTimeAdjustment,
-    ModalDeleteTimeAdjustment,
+    ModalAddPromiseLeave,
+    ModalDeletePromiseLeave,
   },
   props: {
     csrfToken: {
@@ -184,7 +173,6 @@ export default {
       startDate: moment().toDate(), // Must be Date Object
       endDate: moment().toDate(), // Must be Date Object,
       selectedType: 'all',
-      selectedItem: 'all',
       selection: {
         id: 0,
         text: '',
@@ -199,17 +187,12 @@ export default {
         },
         {
           label: '類別',
-          field: 'adjustmentType',
+          field: 'shiftType',
           sortable: false,
         },
         {
           label: '日期',
           field: 'date',
-        },
-        {
-          label: '項目',
-          field: 'adjustmentItem',
-          sortable: false,
         },
         {
           label: '時數',
@@ -272,7 +255,7 @@ export default {
         };
       });
     },
-    $_timeAdjustment_query_validate() {
+    $_promiseLeave_query_validate() {
       let errMsg = [];
       let valid = true;
       if (null === this.startDate) {
@@ -295,7 +278,7 @@ export default {
       let self = this;
       self.deleteItems = [];
 
-      let [bool, errMsg] = this.$_timeAdjustment_query_validate();
+      let [bool, errMsg] = this.$_promiseLeave_query_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -309,29 +292,41 @@ export default {
         end: moment(self.endDate).format('YYYY-MM-DD'),
         uid: self.selection.id,
       };
-      if (0 <= Number(self.selectedType)) {
-        params.type = self.selectedType;
-      }
-      if (0 <= Number(self.selectedItem)) {
-        params.item = self.selectedItem;
+      if ('all' !== self.selectedType) {
+        params.shift_type = 'others';
+        if (0 <= Number(self.selectedType)) {
+          params.shift_type = self.selectedType;
+        }
       }
       let queryString = Object.keys(params).map((key) => {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
       }).join('&');
 
-      let url = `/api/time-adjustment/?${queryString}`;
+      if (showWarningPopup) {
+        popup.loading({
+          title: '處理中...',
+        });
+      }
+
+      let url = `/api/promises/?${queryString}`;
       self.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            self.rows = self.$_timeAdjustment_query_result_transformer(data);
+            self.rows = self.$_promiseLeave_query_result_transformer(data);
             self.loaded = true;
+            if (showWarningPopup) {
+              popup.success({
+                title: '查詢假勤記錄',
+                html: '請求成功',
+              });
+            }
           } else {
             self.rows = [];
             self.loaded = false;
             if (showWarningPopup) {
               popup.info({
-                title: '查詢出缺勤補登記錄',
+                title: '查詢假勤記錄',
                 html: '查無資料',
               });
             }
@@ -346,51 +341,35 @@ export default {
           console.log(error);
         });
     },
-    $_timeAdjustment_query_result_transformer(data) {
+    $_promiseLeave_query_result_transformer(data) {
       let self = this;
       return data.map(function(obj) {
         return {
           id: obj.id,
-          adjustmentType: self.$getTimeAdjustmentTypeText(obj.adjustment_type),
+          shiftType: self.$getPromiseLeaveItemText(obj.shift_type),
           date: obj.date,
-          adjustmentItem: self.$getTimeAdjustmentItemText(obj.adjustment_type, obj.adjustment_item),
           hours: obj.hours,
           fullName: self.selection.text,
           remark: nl2br(obj.remark),
-          // remark: obj.remark,
         };
       });
     },
     confirmDelete() {
       if (0 < this.deleteItems.length) {
-        $('#modalDeleteTimeAdjustment').modal('show');
+        $('#modalDeletePromiseLeave').modal('show');
       }
     },
     cancelDelete() {
       this.deleteItems = [];
     },
+    getLeaveValut(key) {
+      return this.$getPromiseLeaveItemValue(key);
+    }
   },
   mounted() {
     this.getUsers();
   },
-  watch: {
-    selectedType: function(value, oldValue) {
-      if ('all' === value) {
-        this.selectedItem = 'all';
-      } else {
-        if (oldValue !== value) {
-          this.selectedItem = 'all';
-        }
-      }
-    },
-  },
   computed: {
-    isSelectSingleType() {
-      return this.selectedType !== 'all';
-    },
-    itemList() {
-      return this.$getTimeAdjustmentItemsByTypeKey(Number(this.selectedType));
-    },
     isReadyDelete() {
       return 0 < this.deleteItems.length;
     },
