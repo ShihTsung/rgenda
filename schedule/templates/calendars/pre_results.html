@@ -531,7 +531,7 @@
 
       getPreResults(month, year) {
         this.isReady = false;
-        this.url = "http://localhost/api/preresults/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
+        this.url = "/api/preresults/?start=" + year.toString() + "-" + month.toString() + "-" + "01"
                    + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString();
 
 
@@ -554,7 +554,7 @@
 
       getAdjustment(m, y) {
         let url = "";
-        url = "http://localhost/api/time-adjustment/?start=" + y.toString() + "-" + m.toString() + "-" + "01"
+        url = "/api/time-adjustment/?start=" + y.toString() + "-" + m.toString() + "-" + "01"
                    + "&end=" + y.toString() + "-" + m.toString() + "-" + this.getYear(y, m).toString();
         fetch(url)
         .then(res=>{
@@ -969,7 +969,7 @@
             data.station = i.station;
           };
 
-          this.url = "http://localhost/api/preresults/" + i.id + '/';
+          this.url = "/api/preresults/" + i.id + '/';
 
           fetch(this.url, {
             headers:{
@@ -997,7 +997,7 @@
 
           //remarkData有資料
           if(check) {
-            fetch('http://localhost/api/user-remarks/' + check.id + '/',{
+            fetch('/api/user-remarks/' + check.id + '/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1011,7 +1011,7 @@
               console.log(err);
             });
           }else {//remarkData沒資料
-            fetch('http://localhost/api/user-remarks/',{
+            fetch('/api/user-remarks/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1036,7 +1036,7 @@
           console.log('check');
           console.log(item);
           if(check) {
-            fetch('http://localhost/api/remark-squares/' + check.id + '/',{
+            fetch('/api/remark-squares/' + check.id + '/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1050,7 +1050,7 @@
               console.log(err);
             });
           }else {
-            fetch('http://localhost/api/remark-squares/',{
+            fetch('/api/remark-squares/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1073,7 +1073,7 @@
 
 
           if(check) {
-            fetch('http://localhost/api/preresult-remarks/' + check.id + '/',{
+            fetch('/api/preresult-remarks/' + check.id + '/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1087,7 +1087,7 @@
               console.log(err);
             });
           }else {
-            fetch('http://localhost/api/preresult-remarks/',{
+            fetch('/api/preresult-remarks/',{
               headers:{
                   'X-CSRFToken': '{{ csrf_token }}',
                   'content-type': 'application/json'
@@ -1144,7 +1144,7 @@
         let url = '';
         this.followEdit = false;
 
-        url = 'http://localhost/api/follow-shift?start=' + this.startDate + '&end=' + this.endDate + '&follower=' + this.follower.toString() + '&mentor=' + this.mentor.toString();
+        url = '/api/follow-shift?start=' + this.startDate + '&end=' + this.endDate + '&follower=' + this.follower.toString() + '&mentor=' + this.mentor.toString();
 
 
         fetch(url)
@@ -1429,7 +1429,7 @@
       },
 
       dataToResult(month) {
-        window.location = 'http://localhost/zh-hant/results/publish?month=' + month;
+        window.location = '/zh-hant/results/publish?month=' + month;
       }
     }
 
