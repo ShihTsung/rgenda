@@ -1161,6 +1161,7 @@
         this.endDate = '';
 
         location.reload();
+
       },
 
       // 當月該使用者是否有備註
@@ -1419,11 +1420,11 @@
           case 2://行政職
             return 'administrative';
           case 3://新進人員
-            return 'new';
+            return 'new-in';
           case 4://兼職
             return 'administrative';
           case 5://實習生
-            return 'new';
+            return 'new-in';
         }
       },
 
@@ -1834,8 +1835,8 @@
       background: #eaeaea;
     }
     /* 實習生 新進人員 */
-    .new {
-      border-color: #84B1ED;
+    .new-in {
+      border: 1px solid #84B1ED;
     }
     .checkWithoutProblem {
       width: 27vw;
