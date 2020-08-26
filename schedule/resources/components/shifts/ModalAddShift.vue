@@ -25,7 +25,7 @@
                   v-model="addShift.department"
                   :id="['add_rdo_department', idx, item.id].join('_')"
                   :value="item.id">
-                  <label class="form-check-label" :for="['add_rdo_department', idx, item.id].join('_')">{{ item.detail }}</label>
+                  <label class="form-check-label" :for="['add_rdo_department', idx, item.id].join('_')">{{ item.name }}</label>
                 </div>
               </div>
             </div>

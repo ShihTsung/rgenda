@@ -166,7 +166,7 @@ export default {
       }).map(function (obj) {
         return {
           id: obj.id,
-          department: obj.department.detail,
+          department: obj.department.name,
           departmentId: obj.department.id,
           name: obj.name,
           shiftType: self.$getShiftTypeText(obj.shift_type),
