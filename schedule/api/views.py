@@ -377,12 +377,18 @@ class StationViewSet(viewsets.ModelViewSet):
         return StationSerializer
 
     def get_queryset(self):
+        queryset = Station.objects.all()
+        department = self.request.query_params.get('department')
+        if department:
+            queryset = queryset.filter(department=department)
         user = self.request.user
         if user.role == 'admin':
-            return Station.objects.all()
+            queryset = queryset
         else:
-            return Station.objects.filter(
-                department=user.department)
+            queryset = queryset.filter(
+                department=user.department
+            )
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='刪除工作站',
