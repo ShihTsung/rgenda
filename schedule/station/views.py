@@ -62,5 +62,5 @@ def station_delete(request, id=None):
 
 
 def get_stations(department):
-    stations = Station.objects.filter(department=department)
+    stations = Station.objects.filter(department=department).exclude(name__in=['休假', '公假', '行政'])
     return stations

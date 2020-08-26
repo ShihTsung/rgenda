@@ -10,21 +10,18 @@ from result.models import Result, PreResult
 from account.views import cycle_analysis, get_cycle, assign_user
 
 
-def check_result(d_id, month_to_check=None):
+def check_result(d_id, month_to_check):
     """
     """
     invalid = defaultdict(list)
-    # demand_unsatisfied = defaultdict()
-    if month_to_check:
-        results = Result.objects.filter(
-            date__month=month_to_check).order_by('date')
-    else:
-        results = PreResult.objects.order_by('date')
+    department = Department.objects.get(id=d_id)
+    try:
+        results = Result.objects.filter(date__month=month_to_check, station__department=department).order_by('date')
+    except Result.DoesNotExist:
+        return []
     to_check = defaultdict(list)
     for result in results:
-        # print('check_result', type(result))
         to_check[result.user.id].append(result)
-    department = Department.objects.get(id=d_id)
     for user_id, schedule in to_check.items():
         check_cycle(department, deepcopy(schedule), invalid)
         check_rest_day(department, deepcopy(schedule), invalid)
@@ -39,21 +36,18 @@ def check_result(d_id, month_to_check=None):
     return output
 
 
-def check_pre_result(d_id, month_to_check=None):
+def check_pre_result(d_id, month_to_check):
     """
     """
     invalid = defaultdict(list)
-    # demand_unsatisfied = defaultdict()
-    if month_to_check:
-        results = PreResult.objects.filter(
-            date__month=month_to_check).order_by('date')
-    else:
-        results = PreResult.objects.order_by('date')
+    department = Department.objects.get(id=d_id)
+    try:
+        results = PreResult.objects.filter(date__month=month_to_check, station__department=department).order_by('date')
+    except PreResult.DoesNotExist:
+        return []
     to_check = defaultdict(list)
     for result in results:
-        # print('check_result', type(result))
         to_check[result.user.id].append(result)
-    department = Department.objects.get(id=d_id)
     for user_id, schedule in to_check.items():
         check_cycle(department, deepcopy(schedule), invalid)
         check_rest_day(department, deepcopy(schedule), invalid)
@@ -156,7 +150,7 @@ def check_rest_day(department, results, invalid):
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
     ca = cycle_analysis(department, date0)
-    ind = ca['day_no']
+    ind = ii = ca['day_no']
     # add previous results to make a complete cycle
     for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
         if d < date0:
@@ -182,7 +176,7 @@ def check_rest_day(department, results, invalid):
         (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
     work_days = 0
     for result in results:
-        if ind % (5 * 2 ** department.law_rule) == 0:
+        if ind % (7 * 2 ** department.law_rule) == 0:
             work_days_limit = 5 * 2 ** department.law_rule
             work_days = 0
         if H_Calendar.objects.filter(date=result.date).first().attribute == 'holiday':

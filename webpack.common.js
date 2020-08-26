@@ -33,7 +33,6 @@ module.exports = {
     },
     extensions: ['.js', '.vue', '.json', '.css']
   },
-  watch: true,
   module: {
     rules: [
       {
