@@ -141,7 +141,7 @@ export default {
         errMsg.push('日期欄位格式錯誤');
       }
       this.addPromiseLeave.hours = Number(this.addPromiseLeave.hours);
-      if (0 >= Number(this.addPromiseLeave.hours)) {
+      if (0 >= this.addPromiseLeave.hours) {
         valid = false;
         errMsg.push('時數欄位值不能小於 0 ');
       }
@@ -183,7 +183,7 @@ export default {
       let params = {
         user: self.addPromiseLeave.selection.id,
         date: moment(self.addPromiseLeave.startDate).format('YYYY-MM-DD'),
-        hours: Number(self.addPromiseLeave.hours),
+        hours: self.addPromiseLeave.hours,
         shift_type: self.selectedItem,
         remark: self.addPromiseLeave.remark,
       };

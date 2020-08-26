@@ -176,7 +176,7 @@ export default {
         return {
           id: obj.id,
           username: obj.username,
-          department: obj.department.detail,
+          department: obj.department.name,
           eid: obj.eid,
           fullName: obj.full_name,
           level: obj.level,
