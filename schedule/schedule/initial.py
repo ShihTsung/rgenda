@@ -49,7 +49,7 @@ def initial(request):
         law_rule=1,
         schedule_rule=1,
     )
-    for i in range(4):
+    for i in range(len(names)):
         shift = Shift.objects.create(
             name=names[i],
             shift_type=types[i],
@@ -156,22 +156,22 @@ def initial(request):
         station=Station.objects.get(name='護理站'),
         shift=Shift.objects.get(name='D'),
         level=1,
-        config1=4,
-        config2=3,
+        config1=7,
+        config2=4,
     )
     demand1 = DemandOfStation.objects.create(
         station=Station.objects.get(name='護理站'),
         shift=Shift.objects.get(name='D'),
         level=2,
-        config1=3,
+        config1=4,
         config2=2,
     )
     demand2 = DemandOfStation.objects.create(
         station=Station.objects.get(name='護理站'),
         shift=Shift.objects.get(name='E'),
         level=1,
-        config1=2,
-        config2=1,
+        config1=5,
+        config2=3,
     )
     demand3 = DemandOfStation.objects.create(
         station=Station.objects.get(name='護理站'),
