@@ -119,7 +119,7 @@
                       [[u.full_name]]
                     </td>
                     <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
-                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col pastDay"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[whichBorder(userShift.id)]">
+                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, whichBorder(userShift.id)]">
                       <div class="forbidden-mark" v-if="isChecked && (checkResults(userShift.id) == 1)" @mouseenter="checkText(userShift.id, $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(userShift.id)}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"/></svg>
                       </div>
@@ -528,11 +528,17 @@
           this.monthString = month.toString();
         }
 
-        if((parseInt(d.date.split('-')[0]) < year)||(parseInt(d.date.split('-')[1]) < month)||(parseInt(d.date.split('-')[2]) < date)){
+        if((parseInt(d.date.split('-')[1]) < month) && (parseInt(d.date.split('-')[0]) <= year)) {
           return true;
+        }else if((parseInt(d.date.split('-')[1]) == month) && (parseInt(d.date.split('-')[0]) <= year)) {
+          if((parseInt(d.date.split('-')[2]) < date)) {
+            return true;
+          }else {
+            return false
+          };
         }else {
           return false;
-        }
+        };
       },
 
       isAdjust(id, time) {

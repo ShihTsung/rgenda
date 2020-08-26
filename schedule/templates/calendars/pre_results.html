@@ -219,7 +219,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs1"></div>
-                    <input type="text" id="1remarkSquare" class="mark-explanation" v-if="edit" placeholder="請填寫標誌說明" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
+                    <input type="text" id="1remarkSquare" class="mark-explanation" v-if="edit" :placeholder="remarkContent(1)" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(1)]]
                     </div>
@@ -238,7 +238,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs2"></div>
-                    <input type="text" id="2remarkSquare" class="mark-explanation" v-if="edit" placeholder="請填寫標誌說明" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
+                    <input type="text" id="2remarkSquare" class="mark-explanation" v-if="edit" :placeholder="remarkContent(2)" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(2)]]
                     </div>
@@ -257,7 +257,7 @@
                   <td class="pastDay"></td>
                   <td colspan="12">
                     <div class="mark rs3"></div>
-                    <input type="text" id="3remarkSquare" class="mark-explanation" v-if="edit" placeholder="請填寫標誌說明" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
+                    <input type="text" id="3remarkSquare" class="mark-explanation" v-if="edit" :placeholder="remarkContent(3)" @blur="getRemarkS($event)" @keyup.13="$event.target.blur" />
                     <div style="float: left;" v-if="!edit && (remarkSquareData.length != 0)">
                       [[getRemarkSquare(3)]]
                     </div>
@@ -369,8 +369,16 @@
           等候中...
         </h3>
       </div>
-    <div class="check-info" v-if="checkTextShow" :style="{left: x, top: y, background: modifyColor}">
+      <div class="check-info" v-if="checkTextShow" :style="{left: x, top: y, background: modifyColor}">
         [[text]]
+      </div>
+      <div class="checkWait" v-if="!isChecked && isAnnounce">
+        <div @click="isAnnounce = false" class='cross'>
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
+        </div>
+        <h3 class="c-title">
+          請先按檢核再發布
+        </h3>
       </div>
     </div>
   </div>
@@ -430,7 +438,8 @@
       x: '',
       y: '',
       modifyColor: 'red',
-      forCheckZero: false
+      forCheckZero: false,
+      isAnnounce: false
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -588,13 +597,19 @@
           this.monthString = '0' + month.toString();
         }else {
           this.monthString = month.toString();
-        }
+        };
 
-        if((parseInt(d.date.split('-')[0]) < year)||(parseInt(d.date.split('-')[1]) < month)||(parseInt(d.date.split('-')[2]) < date)){
+        if((parseInt(d.date.split('-')[1]) < month) && (parseInt(d.date.split('-')[0]) <= year)) {
           return true;
+        }else if((parseInt(d.date.split('-')[1]) == month) && (parseInt(d.date.split('-')[0]) <= year)) {
+          if((parseInt(d.date.split('-')[2]) < date)) {
+            return true;
+          }else {
+            return false
+          };
         }else {
           return false;
-        }
+        };
       },
 
       isAdjust(id, time) {
@@ -1429,9 +1444,33 @@
       },
 
       dataToResult(month) {
+        this.isAnnounce = true;
         if(this.isChecked == true){
           window.location = '/results/publish?month=' + month;
         };
+      },
+
+      remarkContent(index) {
+        switch(index) {
+          case 1:
+            if(this.getRemarkSquare(1)) {
+              return this.getRemarkSquare(1);
+            }else {
+              return '請填寫標誌說明';
+            };
+          case 2:
+            if(this.getRemarkSquare(2)) {
+              return this.getRemarkSquare(2);
+            }else {
+              return '請填寫標誌說明';
+            };
+          case 3:
+            if(this.getRemarkSquare(3)) {
+              return this.getRemarkSquare(3);
+            }else {
+              return '請填寫標誌說明';
+            };
+        }
       }
     }
 
