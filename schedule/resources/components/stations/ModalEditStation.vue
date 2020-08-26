@@ -56,13 +56,8 @@ import popup from 'common/popup';
 import {
   httpRep
 } from 'common/helpers';
-import VueTimepicker from 'vue2-timepicker'
-import 'vue2-timepicker/dist/VueTimepicker.css'
 
 export default {
-  components: {
-    VueTimepicker,
-  },
   props: {
     csrfToken: {
       type: String,
@@ -86,7 +81,7 @@ export default {
     };
   },
   methods: {
-    $_shifts_update_validate() {
+    $_station_update_validate() {
       let errMsg = [];
       let valid = true;
       if (1 > this.editStation.name.length) {
@@ -98,7 +93,7 @@ export default {
     },
     store() {
       let self = this;
-      let [bool, errMsg] = this.$_shifts_update_validate();
+      let [bool, errMsg] = this.$_station_update_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',

@@ -61,13 +61,13 @@
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_type_3" :value="getLeaveValut('ITEM_OFFICIAL_LEAVE')"
+                  id="rdo_type_3" :value="getLeaveValue('ITEM_OFFICIAL_LEAVE')"
                   v-model="selectedType">
                   <label class="form-check-label" for="rdo_type_3">預排公假</label>
                 </div>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio"
-                  id="rdo_type_7" :value="getLeaveValut('ITEM_ANNUAL_LEAVE')"
+                  id="rdo_type_7" :value="getLeaveValue('ITEM_ANNUAL_LEAVE')"
                   v-model="selectedType">
                   <label class="form-check-label" for="rdo_type_7">預排特休</label>
                 </div>
@@ -362,7 +362,7 @@ export default {
     cancelDelete() {
       this.deleteItems = [];
     },
-    getLeaveValut(key) {
+    getLeaveValue(key) {
       return this.$getPromiseLeaveItemValue(key);
     }
   },

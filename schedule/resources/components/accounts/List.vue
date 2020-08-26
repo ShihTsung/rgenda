@@ -22,7 +22,7 @@
                 @click="cancelDeletion()"
                 data-dismiss="modal">取消</button>
                 <button id="btn-delete" class="btn btn-rgenda"
-                @click="destory()"
+                @click="destroy()"
                 type="button">刪除</button>
               </div>
             </div>
@@ -54,7 +54,7 @@
           <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
           :href="'/accounts/' + props.row.id"><i class="fas fa-edit"></i></a>
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDelete"
-          @click="comfirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
+          @click="confirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
     </vue-good-table>
@@ -186,13 +186,13 @@ export default {
         };
       });
     },
-    comfirmDeletion(row) {
+    confirmDeletion(row) {
       this.deleteUser = {
         id: row.id,
         fullName: row.fullName,
       };
     },
-    destory() {
+    destroy() {
       let self = this;
 
       $('#modalDelete').modal('hide');

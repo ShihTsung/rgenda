@@ -23,9 +23,9 @@
       <template slot="table-row" slot-scope="props">
         <template v-if="props.column.field == 'actions'">
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
-          @click="comfirmEdit(props.row)"><i class="fas fa-edit"></i></div>
+          @click="confirmEdit(props.row)"><i class="fas fa-edit"></i></div>
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
-          @click="comfirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
+          @click="confirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
     </vue-good-table>
@@ -161,7 +161,7 @@ export default {
     transformer(data) {
       let self = this;
       return data.filter(function (obj) {
-        // 0 白班，1 小夜，2 大夜，4 oncall
+        // 0 白班，1 小夜，2 大夜，4 on-call
         return self.filters.includes(obj.shift_type);
       }).map(function (obj) {
         return {
@@ -200,7 +200,7 @@ export default {
           console.log(error);
         });
     },
-    comfirmDelete(row) {
+    confirmDelete(row) {
       this.deleteShift = {
         id: row.id,
         name: row.name,
@@ -212,7 +212,7 @@ export default {
         name: '',
       };
     },
-    comfirmEdit(row) {
+    confirmEdit(row) {
       this.editShift = {
         id: row.id,
         departmentId: row.departmentId,

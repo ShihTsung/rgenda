@@ -62,7 +62,7 @@
                     <i class="fas fa-edit"></i>
                   </div>
                   <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteDemand"
-                  @click="comfirmDeletion(shift)">
+                  @click="confirmDeletion(shift)">
                     <i class="fa fa-trash-alt"></i></div>
                 </td>
               </tr>
@@ -221,7 +221,7 @@ export default {
 
       return demands;
     },
-    comfirmDeletion(shift) {
+    confirmDeletion(shift) {
       let demandIds = [];
       for (const [key, value] of Object.entries(shift.config)) {
         demandIds.push(value.id)

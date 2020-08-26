@@ -178,7 +178,7 @@ export default {
       let type = this.$getUserTypeValue('VALUE_NORMAL');
       this.$_editDemand_getUsers(type);
     },
-    getSeniorlUsers() {
+    getSeniorUsers() {
       let type = this.$getUserTypeValue('VALUE_SENIOR');
       this.$_editDemand_getUsers(type);
     },
@@ -229,7 +229,7 @@ export default {
 
       return [bool, errMsg];
     },
-    $_editDemand_filterUerIds(userIdArr, userSource) {
+    $_editDemand_filterUserIds(userIdArr, userSource) {
       if (userIdArr.length < 1) {
         return [];
       }
@@ -243,7 +243,7 @@ export default {
 
       return filteredUserIds;
     },
-    $_editDemand_delUerIds(demandId, userIdArr, arrObj) {
+    $_editDemand_delUserIds(demandId, userIdArr, arrObj) {
       let delUserIds = [];
       arrObj.forEach(user => {
         if (!userIdArr.includes(user.id)) {
@@ -253,17 +253,17 @@ export default {
 
       return delUserIds;
     },
-    $_editDemand_addUerIds(demandId, userIdArr, arrObj) {
-      let addUerIds = [];
+    $_editDemand_addUserIds(demandId, userIdArr, arrObj) {
+      let addUserIds = [];
       userIdArr.forEach(id => {
         if (!arrObj.find((user) => {
             return user.id == id;
           })) {
-          addUerIds.push([demandId, id])
+          addUserIds.push([demandId, id])
         }
       });
 
-      return addUerIds;
+      return addUserIds;
     },
     update() {
       let [bool, errMsg] = this.$_editDemand_validate();
@@ -281,21 +281,21 @@ export default {
       let delSeniorUsers = [];
 
       // 過濾掉已轉科別的 user id
-      self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUerIds(
+      self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
         self.normalDemandOfShift.checkedUserIds,
         self.normalStaff,
       )
-      self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUerIds(
+      self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
         self.seniorDemandOfShift.checkedUserIds,
         self.seniorStaff,
       )
 
-      delNormalUsers = self.$_editDemand_delUerIds(
+      delNormalUsers = self.$_editDemand_delUserIds(
         self.normalDemandOfShift.demandId,
         self.normalDemandOfShift.checkedUserIds,
         self.normalDemandOfShift.assignedUsers
       );
-      delSeniorUsers = self.$_editDemand_delUerIds(
+      delSeniorUsers = self.$_editDemand_delUserIds(
         self.seniorDemandOfShift.demandId,
         self.seniorDemandOfShift.checkedUserIds,
         self.seniorDemandOfShift.assignedUsers
@@ -325,12 +325,12 @@ export default {
 
       let addNormalUsers = [];
       let addSeniorUsers = [];
-      addNormalUsers = self.$_editDemand_addUerIds(
+      addNormalUsers = self.$_editDemand_addUserIds(
         self.normalDemandOfShift.demandId,
         self.normalDemandOfShift.checkedUserIds,
         self.normalDemandOfShift.assignedUsers
       );
-      addSeniorUsers = self.$_editDemand_addUerIds(
+      addSeniorUsers = self.$_editDemand_addUserIds(
         self.seniorDemandOfShift.demandId,
         self.seniorDemandOfShift.checkedUserIds,
         self.seniorDemandOfShift.assignedUsers
@@ -461,7 +461,7 @@ export default {
       self.seniorDemandOfShift.assignedUsers = seniorDemand.people;
 
       self.getNormalUsers();
-      self.getSeniorlUsers();
+      self.getSeniorUsers();
     });
   },
 }

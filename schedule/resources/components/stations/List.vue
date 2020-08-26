@@ -23,9 +23,9 @@
       <template slot="table-row" slot-scope="props">
         <template v-if="props.column.field == 'actions'">
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
-          @click="comfirmEdit(props.row)"><i class="fas fa-edit"></i></div>
+          @click="confirmEdit(props.row)"><i class="fas fa-edit"></i></div>
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteStation"
-          @click="comfirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
+          @click="confirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
     </vue-good-table>
@@ -177,7 +177,7 @@ export default {
           console.log(error);
         });
     },
-    comfirmDelete(row) {
+    confirmDelete(row) {
       this.deleteStation = {
         id: row.id,
         name: row.name,
@@ -189,7 +189,7 @@ export default {
         name: '',
       };
     },
-    comfirmEdit(row) {
+    confirmEdit(row) {
       this.editStation = {
         id: row.id,
         departmentId: row.departmentId,
