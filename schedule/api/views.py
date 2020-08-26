@@ -623,12 +623,17 @@ class DemandViewSet(viewsets.ModelViewSet):
         return DemandSerializer
 
     def get_queryset(self):
+        queryset = DemandOfStation.objects.all()
         user = self.request.user
-        if user.role == 'admin':
-            return DemandOfStation.objects.all()
-        else:
+        dep = self.request.query_params.get('department')
+        if not user.role == 'admin':
             stations = Station.objects.filter(department=user.department)
-            return DemandOfStation.objects.filter(station__in=list(stations))
+            queryset = queryset.filter(station__in=list(stations))
+        if dep:
+            dep_obj = Department.objects.get(id=int(dep))
+            stations = Station.objects.filter(department=dep_obj)
+            queryset = queryset.filter(station__in=list(stations))
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='新增Demand',
