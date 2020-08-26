@@ -1429,7 +1429,9 @@
       },
 
       dataToResult(month) {
-        window.location = '/zh-hant/results/publish?month=' + month;
+        if(this.isChecked == true){
+          window.location = '/results/publish?month=' + month;
+        };
       }
     }
 

@@ -409,7 +409,7 @@ def departmentCreate(request):
                 recipient=CustomUser.objects.all(),
                 target=department,
                 level='info',
-                verb=f'{request.user}建立了新的科別')
+                verb=f'{request.user.full_name}建立了新的科別')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)

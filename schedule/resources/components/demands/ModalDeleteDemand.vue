@@ -1,6 +1,6 @@
 <template>
   <!-- modal - del demand -->
-  <div class="modal fade" id="modalDeleteShift" tabindex="-1" role="dialog" aria-hidden="true"
+  <div class="modal fade" id="modalDeleteDemand" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -57,7 +57,7 @@ export default {
     destory() {
       let self = this;
       let demandIds = self.deleteShift.demandIds;
-      $('#modalDeleteShift').modal('hide');
+      $('#modalDeleteDemand').modal('hide');
 
       if (demandIds.length < 1) {
         return;

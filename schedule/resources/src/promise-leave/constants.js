@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const PROMISE_LEAVE_CATEGORY = {
   UNPAID_LEAVE: 0,
   PAID_LEAVE: 1,
@@ -112,7 +110,7 @@ PROMISE_LEAVE_ITEM.install = function (Vue, options) {
 
   Vue.prototype.$getPromiseLeaveItemText = (key) => {
     let leaveItemArr = [...unpaidLeaveItems, ...paidLeaveItems];
-    let obj = _.find(leaveItemArr, function (element) {
+    let obj = leaveItemArr.find(function (element) {
       return element.id == key;
     });
     if (undefined !== obj) {
