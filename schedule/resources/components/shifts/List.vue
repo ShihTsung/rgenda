@@ -236,7 +236,8 @@ export default {
       this.$getShiftTypeValue('VALUE_DAY_SHIFT'),
       this.$getShiftTypeValue('VALUE_NIGHT_SHIFT'),
       this.$getShiftTypeValue('VALUE_GRAVEYARD_SHIFT'),
-      this.$getShiftTypeValue('VALUE_ON_CALL')
+      this.$getShiftTypeValue('VALUE_ON_CALL'),
+      this.$getShiftTypeValue('VALUE_ADN_SHIFT')
     ];
   },
 }
