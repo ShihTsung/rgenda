@@ -17,6 +17,7 @@ module.exports = {
     'exchange-application-audit': './exchange/application-audit.js',
     'promise-leave': './promise-leave/promise-leave.js',
     'time-adjustment': './time-adjustment/time-adjustment.js',
+    'shift-list': './shifts/shift-list.js',
     'rgenda': './rgenda.scss',
   },
   output: {

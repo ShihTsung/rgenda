@@ -12,7 +12,7 @@
         <div class="col-12">
           <div class="float-right">
             <!-- 新增人力配置 -->
-            <a href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置" data-toggle="modal" data-target="#modalAddShift">
+            <a href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增人力配置" data-toggle="modal" data-target="#modalAddDemand">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
             </a>
@@ -60,7 +60,7 @@
                   @click="beforeEditing(shift)">
                     <i class="fas fa-edit"></i>
                   </div>
-                  <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
+                  <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteDemand"
                   @click="comfirmDeletion(shift)">
                     <i class="fa fa-trash-alt"></i></div>
                 </td>
