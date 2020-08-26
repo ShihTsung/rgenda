@@ -12,7 +12,8 @@
   <demand-list
   :user-id="{{ user.id }}"
   username="{{ user.username }}"
-  csrf-token="{{ csrf_token }}"></demand-list>
+  csrf-token="{{ csrf_token }}"
+  :my-department-id="{{ user.department.id }}"></demand-list>
 
   {% for message in messages %}
   <div class="alert {{ message.tags }} alert-dismissible" role="alert">

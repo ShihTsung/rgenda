@@ -58,7 +58,8 @@
               </div>
               <div class="form-group col-md-4">
                 <label for="">小計</label>
-                <input type="text" readonly class="form-control-plaintext" v-model="configSubtotal1">
+                <input type="text" readonly class="form-control-plaintext" disabled
+                v-model="configSubtotal1">
               </div>
             </div>
           </div>
@@ -81,7 +82,8 @@
               </div>
               <div class="form-group col-md-4">
                 <label for="">小計</label>
-                <input type="text" readonly class="form-control-plaintext" v-model="configSubtotal2">
+                <input type="text" readonly class="form-control-plaintext" disabled
+                v-model="configSubtotal2">
               </div>
             </div>
           </div>
@@ -99,7 +101,6 @@
 </template>
 
 <script>
-import _ from 'lodash';
 import popup from 'common/popup';
 import {
   httpRep
@@ -119,8 +120,12 @@ export default {
         shiftId: 0,
         shiftName: '',
         config: {},
-      }
-    }
+      },
+    },
+    myDepartmentId: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -179,7 +184,7 @@ export default {
     },
     $_editDemand_getUsers(type) {
       let self = this;
-      let url = `/api/users/?type=` + type;
+      let url = `/api/users/?type=${type}&department=${this.myDepartmentId}`;
       this.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -224,6 +229,20 @@ export default {
 
       return [bool, errMsg];
     },
+    $_editDemand_filterUerIds(userIdArr, userSource) {
+      if (userIdArr.length < 1) {
+        return [];
+      }
+
+      let filteredUserIds = [];
+      filteredUserIds = userIdArr.filter((id) => {
+        return userSource.find((user) => {
+          return id == user.id
+        });
+      });
+
+      return filteredUserIds;
+    },
     $_editDemand_delUerIds(demandId, userIdArr, arrObj) {
       let delUserIds = [];
       arrObj.forEach(user => {
@@ -237,10 +256,9 @@ export default {
     $_editDemand_addUerIds(demandId, userIdArr, arrObj) {
       let addUerIds = [];
       userIdArr.forEach(id => {
-        if (!_.find(arrObj, function (user) {
+        if (!arrObj.find((user) => {
             return user.id == id;
-          })
-        ) {
+          })) {
           addUerIds.push([demandId, id])
         }
       });
@@ -261,6 +279,17 @@ export default {
       let changed = false;
       let delNormalUsers = [];
       let delSeniorUsers = [];
+
+      // 過濾掉已轉科別的 user id
+      self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUerIds(
+        self.normalDemandOfShift.checkedUserIds,
+        self.normalStaff,
+      )
+      self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUerIds(
+        self.seniorDemandOfShift.checkedUserIds,
+        self.seniorStaff,
+      )
+
       delNormalUsers = self.$_editDemand_delUerIds(
         self.normalDemandOfShift.demandId,
         self.normalDemandOfShift.checkedUserIds,
@@ -271,7 +300,6 @@ export default {
         self.seniorDemandOfShift.checkedUserIds,
         self.seniorDemandOfShift.assignedUsers
       );
-      // console.log([...delNormalUsers, ...delSeniorUsers]);
       let delUserPromiseArr = [...delNormalUsers, ...delSeniorUsers].map(item => {
         changed = true;
         let url = `/api/demand-user/${item[0]}/`;

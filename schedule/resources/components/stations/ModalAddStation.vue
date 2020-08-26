@@ -1,19 +1,19 @@
 <template>
-  <!-- modal - edit shift -->
-  <div class="modal fade" id="modalEditShift" tabindex="-1" role="dialog" aria-hidden="true"
+  <!-- modal - add station -->
+  <div class="modal fade" id="modalAddStation" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header border-bottom-0">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-          @click="cancelEdit()">
+          @click="cancelAddition()">
             <span aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"/></svg>
             </span>
           </button>
         </div>
         <div class="modal-body text-center pt-0">
-          <h3 class="modal-title rgenda-text-dark-blue mb-4">編輯班別</h3>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增班別</h3>
           <div class="container-fluid text-left">
             <div class="form-group">
               <label class="font-weight-bold">科別</label>
@@ -22,28 +22,28 @@
                 v-for="(item, idx) in departmentList"
                 :key="['item', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
-                  v-model="editShift.departmentId"
-                  :id="['edit_rdo_department', idx, item.id].join('_')"
+                  v-model="addStation.department"
+                  :id="['add_rdo_department', idx, item.id].join('_')"
                   :value="item.id">
-                  <label class="form-check-label" :for="['edit_rdo_department', idx, item.id].join('_')">{{ item.name }}</label>
+                  <label class="form-check-label" :for="['add_rdo_department', idx, item.id].join('_')">{{ item.name }}</label>
                 </div>
               </div>
             </div>
             <div class="form-group">
               <label class="font-weight-bold">班別名稱</label>
-              <input type="text" class="form-control" v-model="editShift.name">
+              <input type="text" class="form-control" v-model="addStation.name">
             </div>
             <div class="form-group">
               <label class="font-weight-bold">類型</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getShiftTypeList()"
+                v-for="(item, idx) in $getStationTypeList()"
                 :key="['type', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
-                  v-model="editShift.shiftTypeId"
-                  :id="['edit_rdo_type', idx, item.id].join('_')"
+                  v-model="addStation.shiftType"
+                  :id="['add_rdo_type', idx, item.id].join('_')"
                   :value="item.id">
-                  <label class="form-check-label" :for="['edit_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
+                  <label class="form-check-label" :for="['add_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
                 </div>
               </div>
             </div>
@@ -52,7 +52,7 @@
               <div class="form-group">
                 <vue-timepicker
                 close-on-complete
-                v-model="editShift.startTime"></vue-timepicker>
+                v-model="addStation.startTime"></vue-timepicker>
               </div>
             </div>
             <div class="form-group">
@@ -60,21 +60,21 @@
               <div class="form-group">
                 <vue-timepicker
                 close-on-complete
-                v-model="editShift.endTime"></vue-timepicker>
+                v-model="addStation.endTime"></vue-timepicker>
               </div>
             </div>
             <div class="form-group">
               <label class="font-weight-bold">工時長度</label>
-              <input type="number" class="form-control" v-model="editShift.workHours">
+              <input type="number" class="form-control" v-model="addStation.workHours">
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
                 <button class="btn btn-rgenda" type="button"
-                @click="cancelEdit()"
+                @click="cancelAddition()"
                 data-dismiss="modal">取消</button>
                 <button id="btn-delete" class="btn btn-rgenda"
                 @click="store()"
-                type="button">更新</button>
+                type="button">儲存</button>
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - edit shift -->
+  <!-- \modal - add station -->
 </template>
 
 <script>
@@ -106,17 +106,17 @@ export default {
       type: Array,
       default: [],
     },
-    shiftData: {
-      type: Object,
-      default: {},
+    myDepartmentId: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
     return {
-      editShift: {
-        departmentId: 0,
+      addStation: {
+        department: 0,
         name: '',
-        shiftTypeId: 0,
+        shiftType: 0,
         startTime: '',
         endTime: '',
         workHours: 0,
@@ -124,23 +124,23 @@ export default {
     };
   },
   methods: {
-    $_shifts_update_validate() {
+    $_shifts_store_validate() {
       let errMsg = [];
       let valid = true;
-      if (1 > this.editShift.name.length) {
+      if (1 > this.addStation.name.length) {
         valid = false;
         errMsg.push('班別名稱欄位未填寫');
       }
-      if (1 > this.editShift.startTime.length) {
+      if (1 > this.addStation.startTime.length) {
         valid = false;
         errMsg.push('開始時間欄位格式錯誤');
       }
-      if (1 > this.editShift.endTime.length) {
+      if (1 > this.addStation.endTime.length) {
         valid = false;
         errMsg.push('結束時間欄位格式錯誤');
       }
-      this.editShift.workHours = Number(this.editShift.workHours);
-      if (0 > this.editShift.workHours) {
+      this.addStation.workHours = Number(this.addStation.workHours);
+      if (0 > this.addStation.workHours) {
         valid = false;
         errMsg.push('工時長度欄位值不能小於 0');
       }
@@ -149,7 +149,7 @@ export default {
     },
     store() {
       let self = this;
-      let [bool, errMsg] = this.$_shifts_update_validate();
+      let [bool, errMsg] = this.$_shifts_store_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -158,13 +158,13 @@ export default {
         return false;
       }
 
-      $('#modalEditShift').modal('hide');
+      $('#modalAddStation').modal('hide');
 
       popup.loading({
         title: '處理中...',
       });
 
-      let url = `/api/shifts/${self.editShift.id}/`;
+      let url = `/api/stations/`;
       const formConfig = {
         headers: {
           'X-CSRFToken': `${self.csrfToken}`
@@ -172,21 +172,21 @@ export default {
       };
 
       let params = {
-        name: self.editShift.name,
-        shift_type: self.editShift.shiftTypeId,
-        start_time: self.editShift.startTime,
-        end_time: self.editShift.endTime,
-        department: self.editShift.departmentId,
-        work_hours: Number(self.editShift.workHours),
+        name: self.addStation.name,
+        shift_type: self.addStation.shiftType,
+        start_time: self.addStation.startTime,
+        end_time: self.addStation.endTime,
+        department: self.addStation.department,
+        work_hours: Number(self.addStation.workHours),
       };
-      self.$httpClient.put(url, params, formConfig)
+      self.$httpClient.post(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: '編輯班別',
+            title: '新增班別',
             text: '請求成功',
           }, function () {
-            self.cancelEdit();
-            self.$parent.getShifts();
+            self.cancelAddition();
+            self.$parent.getStations();
           });
         })
         .catch(function (error) {
@@ -198,14 +198,16 @@ export default {
           console.log(error);
         });
     },
-    cancelEdit() {
+    cancelAddition() {
       Object.assign(this.$data, this.$options.data.apply(this));
+      this.defaultDepartment();
     },
+    defaultDepartment() {
+      this.addStation.department = this.myDepartmentId;
+    }
   },
-  watch: {
-    shiftData: function () {
-      Object.assign(this.editShift, this.shiftData);
-    },
+  mounted() {
+    this.defaultDepartment();
   },
 }
 </script>

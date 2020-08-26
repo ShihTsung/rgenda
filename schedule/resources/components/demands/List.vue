@@ -5,7 +5,8 @@
     :delete-shift="deleteShift"></modal-delete-demand>
 
     <modal-add-demand
-    :csrf-token="csrfToken"></modal-add-demand>
+    :csrf-token="csrfToken"
+    :my-department-id="myDepartmentId"></modal-add-demand>
 
     <div v-if="!editing">
       <div class="row mb-2">
@@ -78,7 +79,8 @@
     <div v-else>
       <edit-demand
       :csrf-token="csrfToken"
-      :edit-shift="editShift"></edit-demand>
+      :edit-shift="editShift"
+      :my-department-id="myDepartmentId"></edit-demand>
     </div>
   </div>
 </template>
@@ -110,6 +112,10 @@ export default {
     csrfToken: {
       type: String,
       default: '',
+    },
+    myDepartmentId: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
@@ -147,7 +153,7 @@ export default {
     },
     getDemands() {
       let self = this;
-      let url = `/api/demands/`;
+      let url = `/api/demands/?department=${this.myDepartmentId}`;
       this.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;

@@ -1,5 +1,5 @@
 <template>
-  <!-- modal - add promise leave -->
+  <!-- modal - add shift -->
   <div class="modal fade" id="modalAddShift" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
@@ -82,7 +82,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - add promise leave -->
+  <!-- \modal - add shift -->
 </template>
 
 <script>
