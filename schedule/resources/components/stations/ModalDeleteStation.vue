@@ -1,6 +1,6 @@
 <template>
-  <!-- modal - del shift -->
-  <div class="modal fade" id="modalDeleteShift" tabindex="-1" role="dialog" aria-hidden="true"
+  <!-- modal - del station -->
+  <div class="modal fade" id="modalDeleteStation" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -14,7 +14,7 @@
         </div>
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
-          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要刪除 班別-{{ deleteShift.name }} 嗎？</p>
+          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要刪除 工作站-{{ deleteStation.name }} 嗎？</p>
           <div class="row">
             <div class="col mb-2">
               <button class="btn btn-rgenda" type="button"
@@ -29,7 +29,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - del shift -->
+  <!-- \modal - del station -->
 </template>
 
 <script>
@@ -44,7 +44,7 @@ export default {
       type: String,
       default: '',
     },
-    deleteShift: {
+    deleteStation: {
       type: Object,
       default: {},
     }
@@ -52,9 +52,9 @@ export default {
   methods: {
     destroy() {
       let self = this;
-      $('#modalDeleteShift').modal('hide');
+      $('#modalDeleteStation').modal('hide');
 
-      if (self.deleteShift.length < 1) {
+      if (self.deleteStation.length < 1) {
         return;
       }
 
@@ -62,7 +62,7 @@ export default {
         title: '處理中...',
       });
 
-      let url = `/api/shifts/${self.deleteShift.id}/`;
+      let url = `/api/stations/${self.deleteStation.id}/`;
       const formConfig = {
         headers: {
           'X-CSRFToken': `${self.csrfToken}`
@@ -71,12 +71,12 @@ export default {
       self.$httpClient.delete(url, formConfig)
         .then(function (response) {
           popup.success({
-            title: '刪除班別',
+            title: '刪除工作站',
             text: '請求成功',
           }, function () {
             self.cancelDelete();
             // refresh query result
-            self.$parent.getShifts(false);
+            self.$parent.getStations(false);
           });
         })
         .catch(function (error) {

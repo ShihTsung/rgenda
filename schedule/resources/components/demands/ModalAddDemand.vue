@@ -67,6 +67,10 @@ export default {
       type: String,
       default: '',
     },
+    myDepartmentId: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -83,7 +87,7 @@ export default {
   methods: {
     getStations() {
       let self = this;
-      let url = `/api/stations/`;
+      let url = `/api/stations/?department=${this.myDepartmentId}`;
       this.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -106,7 +110,7 @@ export default {
     },
     getShifts() {
       let self = this;
-      let url = `/api/shifts/`;
+      let url = `/api/shifts/?department=${this.myDepartmentId}`;
       this.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
