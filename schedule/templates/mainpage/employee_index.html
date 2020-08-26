@@ -364,7 +364,7 @@
           data.forEach(e => {
             if (e.user === user.id) {
               e.title = (e.adjustment_type === 0 ? '+' : '-') + e.hours;
-              e.sort = 1;
+              e.sort = 2;
               e.resourceId = e.user;
               e.className = 'adjust-hours';
               e.backgroundColor = adjustColor[e.adjustment_type];
