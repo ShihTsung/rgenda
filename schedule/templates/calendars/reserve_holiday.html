@@ -66,6 +66,7 @@
 
 <!-- 自訂 scripts -->
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -157,7 +158,8 @@
                 submitButton: {
                     text: '  submit  ',
                     click: function () {
-                        window.location = "/";
+                      $.cookie("sideClicked", null, { path: '/', expires: 0 });
+                      window.location = "/";
                     }
                 }
             },
