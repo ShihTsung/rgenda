@@ -257,9 +257,8 @@
           x = document.createElement('div');
           x.innerHTML = '<i class="fas fa-lock" margin-left:5px;font-size:1rem;"></i>';
           info.el.appendChild(x);
-          console.log(info);
         }
-        if (info.event.extendedProps.shift) {
+        if (info.event.extendedProps.hasOwnProperty('shift')) {
           if (info.event.extendedProps.isOff !== true && [3, 5, 6].indexOf(info.event.extendedProps.shift.shift_type) < 0) {
             let shiftTime = document.createElement('span');
             shiftTime.innerHTML = moment(info.event.extendedProps.shift.start_time, 'HH:mm').format('HH')
@@ -271,11 +270,13 @@
             info.el.firstChild.appendChild(shiftTime);
             info.el.firstChild.appendChild(shiftStation);
           }
-        } else if (info.event.extendedProps.adjustment_type) {
-          let adjustItem = document.createElement('span');
-          adjustItem.innerHTML = info.event.extendedProps.remark;
-          adjustItem.className = 'adjust-item';
-          info.el.firstChild.appendChild(adjustItem);
+        } else if (info.event.extendedProps.hasOwnProperty('adjustment_type')) {
+          if (info.event.extendedProps.remark) {
+            let adjustItem = document.createElement('span');
+            adjustItem.innerHTML = info.event.extendedProps.remark;
+            adjustItem.className = 'adjust-item';
+            info.el.firstChild.appendChild(adjustItem);
+          }
         }
       },
       events: function (fetchInfo, successCallback, failureCallback) {
@@ -288,9 +289,10 @@
           fetch('/api/dates/' + queryString).then(res => res.json()),
         ]).then(processResult);
 
-        let timeAdjustmentPromise = fetch('/api/time-adjustment/' + queryString)
-          .then(res => res.json())
-          .then(processTimeAdjustment);
+        let timeAdjustmentPromise = Promise.all([
+          fetch('/api/time-adjustment/' + queryString).then(res => res.json()),
+          fetch('/api/users/curr/').then(res => res.json()),
+        ]).then(processTimeAdjustment);
 
         Promise.all([
           resultPromise,
@@ -349,20 +351,28 @@
           return data;
         }
 
-        function processTimeAdjustment(data) {
+        function processTimeAdjustment(dataArr) {
+          const data = dataArr[0];
+          const user = dataArr[1];
+
           if (!data || data.length === 0) {
             return [];
           }
+
+          let processedData = [];
           data.forEach(e => {
-            e.title = (e.adjustment_type === 0 ? '+' : '-') + e.hours;
-            e.sort = 1;
-            e.resourceId = e.user.id;
-            e.className = 'adjust-hours';
-            e.backgroundColor = adjustColor[e.adjustment_type];
-            e.borderColor = adjustColor[e.adjustment_type];
-            e.textColor = adjustColor[e.adjustment_type];
+            if (e.user === user.id) {
+              e.title = (e.adjustment_type === 0 ? '+' : '-') + e.hours;
+              e.sort = 1;
+              e.resourceId = e.user;
+              e.className = 'adjust-hours';
+              e.backgroundColor = adjustColor[e.adjustment_type];
+              e.borderColor = adjustColor[e.adjustment_type];
+              e.textColor = adjustColor[e.adjustment_type];
+              processedData.push(e);
+            }
           });
-          return data;
+          return processedData;
         }
       },
     });
@@ -399,7 +409,7 @@
     text-align: left;
   }
 
-  .shift-type .fc-title {
+  .shift-type .fc-title, .adjust-hours .fc-title {
     color: white !important;
     vertical-align: top;
   }

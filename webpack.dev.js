@@ -3,6 +3,7 @@ const common = require('./webpack.common.js');
 const exec = require('child_process').exec;
 
 module.exports = merge(common, {
+  watch: true,
   mode: 'development',
   devtool: 'inline-source-map',
   resolve: {
