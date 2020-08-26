@@ -1,6 +1,6 @@
 <template>
-  <!-- modal - add shift -->
-  <div class="modal fade" id="modalAddShift" tabindex="-1" role="dialog" aria-hidden="true"
+  <!-- modal - add station -->
+  <div class="modal fade" id="modalAddStation" tabindex="-1" role="dialog" aria-hidden="true"
   data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -13,59 +13,25 @@
           </button>
         </div>
         <div class="modal-body text-center pt-0">
-          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增班別</h3>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增工作站</h3>
           <div class="container-fluid text-left">
             <div class="form-group">
-              <label class="font-weight-bold">科別</label>
+              <label class="font-weight-bold">工作站名</label>
+              <input type="text" class="form-control" v-model="addStation.name">
+            </div>
+            <div class="form-group">
+              <label class="font-weight-bold">所屬科別</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
                 v-for="(item, idx) in departmentList"
                 :key="['item', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
-                  v-model="addShift.department"
+                  v-model="addStation.department"
                   :id="['add_rdo_department', idx, item.id].join('_')"
                   :value="item.id">
                   <label class="form-check-label" :for="['add_rdo_department', idx, item.id].join('_')">{{ item.name }}</label>
                 </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">班別名稱</label>
-              <input type="text" class="form-control" v-model="addShift.name">
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">類型</label>
-              <div class="form-group">
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getShiftTypeList()"
-                :key="['type', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="addShift.shiftType"
-                  :id="['add_rdo_type', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['add_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">開始時間</label>
-              <div class="form-group">
-                <vue-timepicker
-                close-on-complete
-                v-model="addShift.startTime"></vue-timepicker>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">結束時間</label>
-              <div class="form-group">
-                <vue-timepicker
-                close-on-complete
-                v-model="addShift.endTime"></vue-timepicker>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">工時長度</label>
-              <input type="number" class="form-control" v-model="addShift.workHours">
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
@@ -82,7 +48,7 @@
       </div>
     </div>
   </div>
-  <!-- \modal - add shift -->
+  <!-- \modal - add station -->
 </template>
 
 <script>
@@ -90,13 +56,8 @@ import popup from 'common/popup';
 import {
   httpRep
 } from 'common/helpers';
-import VueTimepicker from 'vue2-timepicker'
-import 'vue2-timepicker/dist/VueTimepicker.css'
 
 export default {
-  components: {
-    VueTimepicker,
-  },
   props: {
     csrfToken: {
       type: String,
@@ -113,43 +74,26 @@ export default {
   },
   data() {
     return {
-      addShift: {
+      addStation: {
         department: 0,
         name: '',
-        shiftType: 0,
-        startTime: '',
-        endTime: '',
-        workHours: 0,
       },
     };
   },
   methods: {
-    $_shifts_store_validate() {
+    $_station_store_validate() {
       let errMsg = [];
       let valid = true;
-      if (1 > this.addShift.name.length) {
+      if (1 > this.addStation.name.length) {
         valid = false;
-        errMsg.push('班別名稱欄位未填寫');
-      }
-      if (1 > this.addShift.startTime.length) {
-        valid = false;
-        errMsg.push('開始時間欄位格式錯誤');
-      }
-      if (1 > this.addShift.endTime.length) {
-        valid = false;
-        errMsg.push('結束時間欄位格式錯誤');
-      }
-      this.addShift.workHours = Number(this.addShift.workHours);
-      if (0 > this.addShift.workHours) {
-        valid = false;
-        errMsg.push('工時長度欄位值不能小於 0');
+        errMsg.push('工作站名欄位未填寫');
       }
 
       return [valid, errMsg];
     },
     store() {
       let self = this;
-      let [bool, errMsg] = this.$_shifts_store_validate();
+      let [bool, errMsg] = this.$_station_store_validate();
       if (!bool) {
         popup.error({
           title: '驗證錯誤',
@@ -158,13 +102,13 @@ export default {
         return false;
       }
 
-      $('#modalAddShift').modal('hide');
+      $('#modalAddStation').modal('hide');
 
       popup.loading({
         title: '處理中...',
       });
 
-      let url = `/api/shifts/`;
+      let url = `/api/stations/`;
       const formConfig = {
         headers: {
           'X-CSRFToken': `${self.csrfToken}`
@@ -172,21 +116,17 @@ export default {
       };
 
       let params = {
-        name: self.addShift.name,
-        shift_type: self.addShift.shiftType,
-        start_time: self.addShift.startTime,
-        end_time: self.addShift.endTime,
-        department: self.addShift.department,
-        work_hours: Number(self.addShift.workHours),
+        name: self.addStation.name,
+        department: self.addStation.department,
       };
       self.$httpClient.post(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: '新增班別',
+            title: '新增工作站',
             text: '請求成功',
           }, function () {
             self.cancelAddition();
-            self.$parent.getShifts();
+            self.$parent.getStations();
           });
         })
         .catch(function (error) {
@@ -203,7 +143,7 @@ export default {
       this.defaultDepartment();
     },
     defaultDepartment() {
-      this.addShift.department = this.myDepartmentId;
+      this.addStation.department = this.myDepartmentId;
     }
   },
   mounted() {

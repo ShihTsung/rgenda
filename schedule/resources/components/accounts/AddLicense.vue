@@ -1,7 +1,6 @@
 <template>
 <!-- modal begin -->
-<div class="modal fade" id="addLicenseModal" tabindex="-1" role="dialog"
-aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+<div class="modal fade" id="addLicenseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header border-bottom-0">
@@ -12,7 +11,7 @@ aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
           </span>
         </button>
       </div>
-      <form id="addLiscense" method="post">
+      <form id="addLicense" method="post">
         <div class="modal-body pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4 text-center">新增證照</h3>
 
@@ -26,8 +25,6 @@ aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
           <div class="form-group row">
             <label class="col-sm-4 col-form-label offset-1">發證日期</label>
             <div class="col-sm-7">
-              <!-- <input name="liscenseDate" type="date" class="form-control"> -->
-
               <date-picker
               v-model="startDate"
               :masks="{L: 'YYYY-MM-DD'}"
@@ -40,8 +37,6 @@ aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
           <div class="form-group row">
             <label class="col-sm-4 col-form-label offset-1">證照到期日</label>
             <div class="col-sm-7">
-              <!-- <input name="liscenseDueDate" type="date" class="form-control"> -->
-
               <date-picker
               v-model="expiryDate"
               :masks="{L: 'YYYY-MM-DD'}"
@@ -59,8 +54,8 @@ aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
           </div>
           <div class="form-group row">
             <div class="col-sm-4 offset-1">
-              <label for="liscensePicture" class="btn btn-info">
-                <input type="file" id="liscensePicture"
+              <label for="licensePicture" class="btn btn-info">
+                <input type="file" id="licensePicture"
                 accept="image/gif, image/jpeg, image/png"
                 class="d-none" ref="uploadFile1"
                 @change="processFile1($event)" />
@@ -74,8 +69,8 @@ aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
 
           <div class="form-group row">
             <div class="col-sm-4 offset-1">
-              <label for="liscensePicture2" class="btn btn-info">
-                <input type="file" id="liscensePicture2"
+              <label for="licensePicture2" class="btn btn-info">
+                <input type="file" id="licensePicture2"
                 accept="image/gif, image/jpeg, image/png"
                 class="d-none" ref="uploadFile2"
                 @change="processFile2($event)" />
@@ -186,7 +181,7 @@ export default {
         return false;
       }
 
-      let url = `/api/liscenses/`;
+      let url = `/api/licenses/`;
       const formConfig = {
         headers: {
           'X-CSRFToken': `${this.csrfToken}`,
@@ -198,8 +193,8 @@ export default {
       formData.append('date', moment(this.startDate).format('YYYY-MM-DD'));
       formData.append('due', moment(this.expiryDate).format('YYYY-MM-DD'));
       formData.append('source', this.issuer);
-      formData.append('liscense_pic', this.image1);
-      formData.append('liscense_pic_2', this.image2);
+      formData.append('license_pic', this.image1);
+      formData.append('license_pic_2', this.image2);
       formData.append('user', this.userId);
 
       popup.loading({
@@ -225,7 +220,7 @@ export default {
         });
     },
     resetFormData() {
-      let form = document.getElementById('addLiscense');
+      let form = document.getElementById('addLicense');
       form.reset();
       this.image1 = null;
       this.image2 = null;

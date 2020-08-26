@@ -3,13 +3,13 @@
     <div class="row mb-2">
       <div class="col-12">
         <div class="float-right">
-          <!-- 新增班別 -->
+          <!-- 新增工作站 -->
           <a v-if="filteredDepartments.length > 0"
-          href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增班別" data-toggle="modal" data-target="#modalAddShift">
+          href="#" class="btn icon-bts m-0" data-tooltip="tooltip" title="新增工作站" data-toggle="modal" data-target="#modalAddStation">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
               <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
           </a>
-          <!-- \新增班別 -->
+          <!-- \新增工作站 -->
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
         <template v-if="props.column.field == 'actions'">
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
           @click="confirmEdit(props.row)"><i class="fas fa-edit"></i></div>
-          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteShift"
+          <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteStation"
           @click="confirmDelete(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>
       </template>
@@ -36,19 +36,19 @@
     </div>
     <!-- \users table -->
 
-    <modal-add-shift
+    <modal-add-station
     :csrf-token="csrfToken"
     :department-list="filteredDepartments"
-    :my-department-id="myDepartmentId"></modal-add-shift>
+    :my-department-id="myDepartmentId"></modal-add-station>
 
-    <modal-delete-shift
+    <modal-delete-station
     :csrf-token="csrfToken"
-    :delete-shift="deleteShift"></modal-delete-shift>
+    :delete-station="deleteStation"></modal-delete-station>
 
-    <modal-edit-shift
+    <modal-edit-station
     :csrf-token="csrfToken"
     :department-list="filteredDepartments"
-    :shift-data="editShift"></modal-edit-shift>
+    :station-data="editStation"></modal-edit-station>
 
   </div>
 </template>
@@ -62,16 +62,16 @@ import 'vue-good-table/dist/vue-good-table.css'
 import {
   VueGoodTable
 } from 'vue-good-table';
-import ModalAddShift from './ModalAddShift.vue';
-import ModalDeleteShift from './ModalDeleteShift.vue';
-import ModalEditShift from './ModalEditShift.vue';
+import ModalAddStation from './ModalAddStation.vue';
+import ModalDeleteStation from './ModalDeleteStation.vue';
+import ModalEditStation from './ModalEditStation.vue';
 
 export default {
   components: {
     VueGoodTable,
-    ModalAddShift,
-    ModalDeleteShift,
-    ModalEditShift,
+    ModalAddStation,
+    ModalDeleteStation,
+    ModalEditStation,
   },
   props: {
     myDepartmentId: {
@@ -87,8 +87,8 @@ export default {
     return {
       loaded: false,
       noData: false,
-      editShift: {},
-      deleteShift: {
+      editStation: {},
+      deleteStation: {
         id: 0,
         name: '',
       },
@@ -98,29 +98,12 @@ export default {
           type: 'number',
         },
         {
-          label: '科別',
-          field: 'department',
-        },
-        {
-          label: '班別名稱',
+          label: '工作站名稱',
           field: 'name',
         },
         {
-          label: '類型',
-          field: 'shiftType',
-        },
-        {
-          label: '開始時間',
-          field: 'startTime',
-        },
-        {
-          label: '結束時間',
-          field: 'endTime',
-        },
-        {
-          label: '工時長度',
-          field: 'workHours',
-          type: 'number',
+          label: '所屬科別',
+          field: 'department',
         },
         {
           label: '功能',
@@ -129,14 +112,14 @@ export default {
         },
       ],
       rows: [],
-      filters: [],
+      filters: ['休假', '公假'],
       filteredDepartments: [],
     };
   },
   methods: {
-    getShifts() {
+    getStations() {
       let self = this;
-      let url = `/api/shifts/?department=${this.myDepartmentId}`;
+      let url = `/api/stations/?department=${this.myDepartmentId}`;
       self.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -161,25 +144,19 @@ export default {
     transformer(data) {
       let self = this;
       return data.filter(function (obj) {
-        // 0 白班，1 小夜，2 大夜，4 on-call
-        return self.filters.includes(obj.shift_type);
+        return !self.filters.includes(obj.name);
       }).map(function (obj) {
         return {
           id: obj.id,
           department: obj.department.name,
           departmentId: obj.department.id,
           name: obj.name,
-          shiftType: self.$getShiftTypeText(obj.shift_type),
-          shiftTypeId: obj.shift_type,
-          startTime: obj.start_time,
-          endTime: obj.end_time,
-          workHours: obj.work_hours,
         };
       });
     },
     getDepartments() {
       let self = this;
-      let url = `/api/departments/`;
+      let url = `/api/departments/?department=${this.myDepartmentId}`;
       self.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -201,43 +178,33 @@ export default {
         });
     },
     confirmDelete(row) {
-      this.deleteShift = {
+      this.deleteStation = {
         id: row.id,
         name: row.name,
       };
     },
     cancelDelete() {
-      this.deleteShift = {
+      this.deleteStation = {
         id: 0,
         name: '',
       };
     },
     confirmEdit(row) {
-      this.editShift = {
+      this.editStation = {
         id: row.id,
         departmentId: row.departmentId,
         name: row.name,
-        shiftTypeId: row.shiftTypeId,
-        startTime: row.startTime,
-        endTime: row.endTime,
-        workHours: row.workHours,
       };
 
-      $('#modalEditShift').modal('show');
+      $('#modalEditStation').modal('show');
     },
     cancelEdit() {
-      this.editShift = {};
+      this.editStation = {};
     },
   },
   mounted() {
-    this.getShifts();
+    this.getStations();
     this.getDepartments();
-    this.filters = [
-      this.$getShiftTypeValue('VALUE_DAY_SHIFT'),
-      this.$getShiftTypeValue('VALUE_NIGHT_SHIFT'),
-      this.$getShiftTypeValue('VALUE_GRAVEYARD_SHIFT'),
-      this.$getShiftTypeValue('VALUE_ON_CALL')
-    ];
   },
 }
 </script>

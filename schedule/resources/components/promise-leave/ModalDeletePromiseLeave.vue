@@ -21,7 +21,7 @@
               @click="cancelDelete()"
               data-dismiss="modal">取消</button>
               <button id="btn-delete" class="btn btn-rgenda"
-              @click="destory()"
+              @click="destroy()"
               type="button">刪除</button>
             </div>
           </div>
@@ -50,7 +50,7 @@ export default {
     }
   },
   methods: {
-    destory() {
+    destroy() {
       let self = this;
       $('#modalDeletePromiseLeave').modal('hide');
 

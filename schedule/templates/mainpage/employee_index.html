@@ -258,7 +258,7 @@
           x.innerHTML = '<i class="fas fa-lock" margin-left:5px;font-size:1rem;"></i>';
           info.el.appendChild(x);
         }
-        if (info.event.extendedProps.shift) {
+        if (info.event.extendedProps.hasOwnProperty('shift')) {
           if (info.event.extendedProps.isOff !== true && [3, 5, 6].indexOf(info.event.extendedProps.shift.shift_type) < 0) {
             let shiftTime = document.createElement('span');
             shiftTime.innerHTML = moment(info.event.extendedProps.shift.start_time, 'HH:mm').format('HH')
@@ -270,7 +270,7 @@
             info.el.firstChild.appendChild(shiftTime);
             info.el.firstChild.appendChild(shiftStation);
           }
-        } else if (info.event.extendedProps.adjustment_type) {
+        } else if (info.event.extendedProps.hasOwnProperty('adjustment_type')) {
           if (info.event.extendedProps.remark) {
             let adjustItem = document.createElement('span');
             adjustItem.innerHTML = info.event.extendedProps.remark;
