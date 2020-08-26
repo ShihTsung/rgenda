@@ -46,7 +46,7 @@
                   <div class="icon-bts" @click="startCheck()">
                       <svg class="icon-color" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z"/></svg>
                   </div>
-                  <div class="icon-bts announce" :style="{cursor: couldAnnounce()}" @click="dataToResult(month)">
+                  <div class="icon-bts announce" :style="{cursor: couldAnnounce()}" @click="isAnnounce = true">
                       <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z"/></svg>
                   </div>
                   {% endif %}
@@ -379,6 +379,20 @@
         <h3 class="c-title">
           請先按檢核再發布
         </h3>
+      </div>
+      <div class="follow" v-if="isChecked && isAnnounce">
+        <div @click="isAnnounce = false" class='cross'>
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
+        </div>
+        <div class="plane">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><path d="M24 0l-6 22-8.129-7.239 7.802-8.234-10.458 7.227-7.215-1.754 24-12zm-15 16.668v7.332l3.258-4.431-3.258-2.901z"/></svg>
+        </div>
+        <h3 class="a-title">
+          即將發布班表！
+        </h3>
+        <div class="btn-position" style="margin-top: 23rem;">
+          <button class="a-btn" @click="dataToResult(month)">確認</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1444,7 +1458,7 @@
       },
 
       dataToResult(month) {
-        this.isAnnounce = true;
+        // this.isAnnounce = true;
         if(this.isChecked == true){
           if(this.forCheckZero || this.checkResult.length!=0){
             window.location = '/results/publish?month=' + month;
@@ -1901,6 +1915,30 @@
       left: 28vw;
       border-radius: 2px;
       box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    }
+    .plane {
+      fill: #37419A;
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .a-title {
+      color: #37419A;
+      text-align: center;
+      position: absolute;
+      top: 280px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .a-btn {
+      border: none;
+      height: 3.5rem;
+      width: 6rem;
+      background: #37419A;
+      border-radius: 5px;
+      color: white;
+      font-size: 1.3rem;
     }
 </style>
 {% endblock %}
