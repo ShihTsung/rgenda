@@ -293,6 +293,7 @@
       1: '#84b1ed',
       2: '#6b799e',
       4: '#9c8f96',
+      7: '#58b4ae',
       default: '#c2c2c2',
     };
     const adjustColor = {
@@ -438,7 +439,7 @@
               let level = document.createElement('i');
               level.classList.add('fas', 'mx-1', 'align-middle');
               if ([0, 1, 2, 3, 4, 5].indexOf(user.type) >= 0) {
-                level.classList.add('level' + user.type);
+                level.setAttribute('style', `color: ${userTypeColor[user.type]};`);
                 if ([3, 5].indexOf(user.type) >= 0) {
                   // 新進人員、實習生以空心圓圈表示
                   level.classList.add('fa-dot-circle');
@@ -770,19 +771,6 @@
   }
   .user-group i {
     font-size: 10px;
-  }
-  .level0 {
-    color: #84b1ed;
-  }
-  .level1 {
-    color: #37419a;
-  }
-
-  .level2,
-  .level3,
-  .level4,
-  .level5 {
-    color: #83b1ed;
   }
 </style>
 {% endblock %}

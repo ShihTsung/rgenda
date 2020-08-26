@@ -63,7 +63,7 @@
 <script>
     let currInfo = {};
     let calendar = {};
-    let user;
+    let department;
 
     // 送出修改某天的資料
     let sendData = function(){
@@ -73,7 +73,7 @@
         let newChoice = e.options[e.selectedIndex].value;
         let locked = document.getElementById("locked").checked;
         let date = currInfo.event.start.toISOString().split('T')[0];
-        d_id = user.department.id.toString()
+        d_id = department.id.toString()
         if(typeof oldAttribute === typeof 'a'){
           oldAttribute={}
         }
@@ -124,7 +124,6 @@
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-        let department;
 
         calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],
@@ -216,7 +215,7 @@
 
         });
         saveButton = document.getElementById('save');
-        saveButton.addEventListener('click',sendData);
+        saveButton.addEventListener('click', sendData);
 
 </script>
 <style>
