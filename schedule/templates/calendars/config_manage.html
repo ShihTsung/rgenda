@@ -125,14 +125,6 @@
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
         let department;
-        fetch('/api/users/curr')
-        .then(res=>{
-          return res.json();
-        })
-        .then(data=>{
-          user = data;
-          department = user.department;
-        })
 
         calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],
@@ -202,9 +194,20 @@
                     }
                   }
                 },
-                events: {
-                    'url': '/api/dates',
-                    }
+                events: function (fetchInfo, successCallback, failureCallback) {
+                  Promise.all([
+                    fetch('/api/dates/').then(res => res.json()),
+                    fetch('/api/users/curr/').then(res => res.json()),
+                  ]).then(dataArr => {
+                    const data = dataArr[0];
+                    const user = dataArr[1];
+
+                    department = user.department;
+                    successCallback(data);
+                  }).catch(err => {
+                    failureCallback(err);
+                  });
+                },
             });
             if ("{{LANG}}" == 'zh-hant') {
                 calendar.setOption('locale', 'zh-tw');
