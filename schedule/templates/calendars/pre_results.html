@@ -1446,7 +1446,10 @@
       dataToResult(month) {
         this.isAnnounce = true;
         if(this.isChecked == true){
-          window.location = '/results/publish?month=' + month;
+          if(this.forCheckZero || this.checkResult.length!=0){
+            window.location = '/results/publish?month=' + month;
+          }
+
         };
       },
 
