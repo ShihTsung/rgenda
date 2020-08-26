@@ -380,7 +380,8 @@ class StationViewSet(viewsets.ModelViewSet):
         queryset = Station.objects.all()
         department = self.request.query_params.get('department')
         if department:
-            queryset = queryset.filter(department=department)
+            d = Department.objects.filter(id=int(department)).first()
+            queryset = queryset.filter(department=d)
         user = self.request.user
         if user.role == 'admin':
             queryset = queryset
