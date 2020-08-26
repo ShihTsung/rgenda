@@ -601,6 +601,8 @@ def create_result(request, department_id, start, end):
     try:
         date_start = str_to_date(start)
         date_end = str_to_date(end)
+
+        date_last = date_start - timedelta(days=1)
     except ValueError:
         print('WRONG DATE INPUT')
         return redirect('/' + request.LANGUAGE_CODE + '/results')
@@ -718,7 +720,7 @@ def create_result(request, department_id, start, end):
                     })
 
                     output[user.id] = dict()
-                    output[user.id]['date_pre'] = continue_dict[user.id]
+                    output[user.id][str(date_last)] = continue_dict[user.id]
                     for d in date_list:
                         if d in official_leave_dict[user.id]:
                             output[user.id][str(d)] = 1
@@ -1061,11 +1063,11 @@ def create_result(request, department_id, start, end):
             # 將0指派為 例假/休假/特殊假
             for user_id in user_pool:
                 user = User.objects.get(id=user_id)
-                output[user_id].pop('date_pre')
 
                 # --print--
                 print(user_id, output[user_id].values())
 
+                output[user_id].pop(str(date_last))
                 q = used_rest[user_id]
                 for ind, cycle in enumerate(cycle_list):
                     options = ['例', '休'] * 2 ** department.schedule_rule
@@ -1140,7 +1142,7 @@ def create_result(request, department_id, start, end):
 
     # 行政職
     try:
-        user_admin = User.objects.get(type_of_user=2)
+        user_admin = User.objects.filter(type_of_user=2)
         station_admin = Station.objects.get(department=department, name='行政')
         shift_admin = Shift.objects.get(department=department, name='行政')
 
@@ -1185,4 +1187,4 @@ def create_result(request, department_id, start, end):
     except User.DoesNotExist:
         pass
 
-    return redirect('/' + request.LANGUAGE_CODE + '/results')
+    return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
