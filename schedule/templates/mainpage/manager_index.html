@@ -479,9 +479,11 @@
       eventPositioned: function (info) {
         if (!info.event.extendedProps.shifts) {
           // 只限全科休診
-          // Fix for background event height
+          // Fix for background event height and width
           let ancestor = $(info.el).parent().parent();
+          let width = $(info.el).width();
           $(info.el).detach().appendTo(ancestor);
+          $(info.el).width(width);
         }
       },
       eventDestroy: function (info) {
