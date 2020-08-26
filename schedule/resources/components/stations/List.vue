@@ -36,19 +36,19 @@
     </div>
     <!-- \users table -->
 
-    <!-- <modal-add-station
+    <modal-add-station
     :csrf-token="csrfToken"
     :department-list="filteredDepartments"
     :my-department-id="myDepartmentId"></modal-add-station>
 
     <modal-delete-station
     :csrf-token="csrfToken"
-    :delete-shift="deleteStation"></modal-delete-station>
+    :delete-station="deleteStation"></modal-delete-station>
 
     <modal-edit-station
     :csrf-token="csrfToken"
     :department-list="filteredDepartments"
-    :shift-data="editStation"></modal-edit-station> -->
+    :station-data="editStation"></modal-edit-station>
 
   </div>
 </template>
@@ -99,7 +99,7 @@ export default {
         },
         {
           label: '工作站名稱',
-          field: 'station',
+          field: 'name',
         },
         {
           label: '所屬科別',
@@ -150,7 +150,7 @@ export default {
           id: obj.id,
           department: obj.department.name,
           departmentId: obj.department.id,
-          station: obj.name,
+          name: obj.name,
         };
       });
     },
@@ -194,10 +194,6 @@ export default {
         id: row.id,
         departmentId: row.departmentId,
         name: row.name,
-        shiftTypeId: row.shiftTypeId,
-        startTime: row.startTime,
-        endTime: row.endTime,
-        workHours: row.workHours,
       };
 
       $('#modalEditStation').modal('show');

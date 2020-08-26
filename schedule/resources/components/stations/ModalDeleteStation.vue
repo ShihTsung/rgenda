@@ -14,7 +14,7 @@
         </div>
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
-          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要刪除 班別-{{ deleteStation.name }} 嗎？</p>
+          <p class="mb-4">一旦刪除記錄，將無法復原。<br>您確定仍要刪除 工作站-{{ deleteStation.name }} 嗎？</p>
           <div class="row">
             <div class="col mb-2">
               <button class="btn btn-rgenda" type="button"
@@ -71,7 +71,7 @@ export default {
       self.$httpClient.delete(url, formConfig)
         .then(function (response) {
           popup.success({
-            title: '刪除班別',
+            title: '刪除工作站',
             text: '請求成功',
           }, function () {
             self.cancelDelete();

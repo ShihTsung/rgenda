@@ -13,10 +13,14 @@
           </button>
         </div>
         <div class="modal-body text-center pt-0">
-          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增班別</h3>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4">新增工作站</h3>
           <div class="container-fluid text-left">
             <div class="form-group">
-              <label class="font-weight-bold">科別</label>
+              <label class="font-weight-bold">工作站名</label>
+              <input type="text" class="form-control" v-model="addStation.name">
+            </div>
+            <div class="form-group">
+              <label class="font-weight-bold">所屬科別</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
                 v-for="(item, idx) in departmentList"
@@ -28,44 +32,6 @@
                   <label class="form-check-label" :for="['add_rdo_department', idx, item.id].join('_')">{{ item.name }}</label>
                 </div>
               </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">班別名稱</label>
-              <input type="text" class="form-control" v-model="addStation.name">
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">類型</label>
-              <div class="form-group">
-                <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getStationTypeList()"
-                :key="['type', idx, item.id].join('_')">
-                  <input class="form-check-input" type="radio"
-                  v-model="addStation.shiftType"
-                  :id="['add_rdo_type', idx, item.id].join('_')"
-                  :value="item.id">
-                  <label class="form-check-label" :for="['add_rdo_type', idx, item.id].join('_')">{{ item.text }}</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">開始時間</label>
-              <div class="form-group">
-                <vue-timepicker
-                close-on-complete
-                v-model="addStation.startTime"></vue-timepicker>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">結束時間</label>
-              <div class="form-group">
-                <vue-timepicker
-                close-on-complete
-                v-model="addStation.endTime"></vue-timepicker>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="font-weight-bold">工時長度</label>
-              <input type="number" class="form-control" v-model="addStation.workHours">
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
@@ -116,10 +82,6 @@ export default {
       addStation: {
         department: 0,
         name: '',
-        shiftType: 0,
-        startTime: '',
-        endTime: '',
-        workHours: 0,
       },
     };
   },
@@ -129,20 +91,7 @@ export default {
       let valid = true;
       if (1 > this.addStation.name.length) {
         valid = false;
-        errMsg.push('班別名稱欄位未填寫');
-      }
-      if (1 > this.addStation.startTime.length) {
-        valid = false;
-        errMsg.push('開始時間欄位格式錯誤');
-      }
-      if (1 > this.addStation.endTime.length) {
-        valid = false;
-        errMsg.push('結束時間欄位格式錯誤');
-      }
-      this.addStation.workHours = Number(this.addStation.workHours);
-      if (0 > this.addStation.workHours) {
-        valid = false;
-        errMsg.push('工時長度欄位值不能小於 0');
+        errMsg.push('工作站名欄位未填寫');
       }
 
       return [valid, errMsg];
@@ -173,16 +122,12 @@ export default {
 
       let params = {
         name: self.addStation.name,
-        shift_type: self.addStation.shiftType,
-        start_time: self.addStation.startTime,
-        end_time: self.addStation.endTime,
         department: self.addStation.department,
-        work_hours: Number(self.addStation.workHours),
       };
       self.$httpClient.post(url, params, formConfig)
         .then(function (response) {
           popup.success({
-            title: '新增班別',
+            title: '新增工作站',
             text: '請求成功',
           }, function () {
             self.cancelAddition();
