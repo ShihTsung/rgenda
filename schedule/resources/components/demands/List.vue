@@ -5,7 +5,8 @@
     :delete-shift="deleteShift"></modal-delete-demand>
 
     <modal-add-demand
-    :csrf-token="csrfToken"></modal-add-demand>
+    :csrf-token="csrfToken"
+    :my-department-id="myDepartmentId"></modal-add-demand>
 
     <div v-if="!editing">
       <div class="row mb-2">
@@ -61,7 +62,7 @@
                     <i class="fas fa-edit"></i>
                   </div>
                   <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDeleteDemand"
-                  @click="comfirmDeletion(shift)">
+                  @click="confirmDeletion(shift)">
                     <i class="fa fa-trash-alt"></i></div>
                 </td>
               </tr>
@@ -78,7 +79,8 @@
     <div v-else>
       <edit-demand
       :csrf-token="csrfToken"
-      :edit-shift="editShift"></edit-demand>
+      :edit-shift="editShift"
+      :my-department-id="myDepartmentId"></edit-demand>
     </div>
   </div>
 </template>
@@ -110,6 +112,10 @@ export default {
     csrfToken: {
       type: String,
       default: '',
+    },
+    myDepartmentId: {
+      type: Number,
+      default: 0,
     },
   },
   data() {
@@ -147,7 +153,7 @@ export default {
     },
     getDemands() {
       let self = this;
-      let url = `/api/demands/`;
+      let url = `/api/demands/?department=${this.myDepartmentId}`;
       this.$httpClient.get(url)
         .then(function (response) {
           let data = response.data;
@@ -215,7 +221,7 @@ export default {
 
       return demands;
     },
-    comfirmDeletion(shift) {
+    confirmDeletion(shift) {
       let demandIds = [];
       for (const [key, value] of Object.entries(shift.config)) {
         demandIds.push(value.id)

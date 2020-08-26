@@ -18,6 +18,7 @@ module.exports = {
     'promise-leave': './promise-leave/promise-leave.js',
     'time-adjustment': './time-adjustment/time-adjustment.js',
     'shift-list': './shifts/shift-list.js',
+    'station-list': './stations/station-list.js',
     'rgenda': './rgenda.scss',
   },
   output: {
@@ -33,7 +34,6 @@ module.exports = {
     },
     extensions: ['.js', '.vue', '.json', '.css']
   },
-  watch: true,
   module: {
     rules: [
       {

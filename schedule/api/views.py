@@ -155,6 +155,20 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         manual_parameters=[mode, department, usertype]
     )
     def list(self, request, *args, **kwargs):
+        """
+
+        mode=onlyUser: 去掉系統管理員
+        mode=resource: 只顯示請求發送者同部門且可排班的人
+        department=k : 顯示id=k 的科別內所有人
+        type=n :       過濾某個類型的人
+        (0, 正職)
+        (1, 資深正職)
+        (2, 行政職)
+        (3, 新進人員)
+        (4, 兼職人員)
+        (5, 實習生)
+
+        """
         return super().list(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -362,6 +376,21 @@ class StationViewSet(viewsets.ModelViewSet):
             return GetStationSerializer
         return StationSerializer
 
+    def get_queryset(self):
+        queryset = Station.objects.all()
+        department = self.request.query_params.get('department')
+        if department:
+            d = Department.objects.filter(id=int(department)).first()
+            queryset = queryset.filter(department=d)
+        user = self.request.user
+        if user.role == 'admin':
+            queryset = queryset
+        else:
+            queryset = queryset.filter(
+                department=user.department
+            )
+        return queryset
+
     @swagger_auto_schema(
         operation_summary='刪除工作站',
     )
@@ -385,14 +414,13 @@ class HCalendarViewSet(viewsets.ModelViewSet):
         return HCalendarSerializer
 
     def get_queryset(self):
+        queryset = H_Calendar.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
-            if not end:
-                end = start
-            return H_Calendar.objects.filter(date__range=[start[:10], end[:10]])
-        else:
-            return H_Calendar.objects.all()
+            if start and end:
+                queryset = queryset.filter(date__range=[start[:10], end[:10]])
+        return queryset
 
 
 def get_type(shift):
@@ -450,18 +478,18 @@ class ResultViewSet(viewsets.ModelViewSet):
         return ResultSerializer
 
     def get_queryset(self):
+        queryset = Result.objects.all()
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
             mode = self.request.query_params.get('mode', None)
-            if not end:
-                end = start
+            if start and end:
+                queryset = queryset.filter(date__range=[start[:10], end[:10]])
+
             if mode == 'personal':
-                return Result.objects.filter(
-                    date__range=[start[:10], end[:10]],
-                    user=self.request.user)
-            return Result.objects.filter(date__range=[start[:10], end[:10]])
-        return Result.objects.all()
+                queryset = queryset.filter(user=self.request.user)
+
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='獲得排班結果清單',
@@ -593,6 +621,19 @@ class DemandViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetDemandSerializer
         return DemandSerializer
+
+    def get_queryset(self):
+        queryset = DemandOfStation.objects.all()
+        user = self.request.user
+        dep = self.request.query_params.get('department')
+        if not user.role == 'admin':
+            stations = Station.objects.filter(department=user.department)
+            queryset = queryset.filter(station__in=list(stations))
+        if dep:
+            dep_obj = Department.objects.get(id=int(dep))
+            stations = Station.objects.filter(department=dep_obj)
+            queryset = queryset.filter(station__in=list(stations))
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='新增Demand',
@@ -791,7 +832,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     manual_parameters=[date, department]
 )
 @api_view(['GET', 'POST'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def check_result_api(request):
     res_data = {}
@@ -832,7 +873,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     operation_summary='取得指定期間，每天三班的總人數',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def total_per_day_api(request):
     results = {}
@@ -895,7 +936,7 @@ def total_per_day_api(request):
     operation_summary='把所有通知標為已讀',
     manual_parameters=[start_date, end_date])
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def mark_all_notices_read(request):
     notices = Notification.objects.all()
@@ -983,7 +1024,7 @@ class PreResultRemarkViewSet(viewsets.ModelViewSet):
     operation_summary='前月班表紀錄',
     manual_parameters=[month_head])
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def last_month_continue(request):
     department = request.user.department
@@ -1155,7 +1196,7 @@ def exchangeable_user(request):
     manual_parameters=[start_date, end_date, follower, mentor]
 )
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def follow_shift_api(request):
     mentor = request.query_params.get('mentor')
@@ -1192,7 +1233,7 @@ def follow_shift_api(request):
     manual_parameters=[start_date, end_date, follower, mentor]
 )
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated,])
+@permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def preResult_follow_shift_api(request):
     mentor = request.query_params.get('mentor')

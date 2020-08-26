@@ -358,10 +358,11 @@ def departmentCreate(request):
         if form.is_valid():
             form.save()
             department = Department.objects.last()
-            names = ['休息', '例假', '公假', 'on-call']
-            types = [5, 5, 3, 4]
-            hours = [0, 0, 8, 0]
-            for i in range(4):
+            names = ['休息', '例假', '公假', 'oncall', '事假', '家庭照顧假', '無薪病假', '產假', '生理假', '特休', '補休', '婚假',
+                     '計薪病假', '喪假', '安胎休養假', '產檢假', '陪產假']
+            types = [5, 5, 3, 4, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+            hours = [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            for i in range(len(names)):
                 shift = Shift.objects.create(
                     name=names[i],
                     shift_type=types[i],
@@ -390,6 +391,15 @@ def departmentCreate(request):
                 end_time=time(hour=8, minute=0),
                 department=department,
                 work_hours=8)
+            shift = Shift.objects.create(
+                name='行政',
+                shift_type=0,
+                start_time=time(hour=8, minute=0),
+                end_time=time(hour=17, minute=0),
+                department=department,
+                work_hours=8)
+            for name in ['休假', '公假', '行政']:
+                Station.objects.create(department=department, name=name)
             messages.success(
                 request,
                 f'科別{department.name}新增成功'
