@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from shift.models import Shift
@@ -59,6 +60,8 @@ class TimeAdjustment(models.Model):
 
 
 class PreResult(models.Model):
+    class Meta:
+        unique_together = (('user', 'date'),)
 
     user = models.ForeignKey(
         CustomUser,
@@ -85,6 +88,8 @@ class PreResult(models.Model):
 
 
 class Result(models.Model):
+    class Meta:
+        unique_together = (('user', 'date'),)
 
     user = models.ForeignKey(
         CustomUser,
@@ -111,7 +116,8 @@ class Result(models.Model):
 
 
 class AfterResult(models.Model):
-
+    class Meta:
+        unique_together = (('user', 'date'),)
     user = models.ForeignKey(
         CustomUser,
         verbose_name=_('User'),

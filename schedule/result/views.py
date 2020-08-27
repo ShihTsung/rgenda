@@ -102,6 +102,8 @@ def publish_result(request):
     lang = request.LANGUAGE_CODE
     month = request.GET.get('month')
     now = datetime.datetime.now()
+    dep = request.user.department
+    shifts = Shift.objects.filter(department=dep)
     next_month = now.month + 1
     year = now.year
     if next_month > 12:
@@ -117,16 +119,23 @@ def publish_result(request):
         start = datetime.date(year, next_month, 1)
         end = datetime.date(year, next_month, days_in_month)
 
-    results = PreResult.objects.filter(date__range=[start, end])
-    published_results = Result.objects.filter(date__range=[start, end])
-    remarks = PreResultRemark.objects.all()
-    p_remarks = ResultRemark.objects.all()
+    results = PreResult.objects.filter(
+        date__range=[start, end],
+        shift__in=list(shifts))
+    published_results = Result.objects.filter(
+        date__range=[start, end],
+        shift__in=list(shifts))
+    remarks = PreResultRemark.objects.filter(
+        result__in=list(results))
+    p_remarks = ResultRemark.objects.filter(
+        result__in=list(published_results))
 
     if results:
         notify.send(
             request.user,
-            recipient=User.objects.filter(role="user"),
-            verb='下個月班表發佈了！')
+            recipient=User.objects.filter(department=dep),
+            verb='下個月班表發佈了！',
+            description='/results')
     for result in results:
         if result.shift.department == request.user.department:
             published = published_results.filter(
