@@ -180,7 +180,7 @@
                         -
                       </div>
                     </td> -->
-                    <td @click="editShift($event, ShiftOfUser(u.id, month, d))" class="user-content-col" v-for="d in getYear(year,month)" :key="d" :class="[{pastDay: isPast(ShiftOfUser(u.id, month, d)), futureDay: !isPast(ShiftOfUser(u.id, month, d))}, whichBorder(ShiftOfUser(u.id, month, d))]">
+                    <td class="user-content-col" @click="editShift($event, ShiftOfUser(u.id, month, d))" v-for="d in getYear(year,month)" :key="d" :class="[{pastDay: isPast(ShiftOfUser(u.id, month, d)), futureDay: !isPast(ShiftOfUser(u.id, month, d))}, whichBorder(ShiftOfUser(u.id, month, d))]">
                       <div v-if="!ShiftOfUser(u.id, month, d)" @click="postToResults(u.id, d, month, year)">
                         -
                       </div>
@@ -920,19 +920,25 @@
       },
 
       editResult(ev) {
+        console.log(this.changeInfo);
         let type = '';
         let stationArr = [];
 
         this.singleEdit = false;
         if(this.addData) {
-          console.log(this.addData);
           this.obj.date = this.addData.date;
           this.obj.user = this.addData.user;
 
           if(this.addData.id){
             this.obj.id = this.addData.id;
           };
-        }
+        };
+        if(this.changeInfo) {
+          this.obj.date = this.changeInfo.date;
+          this.obj.user = this.changeInfo.user;
+
+          this.obj.id = this.changeInfo.id;
+        };
 
         this.obj.shift = parseInt(this.item);//shift id
         if(this.station != -1) {
@@ -949,7 +955,6 @@
           .then((res)=>{
             return res.json();
           }).then((data)=>{
-            console.log(data);
             this.addData.id = data.id;
             this.resultData.push(data);
           }).catch((err)=>{
@@ -1040,8 +1045,11 @@
 
         //前端顯示修正
         if(this.changeInfo != undefined) {
-          console.log(this.resultData[this.changeInfo.id]);
           this.resultData[this.resultData.indexOf(this.changeInfo.id)].shift_type = type;
+        };
+
+        if(this.addData != undefined) {
+          this.resultData[this.resultData.indexOf(this.addData.id)].shift_type = type;
         };
 
         if(this.isChecked == true) {
@@ -1052,7 +1060,6 @@
         this.item = -1;
         this.station = -1;
         this.obj = {};
-
       },
 
       postToResults(id, d, month, year) {
@@ -1487,7 +1494,6 @@
 
       endCheck() {
         this.forCheckZero = false;
-        this.isChecked = false;
       },
 
       checkText(index, ev) {
