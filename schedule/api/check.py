@@ -176,10 +176,11 @@ def check_rest_day(department, results, invalid):
         (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
     work_days = 0
     for result in results:
+        attr = H_Calendar.objects.get(date=result.date).attribute
         if ind % (7 * 2 ** department.law_rule) == 0:
             work_days_limit = 5 * 2 ** department.law_rule
             work_days = 0
-        if H_Calendar.objects.filter(date=result.date).first().attribute == 'holiday':
+        if attr == 'holiday':
             work_days_limit -= 1
         if result.shift.shift_type in [0, 1, 2, 3, 7]:
             continue_workday += 1
@@ -192,7 +193,7 @@ def check_rest_day(department, results, invalid):
             invalid[result.id].append('不合法規：7天需有1天例假')
         if work_days > work_days_limit and result in results:
             invalid[result.id].append('不合法規：週期內休息日不足')
-        if holiday_rest_remain < 0:
+        if holiday_rest_remain < 0 and attr == 'holiday' and result.shift.shift_type in [5, 6]:
             invalid[result.id].append('超過可休週末及國定假日數')
         ind += 1
     return None

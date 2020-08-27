@@ -462,6 +462,8 @@ def get_type(shift):
         return 'On'
     elif shift.shift_type == 3:
         return '公'
+    elif shift.shift_type == 7:
+        return '政'
     else:
         return ''
 
@@ -541,6 +543,42 @@ class PreResultViewSet(viewsets.ModelViewSet):
                 queryset = PreResult.objects.filter(
                     date__range=[start[:10], end[:10]])
         return queryset
+
+    @swagger_auto_schema(
+        operation_summary='新增preresult',
+        operation_description='增加新的筆班表',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data
+        shift = Shift.objects.get(id=data['shift'])
+        data['shift_type'] = get_type(shift)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @swagger_auto_schema(
+        operation_summary='更新資料',
+        operation_description='PATCH 更改pre-result',
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        data = serializer.data
+        shift = Shift.objects.get(id=data['shift'])
+
+        data['shift_type'] = get_type(shift)
+        return Response(data)
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
@@ -890,7 +928,7 @@ def total_per_day_api(request):
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
             results[date_str] = {'0': 0, '1': 0, '2': 0}
-            config = 1
+            config = int(date.attribute[str(d.id)])
             for demand in demands:
                 if demand.shift.department == d:
                     s_type = demand.shift.shift_type
@@ -900,7 +938,9 @@ def total_per_day_api(request):
                         elif config == 2:
                             results[date_str][str(s_type)] += demand.config2
                         else:
-                            results[date_str][str(s_type)] = 0
+                            results[date_str][str(s_type)] += 0
+            if date.attribute[str(d.id)] == '0':
+                results[date_str] = {'0': 0, '1': 0, '2': 0}
         if q_set == 'result':
             db_results = Result.objects.filter(
                 date__range=[start, end], user__in=users)
@@ -1036,7 +1076,8 @@ def last_month_continue(request):
         '0': 'A',
         '1': 'E',
         '2': 'N',
-        '3': '公'
+        '3': '公',
+        '7': '政',
     }
     for user in users:
         output[user.id] = list()
@@ -1044,7 +1085,7 @@ def last_month_continue(request):
             user=user, date__gte=date0 - timedelta(days=7),
             date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
-            if result.shift.shift_type in [0, 1, 2, 3]:
+            if result.shift.shift_type in [0, 1, 2, 3, 7]:
                 output[user.id].append(str(result.shift.shift_type))
             else:
                 output[user.id] = list()
@@ -1163,7 +1204,7 @@ def exchangeable_user(request):
 
             count = 0
             for st in shift_types:
-                if st in [0, 1, 2, 3]:
+                if st in [0, 1, 2, 3, 7]:
                     count += 1
                     if count == 7:
                         user_options.remove(result.user.id)
@@ -1178,7 +1219,7 @@ def exchangeable_user(request):
                            exchange_date else r.shift_type for r in results]
             count = 0
             for st in shift_types:
-                if st in [0, 1, 2, 3]:
+                if st in [0, 1, 2, 3, 7]:
                     count += 1
                     if count == 7:
                         user_options.remove(result.user.id)
@@ -1282,7 +1323,7 @@ def users_can_support(request):
     for d in date_list:
         output[str(d)] = list()
     shifts = Shift.objects.filter(
-        department=request.user.department, shift_type__in=[0, 1, 2])
+        department=request.user.department, shift_type__in=[0, 1, 2, 7])
     for d in date_list:
         try:
             results = Result.objects.filter(
@@ -1303,7 +1344,7 @@ def users_can_support(request):
             result_list = Result.objects.filter(user=result.user, date__in=[
                                                 d + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
             working_list = [1 if r.shift.shift_type in [
-                0, 1, 2, 3] or r.date == d else 0 for r in result_list]
+                0, 1, 2, 3, 7] or r.date == d else 0 for r in result_list]
             count = 0
             continue_over_6 = False
             for r in working_list:

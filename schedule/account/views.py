@@ -51,7 +51,7 @@ def registerPage(request):
                     return redirect('/accounts/list')
             form.save()
             user = form.cleaned_data.get('username')
-            messages.success(request, "Account was created for " + user)
+            messages.success(request, f"使用者 {user} 新增成功！")
             return redirect('/accounts/list')
     context = {'form': form}
     return render(request, 'registration/register.html', context)
@@ -402,14 +402,14 @@ def departmentCreate(request):
                 Station.objects.create(department=department, name=name)
             messages.success(
                 request,
-                f'科別{department.name}新增成功'
+                f'科別 {department.name} 新增成功'
             )
-            notify.send(
-                sender=request.user,
-                recipient=CustomUser.objects.all(),
-                target=department,
-                level='info',
-                verb=f'{request.user.full_name}建立了新的科別')
+            # notify.send(
+            #     sender=request.user,
+            #     recipient=CustomUser.objects.all(),
+            #     target=department,
+            #     level='info',
+            #     verb=f'{request.user.full_name} 建立了新的科別',)
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)

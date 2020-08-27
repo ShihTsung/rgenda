@@ -189,10 +189,13 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
+            let filteredData = data.filter((user) => {
+              return user.can_be_scheduled;
+            });
             if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              self.normalStaff = data;
+              self.normalStaff = filteredData;
             } else {
-              self.seniorStaff = data;
+              self.seniorStaff = filteredData;
             }
           } else {
             if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
