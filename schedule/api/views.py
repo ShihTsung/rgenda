@@ -462,6 +462,8 @@ def get_type(shift):
         return 'On'
     elif shift.shift_type == 3:
         return '公'
+    elif shift.shift_type == 7:
+        return '政'
     else:
         return ''
 
@@ -541,6 +543,42 @@ class PreResultViewSet(viewsets.ModelViewSet):
                 queryset = PreResult.objects.filter(
                     date__range=[start[:10], end[:10]])
         return queryset
+
+    @swagger_auto_schema(
+        operation_summary='新增preresult',
+        operation_description='增加新的筆班表',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data
+        shift = Shift.objects.get(id=data['shift'])
+        data['shift_type'] = get_type(shift)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @swagger_auto_schema(
+        operation_summary='更新資料',
+        operation_description='PATCH 更改pre-result',
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        data = serializer.data
+        shift = Shift.objects.get(id=data['shift'])
+
+        data['shift_type'] = get_type(shift)
+        return Response(data)
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
@@ -901,6 +939,8 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
+            if date.attribute[str(d.id)] == '0':
+                results[date_str] = {'0': 0, '1': 0, '2': 0}
         if q_set == 'result':
             db_results = Result.objects.filter(
                 date__range=[start, end], user__in=users)

@@ -423,9 +423,13 @@
               shiftGroup.append(shiftName);
             }
 
+            let userList = document.createElement('div');
+            userList.classList.add('row', 'no-gutters');
             shift.users.forEach(user => {
+              let userWrapper = document.createElement('div');
+              userWrapper.classList.add('col-12', 'col-md-6');
               let userGroup = document.createElement('span');
-              userGroup.classList.add('user-group', 'ml-1', 'mt-1');
+              userGroup.classList.add('user-group', 'ml-1', 'mt-1', 'pr-1');
 
               let level = document.createElement('i');
               level.classList.add('fas', 'mx-1', 'align-middle');
@@ -444,8 +448,10 @@
 
               userGroup.prepend(level);
               userGroup.append(userName);
-              shiftGroup.append(userGroup);
+              userWrapper.append(userGroup);
+              userList.append(userWrapper);
             });
+            shiftGroup.append(userList);
 
             if (!shift.isOff) {
               $(shiftGroup).tooltip({

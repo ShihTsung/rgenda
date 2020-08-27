@@ -320,54 +320,58 @@ class AfterResultSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'shift', 'date', 'station')
 
 
+def get_type(shift):
+    if shift.shift_type == 0:
+        return 'A'
+    elif shift.shift_type == 1:
+        return 'E'
+    elif shift.shift_type == 2:
+        return 'N'
+    elif shift.shift_type == 5:
+        if shift.name == "休息":
+            return '休'
+        if shift.name == "例假":
+            return '例'
+        if shift.name == "補休":
+            return "補"
+        if shift.name == "特休":
+            return "特"
+        if shift.name == "空班":
+            return "空"
+        if shift.name == "婚假":
+            return "婚"
+        if shift.name == "喪假":
+            return "喪"
+        if shift.name == "產假":
+            return "產"
+        if shift.name == "生理假":
+            return "生"
+        if shift.name == "國定假日":
+            return "國"
+    elif shift.shift_type == 6:
+        if shift.name == "無薪病假":
+            return '病'
+        if shift.name == "事假":
+            return '事'
+        if shift.name == "家庭照顧假":
+            return '家'
+    elif shift.shift_type == 4:
+        return 'On'
+    elif shift.shift_type == 3:
+        return '公'
+    elif shift.shift_type == 7:
+        return '政'
+    else:
+        return ''
+
+
 class GetPreResultSerializer(serializers.ModelSerializer):
     shift = SimpleShiftSerializer()
     station = SimpleStationSerializer()
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
-        if obj.shift.shift_type == 0:
-            return 'A'
-        elif obj.shift.shift_type == 1:
-            return 'E'
-        elif obj.shift.shift_type == 2:
-            return 'N'
-        elif obj.shift.shift_type == 5:
-            if obj.shift.name == "休息":
-                return '休'
-            if obj.shift.name == "例假":
-                return '例'
-            if obj.shift.name == "補休":
-                return "補"
-            if obj.shift.name == "特休":
-                return "特"
-            if obj.shift.name == "空班":
-                return "空"
-            if obj.shift.name == "婚假":
-                return "婚"
-            if obj.shift.name == "喪假":
-                return "喪"
-            if obj.shift.name == "產假":
-                return "產"
-            if obj.shift.name == "生理假":
-                return "生"
-            if obj.shift.name == "國定假日":
-                return "國"
-        elif obj.shift.shift_type == 6:
-            if obj.shift.name == "無薪病假":
-                return '病'
-            if obj.shift.name == "事假":
-                return '事'
-            if obj.shift.name == "家庭照顧假":
-                return '家'
-        elif obj.shift.shift_type == 4:
-            return 'On'
-        elif obj.shift.shift_type == 3:
-            return '公'
-        elif obj.shift.shift_type == 7:
-            return '政'
-        else:
-            return ''
+        return get_type(obj.shift)
 
     class Meta:
         model = PreResult
@@ -381,48 +385,7 @@ class GetResultSerializer(serializers.ModelSerializer):
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
-        if obj.shift.shift_type == 0:
-            return 'A'
-        elif obj.shift.shift_type == 1:
-            return 'E'
-        elif obj.shift.shift_type == 2:
-            return 'N'
-        elif obj.shift.shift_type == 5:
-            if obj.shift.name == "休息":
-                return '休'
-            if obj.shift.name == "例假":
-                return '例'
-            if obj.shift.name == "補休":
-                return "補"
-            if obj.shift.name == "特休":
-                return "特"
-            if obj.shift.name == "空班":
-                return "空"
-            if obj.shift.name == "婚假":
-                return "婚"
-            if obj.shift.name == "喪假":
-                return "喪"
-            if obj.shift.name == "產假":
-                return "產"
-            if obj.shift.name == "生理假":
-                return "生"
-            if obj.shift.name == "國定假日":
-                return "國"
-        elif obj.shift.shift_type == 6:
-            if obj.shift.name == "無薪病假":
-                return '病'
-            if obj.shift.name == "事假":
-                return '事'
-            if obj.shift.name == "家庭照顧假":
-                return '家'
-        elif obj.shift.shift_type == 4:
-            return 'On'
-        elif obj.shift.shift_type == 3:
-            return '公'
-        elif obj.shift.shift_type == 7:
-            return '政'
-        else:
-            return ''
+        return get_type(obj.shift)
 
     class Meta:
         model = Result
@@ -436,48 +399,7 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
     shift_type = serializers.SerializerMethodField()
 
     def get_shift_type(self, obj):
-        if obj.shift.shift_type == 0:
-            return 'A'
-        elif obj.shift.shift_type == 1:
-            return 'E'
-        elif obj.shift.shift_type == 2:
-            return 'N'
-        elif obj.shift.shift_type == 5:
-            if obj.shift.name == "休息":
-                return '休'
-            if obj.shift.name == "例假":
-                return '例'
-            if obj.shift.name == "補休":
-                return "補"
-            if obj.shift.name == "特休":
-                return "特"
-            if obj.shift.name == "空班":
-                return "空"
-            if obj.shift.name == "婚假":
-                return "婚"
-            if obj.shift.name == "喪假":
-                return "喪"
-            if obj.shift.name == "產假":
-                return "產"
-            if obj.shift.name == "生理假":
-                return "生"
-            if obj.shift.name == "國定假日":
-                return "國"
-        elif obj.shift.shift_type == 6:
-            if obj.shift.name == "無薪病假":
-                return '病'
-            if obj.shift.name == "事假":
-                return '事'
-            if obj.shift.name == "家庭照顧假":
-                return '家'
-        elif obj.shift.shift_type == 4:
-            return 'On'
-        elif obj.shift.shift_type == 3:
-            return '公'
-        elif obj.shift.shift_type == 7:
-            return '政'
-        else:
-            return ''
+        return get_type(obj.shift)
 
     class Meta:
         model = AfterResult
