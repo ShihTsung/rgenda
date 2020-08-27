@@ -404,12 +404,13 @@ def departmentCreate(request):
                 request,
                 f'科別 {department.name} 新增成功'
             )
-            # notify.send(
-            #     sender=request.user,
-            #     recipient=CustomUser.objects.all(),
-            #     target=department,
-            #     level='info',
-            #     verb=f'{request.user.full_name} 建立了新的科別',)
+            notify.send(
+                sender=request.user,
+                recipient=CustomUser.objects.all(),
+                target=department,
+                level='info',
+                verb=f'{request.user.full_name} 建立了新的科別',
+                description='/departments/list')
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)

@@ -27,8 +27,9 @@ class CommentNoticeUpdateView(View):
         notice_id = request.GET.get('notice_id')
         # 更新單條通知
         if notice_id:
-            request.user.notifications.get(id=notice_id).mark_as_read()
-            return redirect('/departments/list')
+            notice = request.user.notifications.get(id=notice_id)
+            notice.mark_as_read()
+            return redirect(notice.description)
         # 更新全部通知
         else:
             request.user.notifications.mark_all_as_read()
