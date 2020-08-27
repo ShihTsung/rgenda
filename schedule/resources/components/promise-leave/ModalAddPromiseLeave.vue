@@ -198,10 +198,21 @@ export default {
         })
         .catch(function (error) {
           // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
-          });
+          const { response } = error.innerError;
+          if (response && response.data.hasOwnProperty('non_field_errors')) {
+            let duplicateDate = moment(self.addPromiseLeave.startDate).format('YYYY-MM-DD');
+            popup.error({
+              title: '新增假勤失敗',
+              html: `日期 ${duplicateDate} 已有資料存在`,
+            }, function () {
+              self.cancelAddition();
+            });
+          } else {
+            popup.error({
+              title: error.title,
+              html: httpRep.messageJoin(error.message),
+            });
+          }
           console.log(error);
         });
     },
