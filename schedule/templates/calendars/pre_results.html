@@ -473,7 +473,6 @@
       forCheckZero: false,
       isAnnounce: false,
       isConfirm: false,
-      addData: {},
       existData: {},
       stop: true,
       show: true
@@ -923,33 +922,22 @@
       },
 
       editResult(ev) {
-        console.log(this.changeInfo);
         let type = '';
         let stationArr = [];
 
         this.singleEdit = false;
-        if(this.changeInfo) {
+        if(this.changeInfo != undefined) {
           this.obj.date = this.changeInfo.date;
           this.obj.user = this.changeInfo.user;
 
           this.obj.id = this.changeInfo.id;
         };
-        if(this.addData) {
-          this.obj.date = this.addData.date;
-          this.obj.user = this.addData.user;
-
-          if(this.addData.id){
-            this.obj.id = this.addData.id;
-          };
-        };
-
-
-
 
         this.obj.shift = parseInt(this.item);//shift id
         if(this.station != -1) {
           this.obj.station = this.station;
         };
+
         fetch("/api/preresults/", {
             headers:{
                 'X-CSRFToken': '{{ csrf_token }}',
@@ -961,7 +949,7 @@
           .then((res)=>{
             return res.json();
           }).then((data)=>{
-            this.addData.id = data.id;
+            this.changeInfo.id = data.id;
             this.resultData.push(data);
           }).catch((err)=>{
             console.log(err);
@@ -1051,17 +1039,17 @@
 
         //前端顯示修正
         if(this.changeInfo != undefined) {
-          this.resultData[this.resultData.indexOf(this.changeInfo.id)].shift_type = type;
-          this.ShiftOfUser(this.changeInfo.user, this.changeInfo.date.split('-')[1], this.changeInfo.date.split('-')[2]);
+          this.resultData.forEach(i=>{
+            if(i.id == this.changeInfo.id) {
+              i.shift_type = type;
+              i.isModified = true;
+            }
+          });
         };
 
-        if(this.addData != undefined) {
-          this.resultData[this.resultData.indexOf(this.addData.id)].shift_type = type;
-        };
-
-        if(this.isChecked == true) {
-          this.resultData[this.resultData.indexOf(this.changeInfo.id)].isModified = true;
-        }
+        // if(this.isChecked == true) {
+        //   this.resultData[this.changeInfo.id].isModified = true;
+        // };
 
         this.changeInfo = {};
         this.item = -1;
@@ -1078,9 +1066,9 @@
         };
 
         this.singleEdit = true;
-
-        this.addData.user = id;
-        this.addData.date = year.toString() + '-' + month.toString() + '-' + d;
+        this.changeInfo = {};
+        this.changeInfo.user = id;
+        this.changeInfo.date = year.toString() + '-' + month.toString() + '-' + d;
 
       },
 
