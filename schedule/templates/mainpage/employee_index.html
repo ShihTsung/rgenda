@@ -228,7 +228,7 @@
       selectable: false,
       selectHelper: true,
       theme: true,
-      editable: true,
+      editable: false,
       themeSystem: 'bootstrap',
       weekMode: 'liquid',
       eventLimit: true, // when too many events in a day, show the popover
@@ -290,14 +290,23 @@
           fetch('/api/dates/' + queryString).then(res => res.json()),
         ]).then(processResult);
 
+        let currentUserPromise = fetch('/api/users/curr/').then(res => res.json());
+
         let timeAdjustmentPromise = Promise.all([
           fetch('/api/time-adjustment/' + queryString).then(res => res.json()),
-          fetch('/api/users/curr/').then(res => res.json()),
+          currentUserPromise,
         ]).then(processTimeAdjustment);
+
+        let promisesPromise = currentUserPromise.then(user => {
+          return fetch('/api/promises/' + queryString + '&uid=' + user.id)
+            .then(res => res.json())
+            .then(processPromises);
+        });
 
         Promise.all([
           resultPromise,
           timeAdjustmentPromise,
+          promisesPromise,
         ]).then(dataArr => {
           // flatten array of arrays
           // ref: https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
@@ -372,6 +381,30 @@
               e.textColor = adjustColor[e.adjustment_type];
               processedData.push(e);
             }
+          });
+          return processedData;
+        }
+
+        function processPromises(data) {
+          if (!data || data.length === 0) {
+            return [];
+          }
+
+          let processedData = [];
+          data.forEach(e => {
+            if (e.shift_type === 3) {
+              e.title = '預排公假';
+            } else if (e.shift_type === 7) {
+              e.title = '預排特休';
+            } else {
+              e.title = '預排假';
+            }
+            e.resourceId = e.user.id;
+            e.sort = 1;
+            e.backgroundColor = '#ffffff';
+            e.borderColor = shiftColor.default;
+            e.textColor = shiftColor.default;
+            processedData.push(e);
           });
           return processedData;
         }
