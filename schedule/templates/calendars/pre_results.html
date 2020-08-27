@@ -155,7 +155,7 @@
 
                   </tr>
 
-                  <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
+                  <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="u">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
                     <td class="white-background" style="width: 30px">N[[tellLevel(u.level)]]</td>
                     <td class="user-first-col white-background" style="width: 140px">
@@ -163,23 +163,41 @@
                       [[u.full_name]]
                     </td>
                     <td class="pastDay" style="width: 45px">[[getLastMonth(u.id)]]</td>
-                    <td else="isNull(u.id, month)" @click="editShift($event, userShift)" class="user-content-col"  v-for="userShift in ShiftOfUser(u.id, month)" :key="userShift" :class="[{pastDay: isPast(userShift), futureDay: !isPast(userShift)}, whichBorder(userShift.id)]">
-                      <div class="forbidden-mark" v-if="isChecked && (checkResults(userShift.id) == 1)" @mouseenter="checkText(userShift.id, $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(userShift.id)}">
+                    <!-- <td @click="editShift($event, ShiftOfUser(u.id, month, d))" class="user-content-col"  v-for="d in getYear(year,month)" :key="d" :class="[{pastDay: isPast(ShiftOfUser(u.id, month, d)), futureDay: !isPast(ShiftOfUser(u.id, month, d))}, whichBorder(ShiftOfUser(u.id, month, d).id)]">
+                      <div class="forbidden-mark" v-if="isChecked && (checkResults(ShiftOfUser(u.id, month, d).id) == 1)" @mouseenter="checkText(ShiftOfUser(u.id, month, d).id, $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(ShiftOfUser(u.id, month, d).id)}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"/></svg>
                       </div>
-                      <div class="alert-mark" v-if="isChecked && (checkResults(userShift.id) == 2)" @mouseenter="checkText(userShift.id, $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(userShift.id)}">
+                      <div class="alert-mark" v-if="isChecked && (checkResults(ShiftOfUser(u.id, month, d).id) == 2)" @mouseenter="checkText(ShiftOfUser(u.id, month, d).id, $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(ShiftOfUser(u.id, month, d).id)}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"/></svg>
                       </div>
-                      <div style="font-size: 22px; display: block;" :class="shiftColor(userShift.shift_type)">
-                        [[userShift.shift_type]]
+                      <div else="isNull(u.id, month)" style="font-size: 22px; display: block;"  :class="shiftColor(ShiftOfUser(u.id, month, d).shift_type)">
+                        [[ShiftOfUser(u.id, month, d).shift_type]]
                       </div>
-                      <div v-if="isAdjust(userShift.user, userShift.date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(userShift.user, userShift.date))">
-                        [[isAdjust(userShift.user, userShift.date)]]
+                      <div v-if="isAdjust(ShiftOfUser(u.id, month, d).user, ShiftOfUser(u.id, month, d).date)" style="font-size: 22px; width: 37px; display: block;" :class="whichWork(isAdjust(ShiftOfUser(u.id, month, d).user, ShiftOfUser(u.id, month, d).date))">
+                        [[isAdjust(ShiftOfUser(u.id, month, d).user, ShiftOfUser(u.id, month, d).date)]]
+                      </div>
+                      <div v-if="isNull(u.id, month)" @click="postToResults(u.id, d, month, year)" class="futureDay">
+                        -
+                      </div>
+                    </td> -->
+                    <td class="user-content-col" @click="editShift($event, ShiftOfUser(u.id, month, d))" v-for="d in getYear(year,month)" :key="d" :class="[{pastDay: isPast(ShiftOfUser(u.id, month, d)), futureDay: !isPast(ShiftOfUser(u.id, month, d))}, whichBorder(ShiftOfUser(u.id, month, d))]">
+                      <div v-if="!ShiftOfUser(u.id, month, d)" @click="postToResults(u.id, d, month, year)">
+                        -
+                      </div>
+                      <div else="ShiftOfUser(u.id, month, d)" style="font-size: 22px; display: block; position: absolute; top: 50%; transform: translate(-50%, -50%); left: 50%;" :class="shiftColor(deriveShiftType(ShiftOfUser(u.id, month, d)))">
+                        [[deriveShiftType(ShiftOfUser(u.id, month, d))]]
+                      </div>
+                      <div v-if="isAdjust(ShiftOfUser(u.id, month, d))" style="font-size: 22px; width: 37px; display: block; margin-top: 130%;" :class="whichWork(isAdjust(ShiftOfUser(u.id, month, d)))">
+                        [[isAdjust(ShiftOfUser(u.id, month, d))]]
+                      </div>
+                      <div class="forbidden-mark" v-if="isChecked && (checkResults(deriveId(ShiftOfUser(u.id, month, d))) == 1)" @mouseenter="checkText(deriveId(ShiftOfUser(u.id, month, d)), $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(deriveId(ShiftOfUser(u.id, month, d)))}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"/></svg>
+                      </div>
+                      <div class="alert-mark" v-if="isChecked && (checkResults(deriveId(ShiftOfUser(u.id, month, d))) == 2)" @mouseenter="checkText(deriveId(ShiftOfUser(u.id, month, d)), $event)"  @mouseleave="checkTextShow = false" :style="{fill: checkModify(deriveId(ShiftOfUser(u.id, month, d)))}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"/></svg>
                       </div>
                     </td>
-                    <td v-if="isNull(u.id, month)" v-for="d in getYear(year,month)" :key="d" class="futureDay">
-                      -
-                    </td>
+
                     <td class="user-last-col pastDay">
                       <input class="remark-gird" type="text" :value="findRemark(u.id, month)" @blur="getRemark($event, u.id, month)" @keyup.13="$event.target.blur" v-if="edit"/>
                       <div v-if="!edit">
@@ -302,7 +320,7 @@
           </h4>
           <select class="category-option" v-model="station">
             <option selected disabled="disabled"  style='display: none' value=''></option>
-            <option v-for="station in stationData" :key="station" :value="station.id">[[station.name]]</option>
+            <option v-for="station in stationPicker(stationData)" :key="station" :value="station.id">[[station.name]]</option>
           </select>
         </div>
         <div class="btn-position">
@@ -353,8 +371,8 @@
           <button class="cate-btn" @click="whoFollows()">儲存</button>
         </div>
       </div>
-      <div class="checkWithoutProblem" v-if="isChecked && checkResult.length == 0 && forCheckZero" >
-        <div @click="forCheckZero = false" class='cross'>
+      <div class="checkWithoutProblem" v-if="isChecked && checkResult.length == 0 && forCheckZero && show" >
+        <div @click="show = false" class='cross'>
           <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
         </div>
         <h3 class="c-title">
@@ -364,7 +382,7 @@
           <button class="cate-btn" @click="endCheck()">確認</button>
         </div>
       </div>
-      <div class="checkWait" v-if="isChecked && checkResult.length == 0 && !forCheckZero">
+      <div class="checkWait" v-if="isChecked && checkResult.length == 0 && !forCheckZero && stop">
         <h3 class="c-title">
           等候中...
         </h3>
@@ -426,7 +444,7 @@
       remarkData: [],
       singleEdit: false,
       changedResult: [],
-      changeInfo: Object,
+      changeInfo: {},
       item: -1,
       station: -1,
       obj: {},
@@ -454,7 +472,11 @@
       modifyColor: 'red',
       forCheckZero: false,
       isAnnounce: false,
-      isConfirm: false
+      isConfirm: false,
+      addData: {},
+      existData: {},
+      stop: true,
+      show: true
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -543,14 +565,30 @@
         return this.weekday[weekofday.getDay()];
       },
 
-      ShiftOfUser(id, m) {
-        return this.resultData.filter((userItem)=>{
+      ShiftOfUser(id, m, d) {
+        let s = this.resultData.find((userItem)=>{
           if(userItem.user == id) {
-            return parseInt(userItem.date.split('-')[1]) == m;
-          }else {
-            return false;
-          }
+            return parseInt(userItem.date.split('-')[1]) == m && parseInt(userItem.date.split('-')[2]) == d;
+          };
         });
+
+
+        if(s != undefined){
+          return s;
+        };
+
+      },
+
+      deriveShiftType(obj) {
+        if(obj != undefined) {
+          return obj.shift_type;
+        };
+      },
+
+      deriveId(obj) {
+        if(obj != undefined) {
+          return obj.id;
+        }
       },
 
       getPreResults(month, year) {
@@ -614,23 +652,29 @@
           this.monthString = month.toString();
         };
 
-        if((parseInt(d.date.split('-')[1]) < month) && (parseInt(d.date.split('-')[0]) <= year)) {
-          return true;
-        }else if((parseInt(d.date.split('-')[1]) == month) && (parseInt(d.date.split('-')[0]) <= year)) {
-          if((parseInt(d.date.split('-')[2]) < date)) {
+        if(d) {
+          if((parseInt(d.date.split('-')[1]) < month) && (parseInt(d.date.split('-')[0]) <= year)) {
             return true;
+          }else if((parseInt(d.date.split('-')[1]) == month) && (parseInt(d.date.split('-')[0]) <= year)) {
+            if((parseInt(d.date.split('-')[2]) < date)) {
+              return true;
+            }else {
+              return false
+            };
           }else {
-            return false
+            return false;
           };
-        }else {
-          return false;
-        };
+        }
+
       },
 
-      isAdjust(id, time) {
-        let obj = this.adjustHr.find((item)=>{
-          return (item.user == id) && (item.date == time);
-        });
+      isAdjust(data) {
+        let obj;
+        if(data != undefined) {
+          obj = this.adjustHr.find((item)=>{
+            return (item.user == data.user) && (item.date == data.date);
+          });
+        };
         if(obj != undefined){
           if(obj.adjustment_type == 0){
             return '+' + obj.hours;
@@ -864,37 +908,71 @@
             };
 
             // console.log(this.resultRS);
-            this.whichBorder(info.id);
+            this.whichBorder(info);
 
           };
         };
         if(this.edit == true && (ev.target.parentElement.className.split(' ')[1]) == 'futureDay') {
           this.singleEdit = true;
-          this.changeInfo = info;
+          if(info != undefined) {
+            this.changeInfo = info;
+          };
         }else {
           this.singleEdit = false;
         };
       },
 
       editResult(ev) {
+        console.log(this.changeInfo);
         let type = '';
         let stationArr = [];
 
         this.singleEdit = false;
+        if(this.changeInfo) {
+          this.obj.date = this.changeInfo.date;
+          this.obj.user = this.changeInfo.user;
 
-        this.obj.date = this.changeInfo.date;
-        this.obj.id = this.changeInfo.id;
+          this.obj.id = this.changeInfo.id;
+        };
+        if(this.addData) {
+          this.obj.date = this.addData.date;
+          this.obj.user = this.addData.user;
+
+          if(this.addData.id){
+            this.obj.id = this.addData.id;
+          };
+        };
+
+
+
+
         this.obj.shift = parseInt(this.item);//shift id
         if(this.station != -1) {
           this.obj.station = this.station;
-        }
-        this.obj.user = this.changeInfo.user;
-        this.changedResult.push(this.obj);//之後丟去api修正
+        };
+        fetch("/api/preresults/", {
+            headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(this.obj),
+            method: 'POST',
+          })
+          .then((res)=>{
+            return res.json();
+          }).then((data)=>{
+            this.addData.id = data.id;
+            this.resultData.push(data);
+          }).catch((err)=>{
+            console.log(err);
+          });
 
+        if(this.changeInfo.id){
+          this.changedResult.push(this.obj);//之後丟去api修正
+        }
         let shift_id = this.shiftData.find((i)=>{
           return i.id == this.obj.shift;
         });
-
 
         //shift id to shift type
         switch (shift_id.shift_type) {
@@ -972,16 +1050,37 @@
         };
 
         //前端顯示修正
+        if(this.changeInfo != undefined) {
+          this.resultData[this.resultData.indexOf(this.changeInfo.id)].shift_type = type;
+          this.ShiftOfUser(this.changeInfo.user, this.changeInfo.date.split('-')[1], this.changeInfo.date.split('-')[2]);
+        };
 
-        this.resultData[this.resultData.indexOf(this.changeInfo)].shift_type = type;
+        if(this.addData != undefined) {
+          this.resultData[this.resultData.indexOf(this.addData.id)].shift_type = type;
+        };
+
         if(this.isChecked == true) {
-          this.resultData[this.resultData.indexOf(this.changeInfo)].isModified = true;
+          this.resultData[this.resultData.indexOf(this.changeInfo.id)].isModified = true;
         }
 
         this.changeInfo = {};
         this.item = -1;
         this.station = -1;
         this.obj = {};
+      },
+
+      postToResults(id, d, month, year) {
+        if(month < 10) {
+          month = '0' + month.toString();
+        };
+        if(d < 10) {
+          d = '0' + d;
+        };
+
+        this.singleEdit = true;
+
+        this.addData.user = id;
+        this.addData.date = year.toString() + '-' + month.toString() + '-' + d;
 
       },
 
@@ -1336,12 +1435,13 @@
         // console.log(this.rsClass);
       },
 
-      whichBorder(index) {
-        let f = this.resultRemarksData.find((i)=>{
-          return i.result == index;
-        });
-
-
+      whichBorder(obj) {
+        let f;
+        if(obj != undefined) {
+          f = this.resultRemarksData.find((i)=>{
+            return i.result == obj.id;
+          });
+        };
 
         if(f){
           // console.log(f);
@@ -1400,8 +1500,8 @@
       },
 
       endCheck() {
-        this.forCheckZero = false;
-        this.isChecked = false;
+        this.stop = false;
+        this.show = false;
       },
 
       checkText(index, ev) {
@@ -1462,7 +1562,6 @@
         this.isAnnounce = true;
         if(this.isChecked == true){
           if(this.forCheckZero || this.checkResult.length!=0){
-            // window.location = '/results/publish?month=' + month;
             this.isConfirm = true;
           }
 
@@ -1502,6 +1601,16 @@
         }else {
           return l;
         }
+      },
+
+      stationPicker(arr) {
+        let a = arr.filter(i=>{
+          if(i.name.indexOf('假') == -1){
+            return i.name.indexOf('行政') == -1;
+          };
+        });
+
+        return a;
       }
     }
 
@@ -1868,16 +1977,10 @@
     .forbidden-mark {
       fill: red;
       opacity: 0.5;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
       visibility: visible;
     }
     .alert-mark {
       fill: red;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
       visibility: visible;
     }
     .check-info {
