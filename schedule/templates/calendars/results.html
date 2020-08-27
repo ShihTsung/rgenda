@@ -113,7 +113,7 @@
 
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
-                    <td class="white-background" style="width: 30px">[[u.level]]</td>
+                    <td class="white-background" style="width: 30px">N[[tellLevel(u.level)]]</td>
                     <td class="user-first-col white-background" style="width: 140px">
                       <div class="identity-circle" :class="whichCircle(u.type_of_user)"></div>
                       [[u.full_name]]
@@ -1347,6 +1347,14 @@
             return 'administrative';
           case 5://實習生
             return 'new';
+        }
+      },
+
+      tellLevel(l) {
+        if(l == 5) {
+          return 'n';
+        }else {
+          return l;
         }
       }
     }
