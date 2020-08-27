@@ -1102,8 +1102,9 @@ def exchangeable_user(request):
             'messages': 'Result Not Found',
         })
     try:
-        result_options = Result.objects.filter(user__department=user.department, date=exchange_date,
-                                               shift__shift_type=exchange_shift_type).exclude(user=user)
+        result_options = Result.objects.filter(
+            user__department=user.department, date=exchange_date,
+            shift__shift_type=exchange_shift_type).exclude(user=user)
     except Result.DoesNotExist:
         return Response({
             'users': None,

@@ -157,7 +157,7 @@
 
                   <tr v-if="isReady" class="user-row" v-for="(u, index) in userData" :key="index">
                     <td class="white-background" style="width: 75px">[[u.eid]]</td>
-                    <td class="white-background" style="width: 30px">[[u.level]]</td>
+                    <td class="white-background" style="width: 30px">N[[tellLevel(u.level)]]</td>
                     <td class="user-first-col white-background" style="width: 140px">
                       <div class="identity-circle" :class="whichCircle(u.type_of_user)"></div>
                       [[u.full_name]]
@@ -380,6 +380,20 @@
           請先按檢核再發布
         </h3>
       </div>
+      <div class="follow" v-if="isConfirm">
+        <div @click="isConfirm = false" class='cross'>
+          <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
+        </div>
+        <div class="plane">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><path d="M24 0l-6 22-8.129-7.239 7.802-8.234-10.458 7.227-7.215-1.754 24-12zm-15 16.668v7.332l3.258-4.431-3.258-2.901z"/></svg>
+        </div>
+        <h3 class="a-title">
+          即將發布班表！
+        </h3>
+        <div class="btn-position" style="margin-top: 23rem;">
+          <button class="a-btn" @click="confirmSend(month)">確認</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -439,7 +453,8 @@
       y: '',
       modifyColor: 'red',
       forCheckZero: false,
-      isAnnounce: false
+      isAnnounce: false,
+      isConfirm: false
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -1446,8 +1461,16 @@
       dataToResult(month) {
         this.isAnnounce = true;
         if(this.isChecked == true){
-          window.location = '/results/publish?month=' + month;
+          if(this.forCheckZero || this.checkResult.length!=0){
+            // window.location = '/results/publish?month=' + month;
+            this.isConfirm = true;
+          }
+
         };
+      },
+
+      confirmSend(month) {
+        window.location = '/results/publish?month=' + month;
       },
 
       remarkContent(index) {
@@ -1470,6 +1493,14 @@
             }else {
               return '請填寫標誌說明';
             };
+        }
+      },
+
+      tellLevel(l) {
+        if(l == 5) {
+          return 'n';
+        }else {
+          return l;
         }
       }
     }
@@ -1798,6 +1829,9 @@
     .cate-btn:hover {
       background: #A6C2CE;
     }
+    .a-btn:hover {
+      background: #A6C2CE;
+    }
     .remark-gird {
       width: 5rem;
       background: #f2f2f2;
@@ -1898,6 +1932,30 @@
       left: 28vw;
       border-radius: 2px;
       box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    }
+    .plane {
+      fill: #37419A;
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .a-title {
+      color: #37419A;
+      text-align: center;
+      position: absolute;
+      top: 280px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .a-btn {
+      border: none;
+      height: 3.5rem;
+      width: 6rem;
+      background: #37419A;
+      border-radius: 5px;
+      color: white;
+      font-size: 1.3rem;
     }
 </style>
 {% endblock %}

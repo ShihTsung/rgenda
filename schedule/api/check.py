@@ -92,9 +92,9 @@ def check_cycle(department, results, invalid):
         for result in results:
             if i % 7 == 0:
                 current_shift_type = None
-            if current_shift_type is None and result.shift.shift_type in [0, 1, 2]:
+            if current_shift_type is None and result.shift.shift_type in [0, 1, 2, 7]:
                 current_shift_type = result.shift.shift_type
-            elif result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type and result.date >= date0:
+            elif result.shift.shift_type in [0, 1, 2, 7] and result.shift.shift_type != current_shift_type and result.date >= date0:
                 invalid[result.id].append('不合排班條件：每週排同一種班')
             i += 1
         return None
@@ -103,28 +103,28 @@ def check_cycle(department, results, invalid):
         current_shift_type = None
         results_last_month = Result.objects.filter(date__month=results[0].date.month - 1,
                                                    user=user,
-                                                   shift__shift_type__in=[0, 1, 2])
+                                                   shift__shift_type__in=[0, 1, 2, 7])
         shift_types = [
             result.shift.shift_type for result in results_last_month]
         counter = 0
-        for st in [0, 1, 2]:
+        for st in [0, 1, 2, 7]:
             if shift_types.count(st) > counter:
                 counter = shift_types.count(st)
                 current_shift_type = st
         for result in results:
-            if result.shift.shift_type in [0, 1, 2] and result.shift.shift_type != current_shift_type:
+            if result.shift.shift_type in [0, 1, 2, 7] and result.shift.shift_type != current_shift_type:
                 invalid[result.id].append('不合排班條件：三個月排同一種班')
         return None
     # 單月同班種 or 三月同班種且為第一個月
     shift_types = [
-        result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2]]
+        result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2, 7]]
     counter = 0
     current_shift_type = None
-    for st in [0, 1, 2]:
+    for st in [0, 1, 2, 7]:
         if shift_types.count(st) > counter:
             counter = shift_types.count(st)
             current_shift_type = st
-    invalid_type = [0, 1, 2]
+    invalid_type = [0, 1, 2, 7]
     invalid_type.remove(current_shift_type)
     for result in results:
         if result.shift.shift_type in invalid_type:
@@ -167,7 +167,7 @@ def check_rest_day(department, results, invalid):
         user=user).order_by('date')
     continue_workday = 0
     for result in last_week_results:
-        if result.shift.shift_type in [0, 1, 2, 3]:
+        if result.shift.shift_type in [0, 1, 2, 3, 7]:
             continue_workday += 1
         else:
             continue_workday = 0
@@ -181,7 +181,7 @@ def check_rest_day(department, results, invalid):
             work_days = 0
         if H_Calendar.objects.filter(date=result.date).first().attribute == 'holiday':
             work_days_limit -= 1
-        if result.shift.shift_type in [0, 1, 2, 3]:
+        if result.shift.shift_type in [0, 1, 2, 3, 7]:
             continue_workday += 1
             work_days += 1
         else:
@@ -210,7 +210,7 @@ def check_rest_hour(results, invalid):
             user=results[0].user, date=results[0].date - timedelta(days=1))
         last_off_time = datetime.combine(
             last_result.date, time(hour=0, minute=0, second=0))
-        if last_result.shift.shift_type in [0, 1, 2]:
+        if last_result.shift.shift_type in [0, 1, 2, 7]:
             if last_result.shift.start_time > last_result.shift.end_time:
                 last_off_time = datetime.combine(
                     last_result.date, last_result.shift.end_time) + timedelta(days=1)
@@ -221,7 +221,7 @@ def check_rest_hour(results, invalid):
         last_off_time = datetime.combine(results[0].date, time(
             hour=0, minute=0, second=0)) - timedelta(days=1)
     for result in results:
-        if result.shift.shift_type in [0, 1, 2]:
+        if result.shift.shift_type in [0, 1, 2, 7]:
             start_time = datetime.combine(result.date, result.shift.start_time)
             if start_time - last_off_time < timedelta(hours=11):
                 invalid[result.id].append('不合法規：兩班之間需間隔11小時')
