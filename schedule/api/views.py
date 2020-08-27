@@ -1036,7 +1036,8 @@ def last_month_continue(request):
         '0': 'A',
         '1': 'E',
         '2': 'N',
-        '3': '公'
+        '3': '公',
+        '7': '政',
     }
     for user in users:
         output[user.id] = list()
@@ -1044,7 +1045,7 @@ def last_month_continue(request):
             user=user, date__gte=date0 - timedelta(days=7),
             date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
-            if result.shift.shift_type in [0, 1, 2, 3]:
+            if result.shift.shift_type in [0, 1, 2, 3, 7]:
                 output[user.id].append(str(result.shift.shift_type))
             else:
                 output[user.id] = list()
@@ -1163,7 +1164,7 @@ def exchangeable_user(request):
 
             count = 0
             for st in shift_types:
-                if st in [0, 1, 2, 3]:
+                if st in [0, 1, 2, 3, 7]:
                     count += 1
                     if count == 7:
                         user_options.remove(result.user.id)
@@ -1178,7 +1179,7 @@ def exchangeable_user(request):
                            exchange_date else r.shift_type for r in results]
             count = 0
             for st in shift_types:
-                if st in [0, 1, 2, 3]:
+                if st in [0, 1, 2, 3, 7]:
                     count += 1
                     if count == 7:
                         user_options.remove(result.user.id)
@@ -1282,7 +1283,7 @@ def users_can_support(request):
     for d in date_list:
         output[str(d)] = list()
     shifts = Shift.objects.filter(
-        department=request.user.department, shift_type__in=[0, 1, 2])
+        department=request.user.department, shift_type__in=[0, 1, 2, 7])
     for d in date_list:
         try:
             results = Result.objects.filter(
@@ -1303,7 +1304,7 @@ def users_can_support(request):
             result_list = Result.objects.filter(user=result.user, date__in=[
                                                 d + timedelta(days=i) for i in range(-6, 7)]).order_by('date')
             working_list = [1 if r.shift.shift_type in [
-                0, 1, 2, 3] or r.date == d else 0 for r in result_list]
+                0, 1, 2, 3, 7] or r.date == d else 0 for r in result_list]
             count = 0
             continue_over_6 = False
             for r in working_list:

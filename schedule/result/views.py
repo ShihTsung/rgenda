@@ -528,7 +528,7 @@ def get_continue_days(department, date0):
         results = Result.objects.filter(user=user, date__gte=date0 - timedelta(days=7),
                                         date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
-            if result.shift.shift_type in [0, 1, 2, 3]:
+            if result.shift.shift_type in [0, 1, 2, 3, 7]:
                 output[user.id] += 1
             else:
                 output[user.id] = 0
@@ -554,7 +554,7 @@ def get_used_rest(department, date_start, date_end):
                 output[user.id].append('例')
             elif result.shift.name in ['休息', 'oncall']:
                 output[user.id].append('休')
-            elif result.shift.shift_type in [0, 1, 2, 3]:
+            elif result.shift.shift_type in [0, 1, 2, 3, 7]:
                 output[user.id].append('工')
             else:
                 output[user.id].append('特')
@@ -575,7 +575,7 @@ def get_workday_num(user_id, cycle_start, cycle_end, date0=None):
     if date0:
         results = Result.objects.filter(
             user__id=user_id, date__gte=cycle_start, date__lt=date0,
-            shift__shift_type__in=[0, 1, 2, 3])
+            shift__shift_type__in=[0, 1, 2, 3, 7])
         workdays -= len(results)
     return workdays
 
@@ -1147,8 +1147,8 @@ def create_result(request, department_id, start, end):
         shift_admin = Shift.objects.get(department=department, name='行政')
 
         for user in user_admin:
-            for d in date_list:
-                if reds[str(d)]:
+            for i, d in enumerate(date_list):
+                if reds[str(d)] or attrs[i] == '0':
                     if d.isoweekday() == 7:
                         PreResult.objects.create(
                             user=user,

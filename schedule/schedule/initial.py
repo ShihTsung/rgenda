@@ -60,7 +60,7 @@ def initial(request):
         )
 
     names = ['D', 'E', '行政']
-    shift_types = [0, 1, 0]
+    shift_types = [0, 1, 7]
     start_hours = [8, 16, 8]
     start_mins = [0, 0, 0]
     end_hours = [16, 0, 17]
