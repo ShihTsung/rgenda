@@ -163,7 +163,7 @@ def publish_result(request):
 
     start, end = date_range(0, 2)
     context = {'LANG': lang, 'start': start, 'end': end}
-    return redirect('/'+lang+'/results/pre_results')
+    return redirect('/'+lang+'/results')
 
 # 現在班表轉歷史班表
 @login_required
@@ -797,6 +797,10 @@ def create_result(request, department_id, start, end):
                                                 break
                                         if s < 6:
                                             options.append(user_id)
+
+                                        # 若有公假則工作天數-1
+                                        if d in user_data['official_leave']:
+                                            weight_workday[user_id] -= 1
                                     if len(options) < demand_dict[str(d)]:
                                         # 可排人數不足 跳出
                                         break
