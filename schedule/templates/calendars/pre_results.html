@@ -371,8 +371,8 @@
           <button class="cate-btn" @click="whoFollows()">儲存</button>
         </div>
       </div>
-      <div class="checkWithoutProblem" v-if="isChecked && checkResult.length == 0 && forCheckZero" >
-        <div @click="forCheckZero = false" class='cross'>
+      <div class="checkWithoutProblem" v-if="isChecked && checkResult.length == 0 && forCheckZero && show" >
+        <div @click="show = false" class='cross'>
           <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/></svg>
         </div>
         <h3 class="c-title">
@@ -382,7 +382,7 @@
           <button class="cate-btn" @click="endCheck()">確認</button>
         </div>
       </div>
-      <div class="checkWait" v-if="isChecked && checkResult.length == 0 && !forCheckZero">
+      <div class="checkWait" v-if="isChecked && checkResult.length == 0 && !forCheckZero && stop">
         <h3 class="c-title">
           等候中...
         </h3>
@@ -473,7 +473,10 @@
       forCheckZero: false,
       isAnnounce: false,
       isConfirm: false,
-      addData: {}
+      addData: {},
+      existData: {},
+      stop: true,
+      show: true
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -925,6 +928,12 @@
         let stationArr = [];
 
         this.singleEdit = false;
+        if(this.changeInfo) {
+          this.obj.date = this.changeInfo.date;
+          this.obj.user = this.changeInfo.user;
+
+          this.obj.id = this.changeInfo.id;
+        };
         if(this.addData) {
           this.obj.date = this.addData.date;
           this.obj.user = this.addData.user;
@@ -933,12 +942,9 @@
             this.obj.id = this.addData.id;
           };
         };
-        if(this.changeInfo) {
-          this.obj.date = this.changeInfo.date;
-          this.obj.user = this.changeInfo.user;
 
-          this.obj.id = this.changeInfo.id;
-        };
+
+
 
         this.obj.shift = parseInt(this.item);//shift id
         if(this.station != -1) {
@@ -1046,6 +1052,7 @@
         //前端顯示修正
         if(this.changeInfo != undefined) {
           this.resultData[this.resultData.indexOf(this.changeInfo.id)].shift_type = type;
+          this.ShiftOfUser(this.changeInfo.user, this.changeInfo.date.split('-')[1], this.changeInfo.date.split('-')[2]);
         };
 
         if(this.addData != undefined) {
@@ -1493,7 +1500,8 @@
       },
 
       endCheck() {
-        this.forCheckZero = false;
+        this.stop = false;
+        this.show = false;
       },
 
       checkText(index, ev) {
@@ -1554,7 +1562,6 @@
         this.isAnnounce = true;
         if(this.isChecked == true){
           if(this.forCheckZero || this.checkResult.length!=0){
-            // window.location = '/results/publish?month=' + month;
             this.isConfirm = true;
           }
 
