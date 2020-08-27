@@ -901,6 +901,8 @@ def total_per_day_api(request):
                             results[date_str][str(s_type)] += demand.config2
                         else:
                             results[date_str][str(s_type)] = 0
+            if date.attribute[str(d.id)] == '0':
+                results[date_str] = {'0': 0, '1': 0, '2': 0}
         if q_set == 'result':
             db_results = Result.objects.filter(
                 date__range=[start, end], user__in=users)
