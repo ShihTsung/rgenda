@@ -40,6 +40,9 @@ class Reservation(models.Model):
 
 # 保證假，班
 class PromiseShift(models.Model):
+    class Meta:
+        unique_together = (('user', 'date'),)
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

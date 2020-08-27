@@ -928,7 +928,7 @@ def total_per_day_api(request):
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
             results[date_str] = {'0': 0, '1': 0, '2': 0}
-            config = 1
+            config = int(date.attribute[str(d.id)])
             for demand in demands:
                 if demand.shift.department == d:
                     s_type = demand.shift.shift_type
@@ -938,7 +938,7 @@ def total_per_day_api(request):
                         elif config == 2:
                             results[date_str][str(s_type)] += demand.config2
                         else:
-                            results[date_str][str(s_type)] = 0
+                            results[date_str][str(s_type)] += 0
             if date.attribute[str(d.id)] == '0':
                 results[date_str] = {'0': 0, '1': 0, '2': 0}
         if q_set == 'result':

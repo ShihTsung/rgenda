@@ -14,9 +14,7 @@
       <template v-else>
         <div :class="'dropdown-item '+unreadClass(idx)" v-for="(notification, idx) in notificationList" :v-if="idx < 5" :key="notification.id">
           <a class="text-dark" :href="'/notice/update?department_id='+notification.target_object_id+'&notice_id='+notification.id">
-            <strong>{{ notification.target }}</strong>
             {{ notification.verb }}
-            <strong>{{ notification.actor }}</strong>
           </a>
           <span>{{dateDiffStr(notificationList[idx].timestamp)}}</span>
         </div>
