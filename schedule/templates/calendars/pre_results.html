@@ -6,7 +6,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
 
   <div id='app'>
     <div class='master'>
@@ -405,8 +405,11 @@
         <div class="plane">
           <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><path d="M24 0l-6 22-8.129-7.239 7.802-8.234-10.458 7.227-7.215-1.754 24-12zm-15 16.668v7.332l3.258-4.431-3.258-2.901z"/></svg>
         </div>
-        <h3 class="a-title">
+        <h3 class="a-title" v-if="!deliver">
           即將發布班表！
+        </h3>
+        <h3 class="a-title" v-if="deliver">
+          班表發布中...
         </h3>
         <div class="btn-position" style="margin-top: 23rem;">
           <button class="a-btn" @click="confirmSend(month)">確認</button>
@@ -475,7 +478,8 @@
       isConfirm: false,
       existData: {},
       stop: true,
-      show: true
+      show: true,
+      deliver: false
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -1557,7 +1561,12 @@
       },
 
       confirmSend(month) {
+        this.deliver = true;
         window.location = '/results/publish?month=' + month;
+        $.cookie("sideClicked", "side-results-read", {
+            path: "/",
+            expires: 7
+        });
       },
 
       remarkContent(index) {
