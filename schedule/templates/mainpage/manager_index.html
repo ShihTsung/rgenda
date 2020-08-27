@@ -356,17 +356,8 @@
       },
       aspectRatio: 2,
       expandRows: true,
-      visibleRange: {
-        start: "{{start}}",
-        end: "{{end}}"
-      },
-      // validRange: {
-      //   start: "{{start}}",
-      //   end: "{{end}}"
-      // },
       resourceAreaWidth: "8rem",
       defaultView: 'resourceTimelineWeek',
-      defaultDate: "{{default}}",
       slotLabelInterval: { day: 1 },
       slotLabelFormat: [
         { weekday: 'short', day: 'numeric' },
@@ -426,15 +417,19 @@
             }
 
             if (!shift.isOff) {
-              let shiftName = document.createElement('span');
+              let shiftName = document.createElement('h5');
               shiftName.innerHTML = shift.title;
-              shiftName.classList.add('h5', 'shift-name', 'ml-2', 'mr-1');
+              shiftName.classList.add('shift-name', 'ml-2', 'my-0', 'py-1');
               shiftGroup.append(shiftName);
             }
 
+            let userList = document.createElement('div');
+            userList.classList.add('row', 'no-gutters');
             shift.users.forEach(user => {
+              let userWrapper = document.createElement('div');
+              userWrapper.classList.add('col-12', 'col-md-6');
               let userGroup = document.createElement('span');
-              userGroup.classList.add('user-group', 'ml-1', 'mt-1');
+              userGroup.classList.add('user-group', 'ml-1', 'mt-1', 'pr-1');
 
               let level = document.createElement('i');
               level.classList.add('fas', 'mx-1', 'align-middle');
@@ -453,8 +448,10 @@
 
               userGroup.prepend(level);
               userGroup.append(userName);
-              shiftGroup.append(userGroup);
+              userWrapper.append(userGroup);
+              userList.append(userWrapper);
             });
+            shiftGroup.append(userList);
 
             if (!shift.isOff) {
               $(shiftGroup).tooltip({

@@ -364,6 +364,8 @@ class GetPreResultSerializer(serializers.ModelSerializer):
             return 'On'
         elif obj.shift.shift_type == 3:
             return '公'
+        elif obj.shift.shift_type == 7:
+            return '政'
         else:
             return ''
 
@@ -417,6 +419,8 @@ class GetResultSerializer(serializers.ModelSerializer):
             return 'On'
         elif obj.shift.shift_type == 3:
             return '公'
+        elif obj.shift.shift_type == 7:
+            return '政'
         else:
             return ''
 
@@ -470,6 +474,8 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
             return 'On'
         elif obj.shift.shift_type == 3:
             return '公'
+        elif obj.shift.shift_type == 7:
+            return '政'
         else:
             return ''
 
