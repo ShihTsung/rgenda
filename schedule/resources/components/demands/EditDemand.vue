@@ -11,7 +11,7 @@
           <div class="card-body">
             <div class="row col-md-12">
               <div class="form-group col-md-6">
-                <label for="exampleInputEmail1">資深正職</label>
+                <label>資深正職</label>
                 <div class="form-group">
                   <div class="form-check form-check-inline"
                   v-for="user in seniorStaff" :key="['senior_staff', user.id].join('_')">
@@ -24,7 +24,7 @@
                 </div>
               </div>
               <div class="form-group col-md-6">
-                <label for="exampleInputPassword1">正職</label>
+                <label>正職</label>
                 <div class="form-group">
                   <div class="form-check form-check-inline"
                   v-for="user in normalStaff" :key="['normal_staff', user.id].join('_')">
@@ -131,7 +131,6 @@ export default {
     return {
       seniorStaff: [],
       normalStaff: [],
-
       normalDemandOfShift: {
         demandId: 0,
         config1: 0,
@@ -184,35 +183,40 @@ export default {
     },
     $_editDemand_getUsers(type) {
       let self = this;
-      let url = `/api/users/?type=${type}&department=${this.myDepartmentId}`;
-      this.$httpClient.get(url)
-        .then(function (response) {
-          let data = response.data;
-          if (data.length > 0) {
-            let filteredData = data.filter((user) => {
-              return user.can_be_scheduled;
-            });
-            if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              self.normalStaff = filteredData;
-            } else {
-              self.seniorStaff = filteredData;
-            }
-          } else {
-            if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              self.normalStaff = [];
-            } else {
-              self.seniorStaff = [];
-            }
-          }
-        })
-        .catch(function (error) {
-          // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
+      Promise.all([
+        this.$httpClient.get(`/api/users/?type=${type}&department=${this.myDepartmentId}`),
+        this.$httpClient.get('/api/demand-user/'),
+      ]).then(responseArr => {
+        let data = responseArr[0].data;
+        let demandUsers = responseArr[1].data;
+        let filteredData = [];
+        console.log(data, demandUsers);
+        if (data.length > 0) {
+          filteredData = data.filter(user => {
+            return user.can_be_scheduled && demandUsers.every(demandUser => demandUser.user !== user.id);
           });
-          console.log(error);
+          console.log(filteredData);
+          if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
+            filteredData = filteredData.concat(self.normalDemandOfShift.assignedUsers);
+          } else {
+            filteredData = filteredData.concat(self.seniorDemandOfShift.assignedUsers);
+          }
+          console.log(filteredData);
+        }
+
+        if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
+          self.normalStaff = filteredData;
+        } else {
+          self.seniorStaff = filteredData;
+        }
+      }).catch(function (error) {
+        // handle error
+        popup.error({
+          title: error.title,
+          html: httpRep.messageJoin(error.message),
         });
+        console.log(error);
+      });
     },
     $_editDemand_validate() {
       let bool = true;
@@ -439,7 +443,9 @@ export default {
   mounted() {
     let self = this;
     self.$nextTick(function () {
-      let normalDemand = self.editShift.config[self.$getUserLevelValue('VALUE_NORMAL')];
+      const userLevel = self.$getUserLevelValue('VALUE_NORMAL');
+      let normalDemand = self.editShift.config[userLevel];
+      self.normalDemandOfShift.label = self.$getUserLevelString(userLevel);
       self.normalDemandOfShift.demandId = Number(normalDemand.id);
       self.normalDemandOfShift.config1 = Number(normalDemand.config1);
       self.normalDemandOfShift.config2 = Number(normalDemand.config2);
@@ -452,6 +458,7 @@ export default {
       self.normalDemandOfShift.assignedUsers = normalDemand.people;
 
       let seniorDemand = self.editShift.config[self.$getUserLevelValue('VALUE_SENIOR')];
+      self.seniorDemandOfShift.label = self.$getUserLevelString(userLevel);
       self.seniorDemandOfShift.demandId = Number(seniorDemand.id);
       self.seniorDemandOfShift.config1 = Number(seniorDemand.config1);
       self.seniorDemandOfShift.config2 = Number(seniorDemand.config2);
