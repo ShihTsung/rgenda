@@ -303,10 +303,15 @@
             .then(processPromises);
         });
 
+        let reservationsPromise = fetch('/api/reservations/' + queryString)
+          .then(res => res.json())
+          .then(processReservations);
+
         Promise.all([
           resultPromise,
           timeAdjustmentPromise,
           promisesPromise,
+          reservationsPromise,
         ]).then(dataArr => {
           // flatten array of arrays
           // ref: https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
@@ -407,6 +412,18 @@
             processedData.push(e);
           });
           return processedData;
+        }
+
+        function processReservations(data) {
+          data.forEach(e => {
+            e.title = '預約休假';
+            e.resourceId = e.user.id;
+            e.sort = 1;
+            e.backgroundColor = '#ffffff';
+            e.borderColor = shiftColor.default;
+            e.textColor = shiftColor.default;
+          });
+          return data;
         }
       },
     });
