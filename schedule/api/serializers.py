@@ -103,7 +103,7 @@ class GetCustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'gender', 'role', 'is_superuser', 'type_of_user',
+            'gender', 'role', 'is_superuser', 'type_of_user', 'pregnant',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
