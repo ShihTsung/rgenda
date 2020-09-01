@@ -119,16 +119,24 @@ def publish_result(request):
         start = datetime.date(year, next_month, 1)
         end = datetime.date(year, next_month, days_in_month)
 
-    results = PreResult.objects.filter(
-        date__range=[start, end],
-        shift__in=list(shifts))
-    published_results = Result.objects.filter(
-        date__range=[start, end],
-        shift__in=list(shifts))
+    results = PreResult.objects.select_related('station')\
+        .select_related('station__department')\
+        .select_related('shift')\
+        .select_related('user')\
+        .filter(
+            date__range=[start, end],
+            shift__in=list(shifts))
+    published_results = Result.objects.select_related('station')\
+        .select_related('station__department')\
+        .select_related('shift')\
+        .select_related('user')\
+        .filter(
+            date__range=[start, end],
+            shift__in=list(shifts))
     remarks = PreResultRemark.objects.filter(
-        result__in=list(results))
+        result__in=results)
     p_remarks = ResultRemark.objects.filter(
-        result__in=list(published_results))
+        result__in=published_results)
 
     if results:
         notify.send(

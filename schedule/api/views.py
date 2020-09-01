@@ -85,8 +85,6 @@ month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
                                description="月初日", type=openapi.TYPE_STRING)
 uid = openapi.Parameter('uid', openapi.IN_QUERY,
                         description="使用者id", type=openapi.TYPE_STRING)
-department = openapi.Parameter('department', openapi.IN_QUERY,
-                               description="科別", type=openapi.TYPE_STRING)
 usertype = openapi.Parameter('type', openapi.IN_QUERY,
                              description="排班身份類型", type=openapi.TYPE_STRING)
 date = openapi.Parameter('date', openapi.IN_QUERY,
@@ -134,6 +132,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = CustomUser.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         mode = self.request.query_params.get('mode', None)
         dep = self.request.query_params.get('department', None)
         t = self.request.query_params.get('type', None)
@@ -485,6 +484,7 @@ class ResultViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Result.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -540,6 +540,7 @@ class PreResultViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = PreResult.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -597,6 +598,7 @@ class AfterResultViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = AfterResult.objects.all()
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -927,7 +929,9 @@ def total_per_day_api(request):
 
         dates = H_Calendar.objects.filter(date__range=[start, end])
         d = request.user.department
-        demands = DemandOfStation.objects.all()
+        demands = DemandOfStation.objects.select_related('shift')\
+            .select_related('shift__department').all()
+
         users = [u for u in CustomUser.objects.filter(department=d)]
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
