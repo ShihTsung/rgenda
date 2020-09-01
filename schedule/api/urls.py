@@ -38,4 +38,5 @@ urlpatterns = [
     path('exchangeable-users/', views.exchangeable_user),
     path('follow-shift', views.preResult_follow_shift_api),
     path('users-can-support/', views.users_can_support),
+    path('suggest-user-num/<date_str>/', views.suggest_user_num),
 ]

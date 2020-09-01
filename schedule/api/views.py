@@ -19,7 +19,9 @@ from .check import *
 from .serializers import *
 from notifications.models import Notification
 from notifications.signals import notify
+from date.views import attr_list, red_dict
 from result.views import str_to_date
+from math import ceil
 
 # models
 from account.models import CustomUser, Department, Liscense, DepartmentManager
@@ -105,6 +107,8 @@ month = openapi.Parameter('month', openapi.IN_QUERY,
                           description="月份(整數)", type=openapi.TYPE_INTEGER)
 department = openapi.Parameter('department', openapi.IN_QUERY,
                                description="部門(id)", type=openapi.TYPE_INTEGER)
+configs = openapi.Parameter('configs', openapi.IN_QUERY,
+                            description="人力需求配置", type=openapi.TYPE_STRING)
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -1383,4 +1387,50 @@ def users_can_support(request):
                     off_time = datetime.combine(d, shift.end_time)
                 if work_time - last_off_time >= timedelta(hours=11) and next_work_time - off_time >= timedelta(hours=11):
                     output[str(d)][-1]['can_support_shift'].append(shift.id)
+    return Response(output)
+
+
+@swagger_auto_schema(
+    methods=['post'],
+    operation_summary='配置建議人數',
+)
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def suggest_user_num(request, date_str):
+    from datetime import date, timedelta
+
+    output = list()
+
+    date_str = date_str.split('-')
+    year = int(date_str[0])
+    month = int(date_str[1])
+    date_0 = date(year=year, month=month, day=1)
+    date_1 = date(year=year + 1, month=1, day=1) - timedelta(days=1) if month == 12 \
+        else date(year=year, month=month + 1, day=1) - timedelta(days=1)
+    configs = request.data
+    department = request.user.department
+
+    attrs = attr_list(department.id, date_0, date_1)
+    reds = red_dict(date_0, date_1)
+
+    demand1, demand2 = 0, 0
+    for i in range((date_1 - date_0).days + 1):
+        if attrs[i] == '1':
+            demand1 += configs['level1']['config1']
+            demand2 += configs['level2']['config1']
+        elif attrs[i] == '2':
+            demand1 += configs['level1']['config2']
+            demand2 += configs['level2']['config2']
+
+    workdays = list(reds.values()).count(False)
+
+    output.append({
+        'type_of_user': 0,
+        'suggest_num': max(ceil(demand1 / workdays), configs['level1']['config1'], configs['level1']['config2']),
+    })
+    output.append({
+        'type_of_user': 1,
+        'suggest_num': max(ceil(demand2 / workdays), configs['level2']['config1'], configs['level2']['config2']),
+    })
+
     return Response(output)
