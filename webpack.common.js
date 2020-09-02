@@ -73,16 +73,6 @@ module.exports = {
     }),
     new VueLoaderPlugin(),
   ],
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        common: {
-          name: 'common',
-          chunks: 'all'
-        }
-      }
-    }
-  },
   performance:{
     hints: false
   },

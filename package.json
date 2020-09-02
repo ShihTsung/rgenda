@@ -6,7 +6,7 @@
   "author": "",
   "scripts": {
     "dev": "npm run development",
-    "development": "cross-env NODE_ENV=development webpack --progress --hide-modules --config webpack.dev.js",
+    "development": "cross-env NODE_ENV=development webpack --progress --hide-modules --profile --config webpack.dev.js",
     "watch": "npm run development -- --watch",
     "watch-poll": "npm run watch -- --watch-poll",
     "prod": "npm run production",
