@@ -174,54 +174,45 @@ export default {
 
       this.$parent.cancelEdit();
     },
-    getNormalUsers() {
-      let type = this.$getUserTypeValue('VALUE_NORMAL');
-      this.$_editDemand_getUsers(type);
-    },
-    getSeniorUsers() {
-      let type = this.$getUserTypeValue('VALUE_SENIOR');
-      this.$_editDemand_getUsers(type);
-    },
-    $_editDemand_getUsers(type) {
+    $_editDemand_getUsers() {
       let self = this;
       Promise.all([
           this.$httpClient.get(
-            `/api/users/?type=${type}&department=${this.myDepartmentId}`
+            `/api/users/?type=${this.$getUserTypeValue('VALUE_NORMAL')}&department=${this.myDepartmentId}`
+          ),
+          this.$httpClient.get(
+            `/api/users/?type=${this.$getUserTypeValue('VALUE_SENIOR')}&department=${this.myDepartmentId}`
           ),
           this.$httpClient.get('/api/demand-user/'),
           this.$httpClient.get('/api/shifts/' + this.editShift.shiftId + '/'),
-        ])
-        .then((responseArr) => {
-          let data = responseArr[0].data;
-          let demandUsers = responseArr[1].data;
-          let shift = responseArr[2].data;
-          let filteredData = [];
-          if (data.length > 0) {
-            filteredData = data.filter((user) => {
-              if (user.pregnant
-                && (moment(shift.start_time, 'HH:mm').hour() < 6
-                  || moment(shift.end_time, 'HH:mm').hour() > 22)) {
-                return false;
-              }
-              return (
-                user.can_be_scheduled &&
-                demandUsers.every((demandUser) => demandUser.user !== user.id)
-              );
-            });
-            if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              filteredData = filteredData.concat(
-                self.normalDemandOfShift.assignedUsers
-              );
-            } else {
-              filteredData = filteredData.concat(self.seniorDemandOfShift.assignedUsers);
-            }
-          }
+        ]).then((responseArr) => {
+          let normalUserData = responseArr[0].data;
+          let seniorUserData = responseArr[1].data;
+          let demandUsers = responseArr[2].data;
+          let shift = responseArr[3].data;
 
-          if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-            self.normalStaff = filteredData;
-          } else {
-            self.seniorStaff = filteredData;
-          }
+          [normalUserData, seniorUserData].forEach(data => {
+            let filteredData = [];
+            if (data.length > 0) {
+              filteredData = data.filter((user) => {
+                if (user.pregnant
+                  && (moment(shift.start_time, 'HH:mm').hour() < 6
+                    || moment(shift.end_time, 'HH:mm').hour() > 22)) {
+                  return false;
+                }
+                return (
+                  user.can_be_scheduled &&
+                  demandUsers.every((demandUser) => demandUser.user !== user.id)
+                );
+              });
+            }
+
+            if (self.$getUserTypeValue('VALUE_NORMAL') === data[0].type_of_user) {
+              self.normalStaff = filteredData.concat(self.normalDemandOfShift.assignedUsers);
+            } else {
+              self.seniorStaff = filteredData.concat(self.seniorDemandOfShift.assignedUsers);
+            }
+          });
         }).catch(function (error) {
           // handle error
           popup.error({
@@ -522,8 +513,7 @@ export default {
       });
       self.seniorDemandOfShift.assignedUsers = seniorDemand.people;
 
-      self.getNormalUsers();
-      self.getSeniorUsers();
+      self.$_editDemand_getUsers();
     });
   },
 }
