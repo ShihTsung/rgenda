@@ -119,20 +119,14 @@ def publish_result(request):
         start = datetime.date(year, next_month, 1)
         end = datetime.date(year, next_month, days_in_month)
 
-    results = PreResult.objects.select_related('station')\
-        .select_related('station__department')\
-        .select_related('shift')\
-        .select_related('user')\
-        .filter(
-            date__range=[start, end],
-            shift__in=list(shifts))
-    published_results = Result.objects.select_related('station')\
-        .select_related('station__department')\
-        .select_related('shift')\
-        .select_related('user')\
-        .filter(
-            date__range=[start, end],
-            shift__in=list(shifts))
+    results = PreResult.objects.filter(
+        date__range=[start, end],
+        shift__in=list(shifts)
+    )
+    published_results = Result.objects.filter(
+        date__range=[start, end],
+        shift__in=list(shifts)
+    )
     remarks = PreResultRemark.objects.filter(
         result__in=results)
     p_remarks = ResultRemark.objects.filter(
@@ -775,6 +769,7 @@ def create_result(request, department_id, start, end):
                                           for user_id in user_pool])
 
                     if total_demands <= total_workdays:
+                        print('1. ==================')
                         # 人力滿足需求 嘗試排班100次
                         for _ in range(100):
                             # 每次回圈重設 temp_output、weight_workday、weight_holiday_rest
@@ -789,10 +784,22 @@ def create_result(request, department_id, start, end):
 
                             for d in cycle:
                                 if date_start <= d <= date_end:
+                                    print(weight_workday)
+                                    print('------------------')
 
                                     # user可排人選
                                     options = list()
+
+                                    # 必帶人數
+                                    assign_num = 0
+
                                     for user_id, user_data in user_pool.items():
+
+                                        # 若有公假則工作天數-1
+                                        if d in user_data['official_leave']:
+                                            weight_workday[user_id] -= 1
+
+                                        # 特殊假、公假、保證假、工作天不足 略過
                                         if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
                                                 'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
                                                 str(d)] != 0:
@@ -813,13 +820,30 @@ def create_result(request, department_id, start, end):
                                             else:
                                                 break
                                         if s < 6:
-                                            options.append(user_id)
+                                            # 檢查是否必帶
+                                            if str(d - timedelta(days=1)) in temp_output[user_id] and \
+                                                    str(d - timedelta(days=2)) in temp_output[user_id]:
+                                                if temp_output[user_id][str(d - timedelta(days=1))] == 1 and \
+                                                        temp_output[user_id][str(d - timedelta(days=2))] == 0:
+                                                    temp_output[user_id][str(d)] = 1
+                                                    assign_num += 1
+                                                    weight_workday[user_id] -= 1
+                                                else:
+                                                    options.append(user_id)
+                                            else:
+                                                if temp_output[user_id][str(d - timedelta(days=1))] == 1:
+                                                    temp_output[user_id][str(d)] = 1
+                                                    assign_num += 1
+                                                    weight_workday[user_id] -= 1
+                                                else:
+                                                    options.append(user_id)
 
-                                        # 若有公假則工作天數-1
-                                        if d in user_data['official_leave']:
-                                            weight_workday[user_id] -= 1
-                                    if len(options) < demand_dict[str(d)]:
-                                        # 可排人數不足 跳出
+                                    # 需求小於等於被指定人數 直接進入下一天
+                                    if demand_dict[str(d)] <= assign_num:
+                                        continue
+
+                                    # 可排人數不足or需求小於等於被指定人數 跳出
+                                    if len(options) < demand_dict[str(d)] - assign_num:
                                         break
 
                                     # 預排假權重(10倍)
@@ -843,7 +867,8 @@ def create_result(request, department_id, start, end):
                                     weight_sum = sum(weight)
                                     weight = [w / weight_sum for w in weight]
                                     on_duty = choice(
-                                        options, demand_dict[str(d)], p=weight, replace=False)
+                                        # options, demand_dict[str(d)] - assign_num, p=weight, replace=False)
+                                        options, demand_dict[str(d)] - assign_num, p=weight, replace=False)
                                     for user_id in user_pool:
                                         if user_id in on_duty:
                                             temp_output[user_id][str(d)] = 1
@@ -867,6 +892,7 @@ def create_result(request, department_id, start, end):
                         else:
                             # 嘗試100次皆失敗，強制產生班表，不必滿足所有需求
                             # 嘗試排班10次，取最滿足需求的結果
+                            print('2. ==================')
                             best_temp_output = None
                             demand_loss = total_demands
 
@@ -884,11 +910,17 @@ def create_result(request, department_id, start, end):
                                 weight_holiday_rest = dict(
                                     [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
+                                print(weight_workday)
+
                                 for d in cycle:
                                     if date_start <= d <= date_end:
 
                                         # user可排人選
                                         options = list()
+
+                                        # 必帶人數
+                                        assign_num = 0
+                                        print('------------------')
                                         for user_id, user_data in user_pool.items():
                                             if d in (user_data['promise_leave'] + user_data['official_leave'] +
                                                      user_data['promise_other']) or weight_workday[user_id] == 0 or \
@@ -901,28 +933,45 @@ def create_result(request, department_id, start, end):
                                                 if temp_output[user_id][str(d_n)] != 0:
                                                     s += temp_output[user_id][str(
                                                         d_n)]
-                                                    d_n = d_n - \
-                                                        timedelta(days=1)
+                                                    d_n = d_n - timedelta(days=1)
                                                 else:
                                                     break
                                             while str(d_p) in temp_output[user_id]:
                                                 if temp_output[user_id][str(d_p)] != 0:
                                                     s += temp_output[user_id][str(
                                                         d_p)]
-                                                    d_p = d_p + \
-                                                        timedelta(days=1)
+                                                    d_p = d_p + timedelta(days=1)
                                                 else:
                                                     break
                                             if s < 6:
-                                                options.append(user_id)
-                                        if len(options) <= demand_dict[str(d)]:
+                                                # 檢查是否必帶
+                                                if str(d - timedelta(days=1)) in temp_output[user_id] and \
+                                                        str(d - timedelta(days=2)) in temp_output[user_id]:
+                                                    if temp_output[user_id][str(d - timedelta(days=1))] == 1 and \
+                                                            temp_output[user_id][str(d - timedelta(days=2))] == 0:
+                                                        temp_output[user_id][str(d)] = 1
+                                                        assign_num += 1
+                                                        weight_workday[user_id] -= 1
+                                                    else:
+                                                        options.append(user_id)
+                                                else:
+                                                    if temp_output[user_id][str(d - timedelta(days=1))] == 1:
+                                                        temp_output[user_id][str(d)] = 1
+                                                        assign_num += 1
+                                                        weight_workday[user_id] -= 1
+                                                    else:
+                                                        options.append(user_id)
+
+                                        # 需求小於等於被指定人數 直接進入下一天
+                                        if demand_dict[str(d)] <= assign_num:
+                                            continue
+
+                                        if len(options) <= demand_dict[str(d)] - assign_num:
                                             # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
-                                            temp_demand_loss += demand_dict[str(
-                                                d)] - len(options)
+                                            temp_demand_loss += demand_dict[str(d)] - len(options)
                                             for user_id in user_pool:
                                                 if user_id in options:
-                                                    temp_output[user_id][str(
-                                                        d)] = 1
+                                                    temp_output[user_id][str(d)] = 1
                                                     weight_workday[user_id] -= 1
                                                     if reds[str(d)] and user_id not in user_current_level:
                                                         weight_holiday_rest[user_id] += 1
@@ -950,17 +999,19 @@ def create_result(request, department_id, start, end):
                                             weight_sum = sum(weight)
                                             weight = [
                                                 w / weight_sum for w in weight]
-                                            on_duty = choice(
-                                                options, demand_dict[str(d)], p=weight, replace=False)
+                                            on_duty = choice(options, demand_dict[str(d)] - assign_num, p=weight,
+                                                             replace=False)
                                             for user_id in user_pool:
                                                 if user_id in on_duty:
-                                                    temp_output[user_id][str(
-                                                        d)] = 1
+                                                    temp_output[user_id][str(d)] = 1
                                                     weight_workday[user_id] -= 1
                                                     if reds[str(d)] and user_id not in user_current_level:
                                                         weight_holiday_rest[user_id] += 1
                                                 elif reds[str(d)] and user_id in user_current_level:
                                                     weight_holiday_rest[user_id] -= 1
+
+                                    print(weight_workday)
+
                                 if temp_demand_loss < demand_loss:
                                     demand_loss = temp_demand_loss
                                     best_temp_output = temp_output
@@ -975,6 +1026,7 @@ def create_result(request, department_id, start, end):
                                 user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
                     else:
                         # 嘗試排班100次，取最滿足需求的結果
+                        print('3. ==================')
                         best_temp_output = None
                         demand_loss = total_demands
 
@@ -993,10 +1045,18 @@ def create_result(request, department_id, start, end):
                             weight_holiday_rest = dict(
                                 [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
+                            print(weight_workday)
+
                             for d in cycle:
                                 if date_start <= d <= date_end:
+                                    print('------------------')
+
                                     # user可排人選
                                     options = list()
+
+                                    # 必帶人數
+                                    assign_num = 0
+
                                     for user_id, user_data in user_pool.items():
                                         if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
                                                 'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
@@ -1018,15 +1078,34 @@ def create_result(request, department_id, start, end):
                                             else:
                                                 break
                                         if s < 6:
-                                            options.append(user_id)
-                                    if len(options) <= demand_dict[str(d)]:
+                                            # 檢查是否必帶
+                                            if str(d - timedelta(days=1)) in temp_output[user_id] and \
+                                                    str(d - timedelta(days=2)) in temp_output[user_id]:
+                                                if temp_output[user_id][str(d - timedelta(days=1))] == 1 and \
+                                                        temp_output[user_id][str(d - timedelta(days=2))] == 0:
+                                                    temp_output[user_id][str(d)] = 1
+                                                    assign_num += 1
+                                                    weight_workday[user_id] -= 1
+                                                else:
+                                                    options.append(user_id)
+                                            else:
+                                                if temp_output[user_id][str(d - timedelta(days=1))] == 1:
+                                                    temp_output[user_id][str(d)] = 1
+                                                    assign_num += 1
+                                                    weight_workday[user_id] -= 1
+                                                else:
+                                                    options.append(user_id)
+
+                                    # 需求小於等於被指定人數 直接進入下一天
+                                    if demand_dict[str(d)] <= assign_num:
+                                        continue
+
+                                    if len(options) <= demand_dict[str(d)] - assign_num:
                                         # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
-                                        temp_demand_loss += demand_dict[str(
-                                            d)] - len(options)
+                                        temp_demand_loss += demand_dict[str(d)] - len(options)
                                         for user_id in user_pool:
                                             if user_id in options:
-                                                temp_output[user_id][str(
-                                                    d)] = 1
+                                                temp_output[user_id][str(d)] = 1
                                                 weight_workday[user_id] -= 1
                                                 if reds[str(d)] and user_id not in user_current_level:
                                                     weight_holiday_rest[user_id] += 1
@@ -1055,16 +1134,16 @@ def create_result(request, department_id, start, end):
                                         weight = [
                                             w / weight_sum for w in weight]
                                         on_duty = choice(
-                                            options, demand_dict[str(d)], p=weight, replace=False)
+                                            options, demand_dict[str(d)] - assign_num, p=weight, replace=False)
                                         for user_id in user_pool:
                                             if user_id in on_duty:
-                                                temp_output[user_id][str(
-                                                    d)] = 1
+                                                temp_output[user_id][str(d)] = 1
                                                 weight_workday[user_id] -= 1
                                                 if reds[str(d)] and user_id not in user_current_level:
                                                     weight_holiday_rest[user_id] += 1
                                             elif reds[str(d)] and user_id in user_current_level:
                                                 weight_holiday_rest[user_id] -= 1
+                                print(weight_workday)
                             if temp_demand_loss < demand_loss:
                                 demand_loss = temp_demand_loss
                                 best_temp_output = temp_output
@@ -1133,9 +1212,6 @@ def create_result(request, department_id, start, end):
                                 )
                             # 增加例假 or 休息Result
                             else:
-                                # 排休且為假日，已使用假日休假數+1
-                                if reds[str(d)]:
-                                    user.holiday_rest_num_used += 1
                                 if '例' not in q and '例' in options:
                                     options.remove('例')
                                     output[user_id][str(d)] = '例'
@@ -1159,7 +1235,6 @@ def create_result(request, department_id, start, end):
                                 q.pop(0)
                             if '休' not in options:
                                 options.append('休')
-                user.save()
 
     # 行政職
     try:
