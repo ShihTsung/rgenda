@@ -92,7 +92,7 @@
       <div class="col-md-12 mt-3">
         <div class="form-group text-center mb-0">
           <button class="btn btn-rgenda" @click="cancelEdit()">取消</button>
-          <button class="btn btn-rgenda" @click="update()">儲存</button>
+          <button class="btn btn-rgenda" @click="confirmUpdate()">儲存</button>
         </div>
       </div>
     </div>
@@ -276,7 +276,7 @@ export default {
 
       return addUserIds;
     },
-    update() {
+    confirmUpdate() {
       let [bool, errMsg] = this.$_editDemand_validate();
       if (!bool) {
         popup.error({
@@ -319,163 +319,170 @@ export default {
           }
         });
         if (errMsg.length > 0) {
-          popup.error({
+          errMsg.push('若配置人數過少，可能造成排班結果不理想，是否確認儲存配置？')
+          popup.warning({
             title: '配置人數過少',
             html: httpRep.messageJoin(errMsg),
+            showCancelButton: true,
+          }, function(){
+            self.update();
           });
-          return false;
+        } else {
+          self.update();
         }
-
-        let changed = false;
-        let delNormalUsers = [];
-        let delSeniorUsers = [];
-
-        // 過濾掉已轉科別的 user id
-        self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
-          self.normalDemandOfShift.checkedUserIds,
-          self.normalStaff
-        );
-        self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
-          self.seniorDemandOfShift.checkedUserIds,
-          self.seniorStaff
-        );
-
-        delNormalUsers = self.$_editDemand_delUserIds(
-          self.normalDemandOfShift.demandId,
-          self.normalDemandOfShift.checkedUserIds,
-          self.normalDemandOfShift.assignedUsers
-        );
-        delSeniorUsers = self.$_editDemand_delUserIds(
-          self.seniorDemandOfShift.demandId,
-          self.seniorDemandOfShift.checkedUserIds,
-          self.seniorDemandOfShift.assignedUsers
-        );
-        let delUserPromiseArr = [...delNormalUsers, ...delSeniorUsers].map(item => {
-          changed = true;
-          let url = `/api/demand-user/${item[0]}/`;
-          const formConfig = {
-            headers: {
-              'X-CSRFToken': `${self.csrfToken}`,
-            },
-          };
-          self.$httpClient.delete(url, formConfig)
-            .then(function () {
-              // debug
-              // console.log(`delete demand_user_id = ${item[0]}`);
-            })
-            .catch(function (error) {
-              // handle error
-              popup.error({
-                title: error.title,
-                html: httpRep.messageJoin(error.message),
-              });
-              console.log(error);
-            });
-          }
-        );
-
-        let addNormalUsers = [];
-        let addSeniorUsers = [];
-        addNormalUsers = self.$_editDemand_addUserIds(
-          self.normalDemandOfShift.demandId,
-          self.normalDemandOfShift.checkedUserIds,
-          self.normalDemandOfShift.assignedUsers
-        );
-        addSeniorUsers = self.$_editDemand_addUserIds(
-          self.seniorDemandOfShift.demandId,
-          self.seniorDemandOfShift.checkedUserIds,
-          self.seniorDemandOfShift.assignedUsers
-        );
-        let addUserPromiseArr = [...addNormalUsers, ...addSeniorUsers].map(item => {
-          changed = true;
-          let url = `/api/demand-user/`;
-          const formConfig = {
-            headers: {
-              'X-CSRFToken': `${self.csrfToken}`,
-            },
-          };
-          let params = {
-            demand: item[0],
-            user: item[1],
-          };
-          self.$httpClient.post(url, params, formConfig)
-            .then(function () {
-              // debug
-              // console.log(`create demand id = ${item[0]}, user id = ${item[1]}`);
-            })
-            .catch(function (error) {
-              // handle error
-              popup.error({
-                title: error.title,
-                html: httpRep.messageJoin(error.message),
-              });
-              console.log(error);
-            });
-        });
-
-        let configPromisedArr = [self.normalDemandOfShift, self.seniorDemandOfShift].map(function (obj) {
-          if (obj.originConfig1 === Number(obj.config1) && obj.originConfig2 === Number(obj.config2)) {
-            // if there are no changes, skip
-            return;
-          }
-
-          changed = true;
-          let url = `/api/demands/${obj.demandId}/`;
-          const formConfig = {
-            headers: {
-              'X-CSRFToken': `${self.csrfToken}`,
-            },
-          };
-          let params = {
-            id: obj.demandId,
-            station: self.editShift.stationId,
-            shift: self.editShift.shiftId,
-            config1: obj.config1,
-            config2: obj.config2,
-            level: obj.level,
-          };
-          self.$httpClient.patch(url, params, formConfig)
-            .then(function () {
-              // debug
-              // console.log(`update demand id = ${id}`);
-            })
-            .catch(function (error) {
-              // handle error
-              popup.error({
-                title: error.title,
-                html: httpRep.messageJoin(error.message),
-              });
-              console.log(error);
-            });
-        });
-
-        Promise.all([
-          ...delUserPromiseArr,
-          ...addUserPromiseArr,
-          ...configPromisedArr
-        ]).then(function () {
-          if (changed) {
-            popup.success({
-              title: '編輯人力配置',
-              text: '請求成功',
-            }, function () {
-              self.cancelEdit();
-              // refresh demand list if changed
-              self.$parent.getDemands();
-            });
-          } else {
-            self.cancelEdit();
-          }
-        }).catch(function (error) {
-          // handle error
-          popup.error({
-            title: error.title,
-            html: httpRep.messageJoin(error.message),
-          });
-          console.log(error);
-        });
       });
     },
+    update() {
+      let self = this;
+      let changed = false;
+      let delNormalUsers = [];
+      let delSeniorUsers = [];
+
+      // 過濾掉已轉科別的 user id
+      self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
+        self.normalDemandOfShift.checkedUserIds,
+        self.normalStaff
+      );
+      self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
+        self.seniorDemandOfShift.checkedUserIds,
+        self.seniorStaff
+      );
+
+      delNormalUsers = self.$_editDemand_delUserIds(
+        self.normalDemandOfShift.demandId,
+        self.normalDemandOfShift.checkedUserIds,
+        self.normalDemandOfShift.assignedUsers
+      );
+      delSeniorUsers = self.$_editDemand_delUserIds(
+        self.seniorDemandOfShift.demandId,
+        self.seniorDemandOfShift.checkedUserIds,
+        self.seniorDemandOfShift.assignedUsers
+      );
+      let delUserPromiseArr = [...delNormalUsers, ...delSeniorUsers].map(item => {
+        changed = true;
+        let url = `/api/demand-user/${item[0]}/`;
+        const formConfig = {
+          headers: {
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
+        self.$httpClient.delete(url, formConfig)
+          .then(function () {
+            // debug
+            // console.log(`delete demand_user_id = ${item[0]}`);
+          })
+          .catch(function (error) {
+            // handle error
+            popup.error({
+              title: error.title,
+              html: httpRep.messageJoin(error.message),
+            });
+            console.log(error);
+          });
+        }
+      );
+
+      let addNormalUsers = [];
+      let addSeniorUsers = [];
+      addNormalUsers = self.$_editDemand_addUserIds(
+        self.normalDemandOfShift.demandId,
+        self.normalDemandOfShift.checkedUserIds,
+        self.normalDemandOfShift.assignedUsers
+      );
+      addSeniorUsers = self.$_editDemand_addUserIds(
+        self.seniorDemandOfShift.demandId,
+        self.seniorDemandOfShift.checkedUserIds,
+        self.seniorDemandOfShift.assignedUsers
+      );
+      let addUserPromiseArr = [...addNormalUsers, ...addSeniorUsers].map(item => {
+        changed = true;
+        let url = `/api/demand-user/`;
+        const formConfig = {
+          headers: {
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
+        let params = {
+          demand: item[0],
+          user: item[1],
+        };
+        self.$httpClient.post(url, params, formConfig)
+          .then(function () {
+            // debug
+            // console.log(`create demand id = ${item[0]}, user id = ${item[1]}`);
+          })
+          .catch(function (error) {
+            // handle error
+            popup.error({
+              title: error.title,
+              html: httpRep.messageJoin(error.message),
+            });
+            console.log(error);
+          });
+      });
+
+      let configPromisedArr = [self.normalDemandOfShift, self.seniorDemandOfShift].map(function (obj) {
+        if (obj.originConfig1 === Number(obj.config1) && obj.originConfig2 === Number(obj.config2)) {
+          // if there are no changes, skip
+          return;
+        }
+
+        changed = true;
+        let url = `/api/demands/${obj.demandId}/`;
+        const formConfig = {
+          headers: {
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
+        let params = {
+          id: obj.demandId,
+          station: self.editShift.stationId,
+          shift: self.editShift.shiftId,
+          config1: obj.config1,
+          config2: obj.config2,
+          level: obj.level,
+        };
+        self.$httpClient.patch(url, params, formConfig)
+          .then(function () {
+            // debug
+            // console.log(`update demand id = ${id}`);
+          })
+          .catch(function (error) {
+            // handle error
+            popup.error({
+              title: error.title,
+              html: httpRep.messageJoin(error.message),
+            });
+            console.log(error);
+          });
+      });
+
+      Promise.all([
+        ...delUserPromiseArr,
+        ...addUserPromiseArr,
+        ...configPromisedArr
+      ]).then(function () {
+        if (changed) {
+          popup.success({
+            title: '編輯人力配置',
+            text: '請求成功',
+          }, function () {
+            self.cancelEdit();
+            // refresh demand list if changed
+            self.$parent.getDemands();
+          });
+        } else {
+          self.cancelEdit();
+        }
+      }).catch(function (error) {
+        // handle error
+        popup.error({
+          title: error.title,
+          html: httpRep.messageJoin(error.message),
+        });
+        console.log(error);
+      });
+    }
   },
   computed: {
     configSubtotal1() {

@@ -24,6 +24,10 @@ class Shift(models.Model):
         verbose_name=_('ShiftType'),
         null=True,
         choices=TYPE_CHOICES,)
+    code = models.CharField(
+        max_length=10,
+        verbose_name=_('代碼'),
+        blank=True)
     start_time = models.TimeField(verbose_name=_('StartTime'), null=True)
     end_time = models.TimeField(verbose_name=_('EndTime'), null=True)
     department = models.ForeignKey(Department, verbose_name=_('Department'),

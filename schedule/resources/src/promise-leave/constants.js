@@ -26,7 +26,6 @@ export const PROMISE_LEAVE_ITEM = {
   ITEM_UNPAID_SICK_LEAVE: 2, // 無薪病假
   ITEM_OFFICIAL_LEAVE: 3, // 公假
   ITEM_MATERNITY_LEAVE: 4, // 產假
-  ITEM_OFFICIAL_HOLIDAY: 5, // 例/休
   ITEM_MENSTRUAL_LEAVE: 6, // 生理假
   ITEM_ANNUAL_LEAVE: 7, // 特休
   ITEM_COMPENSATORY_LEAVE: 8, // 補休
@@ -57,10 +56,6 @@ let paidLeaveItems = [{
   {
     id: PROMISE_LEAVE_ITEM.ITEM_MATERNITY_LEAVE,
     text: "產假"
-  },
-  {
-    id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_HOLIDAY,
-    text: "例/休"
   },
   {
     id: PROMISE_LEAVE_ITEM.ITEM_MENSTRUAL_LEAVE,
