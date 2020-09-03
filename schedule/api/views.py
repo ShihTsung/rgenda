@@ -429,12 +429,8 @@ class HCalendarViewSet(viewsets.ModelViewSet):
 
 
 def get_type(shift):
-    if shift.shift_type == 0:
-        return 'A'
-    elif shift.shift_type == 1:
-        return 'E'
-    elif shift.shift_type == 2:
-        return 'N'
+    if shift.shift_type in [0, 1, 2]:
+        return shift.code
     elif shift.shift_type == 5:
         if shift.name == "休息":
             return '休'
@@ -898,6 +894,11 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Notification.objects.filter(recipient_id=int(user.id))
+        return queryset
 
     @swagger_auto_schema(
         operation_summary='刪除通知',
