@@ -22,15 +22,5 @@ module.exports = merge(common, {
         });
       }
     }
-  ],
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        common: {
-          name: 'common',
-          chunks: 'all'
-        }
-      }
-    }
-  }
+  ]
 });

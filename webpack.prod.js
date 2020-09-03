@@ -7,20 +7,5 @@ module.exports = merge(common, {
     alias: {
       vue: 'vue/dist/vue.min.js'
     }
-  },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        defaultVendors: {
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10
-        },
-        default: {
-          minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true
-        }
-      }
-    }
   }
 });
