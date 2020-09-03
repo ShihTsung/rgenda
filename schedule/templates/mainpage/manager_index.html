@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 <div class="container">
   <div class="dash">
-    <!-- <div class="card" style="margin-left: 50px;">
+    <div class="card" style="margin-left: 30px;">
       <div class="card-header text-center">
         <button class="btn" id="toggle-btn">
           <i class="fa fa-bars"></i>
@@ -50,7 +50,7 @@
 
     </div>
 
-    <div class="card" style="margin-right: 50px;">
+    <div class="card" style="margin-right: 30px;">
       <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
       <div class="card-body DashCollapse">
         <div class="left">
@@ -82,7 +82,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <!-- <div class="card">
         <div class="card-header text-center">兼職人力出勤分析<span class="unit">單位：時</span></div>
           <div class="card-body DashCollapse" >
             <div class="left">
@@ -117,117 +117,117 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     var nextPeriod = {}
-    // let btn = document.getElementById('toggle-btn')
-    // btn.addEventListener('click', function () {
-    //   let contents = document.querySelectorAll('.DashCollapse');
-    //   contents.forEach(e => {
-    //     e.classList.toggle('collapse')
-    //   });
-    // });
+    let btn = document.getElementById('toggle-btn')
+    btn.addEventListener('click', function () {
+      let contents = document.querySelectorAll('.DashCollapse');
+      contents.forEach(e => {
+        e.classList.toggle('collapse')
+      });
+    });
     // 第一個圖
-    // var ctx = document.getElementById('chart1').getContext('2d');
-    // var myChart = new Chart(ctx, {
-    //   type: 'horizontalBar',
-    //   data: {
-    //       labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
-    //       datasets: [{
-    //           barThickness: 30,
-    //           data: [12, 7, 5, 5],
-    //           backgroundColor: [
-    //           '#37419A',
-    //           '#37419A',
-    //           '#37419A',
-    //           '#37419A'
-    //           ],
-    //           borderColor: [
-    //           '#37419A',
-    //           '#37419A',
-    //           '#37419A',
-    //           '#37419A'
-    //           ],
-    //           borderWidth: 1
-    //       }]
-    //   },
-    //   options: {
-    //       scales: {
-    //           yAxes: [{
-    //               ticks: {
-    //                   beginAtZero: true
-    //               },
-    //               gridLines: {
-    //                   offsetGridLines: false,
-    //                   display: false
-    //               }
-    //           }],
-    //           xAxes: [{
-    //               ticks: {
-    //                   beginAtZero: true
-    //               },
-    //               gridLines: {
-    //               offsetGridLines: false,
-    //             }
-    //           }]
-    //       },
-    //       legend:{
-    //         display: false,
-    //       },
-    //       aspectRatio: 1.6,
-    //       maintainAspectRatio: false
-    //   }
-    // });
+    var ctx = document.getElementById('chart1').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+          labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
+          datasets: [{
+              barThickness: 30,
+              data: [12, 7, 5, 5],
+              backgroundColor: [
+              '#37419A',
+              '#37419A',
+              '#37419A',
+              '#37419A'
+              ],
+              borderColor: [
+              '#37419A',
+              '#37419A',
+              '#37419A',
+              '#37419A'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  },
+                  gridLines: {
+                      offsetGridLines: false,
+                      display: false
+                  }
+              }],
+              xAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  },
+                  gridLines: {
+                  offsetGridLines: false,
+                }
+              }]
+          },
+          legend:{
+            display: false,
+          },
+          aspectRatio: 1.6,
+          maintainAspectRatio: false
+      }
+    });
 
 
     // 第二個圖
-    // var ctx = document.getElementById('chart2').getContext('2d');
-    //   var myChart = new Chart(ctx, {
-    //     type: 'horizontalBar',
-    //     data: {
-    //         labels: ['排班', '出勤', '公假', '自假'],
-    //         datasets: [{
-    //             barThickness: 30,
-    //             data: [12, 7, 5, 5],
-    //             backgroundColor: [
-    //                 '#37419A',
-    //                 '#37419A',
-    //                 '#37419A',
-    //                 '#37419A',
-    //             ],
-    //             borderColor: [
-    //                 '#37419A',
-    //                 '#37419A',
-    //                 '#37419A',
-    //                 '#37419A',
-    //             ],
-    //             borderWidth: 1
-    //         }]
-    //     },
-    //     options: {
-    //         scales: {
-    //             yAxes: [{
-    //                 ticks: {
-    //                     beginAtZero: true
-    //                 },
-    //                 gridLines: {
-    //                     offsetGridLines: false,
-    //                     display: false
-    //                 }
-    //             }],
-    //             xAxes: [{
-    //                 ticks: {
-    //                     beginAtZero: true
-    //                 },
-    //                 gridLines: {
-    //                 offsetGridLines: false,
-    //               }
-    //             }]
-    //         },
-    //         legend:{
-    //           display: false,
-    //         },
-    //         aspectRatio: 1.6,
-    //         maintainAspectRatio: false
-    //     }
-    // });
+    var ctx = document.getElementById('chart2').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: ['排班', '出勤', '公假', '自假'],
+            datasets: [{
+                barThickness: 30,
+                data: [12, 7, 5, 5],
+                backgroundColor: [
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                ],
+                borderColor: [
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        offsetGridLines: false,
+                        display: false
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                    offsetGridLines: false,
+                  }
+                }]
+            },
+            legend:{
+              display: false,
+            },
+            aspectRatio: 1.6,
+            maintainAspectRatio: false
+        }
+    });
 
     // 第三個圖
     // var ctx = document.getElementById('chart3').getContext('2d');
@@ -503,6 +503,9 @@
           const shifts = dataArr[2];
           const dates = dataArr[3];
           const usersCanSupport = dataArr[4];
+          console.log(data)
+          console.log(users)
+          console.log(dates)
 
           let processedData = [];
 
@@ -691,7 +694,7 @@
     flex-wrap: nowrap;
   }
   .card {
-    width: 40%;
+    width: 45%;
     float: left;
   }
   .card-header {
@@ -713,12 +716,12 @@
     justify-content: space-around;
   }
   .right {
-    width: 65%;
+    width: 75%;
     height: 100%;
     margin: 0;
     overflow: hidden;
     display: inline-flex;
-    max-width: 25rem;
+    /* max-width: 25rem; */
     position: relative;
   }
   .unit {
@@ -727,9 +730,9 @@
   }
 
   .left {
-    width: 30%;
+    width: 20%;
     height: 100%;
-    min-width: 10rem;
+    min-width: 3rem;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
@@ -742,7 +745,7 @@
   }
 
   .label {
-    width: 60%;
+    width: 80%;
   }
 
   .card-header .fa-bars::before {

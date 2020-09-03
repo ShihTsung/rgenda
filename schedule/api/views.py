@@ -942,7 +942,9 @@ def total_per_day_api(request):
                 adjustment_type=0,
                 adjustment_item__in=[0, 1, 2, 3, 4]
         )
-        users = [u for u in CustomUser.objects.filter(department=d)]
+        users = [
+            u for u in CustomUser.objects.filter(
+                department=d).exclude(type_of_user__in=[3, 5])]
         # demand 設定的人數
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
