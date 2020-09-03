@@ -917,6 +917,12 @@ def create_result(request, department_id, start, end):
                                         assign_num = 0
 
                                         for user_id, user_data in user_pool.items():
+
+                                            # 若有公假則工作天數-1
+                                            if d in user_data['official_leave']:
+                                                weight_workday[user_id] -= 1
+
+                                            # 特殊假、公假、保證假、工作天不足 略過
                                             if d in (user_data['promise_leave'] + user_data['official_leave'] +
                                                      user_data['promise_other']) or weight_workday[user_id] == 0 or \
                                                     temp_output[user_id][str(d)] != 0:
@@ -1047,6 +1053,12 @@ def create_result(request, department_id, start, end):
                                     assign_num = 0
 
                                     for user_id, user_data in user_pool.items():
+
+                                        # 若有公假則工作天數-1
+                                        if d in user_data['official_leave']:
+                                            weight_workday[user_id] -= 1
+
+                                        # 特殊假、公假、保證假、工作天不足 略過
                                         if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
                                                 'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
                                                 str(d)] != 0:
@@ -1218,7 +1230,8 @@ def create_result(request, department_id, start, end):
                                     date=d,
                                     station=station_rest,
                                 )
-                                options.remove('休')
+                                if '休' in options:
+                                    options.remove('休')
                             # 增加例假 or 休息Result
                             else:
                                 if '例' not in q and '例' in options:
