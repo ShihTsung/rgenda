@@ -104,7 +104,7 @@ user_name = openapi.Parameter('name', openapi.IN_QUERY,
 month = openapi.Parameter('month', openapi.IN_QUERY,
                           description="月份(整數)", type=openapi.TYPE_INTEGER)
 department = openapi.Parameter('department', openapi.IN_QUERY,
-                               description="部門(id)", type=openapi.TYPE_INTEGER)
+                               description="科別(id)", type=openapi.TYPE_INTEGER)
 configs = openapi.Parameter('configs', openapi.IN_QUERY,
                             description="人力需求配置", type=openapi.TYPE_STRING)
 
@@ -146,7 +146,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                 can_be_scheduled=True)
         if t:
             queryset = queryset.filter(type_of_user=int(t))
-
+        if mode == 'table':
+            user = self.request.user
+            queryset = queryset.filter(department=user.department)
         if dep is not None:
             target = Department.objects.get(id=dep)
             queryset = queryset.filter(department=target)
@@ -929,10 +931,18 @@ def total_per_day_api(request):
 
         dates = H_Calendar.objects.filter(date__range=[start, end])
         d = request.user.department
-        demands = DemandOfStation.objects.select_related('shift')\
-            .select_related('shift__department').all()
+        demands = DemandOfStation.objects.prefetch_related('shift')\
+            .prefetch_related('shift__department').all()
 
+        time_adjustments = TimeAdjustment.objects.prefetch_related('user')\
+            .exclude(remark__exact='')\
+            .filter(
+                date__range=[start, end],
+                adjustment_type=0,
+                adjustment_item__in=[0, 1, 2, 3, 4]
+        )
         users = [u for u in CustomUser.objects.filter(department=d)]
+        # demand 設定的人數
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
             results[date_str] = {'0': 0, '1': 0, '2': 0}
@@ -950,12 +960,19 @@ def total_per_day_api(request):
             if date.attribute[str(d.id)] == '0':
                 results[date_str] = {'0': 0, '1': 0, '2': 0}
         if q_set == 'result':
-            db_results = Result.objects.filter(
-                date__range=[start, end], user__in=users)
+            db_results = Result.objects.prefetch_related('shift')\
+                .filter(
+                date__range=[start, end],
+                user__in=users
+            )
         else:
-            db_results = PreResult.objects.filter(
-                date__range=[start, end], user__in=users)
+            db_results = PreResult.objects.prefetch_related('shift')\
+                .filter(
+                date__range=[start, end],
+                user__in=users
+            )
         diff_set = {}
+        # 實際排出來的人數
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
             diff_set[date_str] = {'0': 0, '1': 0, '2': 0}
@@ -963,6 +980,14 @@ def total_per_day_api(request):
             if r.shift.shift_type in [0, 1, 2]:
                 diff_set[
                     r.date.strftime('%Y-%m-%d')][str(r.shift.shift_type)] += 1
+        for adj in time_adjustments:
+            date_str = adj.date.strftime('%Y-%m-%d')
+            if adj.remark == '白班':
+                diff_set[date_str]['0'] += 1
+            if adj.remark == '小夜':
+                diff_set[date_str]['1'] += 1
+            if adj.remark == '大夜':
+                diff_set[date_str]['2'] += 1
         ret = []
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
