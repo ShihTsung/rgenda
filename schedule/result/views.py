@@ -764,10 +764,8 @@ def create_result(request, department_id, start, end):
                                 user.id, cycle[0], cycle[-1])
 
                     # 檢查可工作天數是否滿足需求
-                    total_demands = sum(
-                        [demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
-                    total_workdays = sum([workday_dict[user_id][ind]
-                                          for user_id in user_pool])
+                    total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
+                    total_workdays = sum([workday_dict[user_id][ind] for user_id in user_pool])
 
                     if total_demands <= total_workdays:
                         # 人力滿足需求 嘗試排班100次
@@ -777,8 +775,7 @@ def create_result(request, department_id, start, end):
                             temp_output = deepcopy(output)
 
                             # set weight, start calculating
-                            weight_workday = dict(
-                                [(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
+                            weight_workday = dict([(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
                             weight_holiday_rest = dict(
                                 [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
@@ -1024,6 +1021,17 @@ def create_result(request, department_id, start, end):
                                 workday_dict[user_id][ind] = best_weight_workday[user_id]
                                 user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
                     else:
+                        # 產生每天缺失的需求數
+                        demand_diff = total_demands - total_workdays
+                        reduce_list = [0 for d in cycle if date_start <= d <= date_end]
+                        day_num = len(reduce_list)
+                        q = demand_diff // day_num
+                        r = demand_diff % day_num
+                        reduce_ind = choice(day_num, r)
+                        for i in range(len(reduce_list)):
+                            reduce_list[i] += q
+                            if i in reduce_ind:
+                                reduce_list[i] += 1
                         # 嘗試排班100次，取最滿足需求的結果
                         best_temp_output = None
                         demand_loss = total_demands
@@ -1042,6 +1050,9 @@ def create_result(request, department_id, start, end):
                                 [(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
                             weight_holiday_rest = dict(
                                 [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
+
+                            # reduce index
+                            reduce_index = 0
 
                             for d in cycle:
                                 if date_start <= d <= date_end:
@@ -1098,10 +1109,10 @@ def create_result(request, department_id, start, end):
                                                     options.append(user_id)
 
                                     # 需求小於等於被指定人數 直接進入下一天
-                                    if demand_dict[str(d)] <= assign_num:
+                                    if demand_dict[str(d)] - reduce_list[reduce_index] <= assign_num:
                                         continue
 
-                                    if len(options) <= demand_dict[str(d)] - assign_num:
+                                    if len(options) <= demand_dict[str(d)] - assign_num - reduce_list[reduce_index]:
                                         # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
                                         temp_demand_loss += demand_dict[str(d)] - len(options)
                                         for user_id in user_pool:
@@ -1134,8 +1145,12 @@ def create_result(request, department_id, start, end):
                                         weight_sum = sum(weight)
                                         weight = [
                                             w / weight_sum for w in weight]
-                                        on_duty = choice(
-                                            options, demand_dict[str(d)] - assign_num, p=weight, replace=False)
+                                        if demand_dict[str(d)] - assign_num - reduce_list[reduce_index] <= 0:
+                                            on_duty = list()
+                                        else:
+                                            on_duty = choice(
+                                                options, demand_dict[str(d)] - assign_num - reduce_list[reduce_index],
+                                                p=weight, replace=False)
                                         for user_id in user_pool:
                                             if user_id in on_duty:
                                                 temp_output[user_id][str(d)] = 1
@@ -1144,12 +1159,12 @@ def create_result(request, department_id, start, end):
                                                     weight_holiday_rest[user_id] += 1
                                             elif reds[str(d)] and user_id in user_current_level:
                                                 weight_holiday_rest[user_id] -= 1
+                                    reduce_index += 1
                             if temp_demand_loss < demand_loss:
                                 demand_loss = temp_demand_loss
                                 best_temp_output = temp_output
                                 best_weight_workday.update(weight_workday)
-                                best_weight_holiday_rest.update(
-                                    weight_holiday_rest)
+                                best_weight_holiday_rest.update(weight_holiday_rest)
                         output = best_temp_output
 
                         # 儲存剩餘工作天 & 可休假假日數
