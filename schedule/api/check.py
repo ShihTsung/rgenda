@@ -144,26 +144,19 @@ def check_rest_day(department, results, invalid):
     :param invalid:
     :return:
     """
-    print('------------------')
-
     user = results[0].user
-    print(user.full_name)
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
-    print('date 0:', str(date0))
     ca = cycle_analysis(department, date0)
     ind = ii = ca['day_no']
     # add previous results to make a complete cycle
-    print()
     for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
-        print(str(d))
         if d < date0:
             try:
                 results.insert(0, Result.objects.get(date=d, user=user))
                 ind -= 1
             except Result.DoesNotExist:
                 break
-    print([result.shift.shift_type for result in results])
     # get continue workday number
     last_week_results = Result.objects.filter(
         date__in=[results[0].date - timedelta(days=i) for i in range(1, 8)],
@@ -174,7 +167,6 @@ def check_rest_day(department, results, invalid):
             continue_workday += 1
         else:
             continue_workday = 0
-    print('continue', str(continue_workday))
     # start checking
     work_days_limit = 5 * 2 ** department.law_rule * \
         (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
