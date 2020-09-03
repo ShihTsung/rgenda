@@ -324,7 +324,9 @@ export default {
             title: '配置人數過少',
             html: httpRep.messageJoin(errMsg),
             showCancelButton: true,
-          }, self.update);
+          }, function(){
+            self.update();
+          });
         } else {
           self.update();
         }
