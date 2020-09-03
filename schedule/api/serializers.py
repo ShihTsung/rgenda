@@ -83,6 +83,13 @@ class SimpleDepartmentSerializer(serializers.ModelSerializer):
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
+
     class Meta:
         model = CustomUser
         fields = (
@@ -239,7 +246,7 @@ class GetShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_time',
+        fields = ('id', 'name', 'code', 'shift_type', 'start_time',
                   'end_time', 'department', 'work_hours')
         read_only_fields = ('id',)
 
@@ -256,7 +263,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_time', 'end_time',
+        fields = ('id', 'name', 'code', 'shift_type', 'start_time', 'end_time',
                   'department', 'work_hours')
         read_only_fields = ('id',)
 
@@ -264,7 +271,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 class SimpleShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'work_hours')
+        fields = ('id', 'name', 'code', 'shift_type', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get
