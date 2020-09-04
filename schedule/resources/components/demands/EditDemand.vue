@@ -321,7 +321,8 @@ export default {
           }
         });
         if (errMsg.length > 0) {
-          errMsg.push('若配置人數過少，可能造成排班結果不理想，是否確認儲存配置？')
+          errMsg.push('若配置人數過少，可能造成排班結果不理想');
+          errMsg.push('是否確認儲存配置？');
           popup.warning({
             title: '配置人數過少',
             html: httpRep.messageJoin(errMsg),
