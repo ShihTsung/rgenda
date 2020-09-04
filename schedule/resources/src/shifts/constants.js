@@ -49,6 +49,8 @@ let leaveShiftTypeItems = [
   },
 ];
 
+let shiftTypeList = [...workShiftTypeItems, ...leaveShiftTypeItems];
+
 SHIFT_TYPE.install = function (Vue, options) {
   Vue.use(PROMISE_LEAVE_CATEGORY);
   Vue.prototype.$getShiftTypeValue = (key) => {
@@ -56,7 +58,7 @@ SHIFT_TYPE.install = function (Vue, options) {
   }
 
   Vue.prototype.$getShiftTypeText = (key) => {
-    let obj = this.$getShiftTypeList().find(function (element) {
+    let obj = shiftTypeList.find(function (element) {
       return element.id == key;
     });
     if (undefined !== obj) {
@@ -66,7 +68,7 @@ SHIFT_TYPE.install = function (Vue, options) {
   }
 
   Vue.prototype.$getShiftTypeList = () => {
-    return [...workShiftTypeItems, ...leaveShiftTypeItems];
+    return shiftTypeList;
   }
 
   Vue.prototype.$getWorkShiftTypeList = () => {
