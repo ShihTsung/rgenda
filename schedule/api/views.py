@@ -1467,8 +1467,6 @@ def suggest_user_num(request, date_str):
         cycle_list.append(cycle)
 
     for c in cycle_list:
-        print()
-        print('----------CYCLE----------')
         demand_s, demand_t = 0, 0
         attrs = attr_list(department.id, c[0], c[-1])
         reds = red_dict(c[0], c[-1])
@@ -1487,8 +1485,6 @@ def suggest_user_num(request, date_str):
         z_num = ceil(d_num / 7)
         r_num = floor(r_num * d_num / len(c))
         workday_num = d_num - z_num - r_num
-        print(z_num, r_num, workday_num)
-        print(demand_s, demand_t)
 
         output[0]['suggest_num'] = max(output[0]['suggest_num'], ceil(demand_s / workday_num))
         output[1]['suggest_num'] = max(output[1]['suggest_num'], ceil(demand_t / workday_num))
