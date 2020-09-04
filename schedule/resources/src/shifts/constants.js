@@ -73,58 +73,6 @@ SHIFT_TYPE.install = function (Vue, options) {
     return workShiftTypeItems;
   }
 
-  /**
-   * @typedef {Object} shiftType
-   * @property {Number} typeId
-   * @property {String} typeText
-   * @property {(Number|undefined)} leaveTypeId - return undefined if no match
-   * @property {String} leaveTypeText - return empty string if no match
-   * @property {Boolean} isLeave
-   */
-
-  /**
-   * Get shift type and leave type
-   * @param {Number} shiftType shift.shift_type
-   * @param {String} shiftName shift.name
-   * @return {(shiftType|undefined)} shift type and leave type. If no match, then return `undefined`
-   */
-  //TODO: remove unused method
-  Vue.prototype.$getShiftTypeAndLeaveType = (shiftType, shiftName) => {
-    let obj = this.$getShiftTypeList.find(function (element) {
-      return element.id == shiftType;
-    });
-    if (undefined === obj) {
-      return obj;
-    }
-    if (this.$isWorkShift(shiftType)) {
-      return {
-        typeId: obj.id,
-        typeText: obj.text,
-        leaveTypeId: undefined,
-        leaveTypeText: '',
-        isLeave: false,
-      };
-    } else {
-      let leaveTypeObj = this.$getPromiseLeaveItemByText(shiftName);
-      if (undefined !== obj) {
-        return {
-          typeId: obj.id,
-          typeText: obj.text,
-          leaveTypeId: leaveTypeObj.id,
-          leaveTypeText: leaveTypeObj.text,
-          isLeave: true,
-        };
-      }
-      return {
-        typeId: obj.id,
-        typeText: obj.text,
-        leaveTypeId: undefined,
-        leaveTypeText: '',
-        isLeave: true,
-      };
-    }
-  }
-
   Vue.prototype.$isWorkShift = (shiftType) => {
     return workShiftTypeItems.some(function (element) {
       return element.id == shiftType;
