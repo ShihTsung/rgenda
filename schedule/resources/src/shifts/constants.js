@@ -56,7 +56,7 @@ SHIFT_TYPE.install = function (Vue, options) {
   }
 
   Vue.prototype.$getShiftTypeText = (key) => {
-    let obj = this.$getShiftTypeList.find(function (element) {
+    let obj = this.$getShiftTypeList().find(function (element) {
       return element.id == key;
     });
     if (undefined !== obj) {
