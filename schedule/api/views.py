@@ -17,11 +17,12 @@ from rest_framework.parsers import JSONParser
 from datetime import datetime, timedelta
 from .check import *
 from .serializers import *
+from account.views import cycle_analysis, get_cycle
+from date.views import attr_list, red_dict
+from math import ceil, floor
 from notifications.models import Notification
 from notifications.signals import notify
-from date.views import attr_list, red_dict
 from result.views import str_to_date
-from math import ceil
 
 # models
 from account.models import CustomUser, Department, Liscense, DepartmentManager
@@ -1427,9 +1428,14 @@ def users_can_support(request):
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def suggest_user_num(request, date_str):
+    """
+    計算人力配置的建議人數
+    計算方式以週期為單位
+    :param request:
+    :param date_str:
+    :return:
+    """
     from datetime import date, timedelta
-
-    output = list()
 
     date_str = date_str.split('-')
     year = int(date_str[0])
@@ -1440,27 +1446,49 @@ def suggest_user_num(request, date_str):
     configs = request.data
     department = request.user.department
 
-    attrs = attr_list(department.id, date_0, date_1)
-    reds = red_dict(date_0, date_1)
+    output = [{
+        'type_of_user': 'senior',
+        'suggest_num': max(configs['level1']['config1'], configs['level1']['config2']),
+    }, {
+        'type_of_user': 'total',
+        'suggest_num': max(configs['level2']['config1'], configs['level2']['config2']),
+    }]
 
-    demand1, demand2 = 0, 0
-    for i in range((date_1 - date_0).days + 1):
-        if attrs[i] == '1':
-            demand1 += configs['level1']['config1']
-            demand2 += configs['level2']['config1']
-        elif attrs[i] == '2':
-            demand1 += configs['level1']['config2']
-            demand2 += configs['level2']['config2']
+    ca = cycle_analysis(department, date_0)
+    cycle_no = ca['cycle_no']
+    cycle0 = get_cycle(department, cycle_no)
+    cycle = cycle0
+    cycle_list = [cycle]
+    while cycle[-1] < date_1:
+        cycle_no += 1
+        cycle = get_cycle(department, cycle_no)
+        cycle_list.append(cycle)
 
-    workdays = list(reds.values()).count(False)
+    for c in cycle_list:
+        print()
+        print('----------CYCLE----------')
+        demand_s, demand_t = 0, 0
+        attrs = attr_list(department.id, c[0], c[-1])
+        reds = red_dict(c[0], c[-1])
+        z_num = len(c) / 7
+        r_num = list(reds.values()).count(True) - z_num
+        d_num = 0
+        for i, d in enumerate(c):
+            if date_0 <= d <= date_1:
+                d_num += 1
+                if attrs[i] == '1':
+                    demand_s += configs['level2']['config1']
+                    demand_t += configs['level1']['config1'] + configs['level2']['config1']
+                elif attrs[i] == '2':
+                    demand_s += configs['level1']['config2']
+                    demand_t += configs['level2']['config2'] + configs['level1']['config2']
+        z_num = ceil(d_num / 7)
+        r_num = floor(r_num * d_num / len(c))
+        workday_num = d_num - z_num - r_num
+        print(z_num, r_num, workday_num)
+        print(demand_s, demand_t)
 
-    output.append({
-        'type_of_user': 0,
-        'suggest_num': max(ceil(demand1 / workdays), configs['level1']['config1'], configs['level1']['config2']),
-    })
-    output.append({
-        'type_of_user': 1,
-        'suggest_num': max(ceil(demand2 / workdays), configs['level2']['config1'], configs['level2']['config2']),
-    })
+        output[0]['suggest_num'] = max(output[0]['suggest_num'], ceil(demand_s / workday_num))
+        output[1]['suggest_num'] = max(output[1]['suggest_num'], ceil(demand_t / workday_num))
 
     return Response(output)

@@ -1328,3 +1328,10 @@ def create_result(request, department_id, start, end):
         pass
 
     return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
+
+
+def temp_remove(request, year, month):
+    results = Result.objects.filter(date__year=year, date__month=month).delete()
+    preresults = PreResult.objects.filter(date__year=year, date__month=month).delete()
+
+    return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
