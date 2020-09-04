@@ -15,7 +15,7 @@ PROMISE_LEAVE_CATEGORY.install = function (Vue, options) {
   Vue.prototype.$getPromiseLeaveCategoryValue = (key) => {
     return PROMISE_LEAVE_CATEGORY[key]
   }
-  Vue.prototype.$getAllPromiseLeaveCategoryText = (key) => {
+  Vue.prototype.$getAllPromiseLeaveCategoryText = () => {
     return promiseLeaveCategoryTextList;
   }
 }
@@ -26,6 +26,7 @@ export const PROMISE_LEAVE_ITEM = {
   ITEM_UNPAID_SICK_LEAVE: 2, // 無薪病假
   ITEM_OFFICIAL_LEAVE: 3, // 公假
   ITEM_MATERNITY_LEAVE: 4, // 產假
+  ITEM_OFFICIAL_HOLIDAY: 5, // 例假
   ITEM_MENSTRUAL_LEAVE: 6, // 生理假
   ITEM_ANNUAL_LEAVE: 7, // 特休
   ITEM_COMPENSATORY_LEAVE: 8, // 補休
@@ -35,6 +36,9 @@ export const PROMISE_LEAVE_ITEM = {
   ITEM_TOCOLYSIS_LEAVE: 12, // 安胎休養假
   ITEM_PREGNANCY_CHECKUP: 13, // 產檢假
   ITEM_PARENTAL_LEAVE: 14, // 陪產假
+  ITEM_REST_LEAVE: 15, // 休息
+  ITEM_NATIONAL_HOLIDAY: 16, // 國定假日
+  ITEM_EMPTY_SHIFT: 17, // 空班
 };
 let unpaidLeaveItems = [{
     id: PROMISE_LEAVE_ITEM.ITEM_PERSONAL_LEAVE,
@@ -56,6 +60,10 @@ let paidLeaveItems = [{
   {
     id: PROMISE_LEAVE_ITEM.ITEM_MATERNITY_LEAVE,
     text: "產假"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_HOLIDAY,
+    text: "例假"
   },
   {
     id: PROMISE_LEAVE_ITEM.ITEM_MENSTRUAL_LEAVE,
@@ -93,6 +101,18 @@ let paidLeaveItems = [{
     id: PROMISE_LEAVE_ITEM.ITEM_PARENTAL_LEAVE,
     text: "陪產假"
   },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_REST_LEAVE,
+    text: "休息"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_NATIONAL_HOLIDAY,
+    text: "國定假日"
+  },
+  {
+    id: PROMISE_LEAVE_ITEM.ITEM_EMPTY_SHIFT,
+    text: "空班"
+  },
 ];
 let groupedPromiseLeaveItems = {
   [PROMISE_LEAVE_CATEGORY.UNPAID_LEAVE]: unpaidLeaveItems,
@@ -119,6 +139,33 @@ PROMISE_LEAVE_ITEM.install = function (Vue, options) {
       return [];
     }
 
-    return groupedPromiseLeaveItems[categoryKey];
+    const promiseLeaveSelectOptions = [
+      PROMISE_LEAVE_ITEM.ITEM_PERSONAL_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_FAMILY_CARE_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_UNPAID_SICK_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_OFFICIAL_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_MATERNITY_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_MENSTRUAL_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_ANNUAL_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_COMPENSATORY_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_MARRIAGE_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_PAID_SICK_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_BEREAVEMENT_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_TOCOLYSIS_LEAVE,
+      PROMISE_LEAVE_ITEM.ITEM_PREGNANCY_CHECKUP,
+      PROMISE_LEAVE_ITEM.ITEM_PARENTAL_LEAVE,
+    ];
+    return groupedPromiseLeaveItems[categoryKey]
+      .filter(item => {
+        return promiseLeaveSelectOptions.includes(item.id);
+      });
+  }
+
+  Vue.prototype.$getPromiseLeaveItemByText = (text) => {
+    let leaveItemArr = [...unpaidLeaveItems, ...paidLeaveItems];
+    let obj = leaveItemArr.find(function (element) {
+      return element.text === text;
+    });
+    return obj;
   }
 }
