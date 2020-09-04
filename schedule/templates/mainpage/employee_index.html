@@ -155,6 +155,23 @@
       0: '#eb8f90',
       1: '#3d313f',
     };
+    const promiseShiftType = {
+      0: '事假',
+      1: '家庭照顧假',
+      2: '無薪病假',
+      3: '公假',
+      4: '產假',
+      6: '生理假',
+      7: '特休',
+      8: '補休',
+      9: '婚假',
+      10: '計薪病假',
+      11: '喪假',
+      12: '安胎休養假',
+      13: '產檢假',
+      14: '陪產假',
+      default: '假勤',
+    };
     calendar = new FullCalendar.Calendar(calendarEl, {
       plugins: ['interaction', 'dayGrid'],
       selectable: false,
@@ -329,12 +346,10 @@
 
           let processedData = [];
           data.forEach(e => {
-            if (e.shift_type === 3) {
-              e.title = '預排公假';
-            } else if (e.shift_type === 7) {
-              e.title = '預排特休';
+            if (promiseShiftType.hasOwnProperty(e.shift_type)) {
+              e.title = '預約' + promiseShiftType[e.shift_type];
             } else {
-              e.title = '預排假';
+              e.title = '預約' + promiseShiftType.default;
             }
             e.resourceId = e.user.id;
             e.sort = 4;
