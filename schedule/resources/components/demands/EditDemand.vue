@@ -306,15 +306,17 @@ export default {
       this.$httpClient.post(url, params, formConfig).then(response => {
         /**
          * example response data:
-         * [{"type_of_user":0,"suggest_num":2},{"type_of_user":1,"suggest_num":5}]
+         * [{"type_of_user":"senior","suggest_num":7},{"type_of_user":"total","suggest_num":14}]
          */
         let data = response.data;
         let errMsg = [];
+        let normalUserNum = self.normalDemandOfShift.checkedUserIds.length;
+        let seniorUserNum = self.seniorDemandOfShift.checkedUserIds.length;
         data.forEach(d => {
-          if (d.type_of_user === 0 && self.normalDemandOfShift.checkedUserIds.length < d.suggest_num) {
-            errMsg.push('正職人員配置人數少於建議人數 ' + d.suggest_num);
+          if (d.type_of_user === 'total' && normalUserNum + seniorUserNum < d.suggest_num) {
+            errMsg.push('人員配置總人數(正職+資深正職)少於建議人數 ' + d.suggest_num);
           }
-          if (d.type_of_user === 1 && self.seniorDemandOfShift.checkedUserIds.length < d.suggest_num) {
+          if (d.type_of_user === 'senior' && seniorUserNum < d.suggest_num) {
             errMsg.push('資深正職人員配置人數少於建議人數 ' + d.suggest_num);
           }
         });
