@@ -37,7 +37,7 @@
               <label class="font-weight-bold">類型</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
-                v-for="(item, idx) in $getShiftTypeList()"
+                v-for="(item, idx) in $getWorkShiftTypeList()"
                 :key="['type', idx, item.id].join('_')">
                   <input class="form-check-input" type="radio"
                   v-model="editShift.shiftTypeId"
