@@ -724,6 +724,10 @@ def create_result(request, department_id, start, end):
             user_pool = dict()
             workday_dict = dict()
             demands = get_demands(station, shift)
+
+            # diff_dict 紀錄需求偏差
+            diff_dict = dict()
+
             for demand in demands:
 
                 # 當前level的user
@@ -791,7 +795,13 @@ def create_result(request, department_id, start, end):
 
                         # 產生需求校正list和指標
                         diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
-                        adjust_index = choice(day_num, diff_r, replace=False)
+                        if demand['demand'].level == 1:
+                            adjust_weight = [1 if i in diff_dict[ind] else 100 for i in range(day_num)]
+                            weight_sum = sum(adjust_weight)
+                            adjust_weight = [i / weight_sum for i in adjust_weight]
+                            adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                        else:
+                            adjust_index = choice(day_num, diff_r, replace=False)
                         for i in range(day_num):
                             if i in adjust_index:
                                 diff_list[i] += 1
@@ -909,6 +919,10 @@ def create_result(request, department_id, start, end):
                                 workday_dict[user_id][ind] = weight_workday[user_id]
                                 user_pool[user_id]['holiday_rest'] = weight_holiday_rest[user_id]
 
+                            # 若 demand.level == 2, 紀錄 diff_list
+                            if demand['demand'].level == 2:
+                                diff_dict[ind] = adjust_index
+
                             # 結束迴圈
                             break
                     else:
@@ -924,7 +938,13 @@ def create_result(request, department_id, start, end):
 
                             # 產生需求校正list
                             diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
-                            adjust_index = choice(day_num, diff_r)
+                            if demand['demand'].level == 1:
+                                adjust_weight = [1 if i in diff_dict[ind] else 100 for i in range(day_num)]
+                                weight_sum = sum(adjust_weight)
+                                adjust_weight = [i / weight_sum for i in adjust_weight]
+                                adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                            else:
+                                adjust_index = choice(day_num, diff_r, replace=False)
                             for i in range(day_num):
                                 if i in adjust_index:
                                     diff_list[i] += 1
@@ -1048,6 +1068,10 @@ def create_result(request, department_id, start, end):
                                 best_temp_output = temp_output
                                 best_weight_workday = weight_workday
                                 best_weight_holiday_rest = weight_holiday_rest
+
+                                # 若 demand.level == 2, 紀錄 diff_list
+                                if demand['demand'].level == 2:
+                                    diff_dict[ind] = adjust_index
 
                         output = best_temp_output
 
@@ -1482,8 +1506,8 @@ def create_result(request, department_id, start, end):
 
                     # 第一個週期
                     if ind == 0:
-                        # 週期長扣除上個月已排天數
-                        cycle_len -= len(q)
+                        # 調整週期長
+                        cycle_len = len([d for d in cycle if d >= date_start])
 
                         # 取得總休假日數
                         rest_num = list(output[user_id].values())[ind_date:ind_date + cycle_len].count(0)
@@ -1620,7 +1644,7 @@ def create_result(request, department_id, start, end):
 
 
 def temp_remove(request, year, month):
-    results = Result.objects.filter(date__year=year, date__month=month).delete()
-    preresults = PreResult.objects.filter(date__year=year, date__month=month).delete()
+    Result.objects.filter(date__year=year, date__month=month).delete()
+    PreResult.objects.filter(date__year=year, date__month=month).delete()
 
     return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
