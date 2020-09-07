@@ -6,6 +6,8 @@ import { SHIFT_TYPE } from '../shifts/constants.js';
 Vue.use(SHIFT_TYPE);
 import { PROMISE_LEAVE_ITEM } from '../promise-leave/constants.js';
 Vue.use(PROMISE_LEAVE_ITEM);
+import { TIME_ADJUSTMENT_ITEM } from '../time-adjustment/constants.js';
+Vue.use(TIME_ADJUSTMENT_ITEM);
 
 new Vue({
   el: '#app',
