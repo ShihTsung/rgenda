@@ -1500,14 +1500,14 @@ def suggest_user_num(request, date_str):
 @swagger_auto_schema(
     methods=['get'],
     operation_summary='手動重排',
-    manual_parameters=[department, start, end],
+    manual_parameters=[start, end],
 )
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result(request):
 
     department = request.user.department
-    
+
     try:
         date_start = str_to_date(request.GET.get('start'))
         date_end = str_to_date(request.GET.get('end'))
