@@ -22,6 +22,7 @@ from notifications.signals import notify
 from datetime import time
 from numpy.random import choice
 from result.models import ExchangeApplication
+from date.models import H_Calendar
 
 
 """
@@ -411,6 +412,11 @@ def departmentCreate(request):
                 level='info',
                 verb=f'{request.user.full_name} 建立了新的科別',
                 description='/departments/list')
+            dates = H_Calendar.objects.all()
+            for date in dates:
+                date.attribute[str(department.id)] = '1'
+                date.save()
+
             return redirect('/departments/list')
     context = {'form': form}
     return render(request, 'department/departmentCreate.html', context)
