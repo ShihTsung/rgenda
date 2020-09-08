@@ -790,6 +790,22 @@ def create_result(request, department_id, start, end):
                     elif attrs[ind] == '2':
                         demand_dict[str(d)] = demand['demand'].config2
 
+                # 調整預排假，若人數許可則改為保證假
+                for d in date_list:
+                    count_reserve = 0
+                    count_promise = 0
+                    user_l = list()
+                    for user_id in user_current_level:
+                        if d in user_pool[user_id]['reserve_leave']:
+                            count_reserve += 1
+                            user_l.append(user_id)
+                        elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
+                            count_promise += 1
+                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
+                        for user_id in user_l:
+                            user_pool[user_id]['reserve_leave'].remove(d)
+                            user_pool[user_id]['promise_leave'].append(d)
+
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
 
