@@ -423,7 +423,7 @@
         </h4>
         <div class="btn-position" style="margin-top: 23rem;">
           <button class="cate-btn" @click="isReset = false">取消</button>
-          <button class="cate-btn" @click="isReset = false">確認</button>
+          <button class="cate-btn" @click="recalculate()">確認</button>
         </div>
       </div>
       <div class="ta-remark" v-show="isTARemarkShow && (text !== '')" :style="{left: x, top: y}">
@@ -1389,7 +1389,6 @@
         .then(res=>{
           return res.json();
         }).then(data=>{
-          // console.log(data);
           this.demandData = data;
         }).catch(err=>{
           console.log(err);
@@ -1415,14 +1414,12 @@
       },
 
       getRemarkS(ev) {
-        console.log(ev.target.id[0]);
         let data = {};
 
         data.id = ev.target.id[0];
         data.content = ev.target.value.toString();
 
         this.remarkS.push(data);
-        console.log(this.remarkS);
       },
 
       getRS(ev) {
@@ -1645,6 +1642,19 @@
         if(c && c.remark) {
           this.text = c.remark;
         };
+
+      },
+
+      recalculate() {
+        this.isTARemarkShow = false;
+        fetch('/api/recreate-result?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
+        .then(res=>{
+          return res.json();
+        }).then((data)=>{
+          location.reload();
+        }).catch(err=>{
+          console.log(err);
+        });
 
       },
     }
