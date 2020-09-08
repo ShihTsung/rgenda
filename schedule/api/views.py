@@ -1518,7 +1518,7 @@ def recreate_result(request):
             'message': 'wrong date input',
         })
 
-    PreResult.objects.filter(user__department=department, date__gte=start, date__lte=end).delete()
+    PreResult.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end).delete()
 
     # 檢查班表是否已建立
     try:
