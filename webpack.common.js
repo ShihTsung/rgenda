@@ -19,7 +19,9 @@ module.exports = {
     'time-adjustment': './time-adjustment/time-adjustment.js',
     'shift-list': './shifts/shift-list.js',
     'station-list': './stations/station-list.js',
+    'employee-main-page': './mainpage/employee-main-page.js',
     'rgenda': './rgenda.scss',
+    'pre-result': './pre-result/pre-result.js',
   },
   output: {
     filename: '[name].bundle.js',
