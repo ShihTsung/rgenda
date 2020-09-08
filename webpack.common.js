@@ -20,6 +20,7 @@ module.exports = {
     'shift-list': './shifts/shift-list.js',
     'station-list': './stations/station-list.js',
     'rgenda': './rgenda.scss',
+    'pre-result': './pre-result/pre-result.js',
   },
   output: {
     filename: '[name].bundle.js',
