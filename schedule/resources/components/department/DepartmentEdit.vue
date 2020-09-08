@@ -98,7 +98,7 @@
         <div class="form-group">
           <label for="department-schedule-rule">班種設定</label>
           <select class="form-control" id="department-schedule-rule" v-model="department.schedule_rule">
-            <option value="0">單週同班種</option>
+            <!-- <option value="0">單週同班種</option> -->
             <option value="1">單月同班種</option>
             <option value="2">三月同班種</option>
           </select>

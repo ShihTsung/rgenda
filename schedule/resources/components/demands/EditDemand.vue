@@ -11,7 +11,7 @@
           <div class="card-body">
             <div class="row col-md-12">
               <div class="form-group col-md-6">
-                <label for="exampleInputEmail1">資深正職</label>
+                <label>資深正職</label>
                 <div class="form-group">
                   <div class="form-check form-check-inline"
                   v-for="user in seniorStaff" :key="['senior_staff', user.id].join('_')">
@@ -24,7 +24,7 @@
                 </div>
               </div>
               <div class="form-group col-md-6">
-                <label for="exampleInputPassword1">正職</label>
+                <label>正職</label>
                 <div class="form-group">
                   <div class="form-check form-check-inline"
                   v-for="user in normalStaff" :key="['normal_staff', user.id].join('_')">
@@ -49,15 +49,15 @@
           <div class="card-body">
             <div class="row col-md-12">
               <div class="form-group col-md-4">
-                <label for="">資深正職</label>
+                <label>資深正職</label>
                 <input type="number" class="form-control" v-model="seniorDemandOfShift.config1">
               </div>
               <div class="form-group col-md-4">
-                <label for="">正職</label>
+                <label>正職</label>
                 <input type="number" class="form-control" v-model="normalDemandOfShift.config1">
               </div>
               <div class="form-group col-md-4">
-                <label for="">小計</label>
+                <label>小計</label>
                 <input type="text" readonly class="form-control-plaintext" disabled
                 v-model="configSubtotal1">
               </div>
@@ -73,17 +73,16 @@
           <div class="card-body">
             <div class="row col-md-12">
               <div class="form-group col-md-4">
-                <label for="">資深正職</label>
-                <input type="number" class="form-control" v-model="seniorDemandOfShift.config2">
+                <label>資深正職</label>
+                <input type="number" class="form-control" v-model="seniorDemandOfShift.config2" />
               </div>
               <div class="form-group col-md-4">
-                <label for="">正職</label>
-                <input type="number" class="form-control" v-model="normalDemandOfShift.config2">
+                <label>正職</label>
+                <input type="number" class="form-control" v-model="normalDemandOfShift.config2" />
               </div>
               <div class="form-group col-md-4">
-                <label for="">小計</label>
-                <input type="text" readonly class="form-control-plaintext" disabled
-                v-model="configSubtotal2">
+                <label>小計</label>
+                <input type="text" readonly class="form-control-plaintext" disabled v-model="configSubtotal2" />
               </div>
             </div>
           </div>
@@ -93,7 +92,7 @@
       <div class="col-md-12 mt-3">
         <div class="form-group text-center mb-0">
           <button class="btn btn-rgenda" @click="cancelEdit()">取消</button>
-          <button class="btn btn-rgenda" @click="update()">儲存</button>
+          <button class="btn btn-rgenda" @click="confirmUpdate()">儲存</button>
         </div>
       </div>
     </div>
@@ -105,6 +104,7 @@ import popup from 'common/popup';
 import {
   httpRep
 } from 'common/helpers';
+import moment from 'moment';
 
 export default {
   props: {
@@ -114,12 +114,14 @@ export default {
     },
     editShift: {
       type: Object,
-      default: {
-        stationId: 0,
-        stationName: '',
-        shiftId: 0,
-        shiftName: '',
-        config: {},
+      default: function () {
+        return {
+          stationId: 0,
+          stationName: '',
+          shiftId: 0,
+          shiftName: '',
+          config: {},
+        }
       },
     },
     myDepartmentId: {
@@ -131,7 +133,6 @@ export default {
     return {
       seniorStaff: [],
       normalStaff: [],
-
       normalDemandOfShift: {
         demandId: 0,
         config1: 0,
@@ -148,7 +149,6 @@ export default {
         checkedUserIds: [],
         assignedUsers: [],
       },
-
     };
   },
   methods: {
@@ -174,38 +174,46 @@ export default {
 
       this.$parent.cancelEdit();
     },
-    getNormalUsers() {
-      let type = this.$getUserTypeValue('VALUE_NORMAL');
-      this.$_editDemand_getUsers(type);
-    },
-    getSeniorUsers() {
-      let type = this.$getUserTypeValue('VALUE_SENIOR');
-      this.$_editDemand_getUsers(type);
-    },
-    $_editDemand_getUsers(type) {
+    $_editDemand_getUsers() {
       let self = this;
-      let url = `/api/users/?type=${type}&department=${this.myDepartmentId}`;
-      this.$httpClient.get(url)
-        .then(function (response) {
-          let data = response.data;
-          if (data.length > 0) {
-            let filteredData = data.filter((user) => {
-              return user.can_be_scheduled;
-            });
-            if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              self.normalStaff = filteredData;
-            } else {
-              self.seniorStaff = filteredData;
+      Promise.all([
+          this.$httpClient.get(
+            `/api/users/?type=${this.$getUserTypeValue('VALUE_NORMAL')}&department=${this.myDepartmentId}`
+          ),
+          this.$httpClient.get(
+            `/api/users/?type=${this.$getUserTypeValue('VALUE_SENIOR')}&department=${this.myDepartmentId}`
+          ),
+          this.$httpClient.get('/api/demand-user/'),
+          this.$httpClient.get('/api/shifts/' + this.editShift.shiftId + '/'),
+        ]).then((responseArr) => {
+          let normalUserData = responseArr[0].data;
+          let seniorUserData = responseArr[1].data;
+          let demandUsers = responseArr[2].data;
+          let shift = responseArr[3].data;
+
+          [normalUserData, seniorUserData].forEach(data => {
+            let filteredData = [];
+            if (data.length > 0) {
+              filteredData = data.filter((user) => {
+                if (user.pregnant
+                  && (moment(shift.start_time, 'HH:mm').hour() < 6
+                    || moment(shift.end_time, 'HH:mm').hour() > 22)) {
+                  return false;
+                }
+                return (
+                  user.can_be_scheduled &&
+                  demandUsers.every((demandUser) => demandUser.user !== user.id)
+                );
+              });
             }
-          } else {
-            if (self.$getUserTypeValue('VALUE_NORMAL') === type) {
-              self.normalStaff = [];
+
+            if (self.$getUserTypeValue('VALUE_NORMAL') === data[0].type_of_user) {
+              self.normalStaff = filteredData.concat(self.normalDemandOfShift.assignedUsers);
             } else {
-              self.seniorStaff = [];
+              self.seniorStaff = filteredData.concat(self.seniorDemandOfShift.assignedUsers);
             }
-          }
-        })
-        .catch(function (error) {
+          });
+        }).catch(function (error) {
           // handle error
           popup.error({
             title: error.title,
@@ -240,7 +248,7 @@ export default {
       let filteredUserIds = [];
       filteredUserIds = userIdArr.filter((id) => {
         return userSource.find((user) => {
-          return id == user.id
+          return id == user.id;
         });
       });
 
@@ -250,7 +258,7 @@ export default {
       let delUserIds = [];
       arrObj.forEach(user => {
         if (!userIdArr.includes(user.id)) {
-          delUserIds.push([user.demand_user_id, demandId, user.id, ])
+          delUserIds.push([user.demand_user_id, demandId, user.id]);
         }
       });
 
@@ -268,7 +276,7 @@ export default {
 
       return addUserIds;
     },
-    update() {
+    confirmUpdate() {
       let [bool, errMsg] = this.$_editDemand_validate();
       if (!bool) {
         popup.error({
@@ -279,6 +287,56 @@ export default {
       }
 
       let self = this;
+      const url = '/api/suggest-user-num/' + moment().add(1, 'M').format('YYYY-MM') + '/';
+      const params = {
+        level1: {
+          config1: Number(this.normalDemandOfShift.config1),
+          config2: Number(this.normalDemandOfShift.config2),
+        },
+        level2: {
+          config1: Number(this.seniorDemandOfShift.config1),
+          config2: Number(this.seniorDemandOfShift.config2),
+        }
+      };
+      const formConfig = {
+        headers: {
+          'X-CSRFToken': `${this.csrfToken}`,
+        },
+      };
+      this.$httpClient.post(url, params, formConfig).then(response => {
+        /**
+         * example response data:
+         * [{"type_of_user":"senior","suggest_num":7},{"type_of_user":"total","suggest_num":14}]
+         */
+        let data = response.data;
+        let errMsg = [];
+        let normalUserNum = self.normalDemandOfShift.checkedUserIds.length;
+        let seniorUserNum = self.seniorDemandOfShift.checkedUserIds.length;
+        data.forEach(d => {
+          if (d.type_of_user === 'total' && normalUserNum + seniorUserNum < d.suggest_num) {
+            errMsg.push('人員配置總人數(正職+資深正職)少於建議人數 ' + d.suggest_num);
+          }
+          if (d.type_of_user === 'senior' && seniorUserNum < d.suggest_num) {
+            errMsg.push('資深正職人員配置人數少於建議人數 ' + d.suggest_num);
+          }
+        });
+        if (errMsg.length > 0) {
+          errMsg.push('若配置人數過少，可能造成排班結果不理想');
+          errMsg.push('是否確認儲存配置？');
+          popup.warning({
+            title: '配置人數過少',
+            html: httpRep.messageJoin(errMsg),
+            showCancelButton: true,
+          }, function(){
+            self.update();
+          });
+        } else {
+          self.update();
+        }
+      });
+    },
+    update() {
+      let self = this;
       let changed = false;
       let delNormalUsers = [];
       let delSeniorUsers = [];
@@ -286,12 +344,12 @@ export default {
       // 過濾掉已轉科別的 user id
       self.normalDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
         self.normalDemandOfShift.checkedUserIds,
-        self.normalStaff,
-      )
+        self.normalStaff
+      );
       self.seniorDemandOfShift.checkedUserIds = self.$_editDemand_filterUserIds(
         self.seniorDemandOfShift.checkedUserIds,
-        self.seniorStaff,
-      )
+        self.seniorStaff
+      );
 
       delNormalUsers = self.$_editDemand_delUserIds(
         self.normalDemandOfShift.demandId,
@@ -308,11 +366,11 @@ export default {
         let url = `/api/demand-user/${item[0]}/`;
         const formConfig = {
           headers: {
-            'X-CSRFToken': `${self.csrfToken}`
-          }
-        }
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
         self.$httpClient.delete(url, formConfig)
-          .then(function (response) {
+          .then(function () {
             // debug
             // console.log(`delete demand_user_id = ${item[0]}`);
           })
@@ -324,7 +382,8 @@ export default {
             });
             console.log(error);
           });
-      });
+        }
+      );
 
       let addNormalUsers = [];
       let addSeniorUsers = [];
@@ -343,15 +402,15 @@ export default {
         let url = `/api/demand-user/`;
         const formConfig = {
           headers: {
-            'X-CSRFToken': `${self.csrfToken}`
-          }
-        }
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
         let params = {
           demand: item[0],
           user: item[1],
         };
         self.$httpClient.post(url, params, formConfig)
-          .then(function (response) {
+          .then(function () {
             // debug
             // console.log(`create demand id = ${item[0]}, user id = ${item[1]}`);
           })
@@ -375,9 +434,9 @@ export default {
         let url = `/api/demands/${obj.demandId}/`;
         const formConfig = {
           headers: {
-            'X-CSRFToken': `${self.csrfToken}`
-          }
-        }
+            'X-CSRFToken': `${self.csrfToken}`,
+          },
+        };
         let params = {
           id: obj.demandId,
           station: self.editShift.stationId,
@@ -387,7 +446,7 @@ export default {
           level: obj.level,
         };
         self.$httpClient.patch(url, params, formConfig)
-          .then(function (response) {
+          .then(function () {
             // debug
             // console.log(`update demand id = ${id}`);
           })
@@ -405,7 +464,7 @@ export default {
         ...delUserPromiseArr,
         ...addUserPromiseArr,
         ...configPromisedArr
-      ]).then(function (response) {
+      ]).then(function () {
         if (changed) {
           popup.success({
             title: '編輯人力配置',
@@ -426,7 +485,7 @@ export default {
         });
         console.log(error);
       });
-    },
+    }
   },
   computed: {
     configSubtotal1() {
@@ -439,7 +498,8 @@ export default {
   mounted() {
     let self = this;
     self.$nextTick(function () {
-      let normalDemand = self.editShift.config[self.$getUserLevelValue('VALUE_NORMAL')];
+      const userLevel = self.$getUserLevelValue('VALUE_NORMAL');
+      let normalDemand = self.editShift.config[userLevel];
       self.normalDemandOfShift.demandId = Number(normalDemand.id);
       self.normalDemandOfShift.config1 = Number(normalDemand.config1);
       self.normalDemandOfShift.config2 = Number(normalDemand.config2);
@@ -451,7 +511,7 @@ export default {
       });
       self.normalDemandOfShift.assignedUsers = normalDemand.people;
 
-      let seniorDemand = self.editShift.config[self.$getUserLevelValue('VALUE_SENIOR')];
+      let seniorDemand = self.editShift.config[self.$getUserLevelValue('VALUE_SENIOR')]
       self.seniorDemandOfShift.demandId = Number(seniorDemand.id);
       self.seniorDemandOfShift.config1 = Number(seniorDemand.config1);
       self.seniorDemandOfShift.config2 = Number(seniorDemand.config2);
@@ -463,8 +523,7 @@ export default {
       });
       self.seniorDemandOfShift.assignedUsers = seniorDemand.people;
 
-      self.getNormalUsers();
-      self.getSeniorUsers();
+      self.$_editDemand_getUsers();
     });
   },
 }

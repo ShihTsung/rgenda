@@ -83,6 +83,13 @@ class SimpleDepartmentSerializer(serializers.ModelSerializer):
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
+
     class Meta:
         model = CustomUser
         fields = (
@@ -98,12 +105,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class GetCustomUserSerializer(serializers.ModelSerializer):
     department = SimpleDepartmentSerializer()
     # start_time = serializers.SerializerMethodField()
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'full_name', 'department', 'level',
-            'gender', 'role', 'is_superuser', 'type_of_user',
+            'gender', 'role', 'is_superuser', 'type_of_user', 'pregnant',
             'can_be_scheduled', 'holiday_rest_num', 'special_rest_num',
             'hour_required', 'hour_realized', 'eid', 'onboard_date')
         read_only_fields = ('id', )
@@ -123,6 +136,13 @@ class CustomUserListSerializer(serializers.ModelSerializer):
     level = serializers.SerializerMethodField()
     pregnant = serializers.SerializerMethodField()
     schedule_state = serializers.SerializerMethodField()
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
 
     def get_level(self, obj):
         if obj.level <= 4:
@@ -155,29 +175,19 @@ class CustomUserListSerializer(serializers.ModelSerializer):
 
 
 class GetResourceUserSerializer(serializers.ModelSerializer):
-    shift_num = serializers.SerializerMethodField()
-    special_rest = serializers.SerializerMethodField()
-    overtime = serializers.SerializerMethodField()
-    diff = serializers.SerializerMethodField()
 
-    def get_shift_num(self, obj):
-        return 0
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
 
-    def get_special_rest(self, obj):
-        return 0
-
-    def get_overtime(self, obj):
-        return 0
-
-    def get_diff(self, obj):
-        return 0
+        return queryset
 
     class Meta:
         model = CustomUser
         fields = (
             'id', 'username', 'email', 'department', 'can_be_scheduled',
-            'full_name', 'shift_num', 'special_rest',
-            'overtime', 'diff', 'type_of_user', 'eid', 'level'
+            'full_name', 'type_of_user', 'eid', 'level'
         )
 
 # 工作站Get
@@ -217,6 +227,13 @@ class GetShiftSerializer(serializers.ModelSerializer):
     end_time = serializers.SerializerMethodField()
     department = DepartmentSerializer()
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
+
     def get_start_time(self, obj):
         hour = str(obj.start_time.hour)
         minute = str(obj.start_time.minute)
@@ -229,7 +246,7 @@ class GetShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_time',
+        fields = ('id', 'name', 'code', 'shift_type', 'start_time',
                   'end_time', 'department', 'work_hours')
         read_only_fields = ('id',)
 
@@ -237,9 +254,16 @@ class GetShiftSerializer(serializers.ModelSerializer):
 
 
 class ShiftSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'department')
+
+        return queryset
+
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'start_time', 'end_time',
+        fields = ('id', 'name', 'code', 'shift_type', 'start_time', 'end_time',
                   'department', 'work_hours')
         read_only_fields = ('id',)
 
@@ -247,7 +271,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 class SimpleShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
-        fields = ('id', 'name', 'shift_type', 'work_hours')
+        fields = ('id', 'name', 'code', 'shift_type', 'work_hours')
         read_only_fields = ('id',)
 
 # 日期Get
@@ -297,6 +321,16 @@ class HCalendarSerializer(serializers.ModelSerializer):
 
 
 class PreResultSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
+
     class Meta:
         model = PreResult
         fields = ('id', 'user', 'shift', 'date', 'station')
@@ -305,6 +339,15 @@ class PreResultSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
 
     class Meta:
         model = Result
@@ -315,18 +358,24 @@ class ResultSerializer(serializers.ModelSerializer):
 
 
 class AfterResultSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
+
     class Meta:
         model = AfterResult
         fields = ('id', 'user', 'shift', 'date', 'station')
 
 
 def get_type(shift):
-    if shift.shift_type == 0:
-        return 'A'
-    elif shift.shift_type == 1:
-        return 'E'
-    elif shift.shift_type == 2:
-        return 'N'
+    if shift.shift_type in [0, 1, 2]:
+        return shift.code
     elif shift.shift_type == 5:
         if shift.name == "休息":
             return '休'
@@ -373,6 +422,16 @@ class GetPreResultSerializer(serializers.ModelSerializer):
     def get_shift_type(self, obj):
         return get_type(obj.shift)
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
+
     class Meta:
         model = PreResult
         fields = ('id', 'user', 'shift', 'date', 'station', 'shift_type')
@@ -387,6 +446,16 @@ class GetResultSerializer(serializers.ModelSerializer):
     def get_shift_type(self, obj):
         return get_type(obj.shift)
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
+
     class Meta:
         model = Result
         fields = ('id', 'user', 'shift', 'date', 'station',
@@ -397,13 +466,22 @@ class GetAfterResultSerializer(serializers.ModelSerializer):
     shift = SimpleShiftSerializer()
     station = SimpleStationSerializer()
     shift_type = serializers.SerializerMethodField()
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.select_related(
+            'shift', 'shift__department')
+        queryset = queryset.select_related(
+            'station', 'station__department')
+        queryset = queryset.select_related(
+            'user', 'user__department')
+        return queryset
 
     def get_shift_type(self, obj):
         return get_type(obj.shift)
 
     class Meta:
         model = AfterResult
-        fields = ('id', 'user', 'shift', 'date', 'station','shift_type')
+        fields = ('id', 'user', 'shift', 'date', 'station', 'shift_type')
 
 
 class ReservationSerializer(serializers.ModelSerializer):

@@ -81,9 +81,7 @@ def check_cycle(department, results, invalid):
         for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
             if d < date0:
                 try:
-
                     results.insert(0, Result.objects.get(date=d, user=user))
-
                     i -= 1
                 except Result.DoesNotExist:
                     break
@@ -159,11 +157,9 @@ def check_rest_day(department, results, invalid):
                 ind -= 1
             except Result.DoesNotExist:
                 break
-        else:
-            break
     # get continue workday number
     last_week_results = Result.objects.filter(
-        date__in=[date0 - timedelta(days=i) for i in range(1, 8)],
+        date__in=[results[0].date - timedelta(days=i) for i in range(1, 8)],
         user=user).order_by('date')
     continue_workday = 0
     for result in last_week_results:
@@ -189,9 +185,9 @@ def check_rest_day(department, results, invalid):
             continue_workday = 0
             if H_Calendar.objects.filter(date=result.date).first().attribute in ['weekend', 'holiday']:
                 holiday_rest_remain -= 1
-        if continue_workday > 6 and result in results:
+        if continue_workday > 6 and result.date >= date0:
             invalid[result.id].append('不合法規：7天需有1天例假')
-        if work_days > work_days_limit and result in results:
+        if work_days > work_days_limit and result.date >= date0 and result.shift.shift_type in [0, 1, 2, 3, 7]:
             invalid[result.id].append('不合法規：週期內休息日不足')
         if holiday_rest_remain < 0 and attr == 'holiday' and result.shift.shift_type in [5, 6]:
             invalid[result.id].append('超過可休週末及國定假日數')

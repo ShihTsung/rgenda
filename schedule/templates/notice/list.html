@@ -16,7 +16,7 @@
         <ul class="list-group">
             {% for notice in notices %}
                 <li class="list-group-item" id="notice_link"
-                    {% if notice.unread%} 
+                    {% if notice.unread%}
                         style="background-color:#C0E9F9"
                     {% else %}
                         style="background-color:#FFF"
@@ -25,11 +25,9 @@
                     <a href="{% url 'notice:update' %}?department_id={{ notice.target.id }}&notice_id={{ notice.id }}"
                        target="_blank"
                     >
-                    <span style="color: #3867fb;">
-                        <strong>{{ notice.target }}</strong>
-                    </span>
-                             {{ notice.verb }}
-                        <span style="color: #01a252;"><strong>{{ notice.actor }}</strong></span>。
+                      <div class="content">
+                          {{ notice.verb }}
+                      </div>
                     </a>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <div style="float:right">
@@ -44,6 +42,13 @@
 <style>
     #notice_link a {
         color: black;
+        display: flex;
+    }
+    .list-group-item{
+      display:flex;
+    }
+    .content{
+      min-width: 35rem;
     }
 </style>
 {% endblock content %}

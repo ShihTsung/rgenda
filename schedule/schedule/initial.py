@@ -23,6 +23,7 @@ def initial(request):
     from shift.models import Shift
     from demand.models import DemandOfStation, DemandUserTable
     from result.models import Result, PreResult, AfterResult, TimeAdjustment
+    from remarks.models import UserRemark, RemarkSquare, ResultRemark, PreResultRemark
 
     print('clean database')
     User.objects.all().delete()
@@ -36,6 +37,10 @@ def initial(request):
     AfterResult.objects.all().delete()
     DemandOfStation.objects.all().delete()
     DemandUserTable.objects.all().delete()
+    UserRemark.objects.all().delete()
+    RemarkSquare.objects.all().delete()
+    ResultRemark.objects.all().delete()
+    PreResultRemark.objects.all().delete()
 
 # departments
     print('create departments')

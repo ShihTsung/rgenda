@@ -6,7 +6,7 @@
   "author": "",
   "scripts": {
     "dev": "npm run development",
-    "development": "cross-env NODE_ENV=development webpack --progress --hide-modules --config webpack.dev.js",
+    "development": "cross-env NODE_ENV=development webpack --progress --hide-modules --profile --config webpack.dev.js",
     "watch": "npm run development -- --watch",
     "watch-poll": "npm run watch -- --watch-poll",
     "prod": "npm run production",
@@ -22,6 +22,8 @@
     "clean-webpack-plugin": "^3.0.0",
     "cross-env": "^7.0",
     "css-loader": "^4.2.1",
+    "eslint": "^7.8.0",
+    "eslint-plugin-vue": "^6.2.2",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "jquery": "^3.2",
@@ -43,9 +45,11 @@
     "webpack-merge": "^5.1.1"
   },
   "dependencies": {
+    "chart.js": "^2.9.3",
     "moment": "^2.27.0",
     "qs": "^6.9.4",
     "sweetalert2": "^9.17.1",
+    "vue-chartjs": "^3.5.1",
     "vue-good-table": "^2.21.0",
     "vue-toasted": "^1.1.28"
   }
