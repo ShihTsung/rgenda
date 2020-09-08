@@ -1506,12 +1506,8 @@ def suggest_user_num(request, date_str):
 @parser_classes([JSONParser])
 def recreate_result(request):
 
-    try:
-        department = Department.objects.get(id=request.GET.get('department'))
-    except Department.DoesNotExist:
-        return Response({
-            'message': 'department does not exist',
-        })
+    department = request.user.department
+    
     try:
         date_start = str_to_date(request.GET.get('start'))
         date_end = str_to_date(request.GET.get('end'))
