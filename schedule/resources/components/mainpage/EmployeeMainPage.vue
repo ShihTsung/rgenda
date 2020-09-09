@@ -65,6 +65,7 @@
 <script>
 import BarChart from '../partial/BarChart.vue';
 import moment from 'moment';
+import { shiftColor, adjustColor } from 'src/constants/color.js';
 
 export default {
   data() {
@@ -210,8 +211,14 @@ export default {
             shiftStat.onCall,
             shiftStat.emptyShift,
           ],
-          backgroundColor: '#37419A',
-          borderColor: '#37419A',
+          backgroundColor: [
+            shiftColor[this.$getShiftTypeValue('VALUE_DAY_SHIFT')],
+            shiftColor[this.$getShiftTypeValue('VALUE_NIGHT_SHIFT')],
+            shiftColor[this.$getShiftTypeValue('VALUE_GRAVEYARD_SHIFT')],
+            shiftColor[this.$getShiftTypeValue('VALUE_ON_CALL')],
+            shiftColor.default,
+          ],
+          borderColor: 'transparent',
           borderWidth: 1
         }]
       };
@@ -231,7 +238,7 @@ export default {
           number: 0
         },
         onCall: {
-          label: 'on call',
+          label: 'On call',
           number: 0
         },
         overtime: {
@@ -317,8 +324,13 @@ export default {
             hourStat.officialHoliday,
             hourStat.employeeLeave,
           ],
-          backgroundColor: '#37419A',
-          borderColor: '#37419A',
+          backgroundColor: [
+            shiftColor.default,
+            '#37419a',
+            '#37419a',
+            '#37419a'
+          ],
+          borderColor: 'transparent',
           borderWidth: 1
         }]
       };
