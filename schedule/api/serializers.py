@@ -405,11 +405,14 @@ def get_type(shift):
         if shift.name == "家庭照顧假":
             return '家'
     elif shift.shift_type == 4:
-        return 'On'
+        if shift.code == '':
+            return 'On'
+        else:
+            return shift.code
     elif shift.shift_type == 3:
         return '公'
     elif shift.shift_type == 7:
-        return '政'
+        return shift.code
     else:
         return ''
 
