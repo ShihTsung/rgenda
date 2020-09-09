@@ -4,7 +4,7 @@
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
-        <h2 class="month">&nbsp;{{month}}??</h2>
+        <h2 class="month">&nbsp;{{month}}月</h2>
       </div>
 
       <div class="bt-group">
