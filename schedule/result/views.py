@@ -634,6 +634,8 @@ def create_result(request, department_id, start, end):
     :param end:
     :return:
     """
+    from datetime import datetime, date, timedelta
+
     time_start = datetime.now()
 
     try:
