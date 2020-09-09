@@ -1676,7 +1676,7 @@ def recreate_result(request):
                             user_l.append(user_id)
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
+                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)]:
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
@@ -1833,7 +1833,7 @@ def recreate_result(request):
                                 except ValueError:
                                     for user_id in options:
                                         print(user_id, weight_workday[user_id])
-                                    
+
                                 for user_id in user_pool:
                                     if user_id in on_duty:
                                         temp_output[user_id][str(d)] = 1
@@ -1847,7 +1847,8 @@ def recreate_result(request):
                             # 成功排完 1 cycle
                             # 儲存結果
                             output = temp_output
-                            print(station.name, shift.name, 'Cycle', str(ind), 'Success in 10000')
+                            print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
+                                  'Success in 10000.')
 
                             # 儲存剩餘工作天 & 可休假假日數
                             for user_id in user_pool:
@@ -1863,6 +1864,8 @@ def recreate_result(request):
                     else:
                         # 嘗試10000次皆失敗，強制產生班表，不必滿足所有需求
                         # 嘗試排班100次，取最滿足需求的結果
+                        print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
+                              'Fail in 10000, force creating.')
                         best_temp_output = None
                         demand_loss = total_demands
 
@@ -1993,11 +1996,17 @@ def recreate_result(request):
                                                 weight.append(weight_workday[user_id] * weight_reserve_leave[
                                                     user_id] * 1000 + 1)
                                         weight_sum = sum(weight)
-                                        weight = [
-                                            w / weight_sum for w in weight]
-                                        on_duty = choice(
-                                            options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num, p=weight,
-                                            replace=False)
+                                        weight = [w / weight_sum for w in weight]
+                                        try:
+                                            on_duty = choice(
+                                                options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                                p=weight, replace=False)
+                                        except ValueError:
+                                            print('------------------------------------')
+                                            print('WEIGHT', str(weight))
+                                            print('WORKDAYS', str(weight_workday))
+                                            print('------------------------------------')
+                                            return None
                                         for user_id in user_pool:
                                             if user_id in on_duty:
                                                 temp_output[user_id][str(
