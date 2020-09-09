@@ -26,8 +26,8 @@ from remarks.models import ResultRemark, PreResultRemark
 
 # 計算總工時
 @login_required
-def cal_workhour(request):
-    pass
+def test_preresult(request):
+    return render(request, 'calendars/pre_result_test.html')
 
 
 # 計算月工時(可以輸入查找時間)
@@ -940,9 +940,15 @@ def create_result(request, department_id, start, end):
                                             weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
-                                print(weight)
-                                on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
-                                                 p=weight, replace=False)
+                                try:
+                                    on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                                     p=weight, replace=False)
+                                except ValueError:
+                                    print('------------------------------------')
+                                    print('WEIGHT', str(weight))
+                                    print('WORKDAYS', str(weight_workday))
+                                    print('------------------------------------')
+                                    return None
                                 for user_id in user_pool:
                                     if user_id in on_duty:
                                         temp_output[user_id][str(d)] = 1
