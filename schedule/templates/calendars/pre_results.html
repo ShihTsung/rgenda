@@ -160,7 +160,7 @@
                       <div v-if="!ShiftOfUser(u.id, month, d)" @click="postToResults(u.id, d, month, year)">
                         -
                       </div>
-                      <div v-if="ShiftOfUser(u.id, month, d)" :class="[shiftColor(ShiftOfUser(u.id, month, d).shift_type)]">
+                      <div v-if="ShiftOfUser(u.id, month, d)" :class="[shiftColor(ShiftOfUser(u.id, month, d).shift.shift_type, ShiftOfUser(u.id, month, d).shift.name)]">
                         [[ShiftOfUser(u.id, month, d).shift_type]]
                         <div :class="{triangle: userReserve(u.id, month, d)}">
 
@@ -814,8 +814,10 @@
           this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
+          this.getAdjustment(this.month, this.year);
           this.isChecked = false;
           this.checkResult.length = 0;
+
         }else if(ev.target.id === "next") {
           this.month++;
           if(this.month > 12) {
@@ -825,6 +827,7 @@
           this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
+          this.getAdjustment(this.month, this.year);
           this.isChecked = false;
           this.checkResult.length = 0;
         }else {
@@ -833,37 +836,69 @@
           this.getPreResults(this.month, this.year);
           this.getLastMonthData(this.month, this.year);
           this.getTotalPerDayData(this.month, this.year);
+          this.getAdjustment(this.month, this.year);
           this.isChecked = false;
           this.checkResult.length = 0;
         };
       },
       //判別各個班別的樣式
-      shiftColor(type) {
-        switch(type){
-          case "A":
+      shiftColor(id, name) {
+        switch (id) {
+          case 0:
             return "dayShift";
-          case "E":
+          case 1:
             return "nightShift";
-          case "N":
+          case 2:
             return "graveyardShift";
-          case "公":
+          case 3:
             return "rest";
-          case "例":
-            return "rest";
-          case "休":
-            return "rest";
-          case "國":
-            return "rest";
-          case "On":
+          case 4:
             return "onCall";
-          case "B":
+          case 5:
+            switch (name) {
+              case '休息':
+                return "rest";
+              case '例假':
+                return "rest";
+              case '補休':
+                return "restR";
+              case '特休':
+                return "restR";
+              case '空班':
+                return "restR";
+              case '婚假':
+                return "restR";
+              case '喪假':
+                return "restR";
+              case '產假':
+                return "restR";
+              case '生理假':
+                return "restR";
+              case '國定假日':
+                return "rest";
+              default:
+                console.log(name);
+                break;
+            };
+            break;
+          case 6:
+            switch (name) {
+              case '無薪病假':
+                return "restR";
+              case '事假':
+                return "restR";
+              case '家庭照顧假':
+                return "restR";
+              default:
+                console.log(name);
+                break;
+            };
+            break;
+          case 7:
             return "adminis";
-          case "補":
-            return "restR";
-          case "特":
-            return "restR";
-          case "事":
-            return "restR";
+          default:
+            console.log(name);
+            break;
         };
       },
       //回傳對應的班別或是假別的資料
@@ -968,119 +1003,183 @@
           this.obj.station = this.station;
         };
 
-        fetch("/api/preresults/", {
-            headers:{
-                'X-CSRFToken': '{{ csrf_token }}',
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify(this.obj),
-            method: 'POST',
-          })
-          .then((res)=>{
-            return res.json();
-          }).then((data)=>{
-            this.changeInfo.id = data.id;
-            this.resultData.push(data);
-          }).catch((err)=>{
-            console.log(err);
-          });
+        // fetch("/api/preresults/", {
+        //     headers:{
+        //         'X-CSRFToken': '{{ csrf_token }}',
+        //         'content-type': 'application/json'
+        //     },
+        //     body: JSON.stringify(this.obj),
+        //     method: 'PUT',
+        //   })
+        //   .then((res)=>{
+        //     return res.json();
+        //   }).then((data)=>{
+        //     this.changeInfo.id = data.id;
+        //     this.resultData.push(data);
+        //   }).catch((err)=>{
+        //     console.log(err);
+        //   });
 
         if(this.changeInfo.id){
           this.changedResult.push(this.obj);//之後丟去api修正
         }
+
         let shift_id = this.shiftData.find((i)=>{
           return i.id == this.obj.shift;
         });
 
-        //shift id to shift type
-        switch (shift_id.shift_type) {
+        switch(shift_id.shift_type) {
           case 0:
-            type = 'A';
+            type = shift_id.code;
             break;
           case 1:
-            type = 'E';
+            type = shift_id.code;
             break;
           case 2:
-            type = 'N';
+            type = shift_id.code;
             break;
           case 3:
             type = '公';
             break;
           case 4:
-            type = 'On';
+            if(shift_id.code == ''){
+              type = 'On';
+            }else{
+              type = shift_id.code;
+            };
             break;
           case 5:
-            switch (shift_id.name) {
-              case '休息':
-                type = '休';
-                break;
-              case '例假':
-                type = '例';
-                break;
-              case '補休':
-                type = '補';
-                break;
-              case '特休':
-                type = '特';
-                break;
-              case '空班':
-                type = '空';
-                break;
-              case '婚假':
-                type = '婚';
-                break;
-              case '喪假':
-                type = '喪';
-                break;
-              case '產假':
-                type = '產';
-                break;
-              case '生理'://生理假
-                type = '生';
-                break;
-              case '國定'://國定假日
-                type = '國';
-                break;
-              default:
-                console.log(shift_id.name);
-                break;
+              switch(shift_id.name) {
+                case "休息":
+                  type = '休';
+                  break;
+                case "例假":
+                  type = '例';
+                  break;
+                case "補休":
+                  type = "補";
+                  break;
+                case "特休":
+                  type = "特";
+                  break;
+                case "空班":
+                  type = "空";
+                  break;
+                case "婚假":
+                  type = "婚";
+                  break;
+                case "喪假":
+                  type = "喪";
+                  break;
+                case "產假":
+                  type = "產";
+                  break;
+                case "生理假":
+                  type = "生";
+                  break;
+                case "國定假日":
+                  type = "國";
+                  break;
+              };
+              break;
+          case 6:
+            switch(shift_id.name) {
+              case "無薪病假":
+                  type = '病';
+                  break;
+              case "事假":
+                  type = '事';
+                  break;
+              case "家庭照顧假":
+                  type = '家';
+                  break;
             };
             break;
-          case 6:
-            switch (shift_id.name) {
-              case '無薪'://無薪病假
-                type = '病';
-                break;
-              case '事假':
-                type = '事';
-                break;
-              case '家庭'://家庭照顧假
-                type = '家';
-                break;
-              default:
-                console.log(shift_id.name);
-                break;
-            };
+          case 7:
+            type = shift.code;
             break;
           default:
-            type = '?';
+            type = '';
             break;
         };
 
         //前端顯示修正
-        if(this.changeInfo != undefined) {
-          this.resultData.forEach(i=>{
-            if(i.id == this.changeInfo.id) {
-              i.shift_type = type;
-              i.isModified = true;
-            }
-          });
+        if(this.obj) {
+          // this.resultData.forEach(i=>{
+          //   if(i.id == this.obj.id) {
+          //     i.shift_type = type;
+          //     i.isModified = true;
+          //   }
+          // });
+          this.resultData[this.resultData.indexOf(this.changeInfo)].shift.shift_type = shift_id.shift_type;
+          this.resultData[this.resultData.indexOf(this.changeInfo)].shift.name = shift_id.name;
+          this.resultData[this.resultData.indexOf(this.changeInfo)].shift_type = type;
+          this.resultData[this.resultData.indexOf(this.changeInfo)].isModified = true;
         };
 
         this.changeInfo = {};
         this.item = -1;
         this.station = -1;
         this.obj = {};
+
+        // switch (shift_id.shift_type) {
+        //   case 0:
+        //     return "dayShift";
+        //   case 1:
+        //     return "nightShift";
+        //   case 2:
+        //     return "graveyardShift";
+        //   case 3:
+        //     return "rest";
+        //   case 4:
+        //     return "onCall";
+        //   case 5:
+        //     switch (shift_id.name) {
+        //       case '休息':
+        //         return "rest";
+        //       case '例假':
+        //         return "rest";
+        //       case '補休':
+        //         return "restR";
+        //       case '特休':
+        //         return "restR";
+        //       case '空班':
+        //         return "restR";
+        //       case '婚假':
+        //         return "restR";
+        //       case '喪假':
+        //         return "restR";
+        //       case '產假':
+        //         return "restR";
+        //       case '生理假':
+        //         return "restR";
+        //       case '國定假日':
+        //         return "rest";
+        //       default:
+        //         console.log(shift_id.name);
+        //         break;
+        //     };
+        //     break;
+        //   case 6:
+        //     switch (shift_id.name) {
+        //       case '無薪病假':
+        //         return "restR";
+        //       case '事假':
+        //         return "restR";
+        //       case '家庭照顧假':
+        //         return "restR";
+        //       default:
+        //         console.log(shift_id.name);
+        //         break;
+        //     };
+        //     break;
+        //   case 7:
+        //     return "adminis";
+        //   default:
+        //     console.log(shift_id.name);
+        //     break;
+        // };
+
       },
 
       postToResults(id, d, month, year) {
@@ -2205,8 +2304,8 @@
       color: #37419A;
     }
     .triangle {
-      width: 100%;
-      height: 100%;
+      width: 50px;
+      height: 50px;
       clip-path: polygon(0 0, 0 50%, 43% 0);
       background: #37419A;
       position: absolute;
