@@ -1866,7 +1866,7 @@ def recreate_result(request):
                             # 儲存結果
                             output = temp_output
                             print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
-                                  'Success in 10000.')
+                                  'Success in 1000.')
 
                             # 儲存剩餘工作天 & 可休假假日數
                             for user_id in user_pool:
@@ -1883,7 +1883,7 @@ def recreate_result(request):
                         # 嘗試10000次皆失敗，強制產生班表，不必滿足所有需求
                         # 嘗試排班100次，取最滿足需求的結果
                         print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
-                              'Fail in 10000, force creating.')
+                              'Fail in 1000, force creating.')
                         best_temp_output = None
                         demand_loss = total_demands
 
