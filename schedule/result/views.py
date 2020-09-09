@@ -828,6 +828,13 @@ def create_result(request, department_id, start, end):
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
 
+                    # 工作天數扣除公假、其他假和預先插入的1
+                    for user in demand['users']:
+                        for d in cycle:
+                            if date_start <= d <= date_end:
+                                if output[user.id][str(d)] == 1 or d in user_pool[user.id]['promise_other']:
+                                    workday_dict[user.id][ind] -= 1
+
                     # 計算可工作天數、需求數
                     total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
                     total_workdays = sum([workday_dict[user_id][ind] for user_id in user_pool])
@@ -838,7 +845,7 @@ def create_result(request, department_id, start, end):
                     diff_q = diff // day_num
                     diff_r = diff % day_num
 
-                    for _ in range(10000):
+                    for _ in range(100000):
 
                         # 產生需求校正list和指標
                         diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
@@ -873,14 +880,9 @@ def create_result(request, department_id, start, end):
 
                                 for user_id, user_data in user_pool.items():
 
-                                    # 若有公假則工作天數-1
-                                    if d in user_data['official_leave']:
-                                        weight_workday[user_id] -= 1
-
                                     # 特殊假、公假、保證假、工作天不足 略過
-                                    if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
-                                            'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
-                                            str(d)] != 0:
+                                    if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                            weight_workday[user_id] == 0 or temp_output[user_id][str(d)] == 1:
                                         continue
                                     s = 0
                                     d_n = d - timedelta(days=1)
@@ -1025,14 +1027,9 @@ def create_result(request, department_id, start, end):
 
                                     for user_id, user_data in user_pool.items():
 
-                                        # 若有公假則工作天數-1
-                                        if d in user_data['official_leave']:
-                                            weight_workday[user_id] -= 1
-
                                         # 特殊假、公假、保證假、工作天不足 略過
-                                        if d in (user_data['promise_leave'] + user_data['official_leave'] +
-                                                 user_data['promise_other']) or weight_workday[user_id] == 0 or \
-                                                temp_output[user_id][str(d)] != 0:
+                                        if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                                weight_workday[user_id] <= 0 or temp_output[user_id][str(d)] == 1:
                                             continue
                                         s = 0
                                         d_n = d - timedelta(days=1)

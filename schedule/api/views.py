@@ -1706,38 +1706,32 @@ def recreate_result(request):
                     # set workday_dict
                     if ind == 0:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(
-                                user.id, cycle[0], cycle[-1], start=date_start)
+                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start)
                     elif ind == len(cycle_list) - 1:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(
-                                user.id, cycle[0], cycle[-1], end=date_end)
+                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], end=date_end)
                     else:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(
-                                user.id, cycle[0], cycle[-1])
+                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
 
-                    # 工作天數扣除公假和預先插入的1
+                    # 工作天數扣除公假、其他假和預先插入的1
                     for user in demand['users']:
                         for d in cycle:
                             if date_start <= d <= date_end:
-                                if output[user.id][str(d)] == 1:
+                                if output[user.id][str(d)] == 1 or d in user_pool[user.id]['promise_other']:
                                     workday_dict[user.id][ind] -= 1
 
                     # 計算可工作天數、需求數
-                    total_demands = sum(
-                        [demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
-                    total_workdays = sum([workday_dict[user_id][ind]
-                                          for user_id in user_pool])
+                    total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
+                    total_workdays = sum([workday_dict[user_id][ind] for user_id in user_pool])
 
                     # 計算需求校正參數
                     diff = total_workdays - total_demands
-                    day_num = len(
-                        [d for d in cycle if date_start <= d <= date_end])
+                    day_num = len([d for d in cycle if date_start <= d <= date_end])
                     diff_q = diff // day_num
                     diff_r = diff % day_num
 
-                    for _ in range(10000):
+                    for _ in range(1000):
 
                         # 產生需求校正list和指標
                         diff_list = [
@@ -1852,8 +1846,11 @@ def recreate_result(request):
                                     on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
                                                      p=weight, replace=False)
                                 except ValueError:
-                                    for user_id in options:
-                                        print(user_id, weight_workday[user_id])
+                                    print('------------------------------------')
+                                    print('WEIGHT', str(weight))
+                                    print('WORKDAYS', str(weight_workday))
+                                    print('------------------------------------')
+                                    return None
 
                                 for user_id in user_pool:
                                     if user_id in on_duty:
