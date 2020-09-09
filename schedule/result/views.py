@@ -815,6 +815,15 @@ def create_result(request, department_id, start, end):
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
+                    elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
+                        for user_id in user_l:
+                            user_pool[user_id]['reserve_leave'].remove(d)
+                            user_pool[user_id]['promise_leave'].append(d)
+                        if demand['demand'].level == 2:
+                            for user_id in user_current_level:
+                                if user_id not in user_l:
+                                    output[user_id][str(d)] = 1
+                                    demand_dict[str(d)] -= 1
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -847,7 +856,7 @@ def create_result(request, department_id, start, end):
                     diff_q = diff // day_num
                     diff_r = diff % day_num
 
-                    for _ in range(100000):
+                    for _ in range(10000):
 
                         # 產生需求校正list和指標
                         diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
