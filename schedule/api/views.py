@@ -1686,10 +1686,19 @@ def recreate_result(request):
                             user_l.append(user_id)
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)]:
+                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
+                    elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
+                        for user_id in user_l:
+                            user_pool[user_id]['reserve_leave'].remove(d)
+                            user_pool[user_id]['promise_leave'].append(d)
+                        if demand['demand'].level == 2:
+                            for user_id in user_current_level:
+                                if user_id not in user_l:
+                                    output[user_id][str(d)] = 1
+                                    demand_dict[str(d)] -= 1
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -1707,6 +1716,13 @@ def recreate_result(request):
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(
                                 user.id, cycle[0], cycle[-1])
+
+                    # 工作天數扣除公假和預先插入的1
+                    for user in demand['users']:
+                        for d in cycle:
+                            if date_start <= d <= date_end:
+                                if output[user.id][str(d)] == 1:
+                                    workday_dict[user.id][ind] -= 1
 
                     # 計算可工作天數、需求數
                     total_demands = sum(
@@ -1762,14 +1778,9 @@ def recreate_result(request):
 
                                 for user_id, user_data in user_pool.items():
 
-                                    # 若有公假則工作天數-1
-                                    if d in user_data['official_leave']:
-                                        weight_workday[user_id] -= 1
-
                                     # 特殊假、公假、保證假、工作天不足 略過
-                                    if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
-                                            'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
-                                            str(d)] != 0:
+                                    if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                            weight_workday[user_id] <= 0 or temp_output[user_id][str(d)] == 1:
                                         continue
                                     s = 0
                                     d_n = d - timedelta(days=1)
@@ -1924,14 +1935,9 @@ def recreate_result(request):
 
                                     for user_id, user_data in user_pool.items():
 
-                                        # 若有公假則工作天數-1
-                                        if d in user_data['official_leave']:
-                                            weight_workday[user_id] -= 1
-
                                         # 特殊假、公假、保證假、工作天不足 略過
-                                        if d in (user_data['promise_leave'] + user_data['official_leave'] +
-                                                 user_data['promise_other']) or weight_workday[user_id] == 0 or \
-                                                temp_output[user_id][str(d)] != 0:
+                                        if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                                weight_workday[user_id] <= 0 or temp_output[user_id][str(d)] == 1:
                                             continue
                                         s = 0
                                         d_n = d - timedelta(days=1)
@@ -2207,6 +2213,7 @@ def recreate_result(request):
     print()
     print('Complete')
     print('Time Used', time_end - time_start)
+    print()
 
     return Response({
         'message': 'Success',
