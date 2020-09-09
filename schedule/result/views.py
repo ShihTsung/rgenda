@@ -533,7 +533,7 @@ def get_continue_days(department, date0):
     :param date0:
     :return:
     """
-    users = User.objects.filter(department=department, can_be_scheduled=True)
+    users = User.objects.filter(department=department)
     output = dict()
     for user in users:
         output[user.id] = 0
@@ -700,6 +700,9 @@ def create_result(request, department_id, start, end):
         cycle = get_cycle(department, cycle_no)
         cycle_list.append(cycle)
 
+    # 印出每個cycle的第一天
+    print([c[0] for c in cycle_list])
+
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
 
@@ -832,8 +835,6 @@ def create_result(request, department_id, start, end):
 
                     for _ in range(10000):
 
-                        print(_)
-
                         # 產生需求校正list和指標
                         diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
                         if demand['demand'].level == 1:
@@ -939,6 +940,7 @@ def create_result(request, department_id, start, end):
                                             weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
+                                print(weight)
                                 on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
                                                  p=weight, replace=False)
                                 for user_id in user_pool:
@@ -953,6 +955,7 @@ def create_result(request, department_id, start, end):
                         else:
                             # 成功排完 1 cycle
                             # 儲存結果
+                            print(station.name, shift.name, 'Cycle', str(ind), 'Success in 10000')
                             output = temp_output
 
                             # 儲存剩餘工作天 & 可休假假日數

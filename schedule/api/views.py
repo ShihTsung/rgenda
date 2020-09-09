@@ -1578,6 +1578,9 @@ def recreate_result(request):
         cycle = get_cycle(department, cycle_no)
         cycle_list.append(cycle)
 
+    # 印出每個cycle的第一天
+    print([c[0] for c in cycle_list])
+
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
 
@@ -1670,7 +1673,7 @@ def recreate_result(request):
                             user_l.append(user_id)
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
+                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)]:
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
@@ -1820,6 +1823,9 @@ def recreate_result(request):
                                             weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
+
+                                print(weight)
+
                                 on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
                                                  p=weight, replace=False)
                                 for user_id in user_pool:
@@ -1835,6 +1841,7 @@ def recreate_result(request):
                             # 成功排完 1 cycle
                             # 儲存結果
                             output = temp_output
+                            print(station.name, shift.name, 'Cycle', str(ind), 'Success in 10000')
 
                             # 儲存剩餘工作天 & 可休假假日數
                             for user_id in user_pool:
