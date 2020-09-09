@@ -224,14 +224,14 @@ export default {
       };
     },
     getHoursData() {
-      // 排班 = 本月的(排班時數+加班時數-減班時數+公假時數)
+      // 排班 = 本月的(排班時數+加班時數「休息日出勤」+公假時數)
       // on call = 累計至當日(天換時)
       // 加班 = 出缺勤補登加班
       // 減班 = 出缺勤補登「機構減班」
-      // 當月差額 = 排班時數 + 加班時數 - 減班時數 + 不出勤時數(天數*日出勤時數) - 當月天數*日出勤時數
+      // 當月差額 = 排班時數 + 加班時數 - 重複計算的加班時數「休息日出勤」 - 減班時數 + 不出勤時數(天數*日出勤時數) - 當月天數*日出勤時數
       // 出勤 = 累計至當日的(排班時數+加班時數-減班時數+公假時數)
       // 公假 = 累計至當日的公假(天換時)
-      // 自假 = 累計至當日的有薪假+無薪假(天換時)
+      // 自假 = 累計至當日的 有薪假 + 無薪假(天換時) + 出缺勤補登「員工自假」
       let hours = {
         total: {
           label: '排班',
@@ -278,7 +278,9 @@ export default {
               hourStat.officialHoliday += this.dayHours;
             }
           } else {
-            hourStat.leave += this.dayHours;
+            if (isSameOrBefore) {
+              hourStat.leave += this.dayHours;
+            }
           }
         }
       });
@@ -288,7 +290,9 @@ export default {
           let isSameOrBefore = moment(adjustment.date).isSameOrBefore(moment(), 'day');
 
           if (adjustment.adjustment_type === 0) {
-            hours.total.number += adjustment.hours;
+            if (this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === adjustment.adjustment_item) {
+              hours.total.number += adjustment.hours;
+            }
             if (isSameOrBefore) {
               hours.overtime.number += adjustment.hours;
             }
@@ -297,19 +301,29 @@ export default {
             if (isSameOrBefore) {
               if (this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS') === adjustment.adjustment_item) {
                 hours.reduceHour.number += adjustment.hours;
+              } else if (this.$getTimeAdjustmentItemValue('ITEM_EMPLOYEE_LEAVE') === adjustment.adjustment_item) {
+                hourStat.leave += adjustment.hours;
               }
             }
           }
         }
       });
 
-      // 非工作日 且 非公假
+      // 不出勤天數，非工作日 且 非公假
       let offDays = this.results.filter(result => {
         return (!this.$isWorkShift(result.shift.shift_type))
           && this.$getShiftTypeValue('VALUE_OFFICIAL_LEAVE') !== result.shift.shift_type
       }).length;
+      // 休息日出勤時數
+      let offDateAttendantHours = this.timeAdjustments.reduce((accumulator, currentValue) => {
+        if (currentValue.user === this.user.id && this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === currentValue.adjustment_item) {
+          return accumulator + currentValue.hours;
+        }
+        return accumulator;
+      }, 0)
       hours.diffHour.number = hours.total.number
         + hours.overtime.number
+        - offDateAttendantHours
         - hours.reduceHour.number
         + offDays * this.dayHours
         - moment().daysInMonth() * this.dayHours;
@@ -322,7 +336,7 @@ export default {
             hours.total.number,
             hourStat.work,
             hourStat.officialHoliday,
-            hourStat.employeeLeave,
+            hourStat.leave,
           ],
           backgroundColor: [
             shiftColor.default,
