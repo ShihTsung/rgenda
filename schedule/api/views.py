@@ -15,6 +15,7 @@ from rest_framework.parsers import JSONParser
 
 # others
 from datetime import datetime, timedelta
+from calendar import monthrange
 from .check import *
 from .serializers import *
 from account.views import cycle_analysis, get_cycle
@@ -1483,16 +1484,20 @@ def suggest_user_num(request, date_str):
                 d_num += 1
                 if attrs[i] == '1':
                     demand_s += configs['level2']['config1']
-                    demand_t += configs['level1']['config1'] + configs['level2']['config1']
+                    demand_t += configs['level1']['config1'] + \
+                        configs['level2']['config1']
                 elif attrs[i] == '2':
                     demand_s += configs['level1']['config2']
-                    demand_t += configs['level2']['config2'] + configs['level1']['config2']
+                    demand_t += configs['level2']['config2'] + \
+                        configs['level1']['config2']
         z_num = ceil(d_num / 7)
         r_num = floor(r_num * d_num / len(c))
         workday_num = d_num - z_num - r_num
 
-        output[0]['suggest_num'] = max(output[0]['suggest_num'], ceil(demand_s / workday_num))
-        output[1]['suggest_num'] = max(output[1]['suggest_num'], ceil(demand_t / workday_num))
+        output[0]['suggest_num'] = max(
+            output[0]['suggest_num'], ceil(demand_s / workday_num))
+        output[1]['suggest_num'] = max(
+            output[1]['suggest_num'], ceil(demand_t / workday_num))
 
     return Response(output)
 
@@ -1505,7 +1510,6 @@ def suggest_user_num(request, date_str):
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result(request):
-
     department = request.user.department
 
     try:
@@ -1520,7 +1524,8 @@ def recreate_result(request):
 
     # 檢查班表是否已建立
     try:
-        exist = Result.objects.filter(date=date_start, user__department=department)
+        exist = Result.objects.filter(
+            date=date_start, user__department=department)
         if len(exist):
             return Response({
                 'message': 'results already exist',
@@ -1528,7 +1533,8 @@ def recreate_result(request):
     except Result.DoesNotExist:
         pass
 
-    PreResult.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end).delete()
+    PreResult.objects.filter(user__department=department,
+                             date__gte=date_start, date__lte=date_end).delete()
 
     # 日期資料
     date_list = [date_start + timedelta(days=i)
@@ -1675,35 +1681,46 @@ def recreate_result(request):
                     # set workday_dict
                     if ind == 0:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start)
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1], start=date_start)
                     elif ind == len(cycle_list) - 1:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], end=date_end)
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1], end=date_end)
                     else:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1])
 
                     # 計算可工作天數、需求數
-                    total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
-                    total_workdays = sum([workday_dict[user_id][ind] for user_id in user_pool])
+                    total_demands = sum(
+                        [demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
+                    total_workdays = sum([workday_dict[user_id][ind]
+                                          for user_id in user_pool])
 
                     # 計算需求校正參數
                     diff = total_workdays - total_demands
-                    day_num = len([d for d in cycle if date_start <= d <= date_end])
+                    day_num = len(
+                        [d for d in cycle if date_start <= d <= date_end])
                     diff_q = diff // day_num
                     diff_r = diff % day_num
 
                     for _ in range(10000):
 
                         # 產生需求校正list和指標
-                        diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
+                        diff_list = [
+                            diff_q for d in cycle if date_start <= d <= date_end]
                         if demand['demand'].level == 1:
-                            adjust_weight = [1 if i in diff_dict[ind] else 100 for i in range(day_num)]
+                            adjust_weight = [
+                                1 if i in diff_dict[ind] else 100 for i in range(day_num)]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [i / weight_sum for i in adjust_weight]
-                            adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                            adjust_weight = [
+                                i / weight_sum for i in adjust_weight]
+                            adjust_index = choice(
+                                day_num, diff_r, p=adjust_weight, replace=False)
                         else:
-                            adjust_index = choice(day_num, diff_r, replace=False)
+                            adjust_index = choice(
+                                day_num, diff_r, replace=False)
                         for i in range(day_num):
                             if i in adjust_index:
                                 diff_list[i] += 1
@@ -1714,7 +1731,8 @@ def recreate_result(request):
                         temp_output = deepcopy(output)
 
                         # set weight, start calculating
-                        weight_workday = dict([(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
+                        weight_workday = dict(
+                            [(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
                         weight_holiday_rest = dict(
                             [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
                         for d in cycle:
@@ -1758,14 +1776,16 @@ def recreate_result(request):
                                                 str(d - timedelta(days=2)) in temp_output[user_id]:
                                             if temp_output[user_id][str(d - timedelta(days=1))] == 1 and \
                                                     temp_output[user_id][str(d - timedelta(days=2))] == 0:
-                                                temp_output[user_id][str(d)] = 1
+                                                temp_output[user_id][str(
+                                                    d)] = 1
                                                 assign_num += 1
                                                 weight_workday[user_id] -= 1
                                             else:
                                                 options.append(user_id)
                                         else:
                                             if temp_output[user_id][str(d - timedelta(days=1))] == 1:
-                                                temp_output[user_id][str(d)] = 1
+                                                temp_output[user_id][str(
+                                                    d)] = 1
                                                 assign_num += 1
                                                 weight_workday[user_id] -= 1
                                             else:
@@ -1839,14 +1859,19 @@ def recreate_result(request):
                         for _ in range(100):
 
                             # 產生需求校正list
-                            diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
+                            diff_list = [
+                                diff_q for d in cycle if date_start <= d <= date_end]
                             if demand['demand'].level == 1:
-                                adjust_weight = [1 if i in diff_dict[ind] else 100 for i in range(day_num)]
+                                adjust_weight = [
+                                    1 if i in diff_dict[ind] else 100 for i in range(day_num)]
                                 weight_sum = sum(adjust_weight)
-                                adjust_weight = [i / weight_sum for i in adjust_weight]
-                                adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                                adjust_weight = [
+                                    i / weight_sum for i in adjust_weight]
+                                adjust_index = choice(
+                                    day_num, diff_r, p=adjust_weight, replace=False)
                             else:
-                                adjust_index = choice(day_num, diff_r, replace=False)
+                                adjust_index = choice(
+                                    day_num, diff_r, replace=False)
                             for i in range(day_num):
                                 if i in adjust_index:
                                     diff_list[i] += 1
@@ -1857,7 +1882,8 @@ def recreate_result(request):
                             temp_output = deepcopy(output)
 
                             # set weight, start calculating
-                            weight_workday = dict([(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
+                            weight_workday = dict(
+                                [(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
                             weight_holiday_rest = dict(
                                 [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
@@ -1902,14 +1928,16 @@ def recreate_result(request):
                                                     str(d - timedelta(days=2)) in temp_output[user_id]:
                                                 if temp_output[user_id][str(d - timedelta(days=1))] == 1 and \
                                                         temp_output[user_id][str(d - timedelta(days=2))] == 0:
-                                                    temp_output[user_id][str(d)] = 1
+                                                    temp_output[user_id][str(
+                                                        d)] = 1
                                                     assign_num += 1
                                                     weight_workday[user_id] -= 1
                                                 else:
                                                     options.append(user_id)
                                             else:
                                                 if temp_output[user_id][str(d - timedelta(days=1))] == 1:
-                                                    temp_output[user_id][str(d)] = 1
+                                                    temp_output[user_id][str(
+                                                        d)] = 1
                                                     assign_num += 1
                                                     weight_workday[user_id] -= 1
                                                 else:
@@ -1921,10 +1949,12 @@ def recreate_result(request):
 
                                     if len(options) <= demand_dict[str(d)] + diff_list[diff_ind] - assign_num:
                                         # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
-                                        temp_demand_loss += demand_dict[str(d)] + diff_list[diff_ind] - len(options)
+                                        temp_demand_loss += demand_dict[str(
+                                            d)] + diff_list[diff_ind] - len(options)
                                         for user_id in user_pool:
                                             if user_id in options:
-                                                temp_output[user_id][str(d)] = 1
+                                                temp_output[user_id][str(
+                                                    d)] = 1
                                                 weight_workday[user_id] -= 1
                                                 if reds[str(d)] and user_id not in user_current_level:
                                                     weight_holiday_rest[user_id] += 1
@@ -1957,7 +1987,8 @@ def recreate_result(request):
                                             replace=False)
                                         for user_id in user_pool:
                                             if user_id in on_duty:
-                                                temp_output[user_id][str(d)] = 1
+                                                temp_output[user_id][str(
+                                                    d)] = 1
                                                 weight_workday[user_id] -= 1
                                                 if reds[str(d)] and user_id not in user_current_level:
                                                     weight_holiday_rest[user_id] += 1
@@ -2005,7 +2036,8 @@ def recreate_result(request):
                         cycle_len = len([d for d in cycle if d >= date_start])
 
                         # 取得總休假日數
-                        rest_num = list(output[user_id].values())[ind_date:ind_date + cycle_len].count(0)
+                        rest_num = list(output[user_id].values())[
+                            ind_date:ind_date + cycle_len].count(0)
 
                         for st in q:
                             if st == '例':
@@ -2014,11 +2046,14 @@ def recreate_result(request):
                         options = ['例'] * z_num + ['休'] * (rest_num - z_num)
                     # 最後一個週期
                     elif ind == len(cycle_list) - 1:
-                        rest_num = list(output[user_id].values())[ind_date:ind_date + cycle_len].count(0)
-                        z_num = round(z_num * len([d for d in cycle if d <= date_end]) / cycle_len)
+                        rest_num = list(output[user_id].values())[
+                            ind_date:ind_date + cycle_len].count(0)
+                        z_num = round(
+                            z_num * len([d for d in cycle if d <= date_end]) / cycle_len)
                         options = ['例'] * z_num + ['休'] * (rest_num - z_num)
                     else:
-                        rest_num = list(output[user_id].values())[ind_date:ind_date + cycle_len].count(0)
+                        rest_num = list(output[user_id].values())[
+                            ind_date:ind_date + cycle_len].count(0)
                         options = ['例'] * z_num + ['休'] * (rest_num - z_num)
                     ind_date += cycle_len
 

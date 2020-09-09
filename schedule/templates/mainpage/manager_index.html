@@ -14,36 +14,47 @@
   <div class="dash">
     <div class="card" style="margin-left: 30px;">
       <div class="card-header text-center">
+
         <button class="btn" id="toggle-btn">
           <i class="fa fa-bars"></i>
         </button>人力分析<span class="unit">單位：人</span>
       </div>
       <div class="card-body DashCollapse">
-        <div class="left">
+        <div class="half">
           <div class='data'>
-            <div class="label">工作日</div>
-            <div class="nums">1</div>
+            <div class="label">正職</div>
+            <div class="nums">{{types.正職}}</div>
           </div>
           <div class='data'>
-            <div class="label">休息日</div>
-            <div class="nums">1</div>
+            <div class="label">資深正職</div>
+            <div class="nums">{{types.資深正職}}</div>
           </div>
           <div class='data'>
-            <div class="label">例假日</div>
-            <div class="nums">1</div>
+            <div class="label">行政職</div>
+            <div class="nums">{{types.行政職}}</div>
           </div>
           <div class='data'>
-            <div class="label">國定假日</div>
-            <div class="nums">1</div>
-          </div>
-          <div class='data'>
-            <div class="label">特休</div>
-            <div class="nums">1</div>
+            <div class="label">小計</div>
+            <div class="nums">{{types.小計1}}</div>
           </div>
         </div>
-        <div class="right">
-          <canvas id='chart1'>
-          </canvas>
+        <div class="half">
+          <div class='data'>
+            <div class="label">新進人員</div>
+            <div class="nums">{{types.新進人員}}</div>
+          </div>
+          <div class='data'>
+            <div class="label">兼職人員</div>
+            <div class="nums">{{types.兼職人員}}</div>
+          </div>
+          <div class='data'>
+            <div class="label">實習生</div>
+            <div class="nums">{{types.實習生}}</div>
+          </div>
+          <div class='data'>
+            <div class="label">小計</div>
+            <div class="nums">{{types.小計2}}</div>
+          </div>
         </div>
 
       </div>
@@ -56,23 +67,23 @@
         <div class="left">
           <div class='data'>
             <div class="label">排班</div>
-            <div class="nums">1</div>
+            <div class="nums">{{total_avg}}</div>
           </div>
           <div class='data'>
             <div class="label">on call</div>
-            <div class="nums">1</div>
+            <div class="nums">{{oncall}}</div>
           </div>
           <div class='data'>
             <div class="label">加班</div>
-            <div class="nums">1</div>
+            <div class="nums">{{overtime}}</div>
           </div>
           <div class='data'>
             <div class="label">減班</div>
-            <div class="nums">1</div>
+            <div class="nums">{{minustime}}</div>
           </div>
           <div class='data'>
             <div class="label">差額</div>
-            <div class="nums">1</div>
+            <div class="nums">{{diff}}</div>
           </div>
         </div>
         <div class="right">
@@ -115,6 +126,8 @@
   integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
   crossorigin="anonymous"></script>
 <script>
+  let first_img = {{bars}};
+
   document.addEventListener('DOMContentLoaded', function () {
     var nextPeriod = {}
     let btn = document.getElementById('toggle-btn')
@@ -124,110 +137,12 @@
         e.classList.toggle('collapse')
       });
     });
-    // 第一個圖
-    var ctx = document.getElementById('chart1').getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'horizontalBar',
-      data: {
-          labels: ['正職人力', '兼職人力', '暫停排班', '總人力'],
-          datasets: [{
-              barThickness: 30,
-              data: [12, 7, 5, 5],
-              backgroundColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A'
-              ],
-              borderColor: [
-              '#37419A',
-              '#37419A',
-              '#37419A',
-              '#37419A'
-              ],
-              borderWidth: 1
-          }]
-      },
-      options: {
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                      offsetGridLines: false,
-                      display: false
-                  }
-              }],
-              xAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  },
-                  gridLines: {
-                  offsetGridLines: false,
-                }
-              }]
-          },
-          legend:{
-            display: false,
-          },
-          aspectRatio: 1.6,
-          maintainAspectRatio: false
-      }
-    });
 
 
-    // 第二個圖
-    var ctx = document.getElementById('chart2').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: ['排班', '出勤', '公假', '自假'],
-            datasets: [{
-                barThickness: 30,
-                data: [12, 7, 5, 5],
-                backgroundColor: [
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                ],
-                borderColor: [
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                    '#37419A',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                        offsetGridLines: false,
-                        display: false
-                    }
-                }],
-                xAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                    offsetGridLines: false,
-                  }
-                }]
-            },
-            legend:{
-              display: false,
-            },
-            aspectRatio: 1.6,
-            maintainAspectRatio: false
-        }
-    });
+
+
+
+
 
     // 第三個圖
     // var ctx = document.getElementById('chart3').getContext('2d');
@@ -503,10 +418,6 @@
           const shifts = dataArr[2];
           const dates = dataArr[3];
           const usersCanSupport = dataArr[4];
-          console.log(data)
-          console.log(users)
-          console.log(dates)
-
           let processedData = [];
 
           data.forEach(e => {
@@ -581,6 +492,62 @@
       calendar.setOption('locale', 'zh-tw');
     }
     calendar.render();
+    Promise.all([
+
+    ])
+
+    // 第二個圖
+    var ctx = document.getElementById('chart2').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: ['排班', '出勤', '公假', '自假'],
+            datasets: [{
+                barThickness: 30,
+                data: first_img,
+                backgroundColor: [
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                ],
+                borderColor: [
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                    '#37419A',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                        offsetGridLines: false,
+                        display: false
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    gridLines: {
+                    offsetGridLines: false,
+                  }
+                }]
+            },
+            legend:{
+              display: false,
+            },
+            aspectRatio: 1.6,
+            maintainAspectRatio: false
+        }
+    });
+
   });
 
 </script>
@@ -739,7 +706,16 @@
     justify-content: space-around;
     font-size: 1rem;
   }
+  .half{
+    height: 100%;
+    min-width: 3rem;
+    width: 49%;
+    font-size: 1rem;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-around;
 
+  }
   .data {
     display: flex;
   }
