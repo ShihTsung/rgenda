@@ -157,3 +157,10 @@ dist
 
 # bundle
 schedule/static/assets/*
+
+# OS generated files
+.DS_Store
+._*
+.Trashes
+Thumbs.db
+desktop.ini

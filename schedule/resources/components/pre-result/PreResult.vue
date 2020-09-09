@@ -4,7 +4,7 @@
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
-        <h2 class="month">&nbsp;{{month}}月</h2>
+        <h2 class="month">&nbsp;{{month}}??</h2>
       </div>
 
       <div class="bt-group">
@@ -66,6 +66,19 @@
               <div class="marks rs2"></div>
               <div class="marks rs3"></div>
             </div>
+          </div>
+          <div class="icon-bts" v-if="isEdit">
+            <svg
+              class="icon-color"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M15.408 23h-15.408v-22h22v9.683c-.622-.296-1.293-.502-2-.603v-3.08h-18v14h11.26c.566.81 1.3 1.49 2.148 2zm2.257-8.669c.402-.206.852-.331 1.335-.331 1.455 0 2.67 1.042 2.941 2.418l1.96-.398c-.456-2.291-2.475-4.02-4.901-4.02-.957 0-1.845.278-2.604.745l-1.396-1.745-1 5h5l-1.335-1.669zm5.335 8.669l-1.396-1.745c-.759.467-1.647.745-2.604.745-2.426 0-4.445-1.729-4.901-4.02l1.96-.398c.271 1.376 1.486 2.418 2.941 2.418.483 0 .933-.125 1.335-.331l-1.335-1.669h5l-1 5z"
+              />
+            </svg>
           </div>
           <div class="icon-bts save-btn" v-if="isEdit" @click="isEdit = false">
             <svg
@@ -273,7 +286,7 @@
             <td colspan="4">小夜班</td>
             <td v-show="!isReady" class="grid-width" v-for="(dn, d6) in getDays" :key="`6${d6}`">0</td>
             <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div>{{ item.E[1] }}</div>
+              <div :class="item.E[0] > item.E[1] ? 'lack' : 'enough'">{{ item.E[1] }}</div>
             </td>
             <td class="gray-background"></td>
             <td colspan="12">
@@ -298,7 +311,7 @@
             <td colspan="4">白班</td>
             <td v-show="!isReady" class="grid-width" v-for="(ds, d7) in getDays" :key="`7${d7}`">0</td>
             <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div>{{ item.N[1] }}</div>
+              <div :class="item.N[0] > item.N[1] ? 'lack' : 'enough'">{{ item.N[1] }}</div>
             </td>
             <td class="gray-background"></td>
             <td colspan="12">

@@ -229,6 +229,13 @@ export default {
         errMsg.push('「可排人員」未正確選取');
         bool = false;
       }
+      if (Number(this.normalDemandOfShift.config1) < 0
+      || Number(this.normalDemandOfShift.config2) < 0
+      || Number(this.seniorDemandOfShift.config1) < 0
+      || Number(this.seniorDemandOfShift.config2) < 0) {
+        errMsg.push('「配置人數」不得小於 0');
+        bool = false;
+      }
       if (Number(this.configSubtotal1) < 1) {
         errMsg.push('「配置一」小計不得為 0');
         bool = false;

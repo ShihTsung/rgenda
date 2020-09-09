@@ -579,7 +579,7 @@
         //處理懶加載畫面的變數設置
         this.isReady = false;
 
-        fetch("/api/preresults/?start=" + year.toString() + "-" + month.toString() + "-" + "01" + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString())
+        fetch("/api/results/?start=" + year.toString() + "-" + month.toString() + "-" + "01" + "&end=" + year.toString() + "-" + month.toString() + "-" + this.getYear(year, month).toString())
         .then((res)=>{
           return res.json();
         }).then((data)=>{
