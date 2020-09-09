@@ -648,12 +648,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
                     headers=headers)
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = Reservation.objects.all()
         mode = self.request.query_params.get('mode', None)
         start = self.request.query_params.get('start', None)
         end = self.request.query_params.get('end', None)
-        if mode == 'personal':
-            return queryset.filter(
+        if mode == 'personal' and start and end:
+            queryset = queryset.filter(
                 user=self.request.user,
                 date__range=[start[:10], end[:10]])
         return queryset
