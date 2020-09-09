@@ -222,6 +222,7 @@ export default {
         id: row.id,
         departmentId: row.departmentId,
         name: row.name,
+        code: row.code,
         shiftTypeId: row.shiftTypeId,
         startTime: row.startTime,
         endTime: row.endTime,
