@@ -153,7 +153,7 @@ if os.environ.get('APP_ENV') == "local":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'DB',
+            'NAME': 'DB_TEST',
             'USER': 'circlepen',
             'PASSWORD': 'redfalcon',
             'HOST': 'mysqlDB',
@@ -165,7 +165,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'DB_TEST',
+            'NAME': 'DB',
             'USER': 'circlepen',
             'PASSWORD': 'redfalcon',
             'HOST': 'mysqlDB',
