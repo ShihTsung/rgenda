@@ -1132,13 +1132,15 @@ def last_month_continue(request):
             date__lte=date0 - timedelta(days=1)).order_by('date')
         for result in results:
             if result.shift.shift_type in [0, 1, 2, 3, 7]:
-                output[user.id].append(str(result.shift.shift_type))
+                output[user.id].append(str(result.shift.code))
             else:
                 output[user.id] = list()
-        outstr = ''
-        for x in output[user.id]:
-            outstr += type_dict[x]
-        output[user.id] = outstr
+        if len(output[user.id]) >= 2:
+            output[user.id] = str(len(output[user.id])) + output[user.id][0]
+        elif len(output[user.id]) == 1:
+            output[user.id] = output[user.id][0]
+        else:
+            output[user.id] = ''
 
     return Response(output)
 
