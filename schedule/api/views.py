@@ -1583,6 +1583,9 @@ def recreate_result(request):
         cycle = get_cycle(department, cycle_no)
         cycle_list.append(cycle)
 
+    # 印出每個cycle的第一天
+    print([c[0] for c in cycle_list])
+
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
 
@@ -1825,8 +1828,14 @@ def recreate_result(request):
                                             weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
-                                on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
-                                                 p=weight, replace=False)
+
+                                try:
+                                    on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                                     p=weight, replace=False)
+                                except ValueError:
+                                    for user_id in options:
+                                        print(user_id, weight_workday[user_id])
+                                    
                                 for user_id in user_pool:
                                     if user_id in on_duty:
                                         temp_output[user_id][str(d)] = 1
@@ -1840,6 +1849,7 @@ def recreate_result(request):
                             # 成功排完 1 cycle
                             # 儲存結果
                             output = temp_output
+                            print(station.name, shift.name, 'Cycle', str(ind), 'Success in 10000')
 
                             # 儲存剩餘工作天 & 可休假假日數
                             for user_id in user_pool:
