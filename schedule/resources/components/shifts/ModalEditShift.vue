@@ -152,10 +152,13 @@ export default {
         valid = false;
         errMsg.push('結束時間欄位格式錯誤');
       }
-      this.editShift.workHours = Number(this.editShift.workHours);
-      if (0 > this.editShift.workHours) {
+      this.addShift.workHours = parseInt(this.addShift.workHours);
+      if (0 > this.addShift.workHours) {
         valid = false;
-        errMsg.push('工時長度欄位值不能小於 0');
+        errMsg.push('工時長度不能小於 0');
+      } else if (10 < this.addShift.workHours) {
+        valid = false;
+        errMsg.push('工時長度不能大於 10');
       }
 
       return [valid, errMsg];
