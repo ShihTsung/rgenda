@@ -1827,10 +1827,13 @@ def recreate_result(request):
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
 
-                                print(weight)
-
-                                on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
-                                                 p=weight, replace=False)
+                                try:
+                                    on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                                     p=weight, replace=False)
+                                except ValueError:
+                                    for user_id in options:
+                                        print(user_id, weight_workday[user_id])
+                                    
                                 for user_id in user_pool:
                                     if user_id in on_duty:
                                         temp_output[user_id][str(d)] = 1
