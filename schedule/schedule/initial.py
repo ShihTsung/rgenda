@@ -138,9 +138,9 @@ def initial(request):
             redday = False
         for d in d_ids:
             if daystmp.weekday() in [5, 6]:
-                attribute[d] = "2"
+                attribute[str(d)] = "2"
             else:
-                attribute[d] = "1"
+                attribute[str(d)] = "1"
         newday = H_Calendar.objects.create(date=daystmp,
                                            red_day=redday,
                                            attribute=attribute)

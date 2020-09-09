@@ -18,11 +18,12 @@ from scripts.get_date_range import *
 # models
 from account.models import CustomUser, Department
 from shift.models import *
-from result.models import *
+from result.models import Result, PreResult, TimeAdjustment
 from demand.models import *
 from date.models import *
 from reservation.models import *
 from station.models import *
+from calendar import monthrange
 
 
 # 回傳所有員工類別的統計
@@ -43,8 +44,124 @@ def get_employee_status(dpmt):
     return return_data
 
 
-# 回傳所有員工特定時間的總工時
-# def get_total_workhour_by_time(time, )
+def manager_mainpage_data(request):
+    department = request.user.department
+    today = datetime.datetime.now().date()
+    start = datetime.date(today.year, today.month, 1)
+    day = monthrange(today.year, today.month)[1]
+    end = datetime.date(today.year, today.month, day)
+    days = H_Calendar.objects.filter(
+        date__range=[start, end]
+    )
+    legal_workhours = 0
+    for d in days:
+        if not d.red_day:
+            legal_workhours += 8
+    users = CustomUser.objects.prefetch_related(
+        'department').filter(
+            department=department,
+            can_be_scheduled=True
+    )
+    user_set = set()
+    res = {
+        'today': today,
+        'start': start,
+        'end': end
+    }
+    results = Result.objects.prefetch_related(
+        'user'
+    ).prefetch_related(
+        'shift'
+    ).prefetch_related(
+        'station'
+    ).filter(
+        user__in=users,
+        date__range=[start, end]
+    )
+    adjustments = TimeAdjustment.objects.prefetch_related(
+        'user'
+    ).filter(
+        user__in=users,
+        date__range=[start, end]
+    )
+    total_workhours = 0
+    official_rest = 0
+
+    workhours_til_today = 0
+    official_rest_til_today = 0
+    for result in results:
+        if result.user not in user_set:
+            user_set.add(result.user.full_name)
+        total_workhours += result.shift.work_hours
+
+        if result.date <= today:
+            workhours_til_today += result.shift.work_hours
+
+        if result.shift.shift_type == 3:
+            official_rest += result.shift.work_hours
+            if result.date <= today:
+                official_rest_til_today += result.shift.work_hours
+    adj_nums = [0, 0, 0, 0, 0, 0, 0]
+    adj_nums_minus = [0, 0, 0, 0, 0, 0, 0]
+    adj_nums_til_today = [0, 0, 0, 0, 0, 0, 0]
+    minus_adj_til_today = [0, 0, 0, 0, 0, 0, 0]
+    self_rest = 0
+    for adj in adjustments:
+        if adj.adjustment_type == 0:
+            adj_nums[adj.adjustment_item] += adj.hours
+            if adj.date <= today:
+                adj_nums_til_today[adj.adjustment_item] += adj.hours
+        else:
+            adj_nums_minus[adj.adjustment_item] += adj.hours
+            if adj.date <= today:
+                minus_adj_til_today[adj.adjustment_item] += adj.hours
+            if adj.adjustment_item == 6:
+                self_rest += adj.hours
+    user_len = len(user_set)
+    if user_len == 0:
+        user_len = 1
+    avg = total_workhours/user_len
+    avg_til_today = workhours_til_today/user_len
+    avg_overtime = sum(adj_nums[:3])/user_len
+    avg_minustime = adj_nums_minus[5]/user_len
+    avg_overtime_til_today = sum(adj_nums_til_today[:3])/user_len
+    avg_minus_til_today = minus_adj_til_today[5]/user_len
+    oncall_num = adj_nums[4]/user_len
+    diff = (total_workhours +
+            sum(adj_nums[:3]) - adj_nums[5] +
+            adj_nums[4])/user_len-legal_workhours
+
+    users_nums = [0, 0, 0, 0, 0, 0]
+    for user in users:
+        users_nums[user.type_of_user] += 1
+
+    types = {
+        '正職': users_nums[0],
+        '資深正職': users_nums[1],
+        '行政職': users_nums[2],
+        '小計1': sum(users_nums[:3]),
+        '新進人員': users_nums[3],
+        '兼職人員': users_nums[4],
+        '實習生': users_nums[5],
+        '小計2': sum(users_nums[3:]),
+    }
+    res['總時數'] = round(avg, 2)   # 總時數
+    res['類別統計'] = types
+    res['加班'] = round(avg_overtime, 2)  # 加班
+    res['減班'] = round(avg_minustime, 2)  # 減班
+    res['oncall'] = round(oncall_num, 2)
+    res['應上工時'] = round(legal_workhours, 2)
+    res['差額'] = round(diff, 2)
+    res['公假'] = official_rest
+    onboard = (avg_til_today + official_rest_til_today +
+               avg_overtime_til_today + avg_minus_til_today)
+    res['bars'] = [
+        round(avg_til_today, 2),
+        round(onboard, 2),
+        round(official_rest_til_today/user_len, 2),
+        round(self_rest/user_len, 2)
+    ]
+    return res
 
 
 # 首頁，分為使用者與管理者兩種
@@ -52,6 +169,7 @@ def get_employee_status(dpmt):
 def index(request):
     n, p, i, pt = get_employee_status(request.user.department)
     start, end = date_range(0, 3)
+    data = manager_mainpage_data(request)
     context = {
         'LANG': request.LANGUAGE_CODE,
         'Normal': n,
@@ -62,7 +180,15 @@ def index(request):
         'end': end,
         'results': 'results',
         'default': start,
-        'department': request.user.department
+        'department': request.user.department,
+        'bars': data['bars'],
+        'total_avg': data['總時數'],
+        'types': data['類別統計'],
+        'workhours': data['應上工時'],
+        'oncall': data['oncall'],
+        'overtime': data['加班'],
+        'minustime': data['減班'],
+        'diff': data['差額']
     }
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html', context)

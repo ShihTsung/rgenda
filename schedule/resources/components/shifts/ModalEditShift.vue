@@ -34,6 +34,10 @@
               <input type="text" class="form-control" v-model="editShift.name">
             </div>
             <div class="form-group">
+              <label class="font-weight-bold">班別代號</label>
+              <input type="text" class="form-control" v-model="editShift.code">
+            </div>
+            <div class="form-group">
               <label class="font-weight-bold">類型</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
@@ -104,11 +108,15 @@ export default {
     },
     departmentList: {
       type: Array,
-      default: [],
+      default: function() {
+        return [];
+      },
     },
     shiftData: {
       type: Object,
-      default: {},
+      default: function() {
+        return {};
+      },
     },
   },
   data() {
@@ -116,6 +124,7 @@ export default {
       editShift: {
         departmentId: 0,
         name: '',
+        code: '',
         shiftTypeId: 0,
         startTime: '',
         endTime: '',
@@ -131,6 +140,10 @@ export default {
         valid = false;
         errMsg.push('班別名稱欄位未填寫');
       }
+      if (1 > this.editShift.code.length) {
+        valid = false;
+        errMsg.push('班別代號欄位未填寫');
+      }
       if (1 > this.editShift.startTime.length) {
         valid = false;
         errMsg.push('開始時間欄位格式錯誤');
@@ -139,10 +152,13 @@ export default {
         valid = false;
         errMsg.push('結束時間欄位格式錯誤');
       }
-      this.editShift.workHours = Number(this.editShift.workHours);
-      if (0 > this.editShift.workHours) {
+      this.addShift.workHours = parseInt(this.addShift.workHours);
+      if (0 > this.addShift.workHours) {
         valid = false;
-        errMsg.push('工時長度欄位值不能小於 0');
+        errMsg.push('工時長度不能小於 0');
+      } else if (10 < this.addShift.workHours) {
+        valid = false;
+        errMsg.push('工時長度不能大於 10');
       }
 
       return [valid, errMsg];
@@ -173,6 +189,7 @@ export default {
 
       let params = {
         name: self.editShift.name,
+        code: self.editShift.code,
         shift_type: self.editShift.shiftTypeId,
         start_time: self.editShift.startTime,
         end_time: self.editShift.endTime,
@@ -180,7 +197,7 @@ export default {
         work_hours: Number(self.editShift.workHours),
       };
       self.$httpClient.put(url, params, formConfig)
-        .then(function (response) {
+        .then(function () {
           popup.success({
             title: '編輯班別',
             text: '請求成功',

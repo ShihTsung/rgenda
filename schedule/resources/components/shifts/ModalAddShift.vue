@@ -34,6 +34,10 @@
               <input type="text" class="form-control" v-model="addShift.name">
             </div>
             <div class="form-group">
+              <label class="font-weight-bold">班別代號</label>
+              <input type="text" class="form-control" v-model="addShift.code">
+            </div>
+            <div class="form-group">
               <label class="font-weight-bold">類型</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
@@ -104,7 +108,9 @@ export default {
     },
     departmentList: {
       type: Array,
-      default: [],
+      default: function() {
+        return [];
+      },
     },
     myDepartmentId: {
       type: Number,
@@ -116,6 +122,7 @@ export default {
       addShift: {
         department: 0,
         name: '',
+        code: '',
         shiftType: 0,
         startTime: '',
         endTime: '',
@@ -131,6 +138,10 @@ export default {
         valid = false;
         errMsg.push('班別名稱欄位未填寫');
       }
+      if (1 > this.addShift.code.length) {
+        valid = false;
+        errMsg.push('班別代號欄位未填寫');
+      }
       if (1 > this.addShift.startTime.length) {
         valid = false;
         errMsg.push('開始時間欄位格式錯誤');
@@ -139,10 +150,13 @@ export default {
         valid = false;
         errMsg.push('結束時間欄位格式錯誤');
       }
-      this.addShift.workHours = Number(this.addShift.workHours);
+      this.addShift.workHours = parseInt(this.addShift.workHours);
       if (0 > this.addShift.workHours) {
         valid = false;
-        errMsg.push('工時長度欄位值不能小於 0');
+        errMsg.push('工時長度不能小於 0');
+      } else if (10 < this.addShift.workHours) {
+        valid = false;
+        errMsg.push('工時長度不能大於 10');
       }
 
       return [valid, errMsg];
@@ -173,6 +187,7 @@ export default {
 
       let params = {
         name: self.addShift.name,
+        code: self.addShift.code,
         shift_type: self.addShift.shiftType,
         start_time: self.addShift.startTime,
         end_time: self.addShift.endTime,
@@ -180,7 +195,7 @@ export default {
         work_hours: Number(self.addShift.workHours),
       };
       self.$httpClient.post(url, params, formConfig)
-        .then(function (response) {
+        .then(function () {
           popup.success({
             title: '新增班別',
             text: '請求成功',
