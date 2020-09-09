@@ -106,6 +106,10 @@ export default {
           field: 'name',
         },
         {
+          label: '班別代號',
+          field: 'code',
+        },
+        {
           label: '類型',
           field: 'shiftType',
         },
@@ -169,6 +173,7 @@ export default {
           department: obj.department.name,
           departmentId: obj.department.id,
           name: obj.name,
+          code: obj.code,
           shiftType: self.$getShiftTypeText(obj.shift_type),
           shiftTypeId: obj.shift_type,
           startTime: obj.start_time,

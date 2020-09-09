@@ -34,6 +34,10 @@
               <input type="text" class="form-control" v-model="editShift.name">
             </div>
             <div class="form-group">
+              <label class="font-weight-bold">班別代號</label>
+              <input type="text" class="form-control" v-model="editShift.code">
+            </div>
+            <div class="form-group">
               <label class="font-weight-bold">類型</label>
               <div class="form-group">
                 <div class="form-check form-check-inline"
@@ -104,11 +108,15 @@ export default {
     },
     departmentList: {
       type: Array,
-      default: [],
+      default: function() {
+        return [];
+      },
     },
     shiftData: {
       type: Object,
-      default: {},
+      default: function() {
+        return {};
+      },
     },
   },
   data() {
@@ -116,6 +124,7 @@ export default {
       editShift: {
         departmentId: 0,
         name: '',
+        code: '',
         shiftTypeId: 0,
         startTime: '',
         endTime: '',
@@ -130,6 +139,10 @@ export default {
       if (1 > this.editShift.name.length) {
         valid = false;
         errMsg.push('班別名稱欄位未填寫');
+      }
+      if (1 > this.editShift.code.length) {
+        valid = false;
+        errMsg.push('班別代號欄位未填寫');
       }
       if (1 > this.editShift.startTime.length) {
         valid = false;
@@ -173,6 +186,7 @@ export default {
 
       let params = {
         name: self.editShift.name,
+        code: self.editShift.code,
         shift_type: self.editShift.shiftTypeId,
         start_time: self.editShift.startTime,
         end_time: self.editShift.endTime,
@@ -180,7 +194,7 @@ export default {
         work_hours: Number(self.editShift.workHours),
       };
       self.$httpClient.put(url, params, formConfig)
-        .then(function (response) {
+        .then(function () {
           popup.success({
             title: '編輯班別',
             text: '請求成功',
