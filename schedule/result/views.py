@@ -555,7 +555,7 @@ def get_used_rest(department, date_start, date_end):
     :param date_end:
     :return:
     """
-    users = User.objects.filter(department=department, can_be_scheduled=True)
+    users = User.objects.filter(department=department)
     output = dict()
     for user in users:
         output[user.id] = list()
@@ -804,7 +804,7 @@ def create_result(request, department_id, start, end):
                             user_l.append(user_id)
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)]:
+                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)

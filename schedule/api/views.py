@@ -1676,7 +1676,7 @@ def recreate_result(request):
                             user_l.append(user_id)
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)]:
+                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
