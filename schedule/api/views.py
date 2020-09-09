@@ -1516,6 +1516,8 @@ def suggest_user_num(request, date_str):
 @parser_classes([JSONParser])
 def recreate_result(request):
 
+    from datetime import datetime, timedelta
+
     time_start = datetime.now()
 
     department = request.user.department
