@@ -1515,6 +1515,9 @@ def suggest_user_num(request, date_str):
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result(request):
+
+    time_start = datetime.now()
+
     department = request.user.department
 
     try:
@@ -1584,7 +1587,10 @@ def recreate_result(request):
         cycle_list.append(cycle)
 
     # 印出每個cycle的第一天
-    print([c[0] for c in cycle_list])
+    print()
+    for i, c in enumerate(cycle_list):
+        print('Cycle', str(i), c[0])
+    print()
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -2194,6 +2200,11 @@ def recreate_result(request):
                     )
     except CustomUser.DoesNotExist:
         pass
+
+    time_end = datetime.now()
+    print()
+    print('Complete')
+    print('Time Used', time_end - time_start)
 
     return Response({
         'message': 'Success',

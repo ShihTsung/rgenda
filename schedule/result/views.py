@@ -634,6 +634,8 @@ def create_result(request, department_id, start, end):
     :param end:
     :return:
     """
+    time_start = datetime.now()
+
     try:
         department = Department.objects.get(id=department_id)
     except Department.DoesNotExist:
@@ -701,7 +703,10 @@ def create_result(request, department_id, start, end):
         cycle_list.append(cycle)
 
     # 印出每個cycle的第一天
-    print([c[0] for c in cycle_list])
+    print()
+    for i, c in enumerate(cycle_list):
+        print('Cycle', str(i), c[0])
+    print()
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -1284,6 +1289,11 @@ def create_result(request, department_id, start, end):
                     )
     except User.DoesNotExist:
         pass
+
+    time_end = datetime.now()
+    print()
+    print('Complete')
+    print('Time Used', time_end - time_start)
 
     return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
 
