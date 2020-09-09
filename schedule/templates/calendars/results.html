@@ -373,6 +373,12 @@
           <button class="a-btn" @click="confirmSend(month)">確認</button>
         </div>
       </div>
+      <div class="notReadyView" v-if="isDataNull">
+        <div class="notFound">
+          <svg width="100" height="100" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 0c6.623 0 12 5.377 12 12s-5.377 12-12 12-12-5.377-12-12 5.377-12 12-12zm0 1c6.071 0 11 4.929 11 11s-4.929 11-11 11-11-4.929-11-11 4.929-11 11-11zm0 10.293l5.293-5.293.707.707-5.293 5.293 5.293 5.293-.707.707-5.293-5.293-5.293 5.293-.707-.707 5.293-5.293-5.293-5.293.707-.707 5.293 5.293z"/></svg>
+        </div>
+        <h3 class="notReadyText">本月尚無班別資料</h3>
+      </div>
       <div class="notReadyView" v-if="!isReady">
         <div class="cssload-container">
           <div class="cssload-progress cssload-float cssload-shadow">
@@ -462,7 +468,8 @@
       show: true,
       deliver: false,
       isReset: false,
-      isTARemarkShow: false
+      isTARemarkShow: false,
+      isDataNull: false
     },
     mounted(){
         fetch('/api/users/?mode=resource')
@@ -584,14 +591,20 @@
           return res.json();
         }).then((data)=>{
           this.resultData = data;
-          //處理懶加載畫面的變數設置
-          if(this.resultData.length != 0){
-            this.isReady = true;
-          };
+
+          this.isReady = true;
+
           //紀錄檢核後有問題的班別是否修改的變數設置
           this.resultData.forEach((i)=>{
             i.isModified = false;
           });
+        }).then((d)=>{
+          if(this.resultData.length == 0) {
+            this.isDataNull = true;
+          };
+          setTimeout(()=>{
+            this.isDataNull = false;
+          }, 4000);
         }).catch((err)=>{
           console.log(err);
         });
@@ -759,6 +772,7 @@
       },
       //更改月份
       changeDate(ev) {
+        this.isDataNull = false;
         if(ev.target.id === "prev") {
           this.month--;
           if(this.month < 1) {
@@ -2136,6 +2150,13 @@
       position: absolute;
       top: 0;
       left: 0;
+    }
+    .notFound {
+      fill: red;
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
     .cssload-container {
       position: absolute;
