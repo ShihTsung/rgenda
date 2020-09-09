@@ -26,24 +26,6 @@ from station.models import *
 from calendar import monthrange
 
 
-# 回傳所有員工類別的統計
-def get_employee_status(dpmt):
-    users = CustomUser.objects.filter(department=dpmt)
-    return_data = [0, 0, 0, 0]
-    for user in users:
-        if user.type_of_user == 'Normal':
-            return_data[0] += 1
-        elif user.type_of_user == 'Pragnant':
-            return_data[1] += 1
-        elif user.type_of_user == 'Intern':
-            return_data[2] += 1
-        elif user.type_of_user == 'PartTime':
-            return_data[3] += 1
-        else:
-            continue
-    return return_data
-
-
 def manager_mainpage_data(request):
     department = request.user.department
     today = datetime.datetime.now().date()
@@ -156,7 +138,7 @@ def manager_mainpage_data(request):
     onboard = (avg_til_today + official_rest_til_today +
                avg_overtime_til_today + avg_minus_til_today)
     res['bars'] = [
-        round(avg_til_today, 2),
+        round(avg, 2),
         round(onboard, 2),
         round(official_rest_til_today/user_len, 2),
         round(self_rest/user_len, 2)
@@ -167,15 +149,11 @@ def manager_mainpage_data(request):
 # 首頁，分為使用者與管理者兩種
 @login_required
 def index(request):
-    n, p, i, pt = get_employee_status(request.user.department)
+
     start, end = date_range(0, 3)
     data = manager_mainpage_data(request)
     context = {
         'LANG': request.LANGUAGE_CODE,
-        'Normal': n,
-        'Pragnant': p,
-        'Intern': i,
-        'PartTime': pt,
         'start': start,
         'end': end,
         'results': 'results',
