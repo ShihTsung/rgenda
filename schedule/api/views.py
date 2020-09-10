@@ -1733,14 +1733,14 @@ def recreate_result(request):
                                         demand_dict[str(d)] -= 1
                                         workday_dict[user_id][ind] -= 1
 
-                    # 印出預先插入1的結果
-                    print()
-                    print('      ', [i % 10 for i in range(32)])
-                    for user_id in user_pool:
-                        print(CustomUser.objects.get(id=user_id).full_name[:3],
-                              list(output[user_id].values()))
+                    # # 印出預先插入1的結果
+                    # print()
+                    # print('      ', [i % 10 for i in range(32)])
+                    # for user_id in user_pool:
+                    #     print(CustomUser.objects.get(id=user_id).full_name[:3],
+                    #           list(output[user_id].values()))
 
-                    for _ in range(1000):
+                    for _ in range(10000):
 
                         # 產生需求校正list和指標
                         diff_list = [
@@ -1875,7 +1875,7 @@ def recreate_result(request):
                             # 儲存結果
                             output = temp_output
                             print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
-                                  'Success in 1000.')
+                                  'Success in 10000.')
 
                             # 儲存剩餘工作天 & 可休假假日數
                             for user_id in user_pool:
@@ -1892,7 +1892,7 @@ def recreate_result(request):
                         # 嘗試10000次皆失敗，強制產生班表，不必滿足所有需求
                         # 嘗試排班100次，取最滿足需求的結果
                         print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Cycle', str(ind),
-                              'Fail in 1000, force creating.')
+                              'Fail in 10000, force creating.')
                         best_temp_output = None
                         demand_loss = total_demands
 
