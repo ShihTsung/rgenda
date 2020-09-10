@@ -57,6 +57,7 @@
         <pre-result-table-head
           :year="year"
           :month="month"
+          :getDays="getDays"
         ></pre-result-table-head>
         <tbody style="overflow: scroll">
           <tr class="grid-width" v-for="(u, id) in userData" :key="id">
@@ -69,23 +70,14 @@
               </div>
             </td>
             <td class="gray-background">{{ lastMonthData[u.id] }}</td>
-            <td
+            <user-shift-cell
               v-for="(dd, d3) in getDays"
               :key="`3${d3}`"
-              class="grid-width white-background"
-              :class="isPast(dd)"
-              @click="editShift($event, getUserShift(u.id, dd))"
-            >
-              <div v-if="!isReady">-</div>
-              <div
-                v-if="getUserShift(u.id, dd)"
-                :class="shiftColor(getUserShift(u.id, dd).shift_type)"
-              >{{ getUserShift(u.id, dd).shift_type }}</div>
-              <div
-                v-if="isAdjust(u.id, dd)"
-                :class="isAdjust(u.id, dd)[0] == '+' ? 'addWork' : 'subWork'"
-              >{{ isAdjust(u.id, dd) }}</div>
-            </td>
+              :isReady="isReady"
+              :isPast="isPast(dd)"
+              :shift="getUserShift(u.id, dd)"
+              :adjustmentStr="getAdjustmentString(u.id, dd)"
+            ></user-shift-cell>
             <td class="gray-background">
               <input
                 class="remark-grid"
@@ -118,81 +110,36 @@
             <td></td>
             <td colspan="12">標誌說明</td>
           </tr>
-          <tr class="white-background">
-            <td colspan="4">白班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(ds, d5) in getDays" :key="`5${d5}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.D[0] > item.D[1] ? 'lack' : 'enough'">{{ item.D[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs1"></div>
-              <input
-                type="text"
-                id="1remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(1)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(1) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
-          <tr class="white-background">
-            <td colspan="4">小夜班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(dn, d6) in getDays" :key="`6${d6}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.E[0] > item.E[1] ? 'lack' : 'enough'">{{ item.E[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs2"></div>
-              <input
-                type="text"
-                id="2remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(2)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(2) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
-          <tr class="white-background">
-            <td colspan="4">大夜班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(ds, d7) in getDays" :key="`7${d7}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.N[0] > item.N[1] ? 'lack' : 'enough'">{{ item.N[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs3"></div>
-              <input
-                type="text"
-                id="3remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(3)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(3) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="白班"
+            shiftKey="D"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs1"
+            :remarkContent="getRemarkSquare(1)"
+          ></shift-statistics>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="小夜班"
+            shiftKey="E"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs2"
+            :remarkContent="getRemarkSquare(2)"
+          ></shift-statistics>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="大夜班"
+            shiftKey="N"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs3"
+            :remarkContent="getRemarkSquare(3)"
+          ></shift-statistics>
         </tbody>
       </table>
     </div>
@@ -203,12 +150,16 @@ import moment from 'moment';
 import 'moment/locale/zh-tw';
 import Loading from "./Loading.vue";
 import PreResultTableHead from './PreResultTableHead.vue';
+import UserShiftCell from './UserShiftCell.vue';
+import ShiftStatistics from './ShiftStatistics.vue';
 
 moment.locale('zh-tw');
 export default {
   components: {
     Loading,
     PreResultTableHead,
+    UserShiftCell,
+    ShiftStatistics,
   },
 
   data() {
@@ -253,24 +204,13 @@ export default {
   computed: {
     //計算該年該月的天數
     getDays() {
-      let tmp = this.year % 4;
-      let month_leap = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //閏年天數
-      let month_normal = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //非閏年天數
-
-      if (tmp == 0) {
-        return month_leap[this.month];
-      } else {
-        return month_normal[this.month];
-      }
+      return moment([this.year, this.month-1, 1]).daysInMonth();
     },
 
     //取得當日人力配置的資料
     getDemand() {
       let real = this.demandData.filter((i) => {
-        return (
-          i.date.split("-")[0] == this.year &&
-          i.date.split("-")[1] == this.month
-        );
+        return moment([this.year, this.month-1, this.date]).isSame(moment(i.date), 'month');
       });
 
       return real;
@@ -525,42 +465,10 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month, d]).isBefore(moment(), 'date')) {
+      if (moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
         return 'gray-background';
       } else {
         return 'couldEdit';
-      }
-    },
-
-    //判斷該班別的樣式
-    shiftColor(type) {
-      switch (type) {
-        case "A":
-          return "dayShift";
-        case "E":
-          return "nightShift";
-        case "N":
-          return "graveyardShift";
-        case "公":
-          return "rest";
-        case "例":
-          return "rest";
-        case "休":
-          return "rest";
-        case "國":
-          return "rest";
-        case "On":
-          return "onCall";
-        case "B":
-          return "adminis";
-        case "補":
-          return "restR";
-        case "特":
-          return "restR";
-        case "事":
-          return "restR";
-        default:
-          return '';
       }
     },
 
@@ -583,8 +491,8 @@ export default {
     },
 
     //取得該user當天是否有加減班的資料
-    isAdjust(userId, d) {
-      let date = moment([this.year, this.month, d]);
+    getAdjustmentString(userId, d) {
+      let date = moment([this.year, this.month-1, d]);
       let adjustment = this.adjustHr.find((item) => {
         return item.user == userId && date.isSame(moment(item.date), 'date');
       });
@@ -775,7 +683,7 @@ export default {
     },
 
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
-    getRemarkS(ev) {
+    setRemarkContent(ev) {
       let data = {};
 
       data.id = ev.target.id[0];
@@ -989,7 +897,7 @@ export default {
     .master-scedule-table {
       text-align: center;
 
-      ::v-deep .grid-width, .grid-width {
+      .grid-width {
         width: 45px;
       }
 
@@ -999,7 +907,7 @@ export default {
         }
       }
 
-      ::v-deep .gray-background, .gray-background {
+      .gray-background {
         background: #f2f2f2 !important;
       }
 
@@ -1030,44 +938,7 @@ export default {
         border: 1px solid #84b1ed;
       }
 
-      .dayShift {
-        color: #ebc57c;
-      }
-
-      .nightShift {
-        color: #84b1ed;
-      }
-
-      .graveyardShift {
-        color: #6b799e;
-      }
-
-      .rest {
-        color: #c2c2c2;
-      }
-
-      .restR {
-        background: #adaaaa;
-        color: black;
-      }
-
-      .onCall {
-        color: #9c8f96;
-      }
-
-      .adminis {
-        color: #58b4ae;
-      }
-
-      .addWork {
-        color: #eb8f90;
-      }
-
-      .subWork {
-        color: #3d313f;
-      }
-
-      ::v-deep .remark, .remark {
+      .remark {
         width: 5rem;
         text-align: center;
       }
@@ -1077,16 +948,6 @@ export default {
         background: #f2f2f2;
         border: none;
         text-align: center;
-      }
-
-      .enough {
-        color: red;
-      }
-
-      .lack {
-        color: white;
-        background: red;
-        width: 100%;
       }
 
       .mark {
