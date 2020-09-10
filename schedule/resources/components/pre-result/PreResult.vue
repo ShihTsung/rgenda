@@ -122,13 +122,13 @@
               :key="`3${d3}`"
               class="grid-width white-background"
               :class="isPast(dd)"
-              @click="editShift($event, shiftOfCurrentMonth[u.id][dd])"
+              @click="editShift($event, getUserShift(u.id, dd))"
             >
               <div v-if="!isReady">-</div>
               <div
-                v-if="shiftOfCurrentMonth[u.id][dd]"
-                :class="shiftColor(shiftOfCurrentMonth[u.id][dd].shift_type)"
-              >{{ shiftOfCurrentMonth[u.id][dd].shift_type }}</div>
+                v-if="getUserShift(u.id, dd)"
+                :class="shiftColor(getUserShift(u.id, dd).shift_type)"
+              >{{ getUserShift(u.id, dd).shift_type }}</div>
               <div
                 v-if="isAdjust(u.id, dd)"
                 :class="isAdjust(u.id, dd)[0] == '+' ? 'addWork' : 'subWork'"
@@ -329,7 +329,7 @@ export default {
     shiftOfCurrentMonth() {
       let processedShifts = {}; // index by user id
       this.preResultData.forEach(d => {
-        if (moment(d.date).month() === this.month) {
+        if (moment(d.date).month()+1 === this.month) {
           if (!processedShifts[d.user]) {
             processedShifts[d.user] = {};
           }
@@ -594,7 +594,7 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment(`${this.year}-${this.month}-${d}`).isBefore(moment(), 'date')) {
+      if (moment([this.year, this.month, d]).isBefore(moment(), 'date')) {
         return 'gray-background';
       } else {
         return 'couldEdit';
@@ -644,6 +644,8 @@ export default {
           return "restR";
         case "事":
           return "restR";
+        default:
+          return '';
       }
     },
 
@@ -667,7 +669,7 @@ export default {
 
     //取得該user當天是否有加減班的資料
     isAdjust(userId, d) {
-      let date = moment(`${this.year}-${this.month}-${d}`);
+      let date = moment([this.year, this.month, d]);
       let adjustment = this.adjustHr.find((item) => {
         return item.user == userId && date.isSame(moment(item.date), 'date');
       });
@@ -946,6 +948,12 @@ export default {
       }
     },
 
+    getUserShift(userId, date) {
+      if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][date]) {
+        return this.shiftOfCurrentMonth[userId][date];
+      }
+      return {};
+    }
     //-------------------------------------------------
   },
 
