@@ -54,58 +54,10 @@
         cellspacing="0"
         bordercolor="black"
       >
-        <thead>
-          <tr class="gray-background">
-            <td rowspan="3">員工編號</td>
-            <td rowspan="3">職級</td>
-            <td rowspan="3" style="width: 105px">姓名</td>
-            <td rowspan="3">前月排班</td>
-            <td
-              rowspan="2"
-              v-for="(day, d1) in getDays"
-              :key="`1${d1}`"
-              class="grid-width"
-              :class="{todayMark: isToday(day)}"
-            >{{day}}</td>
-            <td rowspan="2" class="remark">備註</td>
-            <td rowspan="2">排班</td>
-            <td colspan="4">出勤</td>
-            <td colspan="4">不出勤</td>
-            <td rowspan="2" style="width: 40px">當月差額</td>
-            <td rowspan="2" style="width: 40px">剩餘補休</td>
-            <td rowspan="2" style="width: 40px">剩餘年假</td>
-          </tr>
-          <tr class="gray-background">
-            <td>總計</td>
-            <td>加班</td>
-            <td>減班</td>
-            <td>公假</td>
-            <td>總計</td>
-            <td>例休國</td>
-            <td>計薪請假</td>
-            <td>扣薪請假</td>
-          </tr>
-          <tr class="day-of-the-week gray-background">
-            <td
-              v-for="(d, d2) in getDays"
-              :key="`2${d2}`"
-              class="grid-width"
-            >{{ getDayOfTheWeek(d) }}</td>
-            <td></td>
-            <td>時</td>
-            <td>時</td>
-            <td>時</td>
-            <td>時</td>
-            <td>天</td>
-            <td>天</td>
-            <td>天</td>
-            <td>天</td>
-            <td>天</td>
-            <td>時</td>
-            <td>時</td>
-            <td>天</td>
-          </tr>
-        </thead>
+        <pre-result-table-head
+          :year="year"
+          :month="month"
+        ></pre-result-table-head>
         <tbody style="overflow: scroll">
           <tr class="grid-width" v-for="(u, id) in userData" :key="id">
             <td class="white-background">{{ u.eid }}</td>
@@ -122,13 +74,13 @@
               :key="`3${d3}`"
               class="grid-width white-background"
               :class="isPast(dd)"
-              @click="editShift($event, shiftOfCurrentMonth[u.id][dd])"
+              @click="editShift($event, getUserShift(u.id, dd))"
             >
               <div v-if="!isReady">-</div>
               <div
-                v-if="shiftOfCurrentMonth[u.id][dd]"
-                :class="shiftColor(shiftOfCurrentMonth[u.id][dd].shift_type)"
-              >{{ shiftOfCurrentMonth[u.id][dd].shift_type }}</div>
+                v-if="getUserShift(u.id, dd)"
+                :class="shiftColor(getUserShift(u.id, dd).shift_type)"
+              >{{ getUserShift(u.id, dd).shift_type }}</div>
               <div
                 v-if="isAdjust(u.id, dd)"
                 :class="isAdjust(u.id, dd)[0] == '+' ? 'addWork' : 'subWork'"
@@ -248,17 +200,21 @@
 </template>
 <script>
 import moment from 'moment';
+import 'moment/locale/zh-tw';
 import Loading from "./Loading.vue";
+import PreResultTableHead from './PreResultTableHead.vue';
 
+moment.locale('zh-tw');
 export default {
   components: {
     Loading,
+    PreResultTableHead,
   },
 
   data() {
     return {
       year: moment().year(),
-      month: moment().add(1, 'months').month(),
+      month: moment().add(1, 'months').month() + 1,
       date: moment().date(),
       userData: [],
       preResultData: [],
@@ -329,7 +285,7 @@ export default {
     shiftOfCurrentMonth() {
       let processedShifts = {}; // index by user id
       this.preResultData.forEach(d => {
-        if (moment(d.date).month() === this.month) {
+        if (moment(d.date).month()+1 === this.month) {
           if (!processedShifts[d.user]) {
             processedShifts[d.user] = {};
           }
@@ -540,31 +496,6 @@ export default {
 
     //-------------------各個function----------------------
 
-    //得出該年該月該日是星期幾
-    getDayOfTheWeek(day) {
-      let weekday = ["日", "一", "二", "三", "四", "五", "六"];
-      let weekofday = new Date(this.month + " " + day + "," + this.year);
-
-      return weekday[weekofday.getDay()];
-    },
-
-    //計算該日期是否為今天，如果是今天加上今天的類別(todayMark:true)
-    isToday(day) {
-      let currentYear = new Date().getFullYear();
-      let currentMonth = new Date().getMonth() + 1;
-      let currentDate = new Date().getDate();
-
-      if (
-        this.year == currentYear &&
-        this.month == currentMonth &&
-        day == currentDate
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-
     // 改變當前月份
     changeMonth(ev) {
       switch (ev.target.id) {
@@ -594,26 +525,10 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment(`${this.year}-${this.month}-${d}`).isBefore(moment(), 'date')) {
+      if (moment([this.year, this.month, d]).isBefore(moment(), 'date')) {
         return 'gray-background';
       } else {
         return 'couldEdit';
-      }
-    },
-
-    //利用當年當月當日的日期去PreResult的資料中找到對應的使用者班別資料並回傳
-    ShiftOfUser(id, d) {
-      let s = this.preResultData.find((userItem) => {
-        if (userItem.user == id) {
-          return (
-            parseInt(userItem.date.split("-")[1]) == this.month &&
-            parseInt(userItem.date.split("-")[2]) == d
-          );
-        }
-      });
-
-      if (s != undefined) {
-        return s;
       }
     },
 
@@ -644,6 +559,8 @@ export default {
           return "restR";
         case "事":
           return "restR";
+        default:
+          return '';
       }
     },
 
@@ -667,7 +584,7 @@ export default {
 
     //取得該user當天是否有加減班的資料
     isAdjust(userId, d) {
-      let date = moment(`${this.year}-${this.month}-${d}`);
+      let date = moment([this.year, this.month, d]);
       let adjustment = this.adjustHr.find((item) => {
         return item.user == userId && date.isSame(moment(item.date), 'date');
       });
@@ -946,6 +863,12 @@ export default {
       }
     },
 
+    getUserShift(userId, date) {
+      if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][date]) {
+        return this.shiftOfCurrentMonth[userId][date];
+      }
+      return {};
+    }
     //-------------------------------------------------
   },
 
@@ -1066,7 +989,7 @@ export default {
     .master-scedule-table {
       text-align: center;
 
-      .grid-width {
+      ::v-deep .grid-width, .grid-width {
         width: 45px;
       }
 
@@ -1076,16 +999,12 @@ export default {
         }
       }
 
-      .gray-background {
+      ::v-deep .gray-background, .gray-background {
         background: #f2f2f2 !important;
       }
 
       .white-background {
         background: white;
-      }
-
-      .todayMark {
-        border-top: 5px solid #37419a;
       }
 
       .identity-circle {
@@ -1148,7 +1067,7 @@ export default {
         color: #3d313f;
       }
 
-      .remark {
+      ::v-deep .remark, .remark {
         width: 5rem;
         text-align: center;
       }
