@@ -1713,8 +1713,8 @@ def recreate_result(request):
                                 output[user_id][str(d)] = 1
                                 demand_dict[str(d)] -= 1
 
-                for k, v in output.items():
-                    print(CustomUser.objects.get(id=k).full_name[:3], list(v.values()))
+                for user_id in user_pool:
+                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):

@@ -837,6 +837,9 @@ def create_result(request, department_id, start, end):
                                 output[user_id][str(d)] = 1
                                 demand_dict[str(d)] -= 1
 
+                for user_id in user_pool:
+                    print(User.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
+
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
 
