@@ -1592,8 +1592,6 @@ def recreate_result(request):
     print()
     for i, c in enumerate(cycle_list):
         print('Cycle', str(i), c[0])
-    print()
-    print('      ', [i % 10 for i in range(32)])
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -1676,46 +1674,6 @@ def recreate_result(request):
                     elif attrs[ind] == '2':
                         demand_dict[str(d)] = demand['demand'].config2
 
-                # 調整預排假，若人數許可則改為保證假
-                for d in date_list:
-                    count_reserve = 0
-                    count_promise = 0
-                    user_l = list()
-                    for user_id in user_current_level:
-                        if d in user_pool[user_id]['reserve_leave']:
-                            count_reserve += 1
-                            user_l.append(user_id)
-                        elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] + user_pool[user_id]['official_leave']):
-                            count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve > demand_dict[str(d)]:
-                        for user_id in user_l:
-                            user_pool[user_id]['reserve_leave'].remove(d)
-                            user_pool[user_id]['promise_leave'].append(d)
-                    elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
-                        # for user_id in user_l:
-                        #     user_pool[user_id]['reserve_leave'].remove(d)
-                        #     user_pool[user_id]['promise_leave'].append(d)
-                        # if demand['demand'].level == 2:
-                        #     for user_id in user_current_level:
-                        #         if user_id not in user_l:
-                        #             output[user_id][str(d)] = 1
-                        #             demand_dict[str(d)] -= 1
-                        for user_id in user_current_level:
-                            if user_id in user_l:
-                                user_pool[user_id]['reserve_leave'].remove(d)
-                                user_pool[user_id]['promise_leave'].append(d)
-                            else:
-                                output[user_id][str(d)] = 1
-                                demand_dict[str(d)] -= 1
-                    else:
-                        for user_id in user_current_level:
-                            if user_id not in user_l:
-                                output[user_id][str(d)] = 1
-                                demand_dict[str(d)] -= 1
-
-                for user_id in user_pool:
-                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
-
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
 
@@ -1730,7 +1688,7 @@ def recreate_result(request):
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
 
-                    # 工作天數扣除公假、其他假和預先插入的1
+                    # 工作天數扣除公假、其他假
                     for user in demand['users']:
                         for d in cycle:
                             if date_start <= d <= date_end:
@@ -1746,6 +1704,41 @@ def recreate_result(request):
                     day_num = len([d for d in cycle if date_start <= d <= date_end])
                     diff_q = diff // day_num
                     diff_r = diff % day_num
+
+                    # 調整預排假
+                    # 若人數許可則改為保證假
+                    # 若不足則將沒有申請預排假的人插入1
+                    for d in cycle:
+                        if date_start <= d <= date_end:
+                            count_reserve = 0
+                            count_promise = 0
+                            user_l = list()
+                            for user_id in user_current_level:
+                                if d in user_pool[user_id]['reserve_leave']:
+                                    count_reserve += 1
+                                    user_l.append(user_id)
+                                elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] +
+                                           user_pool[user_id]['official_leave']):
+                                    count_promise += 1
+                            if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)] + diff_q + 1:
+                                for user_id in user_l:
+                                    user_pool[user_id]['reserve_leave'].remove(d)
+                                    user_pool[user_id]['promise_leave'].append(d)
+                            else:
+                                for user_id in user_current_level:
+                                    if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
+                                                                           user_pool[user_id]['promise_other'] +
+                                                                           user_pool[user_id]['official_leave']):
+                                        output[user_id][str(d)] = 1
+                                        demand_dict[str(d)] -= 1
+                                        workday_dict[user_id][ind] -= 1
+
+                    # 印出預先插入1的結果
+                    print()
+                    print('      ', [i % 10 for i in range(32)])
+                    for user_id in user_pool:
+                        print(CustomUser.objects.get(id=user_id).full_name[:3],
+                              list(output[user_id].values()))
 
                     for _ in range(1000):
 

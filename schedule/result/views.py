@@ -597,12 +597,7 @@ def get_workday_num(user_id, cycle_start, cycle_end, start=None, end=None):
             cycle_start = start
             end = cycle_end
     if end:
-        z_num = total_days / 7
-        r_num = total_days - workdays - z_num
-        days = (end - cycle_start).days + 1
-        z_num = ceil(days / 7)
-        r_num = floor(r_num * days / total_days)
-        workdays = days - z_num - r_num
+        workdays = round(((end - cycle_start).days + 1) * 5 / 7)
 
     return workdays
 
@@ -708,7 +703,6 @@ def create_result(request, department_id, start, end):
     print()
     for i, c in enumerate(cycle_list):
         print('Cycle', str(i), c[0])
-    print()
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -816,14 +810,6 @@ def create_result(request, department_id, start, end):
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
                     elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
-                        # for user_id in user_l:
-                        #     user_pool[user_id]['reserve_leave'].remove(d)
-                        #     user_pool[user_id]['promise_leave'].append(d)
-                        # if demand['demand'].level == 2:
-                        #     for user_id in user_current_level:
-                        #         if user_id not in user_l:
-                        #             output[user_id][str(d)] = 1
-                        #             demand_dict[str(d)] -= 1
                         for user_id in user_current_level:
                             if user_id in user_l:
                                 user_pool[user_id]['reserve_leave'].remove(d)
@@ -833,10 +819,15 @@ def create_result(request, department_id, start, end):
                                 demand_dict[str(d)] -= 1
                     else:
                         for user_id in user_current_level:
-                            if user_id not in user_l:
+                            if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
+                                                                   user_pool[user_id]['promise_other'] +
+                                                                   user_pool[user_id]['official_leave']):
                                 output[user_id][str(d)] = 1
                                 demand_dict[str(d)] -= 1
 
+                # 印出預先插入1的結果
+                print()
+                print('      ', [i % 10 for i in range(32)])
                 for user_id in user_pool:
                     print(User.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
 
@@ -871,7 +862,7 @@ def create_result(request, department_id, start, end):
                     diff_q = diff // day_num
                     diff_r = diff % day_num
 
-                    for _ in range(10000):
+                    for _ in range(1000):
 
                         # 產生需求校正list和指標
                         diff_list = [diff_q for d in cycle if date_start <= d <= date_end]
