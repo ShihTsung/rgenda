@@ -10,55 +10,18 @@
       <div class="bt-group">
         <div class="add-sub-wrapper" @click="changeMonth($event)">
           <div id="prev">
-            <svg
-              class="icon-color left"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" />
-            </svg>
+            <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" /> </svg>
           </div>
           <div class="icon-bts" id="current">
-
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z"
-              />
-            </svg>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z" /> </svg>
           </div>
           <div id="next">
-            <svg
-              class="icon-color right"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z" />
-            </svg>
+            <svg class="icon-color right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z" /> </svg>
           </div>
         </div>
         <div id="btn-manage">
           <div class="icon-bts follow-btn" v-if="isEdit">
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M.002 20h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619zm20.498-7c-1.932 0-3.5 1.567-3.5 3.5s1.568 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.568-3.5-3.5-3.5zm1.5 4h-1v1h-1v-1h-1v-1h1v-1h1v1h1v1zm-4.814 3h-9.183l-.003-.829c0-1.679.133-2.649 2.118-3.107 2.243-.518 4.458-.981 3.394-2.945-3.156-5.82-.901-9.119 2.488-9.119 4.06 0 4.857 4.119 3.085 7.903-1.972.609-3.419 2.428-3.419 4.597 0 1.38.589 2.619 1.52 3.5z"
-              />
-            </svg>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M.002 20h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619zm20.498-7c-1.932 0-3.5 1.567-3.5 3.5s1.568 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.568-3.5-3.5-3.5zm1.5 4h-1v1h-1v-1h-1v-1h1v-1h1v1h1v1zm-4.814 3h-9.183l-.003-.829c0-1.679.133-2.649 2.118-3.107 2.243-.518 4.458-.981 3.394-2.945-3.156-5.82-.901-9.119 2.488-9.119 4.06 0 4.857 4.119 3.085 7.903-1.972.609-3.419 2.428-3.419 4.597 0 1.38.589 2.619 1.52 3.5z" /> </svg>
           </div>
           <div class="mark-group icon-bts" v-if="isEdit">
             <div class="mark-title">加標誌</div>
@@ -69,71 +32,16 @@
             </div>
           </div>
           <div class="icon-bts" v-if="isEdit">
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.408 23h-15.408v-22h22v9.683c-.622-.296-1.293-.502-2-.603v-3.08h-18v14h11.26c.566.81 1.3 1.49 2.148 2zm2.257-8.669c.402-.206.852-.331 1.335-.331 1.455 0 2.67 1.042 2.941 2.418l1.96-.398c-.456-2.291-2.475-4.02-4.901-4.02-.957 0-1.845.278-2.604.745l-1.396-1.745-1 5h5l-1.335-1.669zm5.335 8.669l-1.396-1.745c-.759.467-1.647.745-2.604.745-2.426 0-4.445-1.729-4.901-4.02l1.96-.398c.271 1.376 1.486 2.418 2.941 2.418.483 0 .933-.125 1.335-.331l-1.335-1.669h5l-1 5z"
-              />
-            </svg>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.408 23h-15.408v-22h22v9.683c-.622-.296-1.293-.502-2-.603v-3.08h-18v14h11.26c.566.81 1.3 1.49 2.148 2zm2.257-8.669c.402-.206.852-.331 1.335-.331 1.455 0 2.67 1.042 2.941 2.418l1.96-.398c-.456-2.291-2.475-4.02-4.901-4.02-.957 0-1.845.278-2.604.745l-1.396-1.745-1 5h5l-1.335-1.669zm5.335 8.669l-1.396-1.745c-.759.467-1.647.745-2.604.745-2.426 0-4.445-1.729-4.901-4.02l1.96-.398c.271 1.376 1.486 2.418 2.941 2.418.483 0 .933-.125 1.335-.331l-1.335-1.669h5l-1 5z" /></svg>
           </div>
           <div class="icon-bts save-btn" v-if="isEdit" @click="isEdit = false">
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z"
-              />
-            </svg>
-          </div>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z" /> </svg> </div>
           <div class="icon-bts edit-btn" v-if="!isEdit" @click="isEdit = true">
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M5 21h-5v-2h5v2zm3.424-5.718l4.402 4.399-5.826 1.319 1.424-5.718zm15.576-6.748l-9.689 9.804-4.536-4.536 9.689-9.802 4.536 4.534z"
-              />
-            </svg>
-          </div>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M5 21h-5v-2h5v2zm3.424-5.718l4.402 4.399-5.826 1.319 1.424-5.718zm15.576-6.748l-9.689 9.804-4.536-4.536 9.689-9.802 4.536 4.534z" /> </svg> </div>
           <div class="icon-bts check-btn">
-            <svg
-              class="icon-color"
-              width="24"
-              height="24"
-              xmlns="http://www.w3.org/2000/svg"
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-            >
-              <path
-                d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z"
-              />
-            </svg>
-          </div>
+            <svg class="icon-color" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" > <path d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z" /> </svg> </div>
           <div class="icon-bts announce-btn">
-            <svg
-              class="icon-color"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z"
-              />
-            </svg>
-          </div>
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z" /> </svg> </div>
         </div>
       </div>
     </div>
@@ -213,29 +121,29 @@
               v-for="(dd, d3) in getDays"
               :key="`3${d3}`"
               class="grid-width white-background"
-              :class="isPast(ShiftOfUser(u.id, dd))"
-              @click="editShift($event, ShiftOfUser(u.id, dd))"
+              :class="isPast(dd)"
+              @click="editShift($event, shiftOfCurrentMonth[u.id][dd])"
             >
               <div v-if="!isReady">-</div>
               <div
-                v-if="ShiftOfUser(u.id, dd)"
-                :class="shiftColor(ShiftOfUser(u.id, dd).shift_type)"
-              >{{ ShiftOfUser(u.id, dd).shift_type }}</div>
+                v-if="shiftOfCurrentMonth[u.id][dd]"
+                :class="shiftColor(shiftOfCurrentMonth[u.id][dd].shift_type)"
+              >{{ shiftOfCurrentMonth[u.id][dd].shift_type }}</div>
               <div
-                v-if="isAdjust(ShiftOfUser(u.id, dd))"
-                :class="isAdjust(ShiftOfUser(u.id, dd))[0] == '+' ? 'addWork' : 'subWork'"
-              >{{ isAdjust(ShiftOfUser(u.id, dd)) }}</div>
+                v-if="isAdjust(u.id, dd)"
+                :class="isAdjust(u.id, dd)[0] == '+' ? 'addWork' : 'subWork'"
+              >{{ isAdjust(u.id, dd) }}</div>
             </td>
             <td class="gray-background">
               <input
-                class="remark-gird"
+                class="remark-grid"
                 type="text"
                 :value="findRemark(u.id)"
                 @blur="getRemark($event, u.id)"
                 @keyup.13="$event.target.blur"
                 v-if="isEdit"
               />
-              <div v-if="!isEdit" class="remark-gird">{{ findRemark(u.id) }}</div>
+              <div v-if="!isEdit" class="remark-grid">{{ findRemark(u.id) }}</div>
             </td>
             <td class="white-background">{{ workhr(u.id, month, getDays, 0) }}</td>
             <td class="gray-background">{{ workhr(u.id, month, date, 1) }}</td>
@@ -309,7 +217,7 @@
             </td>
           </tr>
           <tr class="white-background">
-            <td colspan="4">白班</td>
+            <td colspan="4">大夜班</td>
             <td v-show="!isReady" class="grid-width" v-for="(ds, d7) in getDays" :key="`7${d7}`">0</td>
             <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
               <div :class="item.N[0] > item.N[1] ? 'lack' : 'enough'">{{ item.N[1] }}</div>
@@ -339,6 +247,7 @@
   </div>
 </template>
 <script>
+import moment from 'moment';
 import Loading from "./Loading.vue";
 
 export default {
@@ -348,9 +257,9 @@ export default {
 
   data() {
     return {
-      year: new Date().getFullYear(),
-      month: new Date().getMonth() + 1,
-      date: new Date().getDate(),
+      year: moment().year(),
+      month: moment().add(1, 'months').month(),
+      date: moment().date(),
       userData: [],
       preResultData: [],
       adjustHr: [],
@@ -368,6 +277,7 @@ export default {
       isEdit: false,
       rsShow: false,
       rsClass: "",
+      stationData: [],
     };
   },
 
@@ -381,6 +291,7 @@ export default {
     this.getRemarkSquareData();
     this.getPreResultRemarkData();
     this.getShiftData();
+    this.getStationData();
   },
 
   computed: {
@@ -407,6 +318,26 @@ export default {
       });
 
       return real;
+    },
+
+    stationPicker() {
+      return this.stationData.filter(i => {
+        return i.name.indexOf('假') === -1 && i.name.indexOf('行政') === -1
+      });
+    },
+
+    shiftOfCurrentMonth() {
+      let processedShifts = {}; // index by user id
+      this.preResultData.forEach(d => {
+        if (moment(d.date).month() === this.month) {
+          if (!processedShifts[d.user]) {
+            processedShifts[d.user] = {};
+          }
+          let date = moment(d.date).date();
+          processedShifts[d.user][date] = d;
+        }
+      })
+      return processedShifts;
     },
   },
 
@@ -595,6 +526,16 @@ export default {
         });
     },
 
+    getStationData() {
+      let self = this;
+      this.$httpClient.get('/api/stations/')
+        .then(response => {
+          self.stationData = response.data;
+        }).catch(err => {
+          console.log(err);
+        });
+    },
+
     //----------------------------------------------------
 
     //-------------------各個function----------------------
@@ -653,33 +594,10 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      let year = new Date().getFullYear();
-      let month = new Date().getMonth() + 1;
-      let date = new Date().getDate();
-
-      if (d) {
-        //當月之前
-        if (
-          parseInt(d.date.split("-")[1]) < month &&
-          parseInt(d.date.split("-")[0]) <= year
-        ) {
-          return "gray-background";
-        } else if (
-          parseInt(d.date.split("-")[1]) == month &&
-          parseInt(d.date.split("-")[0]) <= year
-        ) {
-          //當月
-          //當日之前
-          if (parseInt(d.date.split("-")[2]) < date) {
-            return "gray-background";
-          } else {
-            //當日之後
-            return "couldEdit";
-          }
-        } else {
-          //當月之後
-          return "couldEdit";
-        }
+      if (moment(`${this.year}-${this.month}-${d}`).isBefore(moment(), 'date')) {
+        return 'gray-background';
+      } else {
+        return 'couldEdit';
       }
     },
 
@@ -748,18 +666,16 @@ export default {
     },
 
     //取得該user當天是否有加減班的資料
-    isAdjust(data) {
-      let obj;
-      if (data != undefined) {
-        obj = this.adjustHr.find((item) => {
-          return item.user == data.user && item.date == data.date;
-        });
-      }
-      if (obj != undefined) {
-        if (obj.adjustment_type == 0) {
-          return "+" + obj.hours;
-        } else if (obj.adjustment_type == 1) {
-          return "-" + obj.hours;
+    isAdjust(userId, d) {
+      let date = moment(`${this.year}-${this.month}-${d}`);
+      let adjustment = this.adjustHr.find((item) => {
+        return item.user == userId && date.isSame(moment(item.date), 'date');
+      });
+      if (adjustment != undefined) {
+        if (adjustment.adjustment_type == 0) {
+          return "+" + adjustment.hours;
+        } else if (adjustment.adjustment_type == 1) {
+          return "-" + adjustment.hours;
         }
       }
     },
@@ -951,9 +867,6 @@ export default {
       this.remarkS.push(data);
     },
 
-    // editShift(ev) {
-    //   console.log(ev.target.parentNode.classList[2]);
-    // },
     editShift(ev, info) {
       //加標誌到各筆班別資料
       if (this.rsShow == true && this.rsClass != "") {
@@ -1240,7 +1153,7 @@ export default {
         text-align: center;
       }
 
-      .remark-gird {
+      .remark-grid {
         width: 3rem;
         background: #f2f2f2;
         border: none;

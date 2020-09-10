@@ -634,6 +634,10 @@ def create_result(request, department_id, start, end):
     :param end:
     :return:
     """
+    from datetime import datetime, date, timedelta
+
+    time_start = datetime.now()
+
     try:
         department = Department.objects.get(id=department_id)
     except Department.DoesNotExist:
@@ -701,7 +705,10 @@ def create_result(request, department_id, start, end):
         cycle_list.append(cycle)
 
     # 印出每個cycle的第一天
-    print([c[0] for c in cycle_list])
+    print()
+    for i, c in enumerate(cycle_list):
+        print('Cycle', str(i), c[0])
+    print()
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -808,6 +815,30 @@ def create_result(request, department_id, start, end):
                         for user_id in user_l:
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
+                    elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
+                        # for user_id in user_l:
+                        #     user_pool[user_id]['reserve_leave'].remove(d)
+                        #     user_pool[user_id]['promise_leave'].append(d)
+                        # if demand['demand'].level == 2:
+                        #     for user_id in user_current_level:
+                        #         if user_id not in user_l:
+                        #             output[user_id][str(d)] = 1
+                        #             demand_dict[str(d)] -= 1
+                        for user_id in user_current_level:
+                            if user_id in user_l:
+                                user_pool[user_id]['reserve_leave'].remove(d)
+                                user_pool[user_id]['promise_leave'].append(d)
+                            else:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
+                    else:
+                        for user_id in user_current_level:
+                            if user_id not in user_l:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
+
+                for user_id in user_pool:
+                    print(User.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -822,6 +853,13 @@ def create_result(request, department_id, start, end):
                     else:
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
+
+                    # 工作天數扣除公假、其他假和預先插入的1
+                    for user in demand['users']:
+                        for d in cycle:
+                            if date_start <= d <= date_end:
+                                if output[user.id][str(d)] == 1 or d in user_pool[user.id]['promise_other']:
+                                    workday_dict[user.id][ind] -= 1
 
                     # 計算可工作天數、需求數
                     total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
@@ -868,14 +906,9 @@ def create_result(request, department_id, start, end):
 
                                 for user_id, user_data in user_pool.items():
 
-                                    # 若有公假則工作天數-1
-                                    if d in user_data['official_leave']:
-                                        weight_workday[user_id] -= 1
-
                                     # 特殊假、公假、保證假、工作天不足 略過
-                                    if d in (user_data['promise_leave'] + user_data['official_leave'] + user_data[
-                                            'promise_other']) or weight_workday[user_id] == 0 or temp_output[user_id][
-                                            str(d)] != 0:
+                                    if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                            weight_workday[user_id] == 0 or temp_output[user_id][str(d)] == 1:
                                         continue
                                     s = 0
                                     d_n = d - timedelta(days=1)
@@ -1020,14 +1053,9 @@ def create_result(request, department_id, start, end):
 
                                     for user_id, user_data in user_pool.items():
 
-                                        # 若有公假則工作天數-1
-                                        if d in user_data['official_leave']:
-                                            weight_workday[user_id] -= 1
-
                                         # 特殊假、公假、保證假、工作天不足 略過
-                                        if d in (user_data['promise_leave'] + user_data['official_leave'] +
-                                                 user_data['promise_other']) or weight_workday[user_id] == 0 or \
-                                                temp_output[user_id][str(d)] != 0:
+                                        if d in (user_data['promise_leave'] + user_data['promise_other']) or \
+                                                weight_workday[user_id] <= 0 or temp_output[user_id][str(d)] == 1:
                                             continue
                                         s = 0
                                         d_n = d - timedelta(days=1)
@@ -1284,6 +1312,11 @@ def create_result(request, department_id, start, end):
                     )
     except User.DoesNotExist:
         pass
+
+    time_end = datetime.now()
+    print()
+    print('Complete')
+    print('Time Used', time_end - time_start)
 
     return redirect('/' + request.LANGUAGE_CODE + '/results/pre_results')
 
