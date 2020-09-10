@@ -816,14 +816,26 @@ def create_result(request, department_id, start, end):
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
                     elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
-                        for user_id in user_l:
-                            user_pool[user_id]['reserve_leave'].remove(d)
-                            user_pool[user_id]['promise_leave'].append(d)
-                        if demand['demand'].level == 2:
-                            for user_id in user_current_level:
-                                if user_id not in user_l:
-                                    output[user_id][str(d)] = 1
-                                    demand_dict[str(d)] -= 1
+                        # for user_id in user_l:
+                        #     user_pool[user_id]['reserve_leave'].remove(d)
+                        #     user_pool[user_id]['promise_leave'].append(d)
+                        # if demand['demand'].level == 2:
+                        #     for user_id in user_current_level:
+                        #         if user_id not in user_l:
+                        #             output[user_id][str(d)] = 1
+                        #             demand_dict[str(d)] -= 1
+                        for user_id in user_current_level:
+                            if user_id in user_l:
+                                user_pool[user_id]['reserve_leave'].remove(d)
+                                user_pool[user_id]['promise_leave'].append(d)
+                            else:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
+                    else:
+                        for user_id in user_current_level:
+                            if user_id not in user_l:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):

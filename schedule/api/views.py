@@ -1593,6 +1593,7 @@ def recreate_result(request):
     for i, c in enumerate(cycle_list):
         print('Cycle', str(i), c[0])
     print()
+    print('      ', [i % 10 for i in range(32)])
 
     # cycle0已排好的(前月的)班表
     used_rest = get_used_rest(department, cycle0[0], date_start)
@@ -1691,14 +1692,29 @@ def recreate_result(request):
                             user_pool[user_id]['reserve_leave'].remove(d)
                             user_pool[user_id]['promise_leave'].append(d)
                     elif len(user_current_level) - count_promise - count_reserve == demand_dict[str(d)]:
-                        for user_id in user_l:
-                            user_pool[user_id]['reserve_leave'].remove(d)
-                            user_pool[user_id]['promise_leave'].append(d)
-                        if demand['demand'].level == 2:
-                            for user_id in user_current_level:
-                                if user_id not in user_l:
-                                    output[user_id][str(d)] = 1
-                                    demand_dict[str(d)] -= 1
+                        # for user_id in user_l:
+                        #     user_pool[user_id]['reserve_leave'].remove(d)
+                        #     user_pool[user_id]['promise_leave'].append(d)
+                        # if demand['demand'].level == 2:
+                        #     for user_id in user_current_level:
+                        #         if user_id not in user_l:
+                        #             output[user_id][str(d)] = 1
+                        #             demand_dict[str(d)] -= 1
+                        for user_id in user_current_level:
+                            if user_id in user_l:
+                                user_pool[user_id]['reserve_leave'].remove(d)
+                                user_pool[user_id]['promise_leave'].append(d)
+                            else:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
+                    else:
+                        for user_id in user_current_level:
+                            if user_id not in user_l:
+                                output[user_id][str(d)] = 1
+                                demand_dict[str(d)] -= 1
+
+                for k, v in output.items():
+                    print(CustomUser.objects.get(id=k).full_name[:3], list(v.values()))
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
