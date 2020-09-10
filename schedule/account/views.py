@@ -340,7 +340,6 @@ def update(request, id=None):
             user.save()
         return redirect('/accounts/list')
 
-
     context = {'form': form, 'target': choosed_user}
     return render(request, 'registration/userEdit.html', context)
 
@@ -540,10 +539,14 @@ def assign_user(department, proportion):
     :return:
     """
     users = {
-        4: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=4),
-        3: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=3),
-        2: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=2),
-        1: CustomUser.objects.filter(department=department, can_be_scheduled=True, level=1),
+        4: CustomUser.objects.filter(
+            department=department, can_be_scheduled=True, level=4),
+        3: CustomUser.objects.filter(
+            department=department, can_be_scheduled=True, level=3),
+        2: CustomUser.objects.filter(
+            department=department, can_be_scheduled=True, level=2),
+        1: CustomUser.objects.filter(
+            department=department, can_be_scheduled=True, level=1),
     }
     users_nums = {
         4: len(users[4]),
@@ -585,15 +588,19 @@ def assign_user(department, proportion):
     for i in [4, 3, 2]:
         user_pool += users[i]
         quota = dict()
-        if proportion['白班'][i] + proportion['小夜'][i] + proportion['大夜'][i] > len(user_pool):
+        if proportion['白班'][i] + proportion['小夜'][i] + \
+                proportion['大夜'][i] > len(user_pool):
             total = proportion['白班'][i] + \
                 proportion['小夜'][i] + proportion['大夜'][i]
             quota['白班'] = min(
-                round(len(user_pool) * proportion['白班'][i] / total), count_output['白班'])
+                round(len(user_pool) * proportion['白班'][i] / total),
+                count_output['白班'])
             quota['小夜'] = min(
-                round(len(user_pool) * proportion['小夜'][i] / total), count_output['小夜'])
+                round(len(user_pool) * proportion['小夜'][i] / total),
+                count_output['小夜'])
             quota['大夜'] = min(
-                round(len(user_pool) * proportion['大夜'][i] / total), count_output['大夜'])
+                round(len(user_pool) * proportion['大夜'][i] / total),
+                count_output['大夜'])
         else:
             quota['白班'] = min(proportion['白班'][i], count_output['白班'])
             quota['小夜'] = min(proportion['小夜'][i], count_output['小夜'])
