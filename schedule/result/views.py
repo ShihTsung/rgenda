@@ -27,7 +27,7 @@ from remarks.models import ResultRemark, PreResultRemark
 # 計算總工時
 @login_required
 def test_preresult(request):
-    return render(request, 'calendars/pre_result_test.html')
+    return render(request, 'calendars/pre_results.html')
 
 
 # 計算月工時(可以輸入查找時間)
