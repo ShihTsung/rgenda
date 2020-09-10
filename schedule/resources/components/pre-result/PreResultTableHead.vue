@@ -30,7 +30,7 @@
       <td>計薪請假</td>
       <td>扣薪請假</td>
     </tr>
-    <tr class="day-of-the-week gray-background">
+    <tr class="gray-background">
       <td
         v-for="(d, d2) in getDays"
         :key="`2${d2}`"
@@ -71,20 +71,22 @@ export default {
   },
   methods: {
     isToday(d) {
-      return moment([this.year, this.month, d]).isSame(moment(), 'date');
+      return moment([this.year, this.month-1, d]).isSame(moment(), 'date');
     },
     getWeekday(d) {
-      return moment([this.year, this.month, d]).format('dd');
+      return moment([this.year, this.month-1, d]).format('dd');
     },
   },
   computed: {
     getDays() {
-      return moment([this.year, this.month, 1]).daysInMonth();
+      return moment([this.year, this.month-1, 1]).daysInMonth();
     },
   },
 }
 </script>
 
-<style>
-
+<style scoped>
+  .todayMark {
+    border-top: 5px solid #37419a;
+  }
 </style>

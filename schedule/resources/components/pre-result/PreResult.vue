@@ -999,16 +999,12 @@ export default {
         }
       }
 
-      .gray-background {
+      ::v-deep .gray-background, .gray-background {
         background: #f2f2f2 !important;
       }
 
       .white-background {
         background: white;
-      }
-
-      .todayMark {
-        border-top: 5px solid #37419a;
       }
 
       .identity-circle {
@@ -1071,7 +1067,7 @@ export default {
         color: #3d313f;
       }
 
-      .remark {
+      ::v-deep .remark, .remark {
         width: 5rem;
         text-align: center;
       }
