@@ -31,11 +31,7 @@
       <td>扣薪請假</td>
     </tr>
     <tr class="gray-background">
-      <td
-        v-for="(d, d2) in getDays"
-        :key="`2${d2}`"
-        class="grid-width"
-      >{{ getWeekday(d) }}</td>
+      <td v-for="(d, d2) in getDays" :key="`2${d2}`" class="grid-width">{{ getWeekday(d) }}</td>
       <td></td>
       <td>時</td>
       <td>時</td>
@@ -62,31 +58,30 @@ export default {
   props: {
     year: {
       type: Number,
-      default: 0
+      default: 0,
     },
     month: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
+    getDays: {
+      type: Number,
+      default: 30,
+    },
   },
   methods: {
     isToday(d) {
-      return moment([this.year, this.month-1, d]).isSame(moment(), 'date');
+      return moment([this.year, this.month - 1, d]).isSame(moment(), 'date');
     },
     getWeekday(d) {
-      return moment([this.year, this.month-1, d]).format('dd');
+      return moment([this.year, this.month - 1, d]).format('dd');
     },
   },
-  computed: {
-    getDays() {
-      return moment([this.year, this.month-1, 1]).daysInMonth();
-    },
-  },
-}
+};
 </script>
 
 <style scoped>
-  .todayMark {
-    border-top: 5px solid #37419a;
-  }
+.todayMark {
+  border-top: 5px solid #37419a;
+}
 </style>
