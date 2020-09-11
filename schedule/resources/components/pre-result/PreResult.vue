@@ -451,16 +451,18 @@ export default {
       let date = moment([this.year, this.month-1, 1]);
       switch (ev.target.id) {
         case "prev":
-          this.year = date.subtract(1, 'months').year();
-          this.month = date.subtract(1, 'months').month() + 1;
+          date.subtract(1, 'months');
+          this.year = date.year();
+          this.month = date.month() + 1;
           break;
         case "current":
           this.year = moment().add(1, 'months').year();
           this.month = moment().add(1, 'months').month() + 1;
           break;
         case "next":
-          this.year = date.add(1, 'months').year();
-          this.month = date.add(1, 'months').month() + 1;
+          date.add(1, 'months');
+          this.year = date.year();
+          this.month = date.month() + 1;
       }
     },
 
