@@ -12,7 +12,7 @@
           <div id="prev" data-tooltip="tooltip" title="上個月">
             <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" /> </svg>
           </div>
-          <div class="icon-bts" id="current" data-tooltip="tooltip" title="回到當月">
+          <div class="icon-bts" id="current" data-tooltip="tooltip" title="回到次月">
             <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z" /> </svg>
           </div>
           <div id="next" data-tooltip="tooltip" title="下個月">
@@ -448,28 +448,19 @@ export default {
 
     // 改變當前月份
     changeMonth(ev) {
+      let date = moment([this.year, this.month-1, 1]);
       switch (ev.target.id) {
         case "prev":
-          this.month--;
-          if (this.month < 1) {
-            this.year--;
-            this.month = 12;
-          }
-          this.getTotalPerDayData();
+          this.year = date.subtract(1, 'months').year();
+          this.month = date.subtract(1, 'months').month() + 1;
           break;
         case "current":
-          this.year = new Date().getFullYear();
-          this.month = new Date().getMonth() + 1;
-          this.getTotalPerDayData();
+          this.year = moment().add(1, 'months').year();
+          this.month = moment().add(1, 'months').month() + 1;
           break;
         case "next":
-          this.month++;
-          if (this.month > 12) {
-            this.year++;
-            this.month = 1;
-          }
-          this.getTotalPerDayData();
-          break;
+          this.year = date.add(1, 'months').year();
+          this.month = date.add(1, 'months').month() + 1;
       }
     },
 
@@ -802,11 +793,12 @@ export default {
   },
 
   watch: {
-    month(newMonth, oldMOnth) {
+    month() {
       this.getUserData();
       this.getPreResults();
       this.getLastMonthData();
       this.getAdjustment();
+      this.getTotalPerDayData();
     },
   },
 };
