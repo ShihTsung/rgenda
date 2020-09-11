@@ -60,7 +60,7 @@
           :getDays="getDays"
         ></pre-result-table-head>
         <tbody style="overflow: scroll">
-          <tr class="grid-width" v-for="(u, id) in userData" :key="id">
+          <tr v-for="(u, id) in userData" :key="id">
             <td class="white-background">{{ u.eid }}</td>
             <td class="white-background">N{{ u.level == 5 ? 'n' : u.level }}</td>
             <td class="white-background">
@@ -69,13 +69,13 @@
                 {{ u.full_name }}
               </div>
             </td>
-            <td class="gray-background">{{ lastMonthData[u.id] }}</td>
+            <td class="gray-background grid-width">{{ lastMonthData[u.id] }}</td>
             <user-shift-cell
               v-for="(dd, d3) in getDays"
               :key="`3${d3}`"
               :isReady="isReady"
               :isPast="isPast(dd)"
-              :shift="getUserShift(u.id, dd)"
+              :shiftInfo="getUserShift(u.id, dd)"
               :adjustmentStr="getAdjustmentString(u.id, dd)"
             ></user-shift-cell>
             <td class="gray-background">
@@ -143,6 +143,11 @@
         </tbody>
       </table>
     </div>
+    <change-shift-modal
+      :changeShift="changeInfo"
+      :shiftData="shiftData"
+      :stationPicker="stationPicker"
+    ></change-shift-modal>
   </div>
 </template>
 <script>
@@ -152,6 +157,7 @@ import Loading from "./Loading.vue";
 import PreResultTableHead from './PreResultTableHead.vue';
 import UserShiftCell from './UserShiftCell.vue';
 import ShiftStatistics from './ShiftStatistics.vue';
+import ChangeShiftModal from './ChangeShiftModal.vue';
 
 moment.locale('zh-tw');
 export default {
@@ -160,6 +166,7 @@ export default {
     PreResultTableHead,
     UserShiftCell,
     ShiftStatistics,
+    ChangeShiftModal,
   },
 
   data() {
@@ -185,6 +192,8 @@ export default {
       rsShow: false,
       rsClass: "",
       stationData: [],
+      shiftOfCurrentMonth: {},
+      changedResult: [],
     };
   },
 
@@ -218,22 +227,8 @@ export default {
 
     stationPicker() {
       return this.stationData.filter(i => {
-        return i.name.indexOf('假') === -1 && i.name.indexOf('行政') === -1
+        return i.name.indexOf('假') === -1
       });
-    },
-
-    shiftOfCurrentMonth() {
-      let processedShifts = {}; // index by user id
-      this.preResultData.forEach(d => {
-        if (moment(d.date).month()+1 === this.month) {
-          if (!processedShifts[d.user]) {
-            processedShifts[d.user] = {};
-          }
-          let date = moment(d.date).date();
-          processedShifts[d.user][date] = d;
-        }
-      })
-      return processedShifts;
     },
   },
 
@@ -280,12 +275,23 @@ export default {
           this.preResultData = data;
           //處理懶加載畫面的變數設置
           if (this.preResultData.length != 0) {
+            let processedShifts = {}; // index by user id
+            this.preResultData.forEach(i => {
+              if (moment(i.date).month()+1 === this.month) {
+                if (!processedShifts[i.user]) {
+                  processedShifts[i.user] = {};
+                }
+                let date = moment(i.date).date();
+
+                //紀錄檢核後有問題的班別是否修改的變數設置
+                i.isModified = false;
+                processedShifts[i.user][date] = i;
+              }
+            });
+            this.shiftOfCurrentMonth = processedShifts;
+
             this.isReady = true;
           }
-          //紀錄檢核後有問題的班別是否修改的變數設置
-          this.preResultData.forEach((i) => {
-            i.isModified = false;
-          });
         })
         .catch((err) => {
           console.log(err);
@@ -465,7 +471,7 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
+      if (!this.isEdit || moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
         return 'gray-background';
       } else {
         return 'couldEdit';
@@ -694,59 +700,70 @@ export default {
 
     editShift(ev, info) {
       //加標誌到各筆班別資料
-      if (this.rsShow == true && this.rsClass != "") {
-        if (ev.target.parentNode.classList[2] == "couldEdit") {
-          let data = {};
-          data.result = info.id;
-          let classListStr = JSON.stringify(ev.target.parentNode.classList);
-          ev.target.parentNode.classList.add(this.rsClass);
+      if (this.rsShow == true && this.rsClass != "" && ev.target.parentNode.classList[2] == "couldEdit") {
+        let data = {};
+        data.result = info.id;
+        let classListStr = JSON.stringify(ev.target.parentNode.classList);
+        ev.target.parentNode.classList.add(this.rsClass);
 
-          if (classListStr.indexOf("rs1") != -1) {
-            ev.target.parentNode.classList.remove("rs1");
-          } else if (classListStr.indexOf("rs2") != -1) {
-            ev.target.parentNode.classList.remove("rs2");
-          } else if (classListStr.indexOf("rs3") != -1) {
-            ev.target.parentNode.classList.remove("rs3");
-          }
-
-          switch (this.rsClass) {
-            case "rs1":
-              data.content = 1;
-              break;
-            case "rs2":
-              data.content = 2;
-              break;
-            case "rs3":
-              data.content = 3;
-              break;
-          }
-          let exist = this.resultRS.find((i) => {
-            return i.result == info.id;
-          });
-          //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
-          if (!exist) {
-            this.resultRS.push(data);
-          } else {
-            this.resultRS.forEach((i) => {
-              if (i.result == info.id) {
-                i.content = data.content;
-              }
-            });
-          }
-
-          this.whichBorder(info);
+        if (classListStr.indexOf("rs1") != -1) {
+          ev.target.parentNode.classList.remove("rs1");
+        } else if (classListStr.indexOf("rs2") != -1) {
+          ev.target.parentNode.classList.remove("rs2");
+        } else if (classListStr.indexOf("rs3") != -1) {
+          ev.target.parentNode.classList.remove("rs3");
         }
+
+        switch (this.rsClass) {
+          case "rs1":
+            data.content = 1;
+            break;
+          case "rs2":
+            data.content = 2;
+            break;
+          case "rs3":
+            data.content = 3;
+            break;
+        }
+        let exist = this.resultRS.find((i) => {
+          return i.result == info.id;
+        });
+        //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
+        if (!exist) {
+          this.resultRS.push(data);
+        } else {
+          this.resultRS.forEach((i) => {
+            if (i.result == info.id) {
+              i.content = data.content;
+            }
+          });
+        }
+
+        this.whichBorder(info);
       }
-      if (
-        this.isEdit == true &&
-        ev.target.parentNode.classList[2] == "couldEdit"
-      ) {
-        this.singleEdit = true;
+
+      if (this.isEdit == true && ($(ev.target).hasClass('couldEdit') || $(ev.target).parent().hasClass('couldEdit'))) {
+        $('#changeShiftModal').modal('show');
         if (info != undefined) {
           this.changeInfo = info;
         }
       } else {
-        this.singleEdit = false;
+        $('#changeShiftModal').modal('hide');
+      }
+    },
+
+    editResult(changeShiftInfo) {
+      $('#changeShiftModal').modal('hide');
+      if (changeShiftInfo) {
+        this.changedResult.push({
+          id: changeShiftInfo.id,
+          date: changeShiftInfo.date,
+          user: changeShiftInfo.user,
+          shift: changeShiftInfo.shift,
+          station: changeShiftInfo.station ? changeShiftInfo.station : null,
+        });
+        let d = moment(changeShiftInfo.date).date();
+        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
       }
     },
 
@@ -899,6 +916,8 @@ export default {
 
       .grid-width {
         width: 45px;
+        white-space: nowrap;
+        overflow-x: clip;
       }
 
       .couldEdit {
