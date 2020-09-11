@@ -29,8 +29,8 @@
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">編輯跟班</h3>
           <div class="container-fluid text-left">
-            <div class="editCategory">
-              <h4 class="category-title">跟班</h4>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label offset-1">跟班</label>
               <select class="category-option" v-model="follower">
                 <option selected disabled="disabled" style="display: none" value></option>
                 <option v-for="f in findFollowers()" :key="f.eid" :value="f.id">{{f.full_name}}</option>

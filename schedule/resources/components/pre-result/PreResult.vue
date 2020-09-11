@@ -337,20 +337,6 @@ export default {
         return i.name.indexOf("假") === -1 && i.name.indexOf("行政") === -1;
       });
     },
-
-    // shiftOfCurrentMonth() {
-    //   let processedShifts = {}; // index by user id
-    //   this.preResultData.forEach((d) => {
-    //     if (moment(d.date).month() + 1 === this.month) {
-    //       if (!processedShifts[d.user]) {
-    //         processedShifts[d.user] = {};
-    //       }
-    //       let date = moment(d.date).date();
-    //       processedShifts[d.user][date] = d;
-    //     }
-    //   });
-    //   return processedShifts;
-    // },
   },
 
   methods: {
