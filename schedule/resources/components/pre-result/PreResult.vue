@@ -1043,7 +1043,7 @@ export default {
         }
       }
 
-      .gray-background {
+      ::v-deep .gray-background, .gray-background {
         background: #f2f2f2 !important;
       }
 
