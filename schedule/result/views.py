@@ -27,7 +27,7 @@ from remarks.models import ResultRemark, PreResultRemark
 # 計算總工時
 @login_required
 def test_preresult(request):
-    return render(request, 'calendars/pre_result_test.html')
+    return render(request, 'calendars/pre_results.html')
 
 
 # 計算月工時(可以輸入查找時間)
@@ -81,7 +81,7 @@ def show_pre_result(request):
     start, end = date_range(0, 2)
     lang = request.LANGUAGE_CODE
     context = {'LANG': lang, 'start': start, 'end': end}
-    return render(request, 'calendars/pre_results.html', context)
+    return render(request, 'calendars/pre_result_test.html', context)
 
 
 # 歷史班表

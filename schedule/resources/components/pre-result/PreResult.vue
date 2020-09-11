@@ -9,18 +9,18 @@
 
       <div class="bt-group">
         <div class="add-sub-wrapper" @click="changeMonth($event)">
-          <div id="prev">
+          <div id="prev" data-tooltip="tooltip" title="上個月">
             <svg class="icon-color left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" /> </svg>
           </div>
-          <div class="icon-bts" id="current">
+          <div class="icon-bts" id="current" data-tooltip="tooltip" title="回到當月">
             <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M20 19h-4v-4h4v4zm-6-10h-4v4h4v-4zm6 0h-4v4h4v-4zm-12 6h-4v4h4v-4zm16-14v22h-24v-22h24zm-2 6h-20v14h20v-14zm-8 8h-4v4h4v-4zm-6-6h-4v4h4v-4z" /> </svg>
           </div>
-          <div id="next">
+          <div id="next" data-tooltip="tooltip" title="下個月">
             <svg class="icon-color right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M7.33 24l-2.83-2.829 9.339-9.175-9.339-9.167 2.83-2.829 12.17 11.996z" /> </svg>
           </div>
         </div>
         <div id="btn-manage">
-          <div class="icon-bts follow-btn" v-if="isEdit">
+          <div class="icon-bts follow-btn" v-if="isEdit" data-tooltip="tooltip" title="跟班">
             <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M.002 20h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619zm20.498-7c-1.932 0-3.5 1.567-3.5 3.5s1.568 3.5 3.5 3.5 3.5-1.567 3.5-3.5-1.568-3.5-3.5-3.5zm1.5 4h-1v1h-1v-1h-1v-1h1v-1h1v1h1v1zm-4.814 3h-9.183l-.003-.829c0-1.679.133-2.649 2.118-3.107 2.243-.518 4.458-.981 3.394-2.945-3.156-5.82-.901-9.119 2.488-9.119 4.06 0 4.857 4.119 3.085 7.903-1.972.609-3.419 2.428-3.419 4.597 0 1.38.589 2.619 1.52 3.5z" /> </svg>
           </div>
           <div class="mark-group icon-bts" v-if="isEdit">
@@ -31,17 +31,21 @@
               <div class="marks rs3"></div>
             </div>
           </div>
-          <div class="icon-bts" v-if="isEdit">
+          <div class="icon-bts" v-if="isEdit" data-tooltip="tooltip" title="重算">
             <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.408 23h-15.408v-22h22v9.683c-.622-.296-1.293-.502-2-.603v-3.08h-18v14h11.26c.566.81 1.3 1.49 2.148 2zm2.257-8.669c.402-.206.852-.331 1.335-.331 1.455 0 2.67 1.042 2.941 2.418l1.96-.398c-.456-2.291-2.475-4.02-4.901-4.02-.957 0-1.845.278-2.604.745l-1.396-1.745-1 5h5l-1.335-1.669zm5.335 8.669l-1.396-1.745c-.759.467-1.647.745-2.604.745-2.426 0-4.445-1.729-4.901-4.02l1.96-.398c.271 1.376 1.486 2.418 2.941 2.418.483 0 .933-.125 1.335-.331l-1.335-1.669h5l-1 5z" /></svg>
           </div>
-          <div class="icon-bts save-btn" v-if="isEdit" @click="isEdit = false">
-            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z" /> </svg> </div>
-          <div class="icon-bts edit-btn" v-if="!isEdit" @click="isEdit = true">
-            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M5 21h-5v-2h5v2zm3.424-5.718l4.402 4.399-5.826 1.319 1.424-5.718zm15.576-6.748l-9.689 9.804-4.536-4.536 9.689-9.802 4.536 4.534z" /> </svg> </div>
-          <div class="icon-bts check-btn">
-            <svg class="icon-color" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" > <path d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z" /> </svg> </div>
-          <div class="icon-bts announce-btn">
-            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z" /> </svg> </div>
+          <div class="icon-bts save-btn" v-if="isEdit" @click="isEdit = false" data-tooltip="tooltip" title="儲存">
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M15.003 3h2.997v5h-2.997v-5zm8.997 1v20h-24v-24h20l4 4zm-19 5h14v-7h-14v7zm16 4h-18v9h18v-9z" /> </svg>
+          </div>
+          <div class="icon-bts edit-btn" v-if="!isEdit" @click="isEdit = true" data-tooltip="tooltip" title="編輯">
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M5 21h-5v-2h5v2zm3.424-5.718l4.402 4.399-5.826 1.319 1.424-5.718zm15.576-6.748l-9.689 9.804-4.536-4.536 9.689-9.802 4.536 4.534z" /> </svg>
+          </div>
+          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核">
+            <svg class="icon-color" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" > <path d="M9 21h-9v-2h9v2zm6.695-2.88l-3.314-3.13-1.381 1.47 4.699 4.54 8.301-8.441-1.384-1.439-6.921 7zm-6.695-1.144h-9v-2h9v2zm8-3.976h-17v-2h17v2zm7-4h-24v-2h24v2zm0-4h-24v-2h24v2z" /> </svg>
+          </div>
+          <div class="icon-bts announce-btn" data-tooltip="tooltip" title="發佈">
+            <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" > <path d="M2.655 15.423c-.835.892-1.542 1.158-2.655.86l2.647 4.585c.257-1.094.815-1.708 2.005-1.985l15.348-3.732-6.335-10.972-11.01 11.244zm11.32 2.707l-.467 2.118c-.094.378-.391.674-.769.771l-2.952.774c-.365.095-.753-.012-1.018-.28l-1.574-1.712 1.605-.395.646.77c.176.177.432.248.674.186l1.598-.425c.252-.064.449-.261.511-.512l.162-.906 1.584-.389zm8.719-11.267l-2.684 1.613-.756-1.262 2.686-1.612.754 1.261zm-4.396-1.161l-1.335-.616 1.342-2.914 1.335.617-1.342 2.913zm5.619 6.157l-3.202-.174.081-1.469 3.204.175-.083 1.468z" /> </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -57,9 +61,10 @@
         <pre-result-table-head
           :year="year"
           :month="month"
+          :getDays="getDays"
         ></pre-result-table-head>
         <tbody style="overflow: scroll">
-          <tr class="grid-width" v-for="(u, id) in userData" :key="id">
+          <tr v-for="(u, id) in userData" :key="id">
             <td class="white-background">{{ u.eid }}</td>
             <td class="white-background">N{{ u.level == 5 ? 'n' : u.level }}</td>
             <td class="white-background">
@@ -68,24 +73,15 @@
                 {{ u.full_name }}
               </div>
             </td>
-            <td class="gray-background">{{ lastMonthData[u.id] }}</td>
-            <td
+            <td class="gray-background grid-width">{{ lastMonthData[u.id] }}</td>
+            <user-shift-cell
               v-for="(dd, d3) in getDays"
               :key="`3${d3}`"
-              class="grid-width white-background"
-              :class="isPast(dd)"
-              @click="editShift($event, getUserShift(u.id, dd))"
-            >
-              <div v-if="!isReady">-</div>
-              <div
-                v-if="getUserShift(u.id, dd)"
-                :class="shiftColor(getUserShift(u.id, dd).shift_type)"
-              >{{ getUserShift(u.id, dd).shift_type }}</div>
-              <div
-                v-if="isAdjust(u.id, dd)"
-                :class="isAdjust(u.id, dd)[0] == '+' ? 'addWork' : 'subWork'"
-              >{{ isAdjust(u.id, dd) }}</div>
-            </td>
+              :isReady="isReady"
+              :isPast="isPast(dd)"
+              :shiftInfo="getUserShift(u.id, dd)"
+              :adjustmentStr="getAdjustmentString(u.id, dd)"
+            ></user-shift-cell>
             <td class="gray-background">
               <input
                 class="remark-grid"
@@ -118,84 +114,44 @@
             <td></td>
             <td colspan="12">標誌說明</td>
           </tr>
-          <tr class="white-background">
-            <td colspan="4">白班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(ds, d5) in getDays" :key="`5${d5}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.D[0] > item.D[1] ? 'lack' : 'enough'">{{ item.D[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs1"></div>
-              <input
-                type="text"
-                id="1remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(1)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(1) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
-          <tr class="white-background">
-            <td colspan="4">小夜班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(dn, d6) in getDays" :key="`6${d6}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.E[0] > item.E[1] ? 'lack' : 'enough'">{{ item.E[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs2"></div>
-              <input
-                type="text"
-                id="2remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(2)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(2) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
-          <tr class="white-background">
-            <td colspan="4">大夜班</td>
-            <td v-show="!isReady" class="grid-width" v-for="(ds, d7) in getDays" :key="`7${d7}`">0</td>
-            <td v-show="isReady" class="grid-width" v-for="(item, i) in getDemand" :key="i">
-              <div :class="item.N[0] > item.N[1] ? 'lack' : 'enough'">{{ item.N[1] }}</div>
-            </td>
-            <td class="gray-background"></td>
-            <td colspan="12">
-              <div class="mark rs3"></div>
-              <input
-                type="text"
-                id="3remarkSquare"
-                class="mark-explanation"
-                v-if="isEdit"
-                :value="getRemarkSquare(3)"
-                @blur="getRemarkS($event)"
-                @keyup.13="$event.target.blur"
-              />
-              <div
-                style="float: left;"
-                v-if="!isEdit && (remarkSquareData.length != 0)"
-              >{{ getRemarkSquare(3) }}</div>
-              <div style="float: left;" v-if="!isEdit && (remarkSquareData.length == 0)">請填寫標誌說明</div>
-            </td>
-          </tr>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="白班"
+            shiftKey="D"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs1"
+            :remarkContent="getRemarkSquare(1)"
+          ></shift-statistics>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="小夜班"
+            shiftKey="E"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs2"
+            :remarkContent="getRemarkSquare(2)"
+          ></shift-statistics>
+          <shift-statistics
+            :isReady="isReady"
+            :isEdit="isEdit"
+            shiftName="大夜班"
+            shiftKey="N"
+            :getDays="getDays"
+            :getDemand="getDemand"
+            rs="rs3"
+            :remarkContent="getRemarkSquare(3)"
+          ></shift-statistics>
         </tbody>
       </table>
     </div>
+    <change-shift-modal
+      :changeShift="changeInfo"
+      :shiftData="shiftData"
+      :stationPicker="stationPicker"
+    ></change-shift-modal>
   </div>
 </template>
 <script>
@@ -203,12 +159,18 @@ import moment from 'moment';
 import 'moment/locale/zh-tw';
 import Loading from "./Loading.vue";
 import PreResultTableHead from './PreResultTableHead.vue';
+import UserShiftCell from './UserShiftCell.vue';
+import ShiftStatistics from './ShiftStatistics.vue';
+import ChangeShiftModal from './ChangeShiftModal.vue';
 
 moment.locale('zh-tw');
 export default {
   components: {
     Loading,
     PreResultTableHead,
+    UserShiftCell,
+    ShiftStatistics,
+    ChangeShiftModal,
   },
 
   data() {
@@ -234,6 +196,8 @@ export default {
       rsShow: false,
       rsClass: "",
       stationData: [],
+      shiftOfCurrentMonth: {},
+      changedResult: [],
     };
   },
 
@@ -253,24 +217,13 @@ export default {
   computed: {
     //計算該年該月的天數
     getDays() {
-      let tmp = this.year % 4;
-      let month_leap = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //閏年天數
-      let month_normal = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //非閏年天數
-
-      if (tmp == 0) {
-        return month_leap[this.month];
-      } else {
-        return month_normal[this.month];
-      }
+      return moment([this.year, this.month-1, 1]).daysInMonth();
     },
 
     //取得當日人力配置的資料
     getDemand() {
       let real = this.demandData.filter((i) => {
-        return (
-          i.date.split("-")[0] == this.year &&
-          i.date.split("-")[1] == this.month
-        );
+        return moment([this.year, this.month-1, this.date]).isSame(moment(i.date), 'month');
       });
 
       return real;
@@ -278,22 +231,8 @@ export default {
 
     stationPicker() {
       return this.stationData.filter(i => {
-        return i.name.indexOf('假') === -1 && i.name.indexOf('行政') === -1
+        return i.name.indexOf('假') === -1
       });
-    },
-
-    shiftOfCurrentMonth() {
-      let processedShifts = {}; // index by user id
-      this.preResultData.forEach(d => {
-        if (moment(d.date).month()+1 === this.month) {
-          if (!processedShifts[d.user]) {
-            processedShifts[d.user] = {};
-          }
-          let date = moment(d.date).date();
-          processedShifts[d.user][date] = d;
-        }
-      })
-      return processedShifts;
     },
   },
 
@@ -340,12 +279,23 @@ export default {
           this.preResultData = data;
           //處理懶加載畫面的變數設置
           if (this.preResultData.length != 0) {
+            let processedShifts = {}; // index by user id
+            this.preResultData.forEach(i => {
+              if (moment(i.date).month()+1 === this.month) {
+                if (!processedShifts[i.user]) {
+                  processedShifts[i.user] = {};
+                }
+                let date = moment(i.date).date();
+
+                //紀錄檢核後有問題的班別是否修改的變數設置
+                i.isModified = false;
+                processedShifts[i.user][date] = i;
+              }
+            });
+            this.shiftOfCurrentMonth = processedShifts;
+
             this.isReady = true;
           }
-          //紀錄檢核後有問題的班別是否修改的變數設置
-          this.preResultData.forEach((i) => {
-            i.isModified = false;
-          });
         })
         .catch((err) => {
           console.log(err);
@@ -525,42 +475,10 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month, d]).isBefore(moment(), 'date')) {
+      if (!this.isEdit || moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
         return 'gray-background';
       } else {
         return 'couldEdit';
-      }
-    },
-
-    //判斷該班別的樣式
-    shiftColor(type) {
-      switch (type) {
-        case "A":
-          return "dayShift";
-        case "E":
-          return "nightShift";
-        case "N":
-          return "graveyardShift";
-        case "公":
-          return "rest";
-        case "例":
-          return "rest";
-        case "休":
-          return "rest";
-        case "國":
-          return "rest";
-        case "On":
-          return "onCall";
-        case "B":
-          return "adminis";
-        case "補":
-          return "restR";
-        case "特":
-          return "restR";
-        case "事":
-          return "restR";
-        default:
-          return '';
       }
     },
 
@@ -583,8 +501,8 @@ export default {
     },
 
     //取得該user當天是否有加減班的資料
-    isAdjust(userId, d) {
-      let date = moment([this.year, this.month, d]);
+    getAdjustmentString(userId, d) {
+      let date = moment([this.year, this.month-1, d]);
       let adjustment = this.adjustHr.find((item) => {
         return item.user == userId && date.isSame(moment(item.date), 'date');
       });
@@ -775,7 +693,7 @@ export default {
     },
 
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
-    getRemarkS(ev) {
+    setRemarkContent(ev) {
       let data = {};
 
       data.id = ev.target.id[0];
@@ -786,59 +704,70 @@ export default {
 
     editShift(ev, info) {
       //加標誌到各筆班別資料
-      if (this.rsShow == true && this.rsClass != "") {
-        if (ev.target.parentNode.classList[2] == "couldEdit") {
-          let data = {};
-          data.result = info.id;
-          let classListStr = JSON.stringify(ev.target.parentNode.classList);
-          ev.target.parentNode.classList.add(this.rsClass);
+      if (this.rsShow == true && this.rsClass != "" && ev.target.parentNode.classList[2] == "couldEdit") {
+        let data = {};
+        data.result = info.id;
+        let classListStr = JSON.stringify(ev.target.parentNode.classList);
+        ev.target.parentNode.classList.add(this.rsClass);
 
-          if (classListStr.indexOf("rs1") != -1) {
-            ev.target.parentNode.classList.remove("rs1");
-          } else if (classListStr.indexOf("rs2") != -1) {
-            ev.target.parentNode.classList.remove("rs2");
-          } else if (classListStr.indexOf("rs3") != -1) {
-            ev.target.parentNode.classList.remove("rs3");
-          }
-
-          switch (this.rsClass) {
-            case "rs1":
-              data.content = 1;
-              break;
-            case "rs2":
-              data.content = 2;
-              break;
-            case "rs3":
-              data.content = 3;
-              break;
-          }
-          let exist = this.resultRS.find((i) => {
-            return i.result == info.id;
-          });
-          //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
-          if (!exist) {
-            this.resultRS.push(data);
-          } else {
-            this.resultRS.forEach((i) => {
-              if (i.result == info.id) {
-                i.content = data.content;
-              }
-            });
-          }
-
-          this.whichBorder(info);
+        if (classListStr.indexOf("rs1") != -1) {
+          ev.target.parentNode.classList.remove("rs1");
+        } else if (classListStr.indexOf("rs2") != -1) {
+          ev.target.parentNode.classList.remove("rs2");
+        } else if (classListStr.indexOf("rs3") != -1) {
+          ev.target.parentNode.classList.remove("rs3");
         }
+
+        switch (this.rsClass) {
+          case "rs1":
+            data.content = 1;
+            break;
+          case "rs2":
+            data.content = 2;
+            break;
+          case "rs3":
+            data.content = 3;
+            break;
+        }
+        let exist = this.resultRS.find((i) => {
+          return i.result == info.id;
+        });
+        //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
+        if (!exist) {
+          this.resultRS.push(data);
+        } else {
+          this.resultRS.forEach((i) => {
+            if (i.result == info.id) {
+              i.content = data.content;
+            }
+          });
+        }
+
+        this.whichBorder(info);
       }
-      if (
-        this.isEdit == true &&
-        ev.target.parentNode.classList[2] == "couldEdit"
-      ) {
-        this.singleEdit = true;
+
+      if (this.isEdit == true && ($(ev.target).hasClass('couldEdit') || $(ev.target).parent().hasClass('couldEdit'))) {
+        $('#changeShiftModal').modal('show');
         if (info != undefined) {
           this.changeInfo = info;
         }
       } else {
-        this.singleEdit = false;
+        $('#changeShiftModal').modal('hide');
+      }
+    },
+
+    editResult(changeShiftInfo) {
+      $('#changeShiftModal').modal('hide');
+      if (changeShiftInfo) {
+        this.changedResult.push({
+          id: changeShiftInfo.id,
+          date: changeShiftInfo.date,
+          user: changeShiftInfo.user,
+          shift: changeShiftInfo.shift,
+          station: changeShiftInfo.station ? changeShiftInfo.station : null,
+        });
+        let d = moment(changeShiftInfo.date).date();
+        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
       }
     },
 
@@ -989,8 +918,10 @@ export default {
     .master-scedule-table {
       text-align: center;
 
-      ::v-deep .grid-width, .grid-width {
+      .grid-width {
         width: 45px;
+        white-space: nowrap;
+        overflow-x: clip;
       }
 
       .couldEdit {
@@ -999,7 +930,7 @@ export default {
         }
       }
 
-      ::v-deep .gray-background, .gray-background {
+      .gray-background {
         background: #f2f2f2 !important;
       }
 
@@ -1030,44 +961,7 @@ export default {
         border: 1px solid #84b1ed;
       }
 
-      .dayShift {
-        color: #ebc57c;
-      }
-
-      .nightShift {
-        color: #84b1ed;
-      }
-
-      .graveyardShift {
-        color: #6b799e;
-      }
-
-      .rest {
-        color: #c2c2c2;
-      }
-
-      .restR {
-        background: #adaaaa;
-        color: black;
-      }
-
-      .onCall {
-        color: #9c8f96;
-      }
-
-      .adminis {
-        color: #58b4ae;
-      }
-
-      .addWork {
-        color: #eb8f90;
-      }
-
-      .subWork {
-        color: #3d313f;
-      }
-
-      ::v-deep .remark, .remark {
+      .remark {
         width: 5rem;
         text-align: center;
       }
@@ -1077,16 +971,6 @@ export default {
         background: #f2f2f2;
         border: none;
         text-align: center;
-      }
-
-      .enough {
-        color: red;
-      }
-
-      .lack {
-        color: white;
-        background: red;
-        width: 100%;
       }
 
       .mark {

@@ -149,30 +149,17 @@ CORS_ALLOW_HEADERS = (
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
-if os.environ.get('APP_ENV') == "local":
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'DB_TEST',
-            'USER': 'circlepen',
-            'PASSWORD': 'redfalcon',
-            'HOST': 'mysqlDB',
-            'PORT': '3306',
-            'OPTIONS': {'charset': 'utf8mb4'},
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'DB',
+        'USER': 'circlepen',
+        'PASSWORD': 'redfalcon',
+        'HOST': 'mysqlDB',
+        'PORT': '3306',
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'DB',
-            'USER': 'circlepen',
-            'PASSWORD': 'redfalcon',
-            'HOST': 'mysqlDB',
-            'PORT': '3306',
-            'OPTIONS': {'charset': 'utf8mb4'},
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
