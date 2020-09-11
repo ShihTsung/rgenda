@@ -115,7 +115,7 @@ export default {
         .then(function (response) {
           let data = response.data;
           if (data.length > 0) {
-            let filterTypes = [0, 1, 2, 4];
+            let filterTypes = [0, 1, 2, 4, 7];
             self.shifts = data.filter(function (item) {
               return filterTypes.includes(item.shift_type);
             });
