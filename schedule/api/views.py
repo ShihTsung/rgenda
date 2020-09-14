@@ -1459,50 +1459,69 @@ def suggest_user_num(request, date_str):
     configs = request.data
     department = request.user.department
 
+    print(configs)
+
     output = [{
         'type_of_user': 'senior',
-        'suggest_num': max(configs['level1']['config1'], configs['level1']['config2']),
+        'suggest_num': max(configs['level2']['config1'], configs['level2']['config2']),
     }, {
         'type_of_user': 'total',
-        'suggest_num': max(configs['level2']['config1'], configs['level2']['config2']),
+        'suggest_num': max(configs['level1']['config1'] + configs['level2']['config1'],
+                           configs['level1']['config2'] + configs['level2']['config2'],),
     }]
 
-    ca = cycle_analysis(department, date_0)
-    cycle_no = ca['cycle_no']
-    cycle0 = get_cycle(department, cycle_no)
-    cycle = cycle0
-    cycle_list = [cycle]
-    while cycle[-1] < date_1:
-        cycle_no += 1
-        cycle = get_cycle(department, cycle_no)
-        cycle_list.append(cycle)
+    # ca = cycle_analysis(department, date_0)
+    # cycle_no = ca['cycle_no']
+    # cycle0 = get_cycle(department, cycle_no)
+    # cycle = cycle0
+    # cycle_list = [cycle]
+    # while cycle[-1] < date_1:
+    #     cycle_no += 1
+    #     cycle = get_cycle(department, cycle_no)
+    #     cycle_list.append(cycle)
+    #
+    # for c in cycle_list:
+    #     demand_s, demand_t = 0, 0
+    #     attrs = attr_list(department.id, c[0], c[-1])
+    #     reds = red_dict(c[0], c[-1])
+    #     z_num = len(c) / 7
+    #     r_num = list(reds.values()).count(True) - z_num
+    #     d_num = 0
+    #     for i, d in enumerate(c):
+    #         if date_0 <= d <= date_1:
+    #             d_num += 1
+    #             if attrs[i] == '1':
+    #                 demand_s += configs['level2']['config1']
+    #                 demand_t += configs['level1']['config1'] + \
+    #                     configs['level2']['config1']
+    #             elif attrs[i] == '2':
+    #                 demand_s += configs['level1']['config2']
+    #                 demand_t += configs['level2']['config2'] + \
+    #                     configs['level1']['config2']
+    #     z_num = ceil(d_num / 7)
+    #     r_num = floor(r_num * d_num / len(c))
+    #     workday_num = d_num - z_num - r_num
+    #
+    #     output[0]['suggest_num'] = max(
+    #         output[0]['suggest_num'], ceil(demand_s / workday_num))
+    #     output[1]['suggest_num'] = max(
+    #         output[1]['suggest_num'], ceil(demand_t / workday_num))
 
-    for c in cycle_list:
-        demand_s, demand_t = 0, 0
-        attrs = attr_list(department.id, c[0], c[-1])
-        reds = red_dict(c[0], c[-1])
-        z_num = len(c) / 7
-        r_num = list(reds.values()).count(True) - z_num
-        d_num = 0
-        for i, d in enumerate(c):
-            if date_0 <= d <= date_1:
-                d_num += 1
-                if attrs[i] == '1':
-                    demand_s += configs['level2']['config1']
-                    demand_t += configs['level1']['config1'] + \
-                        configs['level2']['config1']
-                elif attrs[i] == '2':
-                    demand_s += configs['level1']['config2']
-                    demand_t += configs['level2']['config2'] + \
-                        configs['level1']['config2']
-        z_num = ceil(d_num / 7)
-        r_num = floor(r_num * d_num / len(c))
-        workday_num = d_num - z_num - r_num
+    reds = red_dict(date_0, date_1)
+    workday_num = list(reds.values()).count(0)
 
-        output[0]['suggest_num'] = max(
-            output[0]['suggest_num'], ceil(demand_s / workday_num))
-        output[1]['suggest_num'] = max(
-            output[1]['suggest_num'], ceil(demand_t / workday_num))
+    attrs = attr_list(department.id, date_0, date_1)
+    demand_s, demand_t = 0, 0
+    for a in attrs:
+        if a == '1':
+            demand_s += configs['level2']['config1']
+            demand_t += configs['level1']['config1'] + configs['level2']['config1']
+        elif a == '2':
+            demand_s += configs['level1']['config2']
+            demand_t += configs['level1']['config2'] + configs['level2']['config2']
+
+    output[0]['suggest_num'] = max(output[0]['suggest_num'], round(demand_s / workday_num))
+    output[1]['suggest_num'] = max(output[1]['suggest_num'], round(demand_t / workday_num))
 
     return Response(output)
 
