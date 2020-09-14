@@ -1517,7 +1517,7 @@ def suggest_user_num(request, date_str):
             demand_s += configs['level2']['config1']
             demand_t += configs['level1']['config1'] + configs['level2']['config1']
         elif a == '2':
-            demand_s += configs['level1']['config2']
+            demand_s += configs['level2']['config2']
             demand_t += configs['level1']['config2'] + configs['level2']['config2']
 
     output[0]['suggest_num'] = max(output[0]['suggest_num'], round(demand_s / workday_num))
