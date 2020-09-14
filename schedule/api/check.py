@@ -123,7 +123,10 @@ def check_cycle(department, results, invalid):
             counter = shift_types.count(st)
             current_shift_type = st
     invalid_type = [0, 1, 2, 7]
-    invalid_type.remove(current_shift_type)
+    try:
+        invalid_type.remove(current_shift_type)
+    except ValueError:
+        print(current_shift_type)
     for result in results:
         if result.shift.shift_type in invalid_type:
             if department.schedule_rule == 2:
