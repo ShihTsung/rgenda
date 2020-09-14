@@ -46,7 +46,12 @@
           </div>
         </div>
         <div id="btn-manage">
-          <div class="icon-bts follow-btn" v-if="isEdit" data-tooltip="tooltip" title="跟班">
+          <div
+          class="icon-bts follow-btn"
+          v-if="isEdit"
+          data-tooltip="tooltip"
+          title="跟班"
+          @click="followShiftEdit()">
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"

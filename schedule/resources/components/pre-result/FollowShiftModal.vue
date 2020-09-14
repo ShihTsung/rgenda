@@ -31,25 +31,25 @@
           <div class="container-fluid text-left">
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">跟班</label>
-              <select class="category-option" v-model="follower">
+              <select class="col-sm-6 form-control" v-model="follower">
                 <option selected disabled="disabled" style="display: none" value></option>
                 <option v-for="f in findFollowers()" :key="f.eid" :value="f.id">{{f.full_name}}</option>
               </select>
             </div>
-            <div class="editCategory">
-              <h4 class="category-title">帶班</h4>
-              <select class="category-option" v-model="mentor">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label offset-1">帶班</label>
+              <select class="col-sm-6 form-control" v-model="mentor">
                 <option selected disabled="disabled" style="display: none" value></option>
                 <option v-for="t in findMentors()" :key="t.full_name" :value="t.id">{{t.full_name}}</option>
               </select>
             </div>
-            <div class="editCategory">
-              <h4 class="category-title">起始日期</h4>
-              <input class="category-date" type="date" v-model="startDate" />
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label offset-1">起始日期</label>
+              <input class="col-sm-6 form-control" type="date" v-model="startDate" />
             </div>
-            <div class="editCategory">
-              <h4 class="category-title">結束日期</h4>
-              <input class="category-date" type="date" v-model="endDate" />
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label offset-1">結束日期</label>
+              <input class="col-sm-6 form-control" type="date" v-model="endDate" />
             </div>
             <div class="row">
               <div class="col mb-2 text-center">

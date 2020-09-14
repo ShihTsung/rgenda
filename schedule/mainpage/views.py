@@ -32,17 +32,10 @@ def manager_mainpage_data(request):
     start = datetime.date(today.year, today.month, 1)
     day = monthrange(today.year, today.month)[1]
     end = datetime.date(today.year, today.month, day)
-    days = H_Calendar.objects.filter(
-        date__range=[start, end]
-    )
     legal_workhours = 0
-    for d in days:
-        if not d.red_day:
-            legal_workhours += 8
-    users = CustomUser.objects.prefetch_related(
-        'department').filter(
-            department=department,
-            can_be_scheduled=True
+    users = CustomUser.objects.filter(
+        department=department,
+        can_be_scheduled=True
     )
     user_set = set()
     res = {
@@ -50,19 +43,17 @@ def manager_mainpage_data(request):
         'start': start,
         'end': end
     }
-    results = Result.objects.prefetch_related(
+    results = Result.objects.filter(
+        user__in=users,
+        date__range=[start, end]
+    ).prefetch_related(
         'user'
     ).prefetch_related(
         'shift'
     ).prefetch_related(
         'station'
-    ).filter(
-        user__in=users,
-        date__range=[start, end]
     )
-    adjustments = TimeAdjustment.objects.prefetch_related(
-        'user'
-    ).filter(
+    adjustments = TimeAdjustment.objects.filter(
         user__in=users,
         date__range=[start, end]
     )
@@ -71,10 +62,14 @@ def manager_mainpage_data(request):
 
     workhours_til_today = 0
     official_rest_til_today = 0
+
     for result in results:
         if result.user not in user_set:
-            user_set.add(result.user.full_name)
+            user_set.add(result.user)
         total_workhours += result.shift.work_hours
+
+        if result.shift.shift_type in [0, 1, 2, 3, 7]:
+            legal_workhours += 8
 
         if result.date <= today:
             workhours_til_today += result.shift.work_hours
@@ -111,7 +106,7 @@ def manager_mainpage_data(request):
     oncall_num = adj_nums[4]/user_len
     diff = (total_workhours +
             sum(adj_nums[:3]) - adj_nums[5] +
-            adj_nums[4])/user_len-legal_workhours
+            adj_nums[4] - legal_workhours) / user_len
 
     users_nums = [0, 0, 0, 0, 0, 0]
     for user in users:
