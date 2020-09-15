@@ -1177,7 +1177,7 @@
           if(check) {
             fetch('/api/user-remarks/' + check.id + '/',{
               headers:{
-                  'X-CSRFToken': '{{ csrf_token }}',
+                  'X-CSRFToken': csrf_token,
                   'content-type': 'application/json'
               },
               body: JSON.stringify(i),

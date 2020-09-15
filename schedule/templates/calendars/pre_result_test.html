@@ -5,7 +5,7 @@
 {% block content %}
 
 <div id="app">
-  <pre-result></pre-result>
+  <pre-result csrf-token="{{ csrf_token }}"></pre-result>
 </div>
 
 <script src="{% static 'assets/pre-result.bundle.js' %}"></script>

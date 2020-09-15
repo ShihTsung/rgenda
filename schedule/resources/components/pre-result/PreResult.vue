@@ -48,7 +48,7 @@
         <div id="btn-manage">
           <div
           class="icon-bts follow-btn"
-          v-if="isEdit"
+          v-show="isEdit"
           data-tooltip="tooltip"
           title="跟班"
           @click="followShiftEdit()"
@@ -65,7 +65,7 @@
               />
             </svg>
           </div>
-          <div class="mark-group icon-bts" v-if="isEdit">
+          <div class="mark-group icon-bts" v-show="isEdit">
             <div class="mark-title">加標誌</div>
             <div class="mark-content" @click="getRS($event)">
               <div class="marks rs1"></div>
@@ -73,7 +73,7 @@
               <div class="marks rs3"></div>
             </div>
           </div>
-          <div class="icon-bts" v-if="isEdit" data-tooltip="tooltip" title="重算">
+          <div class="icon-bts" v-show="isEdit" data-tooltip="tooltip" title="重算">
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -88,8 +88,8 @@
           </div>
           <div
             class="icon-bts save-btn"
-            v-if="isEdit"
-            @click="isEdit = false"
+            v-show="isEdit"
+            @click="sendToResults()"
             data-tooltip="tooltip"
             title="儲存"
           >
@@ -107,7 +107,7 @@
           </div>
           <div
             class="icon-bts edit-btn"
-            v-if="!isEdit"
+            v-show="!isEdit"
             @click="isEdit = true"
             data-tooltip="tooltip"
             title="編輯"
@@ -180,6 +180,7 @@
               :key="`3${d3}`"
               :isReady="isReady"
               :isPast="isPast(dd)"
+              :whichBorder="whichBorder(getUserShift(u.id, dd))"
               :shiftInfo="getUserShift(u.id, dd)"
               :adjustmentStr="getAdjustmentString(u.id, dd)"
             ></user-shift-cell>
@@ -252,6 +253,7 @@
       :changeShift="changeInfo"
       :shiftData="shiftData"
       :stationPicker="stationPicker"
+      v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
     <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
@@ -276,6 +278,13 @@ export default {
     ShiftStatistics,
     ChangeShiftModal,
     FollowShiftModal,
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      default: '',
+    },
   },
 
   data() {
@@ -304,6 +313,7 @@ export default {
       stationData: [],
       shiftOfCurrentMonth: {},
       changedResult: [],
+      rs:'',
     };
   },
 
@@ -402,7 +412,6 @@ export default {
               }
             });
             this.shiftOfCurrentMonth = processedShifts;
-
             this.isReady = true;
           }
         })
@@ -579,11 +588,13 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month - 1, d]).isBefore(moment(), "date")) {
-        return "gray-background";
+      if (moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
+        return 'gray-background';
       } else {
-        return "couldEdit";
-      }
+        if(this.isEdit) {
+          return 'couldEdit';
+        };
+      };
     },
 
     //判斷該職級的樣式
@@ -634,11 +645,11 @@ export default {
 
     //將儲存之後要送往user-remarks api的資料先暫存在remark的陣列中
     getRemark(ev, id) {
-      let data = {};
-
-      data.content = ev.target.value.toString();
-      data.user = id;
-      data.month = this.month;
+      let data = {
+        content: ev.target.value.toString(),
+        user: id,
+        month: this.month,
+      };
 
       this.remarks.push(data);
     },
@@ -779,10 +790,7 @@ export default {
     //取得標誌按鈕的樣式
     getRS(ev) {
       this.rsShow = true;
-
       this.rsClass = ev.target.className.split(" ")[1];
-
-      console.log(this.rsClass);
     },
 
     //取得各個標誌的內容
@@ -799,13 +807,14 @@ export default {
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
     setRemarkContent(ev) {
       let data = {};
-
-      data.id = ev.target.id[0];
+      let id = ev.target.parentNode.childNodes[0].classList[1];
+      data.id = id[2];
       data.content = ev.target.value.toString();
 
       this.remarkS.push(data);
     },
 
+    //編輯個人當天的班別
     editShift(ev, info) {
       //加標誌到各筆班別資料
       if (this.rsShow == true && this.rsClass != "" && ev.target.parentNode.classList[2] == "couldEdit") {
@@ -814,12 +823,55 @@ export default {
         let classListStr = JSON.stringify(ev.target.parentNode.classList);
         ev.target.parentNode.classList.add(this.rsClass);
 
+        let check = this.preResultRemarkData.find((item)=>{
+          return data.result == item.result;
+        });
+
         if (classListStr.indexOf("rs1") != -1) {
           ev.target.parentNode.classList.remove("rs1");
+          fetch(`/api/preresult-remarks/${check.id}/`, {
+            headers:{
+                'X-CSRFToken': `${this.csrfToken}`,
+                'content-type': 'application/json'
+            },
+            method: 'DELETE',
+          })
+          .then((res) => {
+            return res.json();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         } else if (classListStr.indexOf("rs2") != -1) {
           ev.target.parentNode.classList.remove("rs2");
+          fetch(`/api/preresult-remarks/${check.id}/`, {
+            headers:{
+                'X-CSRFToken': `${this.csrfToken}`,
+                'content-type': 'application/json'
+            },
+            method: 'DELETE',
+          })
+          .then((res) => {
+            return res.json();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         } else if (classListStr.indexOf("rs3") != -1) {
           ev.target.parentNode.classList.remove("rs3");
+          fetch(`/api/preresult-remarks/${check.id}/`, {
+            headers:{
+                'X-CSRFToken': `${this.csrfToken}`,
+                'content-type': 'application/json'
+            },
+            method: 'DELETE',
+          })
+          .then((res) => {
+            return res.json();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         }
 
         switch (this.rsClass) {
@@ -836,6 +888,7 @@ export default {
         let exist = this.resultRS.find((i) => {
           return i.result == info.id;
         });
+
         //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
         if (!exist) {
           this.resultRS.push(data);
@@ -860,6 +913,7 @@ export default {
       }
     },
 
+    //送出編輯班別的結果到待傳到api的資料
     editResult(changeShiftInfo) {
       $('#changeShiftModal').modal('hide');
       if (changeShiftInfo) {
@@ -871,7 +925,10 @@ export default {
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
         });
         let d = moment(changeShiftInfo.date).date();
-        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user][d], changeShiftInfo);
+        if (!this.shiftOfCurrentMonth[changeShiftInfo.user]){
+          this.$set(this.shiftOfCurrentMonth, changeShiftInfo.user, {});
+        }
+        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
       }
     },
 
@@ -914,21 +971,29 @@ export default {
 
     // 送出跟班 api
     sendFollowShift(followInfo) {
-      let results = this.preResultData.filter(r=> r.user==followInfo.mentor);
-      results.forEach(e=>{
-        if (e.user.id == followInfo.mentor){
+
+      $("#followShiftModal").modal("hide");
+      let results = this.shiftOfCurrentMonth[followInfo.mentor]
+
+      Object.keys(results).forEach(key=>{
+        console.log(results[key])
+        let e = results[key]
+        if (e.user == followInfo.mentor){
+
           let obj = {
             user: followInfo.follower,
             shift: e.shift,
             station: e.station,
             date: e.date
           }
-          this.preResultData.push(obj)
+          this.changedResult.push(obj)
           let d = moment(e.date).date();
-          this.$set(this.shiftOfCurrentMonth[followInfo.follower][d], obj);
+          if(!this.shiftOfCurrentMonth[followInfo.follower]){
+            this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
+          }
+          this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
         }
       });
-
 
       // let url = '/api/follow-shift?start=' + followInfo.startDate +
       // '&end=' + followInfo.endDate + '&follower=' + followInfo.follower.toString() +
@@ -944,6 +1009,157 @@ export default {
       //   });
     },
 
+    sendToResults() {
+        this.followEdit = false;
+        this.rsShow = false;
+
+        this.changedResult.forEach((i)=>{
+          let data = {
+            user: i.user,
+            shift: i.shift.id,
+            date: i.date,
+            station: i.station ? i.station.id : null,
+          };
+
+          fetch(`/api/preresults/${i.id}/`, {
+            headers:{
+                'X-CSRFToken': `${this.csrfToken}`,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            method: 'PATCH',
+          })
+          .then((res)=>{
+            console.log(res);
+            return res.json();
+          }).catch((err)=>{
+            console.log(err);
+          });
+        });
+
+        this.remarks.forEach((i)=>{
+
+          //檢查remarkData中有沒有資料
+          let check = this.userRemarkData.find(item=>{
+            return item.month == this.month && item.user == i.user;
+          });
+
+          //remarkData有資料
+          if(check) {
+            fetch(`/api/user-remarks/${check.id}/`,{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {//remarkData沒資料
+            fetch('/api/user-remarks/',{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+
+        //正方形標誌說明
+        this.remarkS.forEach((item)=>{
+          let check = this.remarkSquareData.find((i)=>{
+            return i.id == item.id;
+          });
+
+          if(check) {
+            fetch(`/api/remark-squares/${check.id}/`,{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(item),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('/api/remark-squares/',{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(item),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+        //每個使用者每天是否有正方形標誌
+        this.resultRS.forEach((i)=>{
+          let check = this.preResultRemarkData.find((item)=>{
+            return i.result == item.result;
+          });
+
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`,{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('/api/preresult-remarks/',{
+              headers:{
+                  'X-CSRFToken': `${this.csrfToken}`,
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+
+        });
+
+        this.changedResult.length = 0;
+        this.remarks.length = 0;
+        this.remarkS.length = 0;
+        this.resultRS.length = 0;
+        this.isEdit = false;
+
+        location.reload();
+      },
     //-------------------------------------------------
   },
 
@@ -1077,7 +1293,7 @@ export default {
         }
       }
 
-      .gray-background {
+      ::v-deep .gray-background, .gray-background {
         background: #f2f2f2 !important;
       }
 
@@ -1130,21 +1346,19 @@ export default {
         margin-right: 1rem;
       }
 
-      .rs1 {
-        border: 5px solid #58b4ae;
-      }
-
-      .rs2 {
-        border: 5px solid #84b1ed;
-      }
-
-      .rs3 {
-        border: 5px solid #37419a;
-      }
-
       .mark-explanation {
         border: none;
         float: left;
+      }
+
+      .rs1 {
+        border: 5px solid #58b4ae;
+      }
+      .rs2 {
+        border: 5px solid #84b1ed;
+      }
+      .rs3 {
+        border: 5px solid #37419a;
       }
     }
   }
