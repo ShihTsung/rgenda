@@ -1,5 +1,5 @@
 <template>
-  <td class="grid-width white-background" :class="isPast" @click="edit($event, shiftInfo)">
+  <td class="grid-width white-background" :class="[isPast, whichBorder]" @click="edit($event, shiftInfo)">
     <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
     <div
       v-if="adjustmentStr"
@@ -16,6 +16,10 @@ export default {
       default: false,
     },
     isPast: {
+      type: String,
+      default: '',
+    },
+    whichBorder: {
       type: String,
       default: '',
     },
