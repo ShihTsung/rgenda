@@ -251,6 +251,7 @@
       :changeShift="changeInfo"
       :shiftData="shiftData"
       :stationPicker="stationPicker"
+      v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
     <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
@@ -303,6 +304,7 @@ export default {
       stationData: [],
       shiftOfCurrentMonth: {},
       changedResult: [],
+      rs:'',
     };
   },
 
@@ -578,11 +580,13 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month - 1, d]).isBefore(moment(), "date")) {
-        return "gray-background";
+      if (moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
+        return 'gray-background';
       } else {
-        return "couldEdit";
-      }
+        if(this.isEdit) {
+          return 'couldEdit';
+        };
+      };
     },
 
     //判斷該職級的樣式
@@ -780,8 +784,6 @@ export default {
       this.rsShow = true;
 
       this.rsClass = ev.target.className.split(" ")[1];
-
-      console.log(this.rsClass);
     },
 
     //取得各個標誌的內容
@@ -805,6 +807,7 @@ export default {
       this.remarkS.push(data);
     },
 
+    //編輯個人當天的班別
     editShift(ev, info) {
       //加標誌到各筆班別資料
       if (this.rsShow == true && this.rsClass != "" && ev.target.parentNode.classList[2] == "couldEdit") {
@@ -859,6 +862,7 @@ export default {
       }
     },
 
+    //送出編輯班別的結果到待傳到api的資料
     editResult(changeShiftInfo) {
       $('#changeShiftModal').modal('hide');
       if (changeShiftInfo) {
@@ -910,6 +914,162 @@ export default {
         $("#followShiftModal").modal("show");
       }
     },
+    sendToResults() {
+        this.edit = false;
+        this.followEdit = false;
+        this.rsShow = false;
+
+        this.changedResult.forEach((i)=>{
+          let data = {};
+          data.user = i.user;
+          data.shift = i.shift;
+          data.date = i.date;
+          if(i.station){
+            data.station = i.station;
+          };
+
+          this.url = "/api/preresults/" + i.id + '/';
+
+          fetch(this.url, {
+            headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            method: 'PATCH',
+          })
+          .then((res)=>{
+            return res.json();
+          }).catch((err)=>{
+            console.log(err);
+          });
+        });
+
+        this.remark.forEach((i)=>{
+          //檢查remarkData中有沒有資料
+
+          let check = this.remarkData.find(item=>{
+            return item.month == this.month && item.user == i.user;
+          });
+          console.log('check');
+          console.log(check);
+
+          //remarkData有資料
+          if(check) {
+            fetch('/api/user-remarks/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {//remarkData沒資料
+            fetch('/api/user-remarks/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+
+        //標誌說明
+        this.remarkS.forEach((item)=>{
+          let check = this.remarkSquareData.find((i)=>{
+            return i.id == item.id;
+          });
+          console.log('check');
+          console.log(item);
+          if(check) {
+            fetch('/api/remark-squares/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(item),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('/api/remark-squares/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(item),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+        });
+
+        this.resultRS.forEach((i)=>{
+          let check = this.resultRemarksData.find((item)=>{
+            return i.result == item.result;
+          });
+
+
+          if(check) {
+            fetch('/api/preresult-remarks/' + check.id + '/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'PATCH',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          }else {
+            fetch('/api/preresult-remarks/',{
+              headers:{
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify(i),
+              method: 'POST',
+            })
+            .then((res)=>{
+              return res.json();
+            }).catch((err)=>{
+              console.log(err);
+            });
+          };
+
+        })
+
+        this.changedResult.length = 0;
+        this.remark.length = 0;
+        this.remarkS.length = 0;
+        this.resultRS.length = 0;
+
+        location.reload();
+      },
     //-------------------------------------------------
   },
 
@@ -1096,17 +1256,7 @@ export default {
         margin-right: 1rem;
       }
 
-      .rs1 {
-        border: 5px solid #58b4ae;
-      }
 
-      .rs2 {
-        border: 5px solid #84b1ed;
-      }
-
-      .rs3 {
-        border: 5px solid #37419a;
-      }
 
       .mark-explanation {
         border: none;

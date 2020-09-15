@@ -2,9 +2,7 @@
   <tr class="white-background">
     <td colspan="4">{{ shiftName }}</td>
     <td class="grid-width" v-for="(ds, d5) in getDays" :key="`5${d5}`">
-      <div :class="getDemandClass(d5)">
-        {{ getDemandValue(d5) }}
-      </div>
+      <div :class="getDemandClass(d5)">{{ getDemandValue(d5) }}</div>
     </td>
     <td class="gray-background"></td>
     <td colspan="12">
@@ -36,11 +34,11 @@ export default {
     },
     shiftName: {
       type: String,
-      default: '',
+      default: "",
     },
     shiftKey: {
       type: String,
-      default: '',
+      default: "",
     },
     getDays: {
       type: Number,
@@ -54,11 +52,11 @@ export default {
     },
     rs: {
       type: String,
-      default: '',
+      default: "",
     },
     remarkContent: {
       type: String,
-      default: '',
+      default: "",
     },
   },
   methods: {
@@ -66,12 +64,12 @@ export default {
       if (this.getDemand[idx] && this.getDemand[idx][this.shiftKey]) {
         let demand = this.getDemand[idx][this.shiftKey];
         if (demand[0] > demand[1]) {
-          return 'lack';
+          return "lack";
         } else if (demand[0] < demand[1]) {
-          return 'enough';
+          return "enough";
         }
       }
-      return '';
+      return "";
     },
     getDemandValue(idx) {
       if (this.getDemand[idx] && this.getDemand[idx][this.shiftKey]) {
@@ -88,12 +86,12 @@ export default {
 
 <style scoped>
 .mark {
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   background: white;
   float: left;
   margin-left: 1rem;
-  margin-top: 4px;
+  margin-top: 2px;
   margin-right: 1rem;
 }
 
@@ -110,5 +108,17 @@ export default {
   color: white;
   background: red;
   width: 100%;
+}
+
+.rs1 {
+  border: 3px solid #58b4ae;
+}
+
+.rs2 {
+  border: 3px solid #84b1ed;
+}
+
+.rs3 {
+  border: 3px solid #37419a;
 }
 </style>
