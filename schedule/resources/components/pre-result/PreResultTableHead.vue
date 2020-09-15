@@ -80,7 +80,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang='scss' scoped>
 .todayMark {
   border-top: 5px solid #37419a;
 }
