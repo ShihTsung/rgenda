@@ -995,12 +995,13 @@ def total_per_day_api(request):
                     r.date.strftime('%Y-%m-%d')][str(r.shift.shift_type)] += 1
         for adj in time_adjustments:
             date_str = adj.date.strftime('%Y-%m-%d')
-            if adj.remark == '白班':
-                diff_set[date_str]['0'] += 1
-            if adj.remark == '小夜':
-                diff_set[date_str]['1'] += 1
-            if adj.remark == '大夜':
-                diff_set[date_str]['2'] += 1
+            if adj.adjustment_item in [1, 2, 3, 4]:
+                if adj.remark == '白班':
+                    diff_set[date_str]['0'] += 1
+                if adj.remark == '小夜':
+                    diff_set[date_str]['1'] += 1
+                if adj.remark == '大夜':
+                    diff_set[date_str]['2'] += 1
         ret = []
         for date in dates:
             date_str = date.date.strftime('%Y-%m-%d')
@@ -1515,13 +1516,17 @@ def suggest_user_num(request, date_str):
     for a in attrs:
         if a == '1':
             demand_s += configs['level2']['config1']
-            demand_t += configs['level1']['config1'] + configs['level2']['config1']
+            demand_t += configs['level1']['config1'] + \
+                configs['level2']['config1']
         elif a == '2':
             demand_s += configs['level2']['config2']
-            demand_t += configs['level1']['config2'] + configs['level2']['config2']
+            demand_t += configs['level1']['config2'] + \
+                configs['level2']['config2']
 
-    output[0]['suggest_num'] = max(output[0]['suggest_num'], round(demand_s / workday_num))
-    output[1]['suggest_num'] = max(output[1]['suggest_num'], round(demand_t / workday_num))
+    output[0]['suggest_num'] = max(
+        output[0]['suggest_num'], round(demand_s / workday_num))
+    output[1]['suggest_num'] = max(
+        output[1]['suggest_num'], round(demand_t / workday_num))
 
     return Response(output)
 
@@ -1702,13 +1707,16 @@ def recreate_result(request):
                     # set workday_dict
                     if ind == 0:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start)
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1], start=date_start)
                     elif ind == len(cycle_list) - 1:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], end=date_end)
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1], end=date_end)
                     else:
                         for user in demand['users']:
-                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1])
+                            workday_dict[user.id][ind] = get_workday_num(
+                                user.id, cycle[0], cycle[-1])
 
                     # 工作天數扣除公假、其他假
                     for user in demand['users']:
@@ -1718,13 +1726,16 @@ def recreate_result(request):
                                     workday_dict[user.id][ind] -= 1
 
                     # 計算可工作天數、需求數
-                    total_demands = sum([demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
-                    total_workdays = sum([workday_dict[user_id][ind] for user_id in user_pool])
+                    total_demands = sum(
+                        [demand_dict[str(d)] for d in cycle if date_start <= d <= date_end])
+                    total_workdays = sum([workday_dict[user_id][ind]
+                                          for user_id in user_pool])
 
                     # 計算需求校正參數
                     attr_dict[ind] = dict()
                     diff = total_workdays - total_demands
-                    day_num = len([d for d in cycle if date_start <= d <= date_end])
+                    day_num = len(
+                        [d for d in cycle if date_start <= d <= date_end])
                     diff_q = diff // day_num
                     diff_r = diff % day_num
                     attr_dict[ind]['day_num'] = day_num
@@ -1750,8 +1761,10 @@ def recreate_result(request):
                             if len(user_current_level) - count_promise - count_reserve >= \
                                     demand_dict[str(d)] + diff_q + 1:
                                 for user_id in user_l:
-                                    user_pool[user_id]['reserve_leave'].remove(d)
-                                    user_pool[user_id]['promise_leave'].append(d)
+                                    user_pool[user_id]['reserve_leave'].remove(
+                                        d)
+                                    user_pool[user_id]['promise_leave'].append(
+                                        d)
                             else:
                                 for user_id in user_current_level:
                                     if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
@@ -1765,11 +1778,13 @@ def recreate_result(request):
                 print()
                 print('      ', [i % 10 for i in range(32)])
                 for user_id in user_pool:
-                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
+                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(
+                        output[user_id].values()))
                 print('DEMAND   ', list(demand_dict.values()))
 
                 for ind in attr_dict:
-                    print('Cycle', ind, 'q:', attr_dict[ind]['q'], 'r:', attr_dict[ind]['r'])
+                    print('Cycle', ind, 'q:',
+                          attr_dict[ind]['q'], 'r:', attr_dict[ind]['r'])
 
                 # for cycle 計算班表
                 for ind, cycle in enumerate(cycle_list):
@@ -1777,16 +1792,19 @@ def recreate_result(request):
                     for _ in range(1000):
 
                         # 產生需求校正list和指標
-                        diff_list = [attr_dict[ind]['q'] for _ in range(attr_dict[ind]['day_num'])]
+                        diff_list = [attr_dict[ind]['q']
+                                     for _ in range(attr_dict[ind]['day_num'])]
                         if demand['demand'].level == 1:
                             adjust_weight = [1 if i in diff_dict[ind] else 100
                                              for i in range(attr_dict[ind]['day_num'])]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [i / weight_sum for i in adjust_weight]
+                            adjust_weight = [
+                                i / weight_sum for i in adjust_weight]
                             adjust_index = choice(attr_dict[ind]['day_num'], attr_dict[ind]['r'], p=adjust_weight,
                                                   replace=False)
                         else:
-                            adjust_index = choice(attr_dict[ind]['day_num'], attr_dict[ind]['r'], replace=False)
+                            adjust_index = choice(
+                                attr_dict[ind]['day_num'], attr_dict[ind]['r'], replace=False)
                         for i in range(attr_dict[ind]['day_num']):
                             if i in adjust_index:
                                 diff_list[i] += 1
@@ -1797,7 +1815,8 @@ def recreate_result(request):
                         temp_output = deepcopy(output)
 
                         # set weight, start calculating
-                        weight_workday = dict([(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
+                        weight_workday = dict(
+                            [(user_id, workday_dict[user_id][ind]) for user_id in user_pool])
                         weight_holiday_rest = dict(
                             [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
                         for d in cycle:
@@ -1932,16 +1951,19 @@ def recreate_result(request):
                         for _ in range(100):
 
                             # 產生需求校正list
-                            diff_list = [attr_dict[ind]['q'] for d in cycle if date_start <= d <= date_end]
+                            diff_list = [attr_dict[ind]['q']
+                                         for d in cycle if date_start <= d <= date_end]
                             if demand['demand'].level == 1:
                                 adjust_weight = [1 if i in attr_dict[ind] else 100
                                                  for i in range(attr_dict[ind]['day_num'])]
                                 weight_sum = sum(adjust_weight)
-                                adjust_weight = [i / weight_sum for i in adjust_weight]
+                                adjust_weight = [
+                                    i / weight_sum for i in adjust_weight]
                                 adjust_index = choice(attr_dict[ind]['day_num'], attr_dict[ind]['r'], p=adjust_weight,
                                                       replace=False)
                             else:
-                                adjust_index = choice(attr_dict[ind]['day_num'], attr_dict[ind]['r'], replace=False)
+                                adjust_index = choice(
+                                    attr_dict[ind]['day_num'], attr_dict[ind]['r'], replace=False)
                             for i in range(attr_dict[ind]['day_num']):
                                 if i in adjust_index:
                                     diff_list[i] += 1
@@ -2045,16 +2067,21 @@ def recreate_result(request):
                                                 weight.append(weight_workday[user_id] * weight_reserve_leave[
                                                     user_id] * 1000 + 1)
                                         weight_sum = sum(weight)
-                                        weight = [w / weight_sum for w in weight]
+                                        weight = [
+                                            w / weight_sum for w in weight]
                                         try:
                                             on_duty = choice(
-                                                options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                                options, demand_dict[str(
+                                                    d)] + diff_list[diff_ind] - assign_num,
                                                 p=weight, replace=False)
                                         except ValueError:
-                                            print('------------------------------------')
+                                            print(
+                                                '------------------------------------')
                                             print('WEIGHT', str(weight))
-                                            print('WORKDAYS', str(weight_workday))
-                                            print('------------------------------------')
+                                            print('WORKDAYS', str(
+                                                weight_workday))
+                                            print(
+                                                '------------------------------------')
                                             return None
                                         for user_id in user_pool:
                                             if user_id in on_duty:
