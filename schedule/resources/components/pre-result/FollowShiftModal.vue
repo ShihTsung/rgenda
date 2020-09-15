@@ -73,6 +73,7 @@
 import popup from "common/popup";
 export default {
   props: {
+
     userData: {
       type: Array,
       default: function () {
@@ -91,15 +92,6 @@ export default {
         return [];
       },
     },
-    pickedMentor: {
-      type: Object,
-      default: function () {
-        return {
-          id: 0,
-          full_name: "",
-        };
-      },
-    },
   },
   data() {
     return {
@@ -115,10 +107,13 @@ export default {
       Object.assign(this.$data, this.$options.data.apply(this));
     },
     save() {
-      console.log(this.mentor);
-      console.log(this.follower);
-      console.log(this.startDate);
-      console.log(this.endDate);
+
+      this.$parent.sendFollowShift({
+        mentor: this.mentor,
+        follower: this.follower,
+        startDate: this.startDate,
+        endDate: this.endDate
+      });
     },
     findFollowers() {
       let follower = this.userData.filter((i) => {

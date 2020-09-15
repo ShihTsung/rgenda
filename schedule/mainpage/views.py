@@ -161,7 +161,8 @@ def index(request):
         'oncall': data['oncall'],
         'overtime': data['加班'],
         'minustime': data['減班'],
-        'diff': data['差額']
+        'diff': data['差額'],
+        'firstday': request.user.department.start_of_week
     }
     if request.user.is_staff:
         return render(request, 'mainpage/manager_index.html', context)

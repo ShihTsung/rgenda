@@ -51,7 +51,8 @@
           v-if="isEdit"
           data-tooltip="tooltip"
           title="跟班"
-          @click="followShiftEdit()">
+          @click="followShiftEdit()"
+          @followshiftedit="sendFollowShift(data)">
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -870,7 +871,7 @@ export default {
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
         });
         let d = moment(changeShiftInfo.date).date();
-        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
+        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user][d], changeShiftInfo);
       }
     },
 
@@ -910,6 +911,39 @@ export default {
         $("#followShiftModal").modal("show");
       }
     },
+
+    // 送出跟班 api
+    sendFollowShift(followInfo) {
+      let results = this.preResultData.filter(r=> r.user==followInfo.mentor);
+      results.forEach(e=>{
+        if (e.user.id == followInfo.mentor){
+          let obj = {
+            user: followInfo.follower,
+            shift: e.shift,
+            station: e.station,
+            date: e.date
+          }
+          this.preResultData.push(obj)
+          let d = moment(e.date).date();
+          this.$set(this.shiftOfCurrentMonth[followInfo.follower][d], obj);
+        }
+      });
+
+
+      // let url = '/api/follow-shift?start=' + followInfo.startDate +
+      // '&end=' + followInfo.endDate + '&follower=' + followInfo.follower.toString() +
+      // '&mentor=' + followInfo.mentor.toString();
+      // this.$httpClient
+      //   .get(url)
+      //   .then((response) => {
+      //     console.log(response);
+      //     $("#followShiftModal").modal("hide");
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
+    },
+
     //-------------------------------------------------
   },
 
