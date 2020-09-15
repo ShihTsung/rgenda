@@ -51,7 +51,8 @@
           v-show="isEdit"
           data-tooltip="tooltip"
           title="跟班"
-          @click="followShiftEdit()">
+          @click="followShiftEdit()"
+          @followshiftedit="sendFollowShift(data)">
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -924,6 +925,9 @@ export default {
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
         });
         let d = moment(changeShiftInfo.date).date();
+        if (!this.shiftOfCurrentMonth[changeShiftInfo.user]){
+          this.$set(this.shiftOfCurrentMonth, changeShiftInfo.user, {});
+        }
         this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
       }
     },
@@ -964,6 +968,47 @@ export default {
         $("#followShiftModal").modal("show");
       }
     },
+
+    // 送出跟班 api
+    sendFollowShift(followInfo) {
+
+      $("#followShiftModal").modal("hide");
+      let results = this.shiftOfCurrentMonth[followInfo.mentor]
+
+      Object.keys(results).forEach(key=>{
+        console.log(results[key])
+        let e = results[key]
+        if (e.user == followInfo.mentor){
+
+          let obj = {
+            user: followInfo.follower,
+            shift: e.shift,
+            station: e.station,
+            date: e.date
+          }
+          this.changedResult.push(obj)
+          let d = moment(e.date).date();
+          if(!this.shiftOfCurrentMonth[followInfo.follower]){
+            this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
+          }
+          this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
+        }
+      });
+
+      // let url = '/api/follow-shift?start=' + followInfo.startDate +
+      // '&end=' + followInfo.endDate + '&follower=' + followInfo.follower.toString() +
+      // '&mentor=' + followInfo.mentor.toString();
+      // this.$httpClient
+      //   .get(url)
+      //   .then((response) => {
+      //     console.log(response);
+      //     $("#followShiftModal").modal("hide");
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
+    },
+
     sendToResults() {
         this.followEdit = false;
         this.rsShow = false;

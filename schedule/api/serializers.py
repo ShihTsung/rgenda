@@ -323,11 +323,11 @@ class HCalendarSerializer(serializers.ModelSerializer):
 class PreResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'shift', 'shift__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'station', 'station__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'user', 'user__department')
         return queryset
 
@@ -341,11 +341,11 @@ class PreResultSerializer(serializers.ModelSerializer):
 class ResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'shift', 'shift__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'station', 'station__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'user', 'user__department')
         return queryset
 
@@ -360,11 +360,11 @@ class ResultSerializer(serializers.ModelSerializer):
 class AfterResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'shift', 'shift__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'station', 'station__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'user', 'user__department')
         return queryset
 
@@ -427,11 +427,11 @@ class GetPreResultSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'shift', 'shift__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'station', 'station__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'user', 'user__department')
         return queryset
 
@@ -451,11 +451,11 @@ class GetResultSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def setup_eager_loading(queryset):
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'shift', 'shift__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'station', 'station__department')
-        queryset = queryset.select_related(
+        queryset = queryset.prefetch_related(
             'user', 'user__department')
         return queryset
 
