@@ -2790,10 +2790,6 @@ def recreate_result_monthly(request):
                         workday_dict[user_id] = best_weight_workday[user_id]
                         user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
 
-                for user in demand['users']:
-                    l = list(output[user.id].values())
-                    print(user.full_name, l, l.count(0))
-
             for user_id in user_pool:
                 user = CustomUser.objects.get(id=user_id)
 
