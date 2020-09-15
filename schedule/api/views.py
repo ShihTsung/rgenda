@@ -2763,6 +2763,10 @@ def recreate_result_monthly(request):
                         workday_dict[user_id] = best_weight_workday[user_id]
                         user_pool[user_id]['holiday_rest'] = best_weight_holiday_rest[user_id]
 
+                for user in demand['users']:
+                    l = list(output[user.id].values())
+                    print(user.full_name, l, l.count(0))
+
             for user_id in user_pool:
                 user = CustomUser.objects.get(id=user_id)
 
@@ -2802,30 +2806,39 @@ def recreate_result_monthly(request):
                         )
                     # 增加例假 or 休息Result
                     else:
-                        if '例' not in q and '例' in temp_options:
-                            temp_options.remove('例')
-                            output[user_id][str(d)] = '例'
-                            PreResult.objects.create(
-                                user=user,
-                                shift=shift_rest0,
-                                date=d,
-                                station=station_rest,
-                            )
-                        elif '休' in temp_options:
-                            temp_options.remove('休')
+                        try:
+                            if '例' not in q and '例' in temp_options:
+                                temp_options.remove('例')
+                                output[user_id][str(d)] = '例'
+                                PreResult.objects.create(
+                                    user=user,
+                                    shift=shift_rest0,
+                                    date=d,
+                                    station=station_rest,
+                                )
+                            elif '休' in temp_options:
+                                temp_options.remove('休')
+                                output[user_id][str(d)] = '休'
+                                PreResult.objects.create(
+                                    user=user,
+                                    shift=shift_rest1,
+                                    date=d,
+                                    station=station_rest,
+                                )
+                            else:
+                                temp_options.remove('例')
+                                output[user_id][str(d)] = '例'
+                                PreResult.objects.create(
+                                    user=user,
+                                    shift=shift_rest0,
+                                    date=d,
+                                    station=station_rest,
+                                )
+                        except ValueError:
                             output[user_id][str(d)] = '休'
                             PreResult.objects.create(
                                 user=user,
                                 shift=shift_rest1,
-                                date=d,
-                                station=station_rest,
-                            )
-                        else:
-                            temp_options.remove('例')
-                            output[user_id][str(d)] = '例'
-                            PreResult.objects.create(
-                                user=user,
-                                shift=shift_rest0,
                                 date=d,
                                 station=station_rest,
                             )
