@@ -1723,7 +1723,7 @@
       recalculate() {
         this.isTARemarkShow = false;
         this.confirmRecalculate = true;
-        fetch('/api/recreate-result?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
+        fetch('/api/recreate-result-monthly?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
         .then(res=>{
           return res.json();
         }).then(data=>{

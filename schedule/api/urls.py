@@ -39,5 +39,6 @@ urlpatterns = [
     path('follow-shift', views.preResult_follow_shift_api),
     path('users-can-support/', views.users_can_support),
     path('suggest-user-num/<date_str>/', views.suggest_user_num),
-    path('recreate-result', views.recreate_result),
+    path('recreate-result-periodic', views.recreate_result_periodic),
+    path('recreate-result-monthly', views.recreate_result_monthly),
 ]
