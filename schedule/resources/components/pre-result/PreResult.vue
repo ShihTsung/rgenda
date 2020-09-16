@@ -1004,11 +1004,8 @@ export default {
 
     // 送出跟班 api
     sendFollowShift(followInfo) {
-
       $("#followShiftModal").modal("hide");
       let results = this.shiftOfCurrentMonth[followInfo.mentor]
-
-
       Object.keys(results).forEach(key=>{
         let e = results[key]
         if (e.user == followInfo.mentor){
@@ -1021,7 +1018,10 @@ export default {
           }
           this.changedResult.push(obj)
           let d = moment(e.date).date();
-          if (moment(e.date).isBetween(followInfo.startDate, followInfo.endDate)){
+          let d_start = parseInt(followInfo.startDate.substring(8))
+          let d_end = parseInt(followInfo.endDate.substring(8))
+          let d_d = parseInt(e.date.substring(8))
+          if (d_d <= d_end && d_d >= d_start){
             if(!this.shiftOfCurrentMonth[followInfo.follower]){
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
