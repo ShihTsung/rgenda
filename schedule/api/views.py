@@ -2511,8 +2511,8 @@ def recreate_result_monthly(request):
                     for i in adjust_index:
                         diff_list[i] += 1
 
-                    print('D+Diff   ', [diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))],
-                          sum([diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))]))
+                    # print('D+Diff   ', [diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))],
+                    #       sum([diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))]))
 
                     # 每次回圈重設 temp_output、weight_workday、weight_holiday_rest
                     # create temp_output
@@ -2591,18 +2591,18 @@ def recreate_result_monthly(request):
                         if reds[str(d)]:
                             # 若為休假日 則剩餘 可休假假日數 越少的人被排到的機率越高
                             for user_id in options:
-                                weight.append(weight_workday[user_id] * weight_reserve_leave[user_id] *
+                                weight.append(2 ** weight_workday[user_id] * weight_reserve_leave[user_id] *
                                               (100 - weight_holiday_rest[user_id]) * 1000 + 1)
                         else:
                             for user_id in options:
-                                weight.append(weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
+                                weight.append(2 ** weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                         weight_sum = sum(weight)
                         weight = [w / weight_sum for w in weight]
 
                         try:
                             on_duty = choice(options, demand_dict[str(d)] + diff_list[ind] - assign_num,
                                              p=weight, replace=False)
-                            print(demand_dict[str(d)] + diff_list[ind], assign_num, options, on_duty)
+                            # print(demand_dict[str(d)] + diff_list[ind], assign_num, options, on_duty)
                         except ValueError:
                             print('------------------------------------')
                             print('WEIGHT', str(weight))
@@ -2747,13 +2747,12 @@ def recreate_result_monthly(request):
                                 weight = list()
                                 if reds[str(d)]:
                                     for user_id in options:
-                                        weight.append(
-                                            weight_workday[user_id] * weight_reserve_leave[user_id] * (
-                                                100 - weight_holiday_rest[user_id]) * 1000 + 1)
+                                        weight.append(2 ** weight_workday[user_id] * weight_reserve_leave[user_id] *
+                                                      (100 - weight_holiday_rest[user_id]) * 1000 + 1)
                                 else:
                                     for user_id in options:
-                                        weight.append(weight_workday[user_id] * weight_reserve_leave[
-                                            user_id] * 1000 + 1)
+                                        weight.append(2 ** weight_workday[user_id] * weight_reserve_leave[user_id] *
+                                                      1000 + 1)
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
                                 try:
