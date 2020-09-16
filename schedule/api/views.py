@@ -2576,7 +2576,6 @@ def recreate_result_monthly(request):
 
                         # 可排人數不足or需求小於等於被指定人數 跳出
                         if len(options) < demand_dict[str(d)] + diff_list[ind] - assign_num:
-                            print('break')
                             break
 
                         # 預排假權重(1000倍)
@@ -2637,7 +2636,7 @@ def recreate_result_monthly(request):
                         break
                 else:
                     # 嘗試1000次皆失敗，強制產生班表，不必滿足所有需求
-                    # 嘗試排班100次，取最滿足需求的結果
+                    # 嘗試排班1000次，取最滿足需求的結果
                     print(station.name, shift.name, 'Level', str(demand['demand'].level),
                           'Fail in 1000, force creating.')
                     best_temp_output = None
@@ -2646,7 +2645,7 @@ def recreate_result_monthly(request):
                     best_weight_workday = dict()
                     best_weight_holiday_rest = dict()
 
-                    for _ in range(100):
+                    for _ in range(1000):
 
                         # 產生需求校正list和指標
                         diff_list = [diff_q for _ in date_list]
