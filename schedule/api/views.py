@@ -2927,3 +2927,25 @@ def recreate_result_monthly(request):
     return Response({
         'message': 'Success',
     })
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='查詢某年某月是否發布過了',
+    # manual_parameters=[start, end],
+)
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, ])
+@parser_classes([JSONParser])
+def published_or_not(request):
+    year = request.query_params.get('year', None)
+    month = request.query_params.get('month', None)
+    department = request.user.department
+    users = CustomUser.objects.filter(department=department)
+    start = datetime.date(int(year), int(month), 1)
+    end = datetime.date(int(year), int(month), 5)
+    r = Result.objects.filter(date__range=[start, end], user__in=users)
+    if len(r) > 5:
+        return Response(True)
+    else:
+        return Response(False)
