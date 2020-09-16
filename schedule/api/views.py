@@ -2490,10 +2490,11 @@ def recreate_result_monthly(request):
                 print()
                 print('      ', [i % 10 for i in range(32)])
                 for user_id in user_pool:
-                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()))
-                print('DEMAND   ', list(demand_dict.values()))
+                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()), sum(output[user_id].values()))
+                print('DEMAND   ', list(demand_dict.values()), sum(demand_dict.values()))
 
                 print('q:', diff_q, 'r:', diff_r)
+                print('tw:', total_workdays, 'td:', total_demands)
 
                 # 計算班表
                 for _ in range(1000):
@@ -2509,7 +2510,9 @@ def recreate_result_monthly(request):
                         adjust_index = choice(day_num, diff_r, replace=False)
                     for i in adjust_index:
                         diff_list[i] += 1
-                    diff_ind = 0
+
+                    print('D+Diff   ', [diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))],
+                          sum([diff_list[i] + list(demand_dict.values())[i] for i in range(len(diff_list))]))
 
                     # 每次回圈重設 temp_output、weight_workday、weight_holiday_rest
                     # create temp_output
@@ -2519,7 +2522,7 @@ def recreate_result_monthly(request):
                     weight_workday = dict([(user_id, workday_dict[user_id]) for user_id in user_pool])
                     weight_holiday_rest = dict([(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
-                    for d in date_list:
+                    for ind, d in enumerate(date_list):
 
                         # user可排人選
                         options = list()
@@ -2568,12 +2571,12 @@ def recreate_result_monthly(request):
                                         options.append(user_id)
 
                         # 需求小於等於被指定人數or需求等於0 直接進入下一天
-                        if demand_dict[str(d)] + diff_list[diff_ind] <= assign_num or \
-                                demand_dict[str(d)] + diff_list[diff_ind] <= 0:
+                        if demand_dict[str(d)] + diff_list[ind] <= assign_num:
                             continue
 
                         # 可排人數不足or需求小於等於被指定人數 跳出
-                        if len(options) < demand_dict[str(d)] + diff_list[diff_ind] - assign_num:
+                        if len(options) < demand_dict[str(d)] + diff_list[ind] - assign_num:
+                            print('break')
                             break
 
                         # 預排假權重(1000倍)
@@ -2597,8 +2600,9 @@ def recreate_result_monthly(request):
                         weight = [w / weight_sum for w in weight]
 
                         try:
-                            on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                            on_duty = choice(options, demand_dict[str(d)] + diff_list[ind] - assign_num,
                                              p=weight, replace=False)
+                            print(demand_dict[str(d)] + diff_list[ind], assign_num, options, on_duty)
                         except ValueError:
                             print('------------------------------------')
                             print('WEIGHT', str(weight))
@@ -2614,7 +2618,6 @@ def recreate_result_monthly(request):
                                     weight_holiday_rest[user_id] += 1
                             elif reds[str(d)] and user_id in user_current_level:
                                 weight_holiday_rest[user_id] -= 1
-                        diff_ind += 1
                     else:
                         # 成功排完 1 cycle
                         # 儲存結果
