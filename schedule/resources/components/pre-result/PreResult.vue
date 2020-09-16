@@ -1,6 +1,6 @@
 <template>
   <div id="pre-result" v-cloak>
-    <loading v-if="!isReady"></loading>
+    <loading v-show="!isReady"></loading>
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
@@ -73,7 +73,14 @@
               <div class="marks rs3"></div>
             </div>
           </div>
-          <div class="icon-bts" v-show="isEdit" data-tooltip="tooltip" title="重算">
+          <div
+            class="icon-bts"
+            v-show="isEdit"
+            @click="callResetModal()"
+            :style="{cursor: couldReset()}"
+            data-tooltip="tooltip"
+            title="重算"
+          >
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -191,9 +198,9 @@
                 :value="findRemark(u.id)"
                 @blur="getRemark($event, u.id)"
                 @keyup.13="$event.target.blur"
-                v-if="isEdit"
+                v-show="isEdit"
               />
-              <div v-if="!isEdit" class="remark-grid">{{ findRemark(u.id) }}</div>
+              <div v-show="!isEdit" class="remark-grid">{{ findRemark(u.id) }}</div>
             </td>
             <td class="white-background">{{ workhr(u.id, month, getDays, 0) }}</td>
             <td class="gray-background">{{ workhr(u.id, month, date, 1) }}</td>
@@ -257,17 +264,27 @@
     ></change-shift-modal>
 
     <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
+
+    <recalculate-modal
+      :year="year"
+      :month="month"
+      :getDays="getDays"
+      v-show="couldRecalculate && (couldReset() !== 'not-allowed')"
+    ></recalculate-modal>
+    <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
   </div>
 </template>
 <script>
 import moment from "moment";
 import "moment/locale/zh-tw";
 import Loading from "./Loading.vue";
-import PreResultTableHead from './PreResultTableHead.vue';
-import UserShiftCell from './UserShiftCell.vue';
-import ShiftStatistics from './ShiftStatistics.vue';
-import ChangeShiftModal from './ChangeShiftModal.vue';
+import PreResultTableHead from "./PreResultTableHead.vue";
+import UserShiftCell from "./UserShiftCell.vue";
+import ShiftStatistics from "./ShiftStatistics.vue";
+import ChangeShiftModal from "./ChangeShiftModal.vue";
 import FollowShiftModal from "./FollowShiftModal.vue";
+import RecalculateModal from "./RecalculateModal.vue";
+import ErrorAlertModal from "./ErrorAlertModal.vue";
 
 moment.locale("zh-tw");
 export default {
@@ -278,12 +295,14 @@ export default {
     ShiftStatistics,
     ChangeShiftModal,
     FollowShiftModal,
+    RecalculateModal,
+    ErrorAlertModal,
   },
 
   props: {
     csrfToken: {
       type: String,
-      default: '',
+      default: "",
     },
   },
 
@@ -308,12 +327,14 @@ export default {
       isReady: false,
       isEdit: false,
       rsShow: false,
+      isConfirm: false,//確認後控制正在重算載入畫面的變數
+      couldRecalculate: false,
       rsClass: "",
-      follower:{},
+      follower: {},
       stationData: [],
       shiftOfCurrentMonth: {},
       changedResult: [],
-      rs:'',
+      rs: "",
     };
   },
 
@@ -399,8 +420,8 @@ export default {
           //處理懶加載畫面的變數設置
           if (this.preResultData.length != 0) {
             let processedShifts = {}; // index by user id
-            this.preResultData.forEach(i => {
-              if (moment(i.date).month()+1 === this.month) {
+            this.preResultData.forEach((i) => {
+              if (moment(i.date).month() + 1 === this.month) {
                 if (!processedShifts[i.user]) {
                   processedShifts[i.user] = {};
                 }
@@ -568,19 +589,23 @@ export default {
 
     // 改變當前月份
     changeMonth(ev) {
-      let date = moment([this.year, this.month-1, 1]);
+
+      let date = moment([this.year, this.month - 1, 1]);
       switch (ev.target.id) {
         case "prev":
-          date.subtract(1, 'months');
+          this.isEdit = false;
+          date.subtract(1, "months");
           this.year = date.year();
           this.month = date.month() + 1;
           break;
         case "current":
-          this.year = moment().add(1, 'months').year();
-          this.month = moment().add(1, 'months').month() + 1;
+          this.isEdit = false;
+          this.year = moment().add(1, "months").year();
+          this.month = moment().add(1, "months").month() + 1;
           break;
         case "next":
-          date.add(1, 'months');
+          this.isEdit = false;
+          date.add(1, "months");
           this.year = date.year();
           this.month = date.month() + 1;
       }
@@ -588,13 +613,13 @@ export default {
 
     //計算該日期是否為今天以前
     isPast(d) {
-      if (moment([this.year, this.month-1, d]).isBefore(moment(), 'date')) {
-        return 'gray-background';
+      if (moment([this.year, this.month - 1, d]).isBefore(moment(), "date")) {
+        return "gray-background";
       } else {
-        if(this.isEdit) {
-          return 'couldEdit';
-        };
-      };
+        if (this.isEdit) {
+          return "couldEdit";
+        }
+      }
     },
 
     //判斷該職級的樣式
@@ -817,61 +842,65 @@ export default {
     //編輯個人當天的班別
     editShift(ev, info) {
       //加標誌到各筆班別資料
-      if (this.rsShow == true && this.rsClass != "" && ev.target.parentNode.classList[2] == "couldEdit") {
+      if (
+        this.rsShow == true &&
+        this.rsClass != "" &&
+        ev.target.parentNode.classList[2] == "couldEdit"
+      ) {
         let data = {};
         data.result = info.id;
         let classListStr = JSON.stringify(ev.target.parentNode.classList);
         ev.target.parentNode.classList.add(this.rsClass);
 
-        let check = this.preResultRemarkData.find((item)=>{
+        let check = this.preResultRemarkData.find((item) => {
           return data.result == item.result;
         });
 
         if (classListStr.indexOf("rs1") != -1) {
           ev.target.parentNode.classList.remove("rs1");
           fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers:{
-                'X-CSRFToken': `${this.csrfToken}`,
-                'content-type': 'application/json'
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
             },
-            method: 'DELETE',
+            method: "DELETE",
           })
-          .then((res) => {
-            return res.json();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+            .then((res) => {
+              return res.json();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         } else if (classListStr.indexOf("rs2") != -1) {
           ev.target.parentNode.classList.remove("rs2");
           fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers:{
-                'X-CSRFToken': `${this.csrfToken}`,
-                'content-type': 'application/json'
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
             },
-            method: 'DELETE',
+            method: "DELETE",
           })
-          .then((res) => {
-            return res.json();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+            .then((res) => {
+              return res.json();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         } else if (classListStr.indexOf("rs3") != -1) {
           ev.target.parentNode.classList.remove("rs3");
           fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers:{
-                'X-CSRFToken': `${this.csrfToken}`,
-                'content-type': 'application/json'
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
             },
-            method: 'DELETE',
+            method: "DELETE",
           })
-          .then((res) => {
-            return res.json();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+            .then((res) => {
+              return res.json();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }
 
         switch (this.rsClass) {
@@ -903,19 +932,23 @@ export default {
         this.whichBorder(info);
       }
 
-      if (this.isEdit == true && ($(ev.target).hasClass('couldEdit') || $(ev.target).parent().hasClass('couldEdit'))) {
-        $('#changeShiftModal').modal('show');
+      if (
+        this.isEdit == true &&
+        ($(ev.target).hasClass("couldEdit") ||
+          $(ev.target).parent().hasClass("couldEdit"))
+      ) {
+        $("#changeShiftModal").modal("show");
         if (info != undefined) {
           this.changeInfo = info;
         }
       } else {
-        $('#changeShiftModal').modal('hide');
+        $("#changeShiftModal").modal("hide");
       }
     },
 
     //送出編輯班別的結果到待傳到api的資料
     editResult(changeShiftInfo) {
-      $('#changeShiftModal').modal('hide');
+      $("#changeShiftModal").modal("hide");
       if (changeShiftInfo) {
         this.changedResult.push({
           id: changeShiftInfo.id,
@@ -1012,156 +1045,194 @@ export default {
     },
 
     sendToResults() {
-        this.followEdit = false;
-        this.rsShow = false;
+      this.followEdit = false;
+      this.rsShow = false;
 
-        this.changedResult.forEach((i)=>{
-          let data = {
-            user: i.user,
-            shift: i.shift.id,
-            date: i.date,
-            station: i.station ? i.station.id : null,
-          };
+      this.changedResult.forEach((i) => {
+        let data = {
+          user: i.user,
+          shift: i.shift.id,
+          date: i.date,
+          station: i.station ? i.station.id : null,
+        };
 
-          fetch(`/api/preresults/${i.id}/`, {
-            headers:{
-                'X-CSRFToken': `${this.csrfToken}`,
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify(data),
-            method: 'PATCH',
-          })
-          .then((res)=>{
-            console.log(res);
+        fetch(`/api/preresults/${i.id}/`, {
+          headers: {
+            "X-CSRFToken": `${this.csrfToken}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(data),
+          method: "PATCH",
+        })
+          .then((res) => {
+            this.getPreResults();
             return res.json();
-          }).catch((err)=>{
+          })
+          .catch((err) => {
             console.log(err);
           });
+      });
+
+      this.remarks.forEach((i) => {
+        //檢查remarkData中有沒有資料
+        let check = this.userRemarkData.find((item) => {
+          return item.month == this.month && item.user == i.user;
         });
 
-        this.remarks.forEach((i)=>{
-
-          //檢查remarkData中有沒有資料
-          let check = this.userRemarkData.find(item=>{
-            return item.month == this.month && item.user == i.user;
-          });
-
-          //remarkData有資料
-          if(check) {
-            fetch(`/api/user-remarks/${check.id}/`,{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(i),
-              method: 'PATCH',
-            })
-            .then((res)=>{
+        //remarkData有資料
+        if (check) {
+          fetch(`/api/user-remarks/${check.id}/`, {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(i),
+            method: "PATCH",
+          })
+            .then((res) => {
+              this.getUserRemark();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          }else {//remarkData沒資料
-            fetch('/api/user-remarks/',{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(i),
-              method: 'POST',
-            })
-            .then((res)=>{
+        } else {
+          //remarkData沒資料
+          fetch("/api/user-remarks/", {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(i),
+            method: "POST",
+          })
+            .then((res) => {
+              this.getUserRemark();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          };
+        }
+      });
+
+      //正方形標誌說明
+      this.remarkS.forEach((item) => {
+        let check = this.remarkSquareData.find((i) => {
+          return i.id == item.id;
         });
 
-
-        //正方形標誌說明
-        this.remarkS.forEach((item)=>{
-          let check = this.remarkSquareData.find((i)=>{
-            return i.id == item.id;
-          });
-
-          if(check) {
-            fetch(`/api/remark-squares/${check.id}/`,{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(item),
-              method: 'PATCH',
-            })
-            .then((res)=>{
+        if (check) {
+          fetch(`/api/remark-squares/${check.id}/`, {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(item),
+            method: "PATCH",
+          })
+            .then((res) => {
+              this.getRemarkSquareData();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          }else {
-            fetch('/api/remark-squares/',{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(item),
-              method: 'POST',
-            })
-            .then((res)=>{
+        } else {
+          fetch("/api/remark-squares/", {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(item),
+            method: "POST",
+          })
+            .then((res) => {
+              this.getRemarkSquareData();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          };
+        }
+      });
+
+      //每個使用者每天是否有正方形標誌
+      this.resultRS.forEach((i) => {
+        let check = this.preResultRemarkData.find((item) => {
+          return i.result == item.result;
         });
 
-        //每個使用者每天是否有正方形標誌
-        this.resultRS.forEach((i)=>{
-          let check = this.preResultRemarkData.find((item)=>{
-            return i.result == item.result;
-          });
-
-          if(check) {
-            fetch(`/api/preresult-remarks/${check.id}/`,{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(i),
-              method: 'PATCH',
-            })
-            .then((res)=>{
+        if (check) {
+          fetch(`/api/preresult-remarks/${check.id}/`, {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(i),
+            method: "PATCH",
+          })
+            .then((res) => {
+              this.getPreResultRemarkData();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          }else {
-            fetch('/api/preresult-remarks/',{
-              headers:{
-                  'X-CSRFToken': `${this.csrfToken}`,
-                  'content-type': 'application/json'
-              },
-              body: JSON.stringify(i),
-              method: 'POST',
-            })
-            .then((res)=>{
+        } else {
+          fetch("/api/preresult-remarks/", {
+            headers: {
+              "X-CSRFToken": `${this.csrfToken}`,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(i),
+            method: "POST",
+          })
+            .then((res) => {
+              this.getPreResultRemarkData();
               return res.json();
-            }).catch((err)=>{
+            })
+            .catch((err) => {
               console.log(err);
             });
-          };
+        }
+      });
 
+      this.changedResult.length = 0;
+      this.remarks.length = 0;
+      this.remarkS.length = 0;
+      this.resultRS.length = 0;
+      this.isEdit = false;
+
+      // location.reload();
+    },
+
+    callResetModal() {
+
+      fetch(`/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+        .then((res)=> {
+          return res.json();
+        })
+        .then((data)=> {
+          this.couldRecalculate = data.length === 0 ? true : false;
+        })
+        .then(()=> {
+          this.couldRecalculate === true ? $("#recalculateModal").modal("show") : $("#errorAlertModal").modal("show");
+        })
+        .catch((err) => {
+          console.log(err);
         });
+    },
 
-        this.changedResult.length = 0;
-        this.remarks.length = 0;
-        this.remarkS.length = 0;
-        this.resultRS.length = 0;
-        this.isEdit = false;
+    couldReset() {
+      let resetPermit = $.cookie(`Announced${this.month}`);
 
-        location.reload();
-      },
+      if (resetPermit !== "true2") {
+        return "pointer";
+      } else {
+        return "not-allowed";
+      }
+    },
     //-------------------------------------------------
   },
 
@@ -1295,7 +1366,8 @@ export default {
         }
       }
 
-      ::v-deep .gray-background, .gray-background {
+      ::v-deep .gray-background,
+      .gray-background {
         background: #f2f2f2 !important;
       }
 
