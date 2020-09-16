@@ -1,5 +1,6 @@
 <template>
   <td class="grid-width white-background" :class="[isPast, whichBorder]" @click="edit($event, shiftInfo)">
+    <div :class="{triangle: triangle}"></div>
     <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
     <div
       v-if="adjustmentStr"
@@ -32,6 +33,10 @@ export default {
     adjustmentStr: {
       type: String,
       default: '',
+    },
+    triangle: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
@@ -130,4 +135,17 @@ export default {
 </script>
 
 <style>
+  td{
+    position: relative;
+  }
+ .triangle {
+      width: 30px;
+      height: 30px;
+      clip-path: polygon(0 0, 0 50%, 50% 0);
+      background: #37419A;
+      position: absolute;
+      margin: 0;
+      top: 0;
+      left: 0;
+      }
 </style>

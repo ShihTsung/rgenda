@@ -47,12 +47,13 @@
         </div>
         <div id="btn-manage">
           <div
-          class="icon-bts follow-btn"
-          v-show="isEdit"
-          data-tooltip="tooltip"
-          title="跟班"
-          @click="followShiftEdit()"
-          @followshiftedit="sendFollowShift(data)">
+            class="icon-bts follow-btn"
+            v-show="isEdit"
+            data-tooltip="tooltip"
+            title="跟班"
+            @click="followShiftEdit()"
+            @followshiftedit="sendFollowShift(data)"
+          >
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -190,6 +191,7 @@
               :whichBorder="whichBorder(getUserShift(u.id, dd))"
               :shiftInfo="getUserShift(u.id, dd)"
               :adjustmentStr="getAdjustmentString(u.id, dd)"
+              :triangle="userReserve(u.id, month, dd)"
             ></user-shift-cell>
             <td class="gray-background">
               <input
@@ -335,6 +337,7 @@ export default {
       shiftOfCurrentMonth: {},
       changedResult: [],
       rs: "",
+      reserveData: [],
     };
   },
 
@@ -349,6 +352,7 @@ export default {
     this.getPreResultRemarkData();
     this.getShiftData();
     this.getStationData();
+    this.getReserveData();
   },
 
   computed: {
@@ -579,6 +583,16 @@ export default {
           self.stationData = response.data;
         })
         .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    getReserveData(){
+      let self = this;
+      this.$httpClient.get('/api/reservations/')
+        .then(res=>{
+          self.reserveData = res.data;
+        }).catch(err=>{
           console.log(err);
         });
     },
@@ -995,7 +1009,7 @@ export default {
       }
       return {};
     },
-
+    // 跟班按鈕觸發
     followShiftEdit() {
       if (this.isEdit == true) {
         $("#followShiftModal").modal("show");
@@ -1043,6 +1057,19 @@ export default {
       //     console.log(err);
       //   });
     },
+    // 預排假顯示
+    userReserve(id, month, day) {
+        let found = this.reserveData.find(item=>{
+          if(item.user == id) {
+            return (item.date.split('-')[1] == month) && (item.date.split('-')[2] == day);
+          }
+        });
+        if(found) {
+          return true;
+        };
+
+        return false;
+      },
 
     sendToResults() {
       this.followEdit = false;
