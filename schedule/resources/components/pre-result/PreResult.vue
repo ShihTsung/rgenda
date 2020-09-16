@@ -204,16 +204,16 @@
               />
               <div v-show="!isEdit" class="remark-grid">{{ findRemark(u.id) }}</div>
             </td>
-            <td class="white-background">{{ workhr(u.id, month, getDays, 0) }}</td>
-            <td class="gray-background">{{ workhr(u.id, month, date, 1) }}</td>
-            <td class="white-background">{{ workhr(u.id, month, date, 3) }}</td>
-            <td class="white-background">{{ workhr(u.id, month, date, 4) }}</td>
-            <td class="white-background">{{ workhr(u.id, month, date, 2) }}</td>
-            <td class="gray-background">{{ offHours(u.id, month, 4) }}</td>
-            <td class="white-background">{{ offHours(u.id, month, 1) }}</td>
-            <td class="white-background">{{ offHours(u.id, month, 2) }}</td>
-            <td class="white-background">{{ offHours(u.id, month, 3) }}</td>
-            <td class="gray-background">{{ workhr(u.id, month, getDays, 5) }}</td>
+            <td class="white-background">{{ getTotalShiftHour(u.id) }}</td>
+            <td class="gray-background">{{ workhr(u.id, date, 1) }}</td>
+            <td class="white-background">{{ workhr(u.id, date, 3) }}</td>
+            <td class="white-background">{{ workhr(u.id, date, 4) }}</td>
+            <td class="white-background">{{ workhr(u.id, date, 2) }}</td>
+            <td class="gray-background">{{ offHours(u.id, 4) }}</td>
+            <td class="white-background">{{ offHours(u.id, 1) }}</td>
+            <td class="white-background">{{ offHours(u.id, 2) }}</td>
+            <td class="white-background">{{ offHours(u.id, 3) }}</td>
+            <td class="gray-background">{{ getDiffHour(u.id) }}</td>
             <td class="white-background">-</td>
             <td class="white-background">-</td>
           </tr>
@@ -313,6 +313,7 @@ export default {
       year: moment().year(),
       month: moment().add(1, "months").month() + 1,
       date: moment().date(),
+      workDayHours: 8,
       userData: [],
       preResultData: [],
       adjustHr: [],
@@ -692,132 +693,146 @@ export default {
       this.remarks.push(data);
     },
 
+    getTotalShiftHour(userId) {
+      // 排班 = user 所有班別時數總和 + 公假時數 + 休息日出勤
+      // 班別時數總和
+      let totalHour = 0;
+      // 公假時數
+      let officialLeaveHour = 0;
+      for (let day = 1; day < this.getDays; ++day) {
+        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+          let i = this.shiftOfCurrentMonth[userId][day];
+          if (i.shift_type === '公') {
+            officialLeaveHour += i.shift.work_hours === 0 ? this.workDayHours : i.shift.work_hours;
+          } else {
+            totalHour += i.shift.work_hours;
+          }
+        }
+      }
+      // 休息日出勤時數
+      let offDateAttendantHour = 0;
+      this.adjustHr.forEach((i) => {
+        if (i.user === userId &&
+          parseInt(i.date.split("-")[1]) === this.month &&
+          this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item) {
+          offDateAttendantHour += i.hours;
+        }
+      });
+      return totalHour + officialLeaveHour + offDateAttendantHour;
+    },
+
+    getDiffHour(userId) {
+      // 當月差額 = user 所有班別時數總和 + 加班時數 - 減班時數 + 不出勤時數 - 當月時數
+      // 班別時數總和
+      let totalHour = 0;
+      for (let day = 1; day <= this.getDays; ++day) {
+        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+          let i = this.shiftOfCurrentMonth[userId][day];
+          totalHour += i.shift.work_hours;
+        }
+      }
+      let addHour = 0;
+      let subHour = 0;
+      this.adjustHr.forEach((i) => {
+        if (i.user === userId &&
+          parseInt(i.date.split("-")[1]) === this.month) {
+          if (i.adjustment_type === 0) {
+            addHour += i.hours;
+          } else if (i.adjustment_type === 1) {
+            subHour += i.hours;
+          }
+        }
+      });
+
+      // 不出勤日
+      let offDays = this.offHours(userId, 4);
+
+      return totalHour + addHour - subHour + offDays * this.workDayHours - this.getDays * this.workDayHours;
+    },
+
     //排班時數、出勤時數、當月差額計算
-    workhr(u, m, today, n) {
+    workhr(u, today, n) {
       let month = new Date().getMonth() + 1;
       let total_hr = 0;
-      let pub_hr = 0;
+      let pubDay = 0;
       let add_hr = 0;
       let sub_hr = 0;
-      let diff = 0;
+      // 機構減班時數
+      let institutionReduceClassHour = 0;
 
-      let arr = this.preResultData.filter((userItem) => {
-        if (userItem.user == u && parseInt(userItem.date.split("-")[1]) == m) {
-          return parseInt(userItem.date.split("-")[2]) <= today;
+      if (this.month === month) {
+        for (let day = 1; day <= today; ++day) {
+          if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
+            let i = this.shiftOfCurrentMonth[u][day];
+            if (i.shift_type == "公") {
+              pubDay += 1;
+            } else {
+              total_hr += i.shift.work_hours;
+            }
+          }
         }
-      });
-      let adjust = this.adjustHr.filter((item) => {
-        if (m == month) {
-          return (
-            item.user == u &&
-            parseInt(item.date.split("-")[1]) == m &&
-            parseInt(item.date.split("-")[2]) <= today
-          );
-        } else {
-          return item.user == u && parseInt(item.date.split("-")[1]) == m;
-        }
-      });
+      }
 
-      arr.forEach((i) => {
-        total_hr += i.shift.work_hours;
-      });
-      adjust.forEach((i) => {
+      this.adjustHr.filter((item) => {
+          return item.user == u &&
+            parseInt(item.date.split("-")[1]) == month &&
+            parseInt(item.date.split("-")[2]) <= today;
+      }).forEach((i) => {
         if (i.adjustment_type == 0) {
           add_hr += i.hours;
-        }
-      });
-      adjust.forEach((i) => {
-        if (i.adjustment_type == 1) {
+        } else if (i.adjustment_type == 1) {
           sub_hr += i.hours;
-        }
-      });
-      arr.forEach((i) => {
-        if (i.shift_type == "公") {
-          pub_hr += i.shift.work_hours / 8;
+          if (this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS') === i.adjustment_item) {
+            institutionReduceClassHour += i.hours;
+          }
         }
       });
       switch (n) {
-        case 0: //排班
-          return total_hr;
-        case 1: //總計
-          return total_hr + add_hr + sub_hr;
-        case 2: //公假
-          return pub_hr;
+        case 1: //總計 = 累計至當日的(user 所有班別時數總和 + 公假時數 + 加班 - 減班)
+          return total_hr + pubDay * this.workDayHours + add_hr - sub_hr;
+        case 2: //公假 = 累計到當日的公假天數
+          return pubDay;
         case 3: //加班
           return add_hr;
-        case 4: //減班
-          return sub_hr;
-        case 5: //當月差額
-          let a = this.offHours(u, this.month, 4);
-          if (total_hr) {
-            diff = total_hr + add_hr - sub_hr + a * 8 - today * 8;
-            return diff;
-          } else {
-            return 0;
-          }
+        case 4: //減班 = 機構減班
+          return institutionReduceClassHour;
+        default:
+          return -1;
       }
     },
 
-    //不出勤時數計算
-    offHours(u, m, index) {
+    //不出勤天數計算
+    offHours(u, index) {
       let total = 0;
       let special = 0;
       let count = 0;
       let notCount = 0;
 
-      //例休國 index1
-      let arr1 = this.preResultData.filter((i) => {
-        if (
-          i.user == u &&
-          parseInt(i.date.split("-")[1]) == m &&
-          i.shift.shift_type == 5
-        ) {
-          return (
-            i.shift.name[0] == "例" ||
-            i.shift.name[0] == "休" ||
-            i.shift.name[0] == "國"
-          );
+      for (let day = 1; day <= this.getDays; ++day) {
+        if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
+          let i = this.shiftOfCurrentMonth[u][day];
+          if (this.$getShiftTypeValue('VALUE_PAID_LEAVE') === i.shift.shift_type) {
+            if (i.shift.name[0] == "例" ||
+              i.shift.name[0] == "休" ||
+              i.shift.name[0] == "國") {
+              ++special;
+            } else {
+              ++count;
+            }
+          } else if (this.$getShiftTypeValue('VALUE_UNPAID_LEAVE') === i.shift.shift_type) {
+            ++notCount;
+          }
         }
-      });
-      //計薪 index2
-      let arr2 = this.preResultData.filter((i) => {
-        if (
-          i.user == u &&
-          parseInt(i.date.split("-")[1]) == m &&
-          i.shift.shift_type == 5
-        ) {
-          return (
-            i.shift.name[0] != "例" &&
-            i.shift.name[0] != "休" &&
-            i.shift.name[0] != "國"
-          );
-        }
-      });
-      //不計薪 index3
-      let arr3 = this.preResultData.filter((i) => {
-        if (i.user == u && parseInt(i.date.split("-")[1]) == m) {
-          return i.shift.shift_type == 6;
-        }
-      });
-      //計薪 公假
-      let arrP = this.preResultData.filter((i) => {
-        if (i.user == u && parseInt(i.date.split("-")[1]) == m) {
-          return i.shift.shift_type == 3;
-        }
-      });
-
-      special = arr1.length;
-      count = arr2.length + arrP.length;
-      notCount = arr3.length;
+      }
 
       switch (index) {
-        case 1:
+        case 1: // 例休國
           return special;
-        case 2:
+        case 2: // 有薪假(排除公假) + 減班「員工自假」
           return count;
-        case 3:
+        case 3: // 無薪假
           return notCount;
-        case 4:
+        case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
         default:
