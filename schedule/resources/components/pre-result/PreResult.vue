@@ -371,7 +371,7 @@ export default {
 
     stationPicker() {
       return this.stationData.filter((i) => {
-        return i.name.indexOf("假") === -1 && i.name.indexOf("行政") === -1;
+        return i.name.indexOf("假") === -1;
       });
     },
   },
@@ -559,7 +559,7 @@ export default {
     },
 
     getShiftData() {
-      fetch("/api/shifts")
+      fetch("/api/shifts/")
         .then((res) => {
           return res.json();
         })
@@ -589,7 +589,6 @@ export default {
 
     // 改變當前月份
     changeMonth(ev) {
-
       let date = moment([this.year, this.month - 1, 1]);
       switch (ev.target.id) {
         case "prev":
@@ -963,6 +962,7 @@ export default {
         }
         this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
       }
+      this.changeInfo = {};
     },
 
     //回傳對應標誌的樣式
@@ -993,7 +993,11 @@ export default {
       ) {
         return this.shiftOfCurrentMonth[userId][date];
       }
-      return {};
+      return {
+        id: 0,
+        date: this.year + "-" + String(this.month).padStart(2, "0") + "-" + String(date).padStart(2, "0"),
+        user: userId,
+      };
     },
 
     followShiftEdit() {
@@ -1048,6 +1052,7 @@ export default {
       this.followEdit = false;
       this.rsShow = false;
 
+      let promises = [];
       this.changedResult.forEach((i) => {
         let data = {
           user: i.user,
@@ -1055,22 +1060,34 @@ export default {
           date: i.date,
           station: i.station ? i.station.id : null,
         };
-
-        fetch(`/api/preresults/${i.id}/`, {
-          headers: {
-            "X-CSRFToken": `${this.csrfToken}`,
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(data),
-          method: "PATCH",
-        })
-          .then((res) => {
-            this.getPreResults();
-            return res.json();
-          })
-          .catch((err) => {
+        let promise;
+        if (i.id === 0) {
+          promise = fetch("/api/preresults/", {
+            headers: {
+              "X-CSRFToken": this.csrfToken,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(data),
+            method: "POST",
+          }).catch((err) => {
             console.log(err);
           });
+        } else {
+          promise = fetch(`/api/preresults/${i.id}/`, {
+            headers: {
+              "X-CSRFToken": this.csrfToken,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(data),
+            method: "PATCH",
+          }).catch((err) => {
+              console.log(err);
+          });
+        }
+        promises.push(promise);
+      });
+      Promise.all(promises).then(() => {
+        this.getPreResults();
       });
 
       this.remarks.forEach((i) => {
@@ -1088,14 +1105,12 @@ export default {
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).then((res) => {
+            this.getUserRemark();
+            return res.json();
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
           //remarkData沒資料
           fetch("/api/user-remarks/", {
@@ -1105,14 +1120,12 @@ export default {
             },
             body: JSON.stringify(i),
             method: "POST",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).then((res) => {
+            this.getUserRemark();
+            return res.json();
+          }).catch((err) => {
+            console.log(err);
+          });
         }
       });
 
