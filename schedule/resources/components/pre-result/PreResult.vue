@@ -131,7 +131,7 @@
               />
             </svg>
           </div>
-          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核">
+          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核" @click="getCheckResult()">
             <svg
               class="icon-color"
               width="24"
@@ -327,7 +327,6 @@ export default {
       isReady: false,
       isEdit: false,
       rsShow: false,
-      isConfirm: false,//確認後控制正在重算載入畫面的變數
       couldRecalculate: false,
       rsClass: "",
       follower: {},
@@ -335,6 +334,7 @@ export default {
       shiftOfCurrentMonth: {},
       changedResult: [],
       rs: "",
+      checkResult: [],
     };
   },
 
@@ -512,6 +512,7 @@ export default {
         });
     },
 
+    //取得班別資料
     getShiftData() {
       fetch("/api/shifts/")
         .then((res) => {
@@ -525,6 +526,7 @@ export default {
         });
     },
 
+    //取得工作站資料
     getStationData() {
       let self = this;
       this.$httpClient
@@ -533,6 +535,18 @@ export default {
           self.stationData = response.data;
         })
         .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    //取得檢核的資料
+    getCheckResult() {
+      fetch(`/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`)
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          this.checkResult = data;
+        }).catch(err=>{
           console.log(err);
         });
     },

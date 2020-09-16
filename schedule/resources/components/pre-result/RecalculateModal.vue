@@ -71,14 +71,16 @@ export default {
       type: Number,
       default: 30,
     },
-    isConfirm: {
-      type: Boolean,
-      default: false,
-    },
     couldRecalculate: {
       type: Boolean,
       default: true,
     },
+  },
+
+  data() {
+    return {
+      isConfirm: false,//確認後控制正在重算載入畫面的變數
+    }
   },
 
   methods: {
@@ -87,7 +89,7 @@ export default {
 
       if (this.couldRecalculate) {
         fetch(
-          `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+          `/api/recreate-result-monthly?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
         )
           .then((res) => {
             $("#recalculateModal").modal("hide");
