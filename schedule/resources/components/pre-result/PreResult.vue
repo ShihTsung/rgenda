@@ -398,20 +398,7 @@ export default {
       //處理懶加載畫面的變數設置
       this.isReady = false;
 
-      fetch(
-        "/api/preresults/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -443,14 +430,7 @@ export default {
 
     //取得前一個月最後幾天排班資料
     getLastMonthData() {
-      fetch(
-        "/api/last-month-continue?month_head=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01"
-      )
+      fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
         .then((res) => {
           return res.json();
         })
@@ -464,20 +444,7 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(
-        "/api/time-adjustment/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -505,20 +472,7 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(
-        "/api/total-per-day/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -1216,8 +1170,6 @@ export default {
       this.remarkS.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
-
-      // location.reload();
     },
 
     callResetModal() {
