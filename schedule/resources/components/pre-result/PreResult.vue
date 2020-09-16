@@ -975,8 +975,8 @@ export default {
       $("#followShiftModal").modal("hide");
       let results = this.shiftOfCurrentMonth[followInfo.mentor]
 
+
       Object.keys(results).forEach(key=>{
-        console.log(results[key])
         let e = results[key]
         if (e.user == followInfo.mentor){
 
@@ -988,10 +988,12 @@ export default {
           }
           this.changedResult.push(obj)
           let d = moment(e.date).date();
-          if(!this.shiftOfCurrentMonth[followInfo.follower]){
-            this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
+          if (moment(e.date).isBetween(followInfo.startDate, followInfo.endDate)){
+            if(!this.shiftOfCurrentMonth[followInfo.follower]){
+              this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
+            }
+            this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
           }
-          this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
         }
       });
 
