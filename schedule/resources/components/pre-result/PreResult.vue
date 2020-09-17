@@ -923,19 +923,19 @@ export default {
       if (
         this.rsShow == true &&
         this.rsClass != "" &&
-        $(ev.target).parents('td').hasClass("couldEdit")
+        $(ev.target).closest('td').hasClass("couldEdit")
       ) {
         let data = {};
         data.result = info.id;
-        let classListStr = JSON.stringify(ev.target.parentNode.classList);
-        ev.target.parentNode.classList.add(this.rsClass);
+        let classListStr = $(ev.target).closest('td').attr('class');
+        $(ev.target).closest('td').addClass(this.rsClass);
 
         let check = this.preResultRemarkData.find((item) => {
           return data.result == item.result;
         });
 
         if (classListStr.indexOf("rs1") != -1) {
-          ev.target.parentNode.classList.remove("rs1");
+          $(ev.target).closest('td').removeClass("rs1");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -955,7 +955,7 @@ export default {
               });
           }
         } else if (classListStr.indexOf("rs2") != -1) {
-          ev.target.parentNode.classList.remove("rs2");
+          $(ev.target).closest('td').removeClass("rs2");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -975,7 +975,7 @@ export default {
               });
           }
         } else if (classListStr.indexOf("rs3") != -1) {
-          ev.target.parentNode.classList.remove("rs3");
+          $(ev.target).closest('td').removeClass("rs3");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -1027,7 +1027,7 @@ export default {
 
       if (
         this.isEdit == true &&
-        $(ev.target).parents('td').hasClass("couldEdit")
+        $(ev.target).closest('td').hasClass("couldEdit")
       ) {
         $("#changeShiftModal").modal("show");
         if (info != undefined) {
@@ -1054,7 +1054,7 @@ export default {
         });
         if(duplicate > -1) {
           this.changedResult.splice(duplicate, 1);
-        };
+        }
         this.changedResult.push(obj);
         let d = moment(changeShiftInfo.date).date();
         if (!this.shiftOfCurrentMonth[changeShiftInfo.user]) {
@@ -1066,7 +1066,7 @@ export default {
           d,
           changeShiftInfo
         );
-      };
+      }
 
       this.changeInfo = {};
     },
@@ -1120,43 +1120,38 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
-      let preresults = this.shiftOfCurrentMonth[followInfo.follower]
+      let preresults = this.shiftOfCurrentMonth[followInfo.follower] || {}
       let results = this.shiftOfCurrentMonth[followInfo.mentor];
       Object.keys(results).forEach((key) => {
         let e = results[key];
         if (e.user == followInfo.mentor) {
-          let obj = {
-            user: followInfo.follower,
-            shift: e.shift,
-            station: e.station,
-            date: e.date,
-          };
-          if (preresults[key]){
-            obj.id = preresults[key].id;
-          }
-          else{
-            obj.id = 0;
-          }
-          let duplicate = this.changedResult.findIndex(d => {
-            return d.user == obj.user && d.date == obj.date;
-          });
-          if(duplicate > -1) {
-            this.changedResult.splice(duplicate, 1);
-          };
-          this.changedResult.push(obj);
-          let d = moment(e.date).date();
-          let d_start = parseInt(followInfo.startDate.substring(8));
-          let d_end = parseInt(followInfo.endDate.substring(8));
-          let d_d = parseInt(e.date.substring(8));
-          if (d_d <= d_end && d_d >= d_start) {
+          let followStart = parseInt(followInfo.startDate.substring(8));
+          let followEnd = parseInt(followInfo.endDate.substring(8));
+          let shiftDate = parseInt(e.date.substring(8));
+          if (shiftDate <= followEnd && shiftDate >= followStart) {
+            let obj = {
+              id: preresults[key] ? preresults[key].id : 0,
+              user: followInfo.follower,
+              shift: e.shift,
+              station: e.station,
+              date: e.date,
+            };
+            let duplicate = this.changedResult.findIndex(d => {
+              return d.user == obj.user && d.date == obj.date;
+            });
+            if(duplicate > -1) {
+              this.changedResult.splice(duplicate, 1);
+            }
+            this.changedResult.push(obj);
             if (!this.shiftOfCurrentMonth[followInfo.follower]) {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
             obj.isModified = true;
-            this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
+            this.$set(this.shiftOfCurrentMonth[followInfo.follower], shiftDate, obj);
           }
         }
       });
+      console.log(this.changedResult);
     },
     // 預排假顯示
     userReserve(id, month, day) {
@@ -1573,16 +1568,6 @@ export default {
       .mark-explanation {
         border: none;
         float: left;
-      }
-
-      .rs1 {
-        border: 5px solid #58b4ae;
-      }
-      .rs2 {
-        border: 5px solid #84b1ed;
-      }
-      .rs3 {
-        border: 5px solid #37419a;
       }
     }
   }
