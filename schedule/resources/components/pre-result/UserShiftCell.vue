@@ -6,7 +6,7 @@
   >
     <div>
       <div :class="{triangle: triangle}"></div>
-      <div :class="shiftColor(shiftInfo)">{{ shiftType() }}</div>
+      <div :class="shiftColor">{{ shiftType }}</div>
       <div
         v-if="adjustmentStr"
         :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
