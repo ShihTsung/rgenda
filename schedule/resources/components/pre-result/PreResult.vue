@@ -629,7 +629,7 @@ export default {
       } else {
         if (this.isEdit) {
           return "couldEdit";
-        };
+        }
         return "hoverEvent";
       }
     },
@@ -886,7 +886,7 @@ export default {
       if (
         this.rsShow == true &&
         this.rsClass != "" &&
-        ev.target.parentNode.classList[2] == "couldEdit"
+        $(ev.target).parents('td').hasClass("couldEdit")
       ) {
         let data = {};
         data.result = info.id;
@@ -916,7 +916,7 @@ export default {
               .catch((err) => {
                 console.log(err);
               });
-          };
+          }
         } else if (classListStr.indexOf("rs2") != -1) {
           ev.target.parentNode.classList.remove("rs2");
           if(check) {
@@ -936,7 +936,7 @@ export default {
               .catch((err) => {
                 console.log(err);
               });
-          };
+          }
         } else if (classListStr.indexOf("rs3") != -1) {
           ev.target.parentNode.classList.remove("rs3");
           if(check) {
@@ -956,7 +956,7 @@ export default {
               .catch((err) => {
                 console.log(err);
               });
-          };
+          }
         }
 
         switch (this.rsClass) {
@@ -1333,7 +1333,7 @@ export default {
       });
       if(content) {
         return content;
-      };
+      }
     }
     //-------------------------------------------------
   },
