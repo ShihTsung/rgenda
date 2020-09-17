@@ -5,12 +5,6 @@
     @click="edit($event, shiftInfo)"
     style="position: relative;"
   >
-    <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
-    <div
-      v-if="adjustmentStr"
-      :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
-    >{{ adjustmentStr }}</div>
-
     <div v-if="isCheck && Object.keys(checkContent).length && hoverControl" class="checkbox" :style="{background: isChangeShift}">
       <div v-for="(r, r_index) in checkContent.reason" :key="r_index">
         {{`${r.split('：')[0]}：`}}
@@ -41,6 +35,7 @@
           d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
         />
       </svg>
+    </div>
     <div>
       <div :class="{triangle: triangle}"></div>
       <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
