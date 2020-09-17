@@ -41,6 +41,14 @@
           d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
         />
       </svg>
+    <div>
+      <div :class="{triangle: triangle}"></div>
+      <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
+      <div
+        v-if="adjustmentStr"
+        :class="{addWork: adjustmentStr[0] === '+', subWork: adjustmentStr[0] === '-', showAdjustmentRemark: showAdjustmentRemark}"
+        :adjustment-remark="adjustmentRemark"
+      >{{ adjustmentStr }}</div>
     </div>
   </td>
 </template>
@@ -203,6 +211,9 @@ export default {
         }
       }
     },
+    showAdjustmentRemark() {
+      return this.adjustmentRemark.length !== 0;
+    }
   },
 };
 </script>
@@ -210,8 +221,13 @@ export default {
 <style scoped lang="scss">
 $color-dark-blue: #37419a;
 
-td div {
+td > div {
   position: relative;
+}
+
+.shift-cell {
+  max-width: 45px;
+  overflow: hidden;
 }
 
 .triangle {
@@ -224,7 +240,8 @@ td div {
   top: 0;
   left: 0;
 }
-.addWork[adjustment-remark]:hover::after {
+
+.showAdjustmentRemark[adjustment-remark]:hover::after {
   content: attr(adjustment-remark);
   position: absolute;
   left: 30px;
@@ -238,6 +255,9 @@ td div {
   border-style: solid;
   border-radius: 5px;
   max-width: 200px;
+  white-space: normal;
+  width: max-content;
+  box-shadow: 0 0 2px;
 }
 .checkbox {
   position: absolute;

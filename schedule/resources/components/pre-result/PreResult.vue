@@ -990,8 +990,7 @@ export default {
 
       if (
         this.isEdit == true &&
-        ($(ev.target).hasClass("couldEdit") ||
-          $(ev.target).parent().hasClass("couldEdit"))
+        $(ev.target).parents('td').hasClass("couldEdit")
       ) {
         $("#changeShiftModal").modal("show");
         if (info != undefined) {
@@ -1100,19 +1099,6 @@ export default {
           }
         }
       });
-
-      // let url = '/api/follow-shift?start=' + followInfo.startDate +
-      // '&end=' + followInfo.endDate + '&follower=' + followInfo.follower.toString() +
-      // '&mentor=' + followInfo.mentor.toString();
-      // this.$httpClient
-      //   .get(url)
-      //   .then((response) => {
-      //     console.log(response);
-      //     $("#followShiftModal").modal("hide");
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
     },
     // 預排假顯示
     userReserve(id, month, day) {
@@ -1473,7 +1459,6 @@ export default {
       .grid-width {
         width: 45px;
         white-space: nowrap;
-        overflow-x: hidden;
       }
 
       .couldEdit {
