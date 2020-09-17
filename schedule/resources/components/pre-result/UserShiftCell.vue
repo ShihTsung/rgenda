@@ -3,7 +3,6 @@
     class="grid-width white-background"
     :class="[isPast, whichBorder]"
     @click="edit($event, shiftInfo)"
-
   >
     <div>
       <div :class="{triangle: triangle}"></div>
@@ -14,39 +13,44 @@
         :adjustment-remark="adjustmentRemark"
       >{{ adjustmentStr }}</div>
 
-      <div v-if="isCheck && Object.keys(checkContent).length && hoverControl" class="checkbox" :style="{background: shiftInfo.isModified == true ? '#84C0E9' : 'red'}">
-      <div v-for="(r, r_index) in checkContent.reason" :key="r_index">
-        {{`${r.split('：')[0]}：`}}
-        <br/>
-        {{r.split('：')[1]}}
+      <div
+        v-if="isCheck && Object.keys(checkContent).length && hoverControl"
+        class="checkbox"
+        :style="{background: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
+      >
+        <div v-for="(r, r_index) in checkContent.reason" :key="r_index">
+          {{`${r.split('：')[0]}：`}}
+          <br />
+          {{r.split('：')[1]}}
+        </div>
+      </div>
+      <div
+        class="forbidden-mark"
+        v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 1)"
+        @mouseenter="hoverControl = true"
+        @mouseleave="hoverControl = false"
+        :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"
+          />
+        </svg>
+      </div>
+      <div
+        class="alert-mark"
+        v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 2)"
+        @mouseenter="hoverControl = true"
+        @mouseleave="hoverControl = false"
+        :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
+          />
+        </svg>
       </div>
     </div>
-    <div
-      class="forbidden-mark"
-      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 1)"
-      @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
-      :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-        <path
-          d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"
-        />
-      </svg>
-    </div>
-    <div
-      class="alert-mark"
-      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 2)"
-      @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
-      :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-        <path
-          d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
-        />
-      </svg>
-    </div>
-    </div>
-
   </td>
 </template>
 
@@ -87,7 +91,7 @@ export default {
     },
     adjustmentRemark: {
       type: String,
-      default: '',
+      default: "",
     },
     triangle: {
       type: Boolean,
@@ -125,19 +129,19 @@ export default {
             return "onCall";
           case 5:
             switch (this.shiftInfo.shift.name) {
-              case '休息':
-              case '例假':
-              case '國定假日':
-              case '公假':
-                return 'rest';
-              case '補休':
-              case '特休':
-                return 'restR';
+              case "休息":
+              case "例假":
+              case "國定假日":
+              case "公假":
+                return "rest";
+              case "補休":
+              case "特休":
+                return "restR";
             }
             break;
           case 6:
-            if (this.shiftInfo.shift.name === '事假') {
-              return 'restR';
+            if (this.shiftInfo.shift.name === "事假") {
+              return "restR";
             }
             break;
         }
@@ -155,39 +159,41 @@ export default {
           case 3:
             return "公";
           case 4:
-            return this.shiftInfo.shift.code === '' ? 'On' : this.shiftInfo.shift.code;
+            return this.shiftInfo.shift.code === ""
+              ? "On"
+              : this.shiftInfo.shift.code;
           case 5:
             switch (this.shiftInfo.shift.name) {
-              case '休息':
-                return '休';
-              case '例假':
-                return '例';
-              case '補休':
-                return '補';
-              case '特休':
-                return '特';
-              case '空班':
-                return '空';
-              case '婚假':
-                return '婚';
-              case '喪假':
-                return '喪';
-              case '產假':
-                return '產';
-              case '生理假':
-                return '生';
-              case '國定假日':
-                return '國';
+              case "休息":
+                return "休";
+              case "例假":
+                return "例";
+              case "補休":
+                return "補";
+              case "特休":
+                return "特";
+              case "空班":
+                return "空";
+              case "婚假":
+                return "婚";
+              case "喪假":
+                return "喪";
+              case "產假":
+                return "產";
+              case "生理假":
+                return "生";
+              case "國定假日":
+                return "國";
             }
             break;
           case 6:
             switch (this.shiftInfo.shift.name) {
-              case '無薪病假':
-                return '病';
-              case '事假':
-                return '事';
-              case '家庭照顧假':
-                return '家';
+              case "無薪病假":
+                return "病";
+              case "事假":
+                return "事";
+              case "家庭照顧假":
+                return "家";
             }
             break;
         }
@@ -196,8 +202,12 @@ export default {
     },
     tellCheckMark() {
       if (Object.keys(this.checkContent).length) {
-        let forbidMark = this.checkContent.reason.toString().indexOf("不合法規");
-        let alertMark = this.checkContent.reason.toString().indexOf("不合排班條件");
+        let forbidMark = this.checkContent.reason
+          .toString()
+          .indexOf("不合法規");
+        let alertMark = this.checkContent.reason
+          .toString()
+          .indexOf("不合排班條件");
 
         if (forbidMark != -1) {
           return 1;
@@ -208,7 +218,7 @@ export default {
     },
     showAdjustmentRemark() {
       return this.adjustmentRemark.length !== 0;
-    }
+    },
   },
 };
 </script>
