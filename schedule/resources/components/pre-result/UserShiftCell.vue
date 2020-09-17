@@ -215,6 +215,7 @@ export default {
           return 2;
         }
       }
+      return 0;
     },
     showAdjustmentRemark() {
       return this.adjustmentRemark.length !== 0;
@@ -226,11 +227,16 @@ export default {
 <style scoped lang="scss">
 $color-dark-blue: #37419a;
 
+td {
+  vertical-align: top;
+}
+
 td > div {
   position: relative;
 }
 
 .shift-cell {
+  text-align: center;
   max-width: 45px;
   overflow: hidden;
 }
@@ -264,6 +270,7 @@ td > div {
   width: max-content;
   box-shadow: 0 0 2px;
 }
+
 .checkbox {
   position: absolute;
   background: red;
@@ -274,15 +281,28 @@ td > div {
   padding: 8px 3px;
   text-align: left;
 }
+
 .grid-width {
   height: 40px;
 }
+
 .hoverEvent {
   &:hover {
     cursor: pointer;
     background: rgba(185, 184, 184, 0.26) !important;
   }
 }
+
+.rs1 {
+  border: 5px solid #58b4ae;
+}
+.rs2 {
+  border: 5px solid #84b1ed;
+}
+.rs3 {
+  border: 5px solid #37419a;
+}
+
 .forbidden-mark {
   fill: red;
   opacity: 0.5;
@@ -291,6 +311,7 @@ td > div {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .alert-mark {
   fill: red;
   position: absolute;

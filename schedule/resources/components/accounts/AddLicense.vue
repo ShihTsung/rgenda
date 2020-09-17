@@ -106,7 +106,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
-import defaultImg from '../../../static/images/no-photo.jpg';
+import defaultImg from '../../../prod_static/images/no-photo.jpg';
 
 export default {
   components: {

@@ -87,13 +87,8 @@ def check_cycle(department, results, invalid):
                     break
             else:
                 break
-        if user.username == 'N31268':
-            print(i, [r.shift.shift_type for r in results])
         for result in results:
-            if user.username == 'N31268':
-                print(i, current_shift_type)
             if i % 7 == 0:
-                print('-')
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in [0, 1, 2, 7]:
                 current_shift_type = result.shift.shift_type
