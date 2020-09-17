@@ -3,15 +3,18 @@
     class="grid-width white-background"
     :class="[isPast, whichBorder]"
     @click="edit($event, shiftInfo)"
-    style="position: relative;"
-  >
-    <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
-    <div
-      v-if="adjustmentStr"
-      :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
-    >{{ adjustmentStr }}</div>
 
-    <div v-if="isCheck && Object.keys(checkContent).length && hoverControl" class="checkbox" :style="{background: isChangeShift}">
+  >
+    <div>
+      <div :class="{triangle: triangle}"></div>
+      <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
+      <div
+        v-if="adjustmentStr"
+        :class="{addWork: adjustmentStr[0] === '+', subWork: adjustmentStr[0] === '-', showAdjustmentRemark: showAdjustmentRemark}"
+        :adjustment-remark="adjustmentRemark"
+      >{{ adjustmentStr }}</div>
+
+      <div v-if="isCheck && Object.keys(checkContent).length && hoverControl" class="checkbox" :style="{background: shiftInfo.isModified == true ? '#84C0E9' : 'red'}">
       <div v-for="(r, r_index) in checkContent.reason" :key="r_index">
         {{`${r.split('：')[0]}：`}}
         <br/>
@@ -20,9 +23,9 @@
     </div>
     <div
       class="forbidden-mark"
-      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark(checkContent) === 1)"
+      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 1)"
       @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
-      :style="{fill: isChangeShift}"
+      :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
         <path
@@ -32,24 +35,18 @@
     </div>
     <div
       class="alert-mark"
-      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark(checkContent) === 2)"
+      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark === 2)"
       @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
-      :style="{fill: isChangeShift}"
+      :style="{fill: shiftInfo.isModified == true ? '#84C0E9' : 'red'}"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
         <path
           d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
         />
       </svg>
-    <div>
-      <div :class="{triangle: triangle}"></div>
-      <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
-      <div
-        v-if="adjustmentStr"
-        :class="{addWork: adjustmentStr[0] === '+', subWork: adjustmentStr[0] === '-', showAdjustmentRemark: showAdjustmentRemark}"
-        :adjustment-remark="adjustmentRemark"
-      >{{ adjustmentStr }}</div>
     </div>
+    </div>
+
   </td>
 </template>
 
@@ -101,14 +98,12 @@ export default {
   data() {
     return {
       hoverControl: false,
-      isChangeShift: '',//檢核框框顏色控制
     };
   },
 
   methods: {
     edit(event, shiftInfo) {
       this.$parent.editShift(event, shiftInfo);
-      this.isChangeShift = '#84C0E9';
     },
   },
   computed: {
@@ -199,10 +194,10 @@ export default {
       }
       return "-";
     },
-    tellCheckMark(item) {
-      if (Object.keys(item).length) {
-        let forbidMark = item.reason.toString().indexOf("不合法規");
-        let alertMark = item.reason.toString().indexOf("不合排班條件");
+    tellCheckMark() {
+      if (Object.keys(this.checkContent).length) {
+        let forbidMark = this.checkContent.reason.toString().indexOf("不合法規");
+        let alertMark = this.checkContent.reason.toString().indexOf("不合排班條件");
 
         if (forbidMark != -1) {
           return 1;
