@@ -1170,7 +1170,6 @@ export default {
       let promises = [];
 
       this.changedResult.forEach((i) => {
-        console.log(i);
         let data = {
           user: i.user,
           shift: i.shift.id,
