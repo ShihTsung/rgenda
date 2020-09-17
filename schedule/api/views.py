@@ -2940,12 +2940,16 @@ def recreate_result_monthly(request):
 def published_or_not(request):
     year = request.query_params.get('year', None)
     month = request.query_params.get('month', None)
-    department = request.user.department
-    users = CustomUser.objects.filter(department=department)
-    start = datetime.date(int(year), int(month), 1)
-    end = datetime.date(int(year), int(month), 5)
-    r = Result.objects.filter(date__range=[start, end], user__in=users)
-    if len(r) > 5:
-        return Response(True)
+    if not year and not month:
+        return Response("'year' and 'month' need to be given")
     else:
-        return Response(False)
+        department = request.user.department
+        users = CustomUser.objects.filter(department=department)
+        start = datetime.date(int(year), int(month), 1)
+        end = datetime.date(int(year), int(month), 5)
+        r = Result.objects.filter(date__range=[start, end], user__in=users)
+        if len(r) > 5:
+            return Response(True)
+        else:
+            return Response(False)
+

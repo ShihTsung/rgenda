@@ -146,7 +146,12 @@
               />
             </svg>
           </div>
-          <div class="icon-bts announce-btn" data-tooltip="tooltip" title="發佈">
+          <div
+            class="icon-bts announce-btn"
+            data-tooltip="tooltip"
+            title="發佈"
+            @click="publishModal()"
+          >
             <svg
               class="icon-color"
               xmlns="http://www.w3.org/2000/svg"
@@ -274,6 +279,11 @@
       v-show="couldRecalculate && (couldReset() !== 'not-allowed')"
     ></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
+
+    <publish-modal
+      >
+
+    </publish-modal>
   </div>
 </template>
 <script>
@@ -287,6 +297,7 @@ import ChangeShiftModal from "./ChangeShiftModal.vue";
 import FollowShiftModal from "./FollowShiftModal.vue";
 import RecalculateModal from "./RecalculateModal.vue";
 import ErrorAlertModal from "./ErrorAlertModal.vue";
+import PublishModal from "./PublishModal.vue";
 
 moment.locale("zh-tw");
 export default {
@@ -299,6 +310,7 @@ export default {
     FollowShiftModal,
     RecalculateModal,
     ErrorAlertModal,
+    PublishModal,
   },
 
   props: {
@@ -329,7 +341,7 @@ export default {
       isReady: false,
       isEdit: false,
       rsShow: false,
-      isConfirm: false,//確認後控制正在重算載入畫面的變數
+      isConfirm: false, //確認後控制正在重算載入畫面的變數
       couldRecalculate: false,
       rsClass: "",
       follower: {},
@@ -587,12 +599,14 @@ export default {
         });
     },
 
-    getReserveData(){
+    getReserveData() {
       let self = this;
-      this.$httpClient.get('/api/reservations/')
-        .then(res=>{
+      this.$httpClient
+        .get("/api/reservations/")
+        .then((res) => {
           self.reserveData = res.data;
-        }).catch(err=>{
+        })
+        .catch((err) => {
           console.log(err);
         });
     },
@@ -971,10 +985,14 @@ export default {
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
         });
         let d = moment(changeShiftInfo.date).date();
-        if (!this.shiftOfCurrentMonth[changeShiftInfo.user]){
+        if (!this.shiftOfCurrentMonth[changeShiftInfo.user]) {
           this.$set(this.shiftOfCurrentMonth, changeShiftInfo.user, {});
         }
-        this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
+        this.$set(
+          this.shiftOfCurrentMonth[changeShiftInfo.user],
+          d,
+          changeShiftInfo
+        );
       }
       this.changeInfo = {};
     },
@@ -1009,7 +1027,12 @@ export default {
       }
       return {
         id: 0,
-        date: this.year + "-" + String(this.month).padStart(2, "0") + "-" + String(date).padStart(2, "0"),
+        date:
+          this.year +
+          "-" +
+          String(this.month).padStart(2, "0") +
+          "-" +
+          String(date).padStart(2, "0"),
         user: userId,
       };
     },
@@ -1023,24 +1046,23 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
-      let results = this.shiftOfCurrentMonth[followInfo.mentor]
-      Object.keys(results).forEach(key=>{
-        let e = results[key]
-        if (e.user == followInfo.mentor){
-
+      let results = this.shiftOfCurrentMonth[followInfo.mentor];
+      Object.keys(results).forEach((key) => {
+        let e = results[key];
+        if (e.user == followInfo.mentor) {
           let obj = {
             user: followInfo.follower,
             shift: e.shift,
             station: e.station,
-            date: e.date
-          }
-          this.changedResult.push(obj)
+            date: e.date,
+          };
+          this.changedResult.push(obj);
           let d = moment(e.date).date();
-          let d_start = parseInt(followInfo.startDate.substring(8))
-          let d_end = parseInt(followInfo.endDate.substring(8))
-          let d_d = parseInt(e.date.substring(8))
-          if (d_d <= d_end && d_d >= d_start){
-            if(!this.shiftOfCurrentMonth[followInfo.follower]){
+          let d_start = parseInt(followInfo.startDate.substring(8));
+          let d_end = parseInt(followInfo.endDate.substring(8));
+          let d_d = parseInt(e.date.substring(8));
+          if (d_d <= d_end && d_d >= d_start) {
+            if (!this.shiftOfCurrentMonth[followInfo.follower]) {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
             this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
@@ -1063,17 +1085,19 @@ export default {
     },
     // 預排假顯示
     userReserve(id, month, day) {
-        let found = this.reserveData.find(item=>{
-          if(item.user == id) {
-            return (item.date.split('-')[1] == month) && (item.date.split('-')[2] == day);
-          }
-        });
-        if(found) {
-          return true;
-        };
+      let found = this.reserveData.find((item) => {
+        if (item.user == id) {
+          return (
+            item.date.split("-")[1] == month && item.date.split("-")[2] == day
+          );
+        }
+      });
+      if (found) {
+        return true;
+      }
 
-        return false;
-      },
+      return false;
+    },
 
     sendToResults() {
       this.followEdit = false;
@@ -1108,7 +1132,7 @@ export default {
             body: JSON.stringify(data),
             method: "PATCH",
           }).catch((err) => {
-              console.log(err);
+            console.log(err);
           });
         }
         promises.push(promise);
@@ -1132,12 +1156,14 @@ export default {
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          }).then((res) => {
-            this.getUserRemark();
-            return res.json();
-          }).catch((err) => {
-            console.log(err);
-          });
+          })
+            .then((res) => {
+              this.getUserRemark();
+              return res.json();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         } else {
           //remarkData沒資料
           fetch("/api/user-remarks/", {
@@ -1147,12 +1173,14 @@ export default {
             },
             body: JSON.stringify(i),
             method: "POST",
-          }).then((res) => {
-            this.getUserRemark();
-            return res.json();
-          }).catch((err) => {
-            console.log(err);
-          });
+          })
+            .then((res) => {
+              this.getUserRemark();
+              return res.json();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }
       });
 
@@ -1248,16 +1276,19 @@ export default {
     },
 
     callResetModal() {
-
-      fetch(`/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
-        .then((res)=> {
+      fetch(
+        `/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+      )
+        .then((res) => {
           return res.json();
         })
-        .then((data)=> {
+        .then((data) => {
           this.couldRecalculate = data.length === 0 ? true : false;
         })
-        .then(()=> {
-          this.couldRecalculate === true ? $("#recalculateModal").modal("show") : $("#errorAlertModal").modal("show");
+        .then(() => {
+          this.couldRecalculate === true
+            ? $("#recalculateModal").modal("show")
+            : $("#errorAlertModal").modal("show");
         })
         .catch((err) => {
           console.log(err);
@@ -1271,6 +1302,12 @@ export default {
         return "pointer";
       } else {
         return "not-allowed";
+      }
+    },
+
+    publishModal() {
+      if (this.isEdit == true) {
+        $("#publishModal").modal("show");
       }
     },
     //-------------------------------------------------
