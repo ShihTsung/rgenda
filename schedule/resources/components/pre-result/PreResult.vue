@@ -1,6 +1,7 @@
 <template>
   <div id="pre-result" v-cloak>
-    <loading v-show="!isReady"></loading>
+    <loading v-show="!isReady" :text="text"></loading>
+    <loading v-show="checkLoading" :text="text"></loading>
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
@@ -132,7 +133,7 @@
               />
             </svg>
           </div>
-          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核">
+          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核" @click="getCheckResultData()">
             <svg
               class="icon-color"
               width="24"
@@ -198,6 +199,9 @@
               :adjustmentStr="getAdjustmentString(u.id, dd)"
               :adjustmentRemark="getAdjustmentRemark(u.id, dd)"
               :triangle="userReserve(u.id, month, dd)"
+              :checkContent="checkPreResult(u.id, dd)"
+              :isCheck="isCheck"
+              :text="text"
             ></user-shift-cell>
             <td class="gray-background">
               <input
@@ -352,6 +356,11 @@ export default {
       changedResult: [],
       rs: "",
       reserveData: [],
+      checkResultData: [],
+      isCheck: false,
+      text: '載入中...',
+      checkLoading: false,
+
     };
   },
 
@@ -416,20 +425,7 @@ export default {
       //處理懶加載畫面的變數設置
       this.isReady = false;
 
-      fetch(
-        "/api/preresults/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -461,14 +457,7 @@ export default {
 
     //取得前一個月最後幾天排班資料
     getLastMonthData() {
-      fetch(
-        "/api/last-month-continue?month_head=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01"
-      )
+      fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
         .then((res) => {
           return res.json();
         })
@@ -482,20 +471,7 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(
-        "/api/time-adjustment/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -523,20 +499,7 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(
-        "/api/total-per-day/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -576,6 +539,7 @@ export default {
         });
     },
 
+    //取得班別資料
     getShiftData() {
       fetch("/api/shifts/")
         .then((res) => {
@@ -589,6 +553,7 @@ export default {
         });
     },
 
+    //取得工作站資料
     getStationData() {
       let self = this;
       this.$httpClient
@@ -609,6 +574,23 @@ export default {
           self.reserveData = res.data;
         })
         .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    //取得檢核的資料
+    getCheckResultData() {
+      this.checkLoading = true;
+      this.text = '檢核中...';
+
+      fetch(`/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`)
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          this.checkResultData = data;
+          this.isCheck = this.checkResultData.length === 0 ? false : true;
+          this.checkLoading = false;
+        }).catch(err=>{
           console.log(err);
         });
     },
@@ -647,7 +629,8 @@ export default {
       } else {
         if (this.isEdit) {
           return "couldEdit";
-        }
+        };
+        return "hoverEvent";
       }
     },
 
@@ -916,49 +899,64 @@ export default {
 
         if (classListStr.indexOf("rs1") != -1) {
           ev.target.parentNode.classList.remove("rs1");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          };
         } else if (classListStr.indexOf("rs2") != -1) {
           ev.target.parentNode.classList.remove("rs2");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          };
         } else if (classListStr.indexOf("rs3") != -1) {
           ev.target.parentNode.classList.remove("rs3");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          };
         }
 
         switch (this.rsClass) {
@@ -1025,6 +1023,8 @@ export default {
           changeShiftInfo
         );
       }
+      this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
+
       this.changeInfo = {};
     },
 
@@ -1143,7 +1143,7 @@ export default {
           station: i.station ? i.station.id : null,
         };
         let promise;
-        if (i.id === 0) {
+        if (!i.id) {
           promise = fetch("/api/preresults/", {
             headers: {
               "X-CSRFToken": this.csrfToken,
@@ -1302,15 +1302,12 @@ export default {
       this.remarkS.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
-
-      // location.reload();
     },
 
+    //控制重算或者錯誤的小視窗
     callResetModal() {
-      fetch(
-        `/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-      )
-        .then((res) => {
+      fetch(`/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+        .then((res)=> {
           return res.json();
         })
         .then((data) => {
@@ -1326,6 +1323,7 @@ export default {
         });
     },
 
+    //如果這個月已發布班表則不能重算
     couldReset() {
       let resetPermit = $.cookie(`Announced${this.month}`);
 
@@ -1341,6 +1339,16 @@ export default {
         $("#publishModal").modal("show");
       }
     },
+    checkPreResult(user, date) {
+      let content = this.checkResultData.find(item=>{
+        if (this.shiftOfCurrentMonth[user] && this.shiftOfCurrentMonth[user][date]) {
+          return this.shiftOfCurrentMonth[user][date].id === item.id;
+        }
+      });
+      if(content) {
+        return content;
+      };
+    }
     //-------------------------------------------------
   },
 

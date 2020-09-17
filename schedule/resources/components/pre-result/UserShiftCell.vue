@@ -3,15 +3,44 @@
     class="grid-width white-background"
     :class="[isPast, whichBorder]"
     @click="edit($event, shiftInfo)"
+    style="position: relative;"
   >
-    <div>
-      <div :class="{triangle: triangle}"></div>
-      <div :class="shiftColor">{{ shiftType }}</div>
-      <div
-        v-if="adjustmentStr"
-        :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
-        :adjustment-remark="adjustmentRemark"
-      >{{ adjustmentStr }}</div>
+    <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
+    <div
+      v-if="adjustmentStr"
+      :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
+    >{{ adjustmentStr }}</div>
+
+    <div v-if="isCheck && Object.keys(checkContent).length && hoverControl" class="checkbox" :style="{background: isChangeShift}">
+      <div v-for="(r, r_index) in checkContent.reason" :key="r_index">
+        {{`${r.split('：')[0]}：`}}
+        <br/>
+        {{r.split('：')[1]}}
+      </div>
+    </div>
+    <div
+      class="forbidden-mark"
+      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark(checkContent) === 1)"
+      @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
+      :style="{fill: isChangeShift}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path
+          d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm7 14h-14v-4h14v4z"
+        />
+      </svg>
+    </div>
+    <div
+      class="alert-mark"
+      v-if="isCheck && Object.keys(checkContent).length && (tellCheckMark(checkContent) === 2)"
+      @mouseenter="hoverControl = true" @mouseleave="hoverControl = false"
+      :style="{fill: isChangeShift}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path
+          d="M4 22v-20h16v11.543c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362zm18-7.614v-14.386h-20v24h10.189c3.163 0 9.811-7.223 9.811-9.614z"
+        />
+      </svg>
     </div>
   </td>
 </template>
@@ -25,11 +54,11 @@ export default {
     },
     isPast: {
       type: String,
-      default: '',
+      default: "",
     },
     whichBorder: {
       type: String,
-      default: '',
+      default: "",
     },
     shiftInfo: {
       type: Object,
@@ -39,7 +68,17 @@ export default {
     },
     adjustmentStr: {
       type: String,
-      default: '',
+      default: "",
+    },
+    checkContent: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+    isCheck: {
+      type: Boolean,
+      default: false,
     },
     adjustmentRemark: {
       type: String,
@@ -50,9 +89,18 @@ export default {
       default: false,
     },
   },
+
+  data() {
+    return {
+      hoverControl: false,
+      isChangeShift: '',//檢核框框顏色控制
+    };
+  },
+
   methods: {
     edit(event, shiftInfo) {
       this.$parent.editShift(event, shiftInfo);
+      this.isChangeShift = '#84C0E9';
     },
   },
   computed: {
@@ -61,17 +109,17 @@ export default {
       if (this.shiftInfo.shift) {
         switch (this.shiftInfo.shift.shift_type) {
           case 0:
-            return 'dayShift';
+            return "dayShift";
           case 1:
-            return 'nightShift';
+            return "nightShift";
           case 2:
-            return 'graveyardShift';
+            return "graveyardShift";
           case 7:
-            return 'adminis';
+            return "adminis";
           case 3:
-            return 'rest';
+            return "rest";
           case 4:
-            return 'onCall';
+            return "onCall";
           case 5:
             switch (this.shiftInfo.shift.name) {
               case '休息':
@@ -91,7 +139,7 @@ export default {
             break;
         }
       }
-      return '';
+      return "";
     },
     shiftType() {
       if (this.isReady && this.shiftInfo.shift) {
@@ -102,7 +150,7 @@ export default {
           case 7:
             return this.shiftInfo.shift.code;
           case 3:
-            return '公';
+            return "公";
           case 4:
             return this.shiftInfo.shift.code === '' ? 'On' : this.shiftInfo.shift.code;
           case 5:
@@ -141,7 +189,19 @@ export default {
             break;
         }
       }
-      return '-';
+      return "-";
+    },
+    tellCheckMark(item) {
+      if (Object.keys(item).length) {
+        let forbidMark = item.reason.toString().indexOf("不合法規");
+        let alertMark = item.reason.toString().indexOf("不合排班條件");
+
+        if (forbidMark != -1) {
+          return 1;
+        } else if (alertMark != -1) {
+          return 2;
+        }
+      }
     },
   },
 };
@@ -178,5 +238,39 @@ td div {
   border-style: solid;
   border-radius: 5px;
   max-width: 200px;
+}
+.checkbox {
+  position: absolute;
+  background: red;
+  width: 160px;
+  white-space: normal;
+  color: white;
+  z-index: 1;
+  padding: 8px 3px;
+  text-align: left;
+}
+.grid-width {
+  height: 40px;
+}
+.hoverEvent {
+  &:hover {
+    cursor: pointer;
+    background: rgba(185, 184, 184, 0.26) !important;
+  }
+}
+.forbidden-mark {
+  fill: red;
+  opacity: 0.5;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.alert-mark {
+  fill: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

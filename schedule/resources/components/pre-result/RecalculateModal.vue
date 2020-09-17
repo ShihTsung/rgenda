@@ -71,14 +71,16 @@ export default {
       type: Number,
       default: 30,
     },
-    isConfirm: {
-      type: Boolean,
-      default: false,
-    },
     couldRecalculate: {
       type: Boolean,
       default: true,
     },
+  },
+
+  data() {
+    return {
+      isConfirm: false,//確認後控制正在重算載入畫面的變數
+    }
   },
 
   methods: {
@@ -97,29 +99,23 @@ export default {
         });
       this.isConfirm = true;
 
-      // if (this.couldRecalculate) {
-      //   fetch(
-      //     `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-      //   )
-      //     .then((res) => {
-      //       $("#recalculateModal").modal("hide");
-      //       return res.json();
-      //     })
-      //     .then((data) => {
-      //       let name = `Announced${this.month}`;
-      //       let d = new Date(this.year, this.month - 1, this.getDays);
-      //       $.cookie(name, "true1", {
-      //         path: "/",
-      //         expires: d,
-      //       });
-
-      //       this.$parent.getPreResults();
-      //       this.$parent.getTotalPerDayData();
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
-      // }
+      if (this.couldRecalculate) {
+        fetch(
+          `/api/recreate-result-monthly?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+        )
+          .then((res) => {
+            $("#recalculateModal").modal("hide");
+            return res.json();
+          })
+          .then((data) => {
+            let name = `Announced${this.month}`;
+            let d = new Date(this.year, this.month - 1, this.getDays);
+            $.cookie(name, "true1", {
+              path: "/",
+              expires: d,
+            });
+          });
+      };
     },
   },
 };
