@@ -279,7 +279,10 @@
     <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
 
-    <publish-modal></publish-modal>
+    <publish-modal
+     :year="year"
+     :month="month"
+     :status.sync="publishStatus"></publish-modal>
   </div>
 </template>
 <script>
@@ -351,7 +354,7 @@ export default {
       isCheck: false,
       text: '載入中...',
       checkLoading: false,
-
+      publishStatus: 0,
     };
   },
 
@@ -1104,6 +1107,7 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
+      let preresults = this.shiftOfCurrentMonth[followInfo.follower]
       let results = this.shiftOfCurrentMonth[followInfo.mentor];
       Object.keys(results).forEach((key) => {
         let e = results[key];
@@ -1114,6 +1118,12 @@ export default {
             station: e.station,
             date: e.date,
           };
+          if (preresults[key]){
+            obj.id = preresults[key].id;
+          }
+          else{
+            obj.id = 0;
+          }
           this.changedResult.push(obj);
           let d = moment(e.date).date();
           let d_start = parseInt(followInfo.startDate.substring(8));
@@ -1336,9 +1346,10 @@ export default {
     },
 
     publishModal() {
-      if (this.isEdit == true) {
-        $("#publishModal").modal("show");
+      if(this.isCheck){
+        this.publishStatus = 1;
       }
+      $("#publishModal").modal("show");
     },
     checkPreResult(user, date) {
       let content = this.checkResultData.find(item=>{

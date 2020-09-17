@@ -2960,3 +2960,93 @@ def published_or_not(request):
             return Response(True)
         else:
             return Response(False)
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='發布班表',
+    # manual_parameters=[start, end],
+)
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, ])
+@parser_classes([JSONParser])
+def publish_result(request):
+    lang = request.LANGUAGE_CODE
+    month = request.query_params.get('month', None)
+    year = request.query_params.get('year', None)
+    now = datetime.datetime.now()
+    dep = request.user.department
+    shifts = Shift.objects.filter(department=dep)
+    if month and year:
+        year = int(year)
+        month = int(month)
+        days_in_month = monthrange(year, month)[1]
+        start = datetime.date(now.year, month, 1)
+        end = datetime.date(now.year, month, days_in_month)
+
+        results = PreResult.objects.filter(
+            date__range=[start, end],
+            shift__in=list(shifts)
+        ).prefetch_related(
+            'user'
+        ).prefetch_related(
+            'shift'
+        ).prefetch_related(
+            'station'
+        )
+        published_results = Result.objects.filter(
+            date__range=[start, end],
+            shift__in=list(shifts)
+        ).prefetch_related(
+            'user'
+        ).prefetch_related(
+            'shift'
+        ).prefetch_related(
+            'station'
+        )
+        remarks = PreResultRemark.objects.filter(
+            result__in=results)
+        p_remarks = ResultRemark.objects.filter(
+            result__in=published_results)
+
+        # if results:
+        #     notify.send(
+        #         request.user,
+        #         recipient=User.objects.filter(department=dep),
+        #         verb='下個月班表發佈了！',
+        #         description='/results')
+        for result in results:
+            if result.shift.department == request.user.department:
+                published = published_results.filter(
+                    user=result.user,
+                    date=result.date).first()
+                if published:
+                    published.shift = result.shift
+                    published.station = result.station
+                    published.save()
+                    remark = remarks.filter(result=result).first()
+                    p_remark = p_remarks.filter(result=published).first()
+                    if remark:
+                        if not p_remark:
+                            ResultRemark.objects.create(
+                                result=published,
+                                content=remark.content
+                            )
+                    else:
+                        if p_remark:
+                            p_remark.delete()
+                else:
+                    new_result = Result.objects.create(
+                        shift=result.shift,
+                        user=result.user,
+                        date=result.date,
+                        station=result.station
+                    )
+                    remark = remarks.filter(result=result).first()
+                    if remark:
+                        ResultRemark.objects.create(
+                            result=new_result,
+                            content=remark.content
+                        )
+        return Response("發布完成")
+    else:
+        return Response("error: 請指定 year 和 month")
