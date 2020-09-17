@@ -112,6 +112,7 @@ export default {
   },
   methods: {
     save() {
+      this.shiftCategory = '';
       this.$parent.editResult(this.changeShift);
     },
   },

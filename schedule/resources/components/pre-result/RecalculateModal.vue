@@ -20,7 +20,7 @@
             </span>
           </button>
         </div>
-        <div class="modal-body pt-0" v-show="!isConfirm">
+        <div class="modal-body pt-0" v-show="!isConfirmData">
           <div class="mb-4 text-center icon_color_blue">
             <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24">
               <path
@@ -44,7 +44,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-body pt-0" v-show="couldRecalculate && isConfirm">
+        <div class="modal-body pt-0" v-show="couldRecalculateData && isConfirmData">
           <div class="loader mb-5 mt-4">
             <span></span>
             <span></span>
@@ -71,55 +71,56 @@ export default {
       type: Number,
       default: 30,
     },
-    isConfirm: {
-      type: Boolean,
-      default: false,
-    },
     couldRecalculate: {
       type: Boolean,
       default: true,
     },
   },
+  data(){
+    return {
+      isConfirmData: this.isConfirm,
+      couldRecalculateData: this.couldRecalculate
 
+    };
+  },
   methods: {
-    recalculate() {
-      this.$httpClient
-        .get("/api/publish-or-not?year="+thos.year.toString()+'&month='+this.month.toString())
+    async recalculate() {
+      await this.$httpClient
+        .get(`/api/published-or-not?year=${this.year}&month=${this.month}`)
         .then((response) => {
           if (response.data===true){
-            console.log('已經發布過了')
-          }else{
-            console.log('還沒發布過')
+            this.couldRecalculateData = false
           }
+        this.isConfirmData = true;
         })
         .catch((err) => {
           console.log(err);
         });
-      this.isConfirm = true;
 
-      // if (this.couldRecalculate) {
-      //   fetch(
-      //     `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-      //   )
-      //     .then((res) => {
-      //       $("#recalculateModal").modal("hide");
-      //       return res.json();
-      //     })
-      //     .then((data) => {
-      //       let name = `Announced${this.month}`;
-      //       let d = new Date(this.year, this.month - 1, this.getDays);
-      //       $.cookie(name, "true1", {
-      //         path: "/",
-      //         expires: d,
-      //       });
 
-      //       this.$parent.getPreResults();
-      //       this.$parent.getTotalPerDayData();
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
-      // }
+      if (this.couldRecalculateData) {
+        fetch(
+          `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+        )
+          .then((res) => {
+            $("#recalculateModal").modal("hide");
+            return res.json();
+          })
+          .then((data) => {
+            let name = `Announced${this.month}`;
+            let d = new Date(this.year, this.month - 1, this.getDays);
+            $.cookie(name, "true1", {
+              path: "/",
+              expires: d,
+            });
+
+            this.$parent.getPreResults();
+            this.$parent.getTotalPerDayData();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     },
   },
 };

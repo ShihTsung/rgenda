@@ -1,6 +1,8 @@
 <template>
   <div id="pre-result" v-cloak>
-    <loading v-show="!isReady"></loading>
+    <loading v-show="!isReady" :text="text"></loading>
+    <loading v-show="checkLoading" :text="text"></loading>
+    <check-pass></check-pass>
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
@@ -78,7 +80,6 @@
             class="icon-bts"
             v-show="isEdit"
             @click="callResetModal()"
-            :style="{cursor: couldReset()}"
             data-tooltip="tooltip"
             title="重算"
           >
@@ -132,7 +133,7 @@
               />
             </svg>
           </div>
-          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核">
+          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核" @click="getCheckResultData()">
             <svg
               class="icon-color"
               width="24"
@@ -198,6 +199,9 @@
               :adjustmentStr="getAdjustmentString(u.id, dd)"
               :adjustmentRemark="getAdjustmentRemark(u.id, dd)"
               :triangle="userReserve(u.id, month, dd)"
+              :checkContent="checkPreResult(u.id, dd)"
+              :isCheck="isCheck"
+              :text="text"
             ></user-shift-cell>
             <td class="gray-background">
               <input
@@ -273,18 +277,13 @@
 
     <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
 
-    <recalculate-modal
-      :year="year"
-      :month="month"
-      :getDays="getDays"
-      v-show="couldRecalculate && (couldReset() !== 'not-allowed')"
-    ></recalculate-modal>
+    <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
 
     <publish-modal
-      >
-
-    </publish-modal>
+     :year="year"
+     :month="month"
+     :status.sync="publishStatus"></publish-modal>
   </div>
 </template>
 <script>
@@ -299,6 +298,7 @@ import FollowShiftModal from "./FollowShiftModal.vue";
 import RecalculateModal from "./RecalculateModal.vue";
 import ErrorAlertModal from "./ErrorAlertModal.vue";
 import PublishModal from "./PublishModal.vue";
+import CheckPass from "./CheckPass.vue";
 
 moment.locale("zh-tw");
 export default {
@@ -312,6 +312,7 @@ export default {
     RecalculateModal,
     ErrorAlertModal,
     PublishModal,
+    CheckPass,
   },
 
   props: {
@@ -352,6 +353,12 @@ export default {
       changedResult: [],
       rs: "",
       reserveData: [],
+      checkResultData: [],
+      isCheck: false,
+      text: '載入中...',
+      checkLoading: false,
+      publishStatus: 0,
+      isPass: false,
     };
   },
 
@@ -416,20 +423,7 @@ export default {
       //處理懶加載畫面的變數設置
       this.isReady = false;
 
-      fetch(
-        "/api/preresults/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -461,14 +455,7 @@ export default {
 
     //取得前一個月最後幾天排班資料
     getLastMonthData() {
-      fetch(
-        "/api/last-month-continue?month_head=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01"
-      )
+      fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
         .then((res) => {
           return res.json();
         })
@@ -482,20 +469,7 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(
-        "/api/time-adjustment/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -523,20 +497,7 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(
-        "/api/total-per-day/?start=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          "01" +
-          "&end=" +
-          this.year.toString() +
-          "-" +
-          this.month.toString() +
-          "-" +
-          this.getDays.toString()
-      )
+      fetch(`/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
         .then((res) => {
           return res.json();
         })
@@ -576,6 +537,7 @@ export default {
         });
     },
 
+    //取得班別資料
     getShiftData() {
       fetch("/api/shifts/")
         .then((res) => {
@@ -589,6 +551,7 @@ export default {
         });
     },
 
+    //取得工作站資料
     getStationData() {
       let self = this;
       this.$httpClient
@@ -609,6 +572,25 @@ export default {
           self.reserveData = res.data;
         })
         .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    //取得檢核的資料
+    getCheckResultData() {
+      this.checkLoading = true;
+      this.text = '檢核中...';
+
+      fetch(`/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`)
+        .then(res=>{
+          return res.json();
+        }).then(data=>{
+          this.checkResultData = data;
+          this.isCheck = true;
+          this.checkLoading = false;
+          this.text = '載入中...';
+          this.checkResultData.length === 0 ? $("#checkPass").modal("show") : $("#checkPass").modal("hide");
+        }).catch(err=>{
           console.log(err);
         });
     },
@@ -648,6 +630,7 @@ export default {
         if (this.isEdit) {
           return "couldEdit";
         }
+        return "hoverEvent";
       }
     },
 
@@ -686,17 +669,22 @@ export default {
 
     getAdjustmentRemark(userId, d) {
       let adjustment = this.adjustHr.find((item) => {
-        return item.user === userId &&
+        return (
+          item.user === userId &&
           parseInt(item.date.split("-")[1]) === this.month &&
-          parseInt(item.date.split("-")[2]) === d;
+          parseInt(item.date.split("-")[2]) === d
+        );
       });
-      if (adjustment &&
+      if (
+        adjustment &&
         adjustment.remark &&
-        adjustment.adjustment_item === this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE')) {
+        adjustment.adjustment_item ===
+          this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE")
+      ) {
         // 若為休息日出勤，則顯示備註
         return adjustment.remark;
       }
-      return '';
+      return "";
     },
 
     // 當月該使用者是否有備註
@@ -730,10 +718,14 @@ export default {
       // 公假時數
       let officialLeaveHour = 0;
       for (let day = 1; day < this.getDays; ++day) {
-        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][day]
+        ) {
           let i = this.shiftOfCurrentMonth[userId][day];
-          if (i.shift_type === '公') {
-            officialLeaveHour += i.shift.work_hours === 0 ? this.workDayHours : i.shift.work_hours;
+          if (i.shift_type === "公") {
+            officialLeaveHour +=
+              i.shift.work_hours === 0 ? this.workDayHours : i.shift.work_hours;
           } else {
             totalHour += i.shift.work_hours;
           }
@@ -742,9 +734,12 @@ export default {
       // 休息日出勤時數
       let offDateAttendantHour = 0;
       this.adjustHr.forEach((i) => {
-        if (i.user === userId &&
+        if (
+          i.user === userId &&
           parseInt(i.date.split("-")[1]) === this.month &&
-          this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item) {
+          this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE") ===
+            i.adjustment_item
+        ) {
           offDateAttendantHour += i.hours;
         }
       });
@@ -756,7 +751,10 @@ export default {
       // 班別時數總和
       let totalHour = 0;
       for (let day = 1; day <= this.getDays; ++day) {
-        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][day]
+        ) {
           let i = this.shiftOfCurrentMonth[userId][day];
           totalHour += i.shift.work_hours;
         }
@@ -764,8 +762,10 @@ export default {
       let addHour = 0;
       let subHour = 0;
       this.adjustHr.forEach((i) => {
-        if (i.user === userId &&
-          parseInt(i.date.split("-")[1]) === this.month) {
+        if (
+          i.user === userId &&
+          parseInt(i.date.split("-")[1]) === this.month
+        ) {
           if (i.adjustment_type === 0) {
             addHour += i.hours;
           } else if (i.adjustment_type === 1) {
@@ -777,7 +777,13 @@ export default {
       // 不出勤日
       let offDays = this.offHours(userId, 4);
 
-      return totalHour + addHour - subHour + offDays * this.workDayHours - this.getDays * this.workDayHours;
+      return (
+        totalHour +
+        addHour -
+        subHour +
+        offDays * this.workDayHours -
+        this.getDays * this.workDayHours
+      );
     },
 
     //排班時數、出勤時數、當月差額計算
@@ -803,20 +809,28 @@ export default {
         }
       }
 
-      this.adjustHr.filter((item) => {
-          return item.user == u &&
+      this.adjustHr
+        .filter((item) => {
+          return (
+            item.user == u &&
             parseInt(item.date.split("-")[1]) == month &&
-            parseInt(item.date.split("-")[2]) <= today;
-      }).forEach((i) => {
-        if (i.adjustment_type == 0) {
-          add_hr += i.hours;
-        } else if (i.adjustment_type == 1) {
-          sub_hr += i.hours;
-          if (this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS') === i.adjustment_item) {
-            institutionReduceClassHour += i.hours;
+            parseInt(item.date.split("-")[2]) <= today
+          );
+        })
+        .forEach((i) => {
+          if (i.adjustment_type == 0) {
+            add_hr += i.hours;
+          } else if (i.adjustment_type == 1) {
+            sub_hr += i.hours;
+            if (
+              this.$getTimeAdjustmentItemValue(
+                "ITEM_INSTITUTION_REDUCE_CLASS"
+              ) === i.adjustment_item
+            ) {
+              institutionReduceClassHour += i.hours;
+            }
           }
-        }
-      });
+        });
       switch (n) {
         case 1: //總計 = 累計至當日的(user 所有班別時數總和 + 公假時數 + 加班 - 減班)
           return total_hr + pubDay * this.workDayHours + add_hr - sub_hr;
@@ -841,15 +855,21 @@ export default {
       for (let day = 1; day <= this.getDays; ++day) {
         if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
           let i = this.shiftOfCurrentMonth[u][day];
-          if (this.$getShiftTypeValue('VALUE_PAID_LEAVE') === i.shift.shift_type) {
-            if (i.shift.name[0] == "例" ||
+          if (
+            this.$getShiftTypeValue("VALUE_PAID_LEAVE") === i.shift.shift_type
+          ) {
+            if (
+              i.shift.name[0] == "例" ||
               i.shift.name[0] == "休" ||
-              i.shift.name[0] == "國") {
+              i.shift.name[0] == "國"
+            ) {
               ++special;
             } else {
               ++count;
             }
-          } else if (this.$getShiftTypeValue('VALUE_UNPAID_LEAVE') === i.shift.shift_type) {
+          } else if (
+            this.$getShiftTypeValue("VALUE_UNPAID_LEAVE") === i.shift.shift_type
+          ) {
             ++notCount;
           }
         }
@@ -903,7 +923,7 @@ export default {
       if (
         this.rsShow == true &&
         this.rsClass != "" &&
-        ev.target.parentNode.classList[2] == "couldEdit"
+        $(ev.target).parents('td').hasClass("couldEdit")
       ) {
         let data = {};
         data.result = info.id;
@@ -916,49 +936,64 @@ export default {
 
         if (classListStr.indexOf("rs1") != -1) {
           ev.target.parentNode.classList.remove("rs1");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
         } else if (classListStr.indexOf("rs2") != -1) {
           ev.target.parentNode.classList.remove("rs2");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
         } else if (classListStr.indexOf("rs3") != -1) {
           ev.target.parentNode.classList.remove("rs3");
-          fetch(`/api/preresult-remarks/${check.id}/`, {
-            headers: {
-              "X-CSRFToken": `${this.csrfToken}`,
-              "content-type": "application/json",
-            },
-            method: "DELETE",
-          })
-            .then((res) => {
-              return res.json();
+          if(check) {
+            fetch(`/api/preresult-remarks/${check.id}/`, {
+              headers: {
+                "X-CSRFToken": `${this.csrfToken}`,
+                "content-type": "application/json",
+              },
+              method: "DELETE",
             })
-            .catch((err) => {
-              console.log(err);
-            });
+              .then((res) => {
+                return res.json();
+              })
+              .then(() => {
+                this.getPreResultRemarkData();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
         }
 
         switch (this.rsClass) {
@@ -992,8 +1027,7 @@ export default {
 
       if (
         this.isEdit == true &&
-        ($(ev.target).hasClass("couldEdit") ||
-          $(ev.target).parent().hasClass("couldEdit"))
+        $(ev.target).parents('td').hasClass("couldEdit")
       ) {
         $("#changeShiftModal").modal("show");
         if (info != undefined) {
@@ -1008,23 +1042,32 @@ export default {
     editResult(changeShiftInfo) {
       $("#changeShiftModal").modal("hide");
       if (changeShiftInfo) {
-        this.changedResult.push({
+        let obj = {
           id: changeShiftInfo.id,
           date: changeShiftInfo.date,
           user: changeShiftInfo.user,
           shift: changeShiftInfo.shift,
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
+        }
+        let duplicate = this.changedResult.findIndex(d => {
+          return d.user == obj.user && d.date == obj.date;
         });
+        if(duplicate > -1) {
+          this.changedResult.splice(duplicate, 1);
+        };
+        this.changedResult.push(obj);
         let d = moment(changeShiftInfo.date).date();
         if (!this.shiftOfCurrentMonth[changeShiftInfo.user]) {
           this.$set(this.shiftOfCurrentMonth, changeShiftInfo.user, {});
         }
+        changeShiftInfo.isModified = true;
         this.$set(
           this.shiftOfCurrentMonth[changeShiftInfo.user],
           d,
           changeShiftInfo
         );
-      }
+      };
+
       this.changeInfo = {};
     },
 
@@ -1077,6 +1120,7 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
+      let preresults = this.shiftOfCurrentMonth[followInfo.follower]
       let results = this.shiftOfCurrentMonth[followInfo.mentor];
       Object.keys(results).forEach((key) => {
         let e = results[key];
@@ -1087,6 +1131,18 @@ export default {
             station: e.station,
             date: e.date,
           };
+          if (preresults[key]){
+            obj.id = preresults[key].id;
+          }
+          else{
+            obj.id = 0;
+          }
+          let duplicate = this.changedResult.findIndex(d => {
+            return d.user == obj.user && d.date == obj.date;
+          });
+          if(duplicate > -1) {
+            this.changedResult.splice(duplicate, 1);
+          };
           this.changedResult.push(obj);
           let d = moment(e.date).date();
           let d_start = parseInt(followInfo.startDate.substring(8));
@@ -1096,23 +1152,11 @@ export default {
             if (!this.shiftOfCurrentMonth[followInfo.follower]) {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
+            obj.isModified = true;
             this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
           }
         }
       });
-
-      // let url = '/api/follow-shift?start=' + followInfo.startDate +
-      // '&end=' + followInfo.endDate + '&follower=' + followInfo.follower.toString() +
-      // '&mentor=' + followInfo.mentor.toString();
-      // this.$httpClient
-      //   .get(url)
-      //   .then((response) => {
-      //     console.log(response);
-      //     $("#followShiftModal").modal("hide");
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
     },
     // 預排假顯示
     userReserve(id, month, day) {
@@ -1135,7 +1179,9 @@ export default {
       this.rsShow = false;
 
       let promises = [];
+
       this.changedResult.forEach((i) => {
+        console.log(i);
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1143,7 +1189,7 @@ export default {
           station: i.station ? i.station.id : null,
         };
         let promise;
-        if (i.id === 0) {
+        if (!i.id) {
           promise = fetch("/api/preresults/", {
             headers: {
               "X-CSRFToken": this.csrfToken,
@@ -1302,19 +1348,15 @@ export default {
       this.remarkS.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
-
-      // location.reload();
+      this.isCheck = false;
     },
 
+    //控制重算或者錯誤的小視窗
     callResetModal() {
-      fetch(
-        `/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-      )
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          this.couldRecalculate = data.length === 0 ? true : false;
+      this.$httpClient
+        .get(`/api/published-or-not?year=${this.year}&month=${this.month}`)
+        .then((response) => {
+          this.couldRecalculate = response.data ? false : true;
         })
         .then(() => {
           this.couldRecalculate === true
@@ -1326,21 +1368,22 @@ export default {
         });
     },
 
-    couldReset() {
-      let resetPermit = $.cookie(`Announced${this.month}`);
-
-      if (resetPermit !== "true2") {
-        return "pointer";
-      } else {
-        return "not-allowed";
-      }
-    },
-
     publishModal() {
-      if (this.isEdit == true) {
-        $("#publishModal").modal("show");
+      if(this.isCheck){
+        this.publishStatus = 1;
       }
+      $("#publishModal").modal("show");
     },
+    checkPreResult(user, date) {
+      let content = this.checkResultData.find(item=>{
+        if (this.shiftOfCurrentMonth[user] && this.shiftOfCurrentMonth[user][date]) {
+          return this.shiftOfCurrentMonth[user][date].id === item.id;
+        }
+      });
+      if(content) {
+        return content;
+      }
+    }
     //-------------------------------------------------
   },
 
@@ -1465,7 +1508,6 @@ export default {
       .grid-width {
         width: 45px;
         white-space: nowrap;
-        overflow-x: hidden;
       }
 
       .couldEdit {

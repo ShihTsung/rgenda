@@ -1003,22 +1003,22 @@
           this.obj.station = this.station;
         };
 
-        // fetch("/api/preresults/", {
-        //     headers:{
-        //         'X-CSRFToken': '{{ csrf_token }}',
-        //         'content-type': 'application/json'
-        //     },
-        //     body: JSON.stringify(this.obj),
-        //     method: 'PUT',
-        //   })
-        //   .then((res)=>{
-        //     return res.json();
-        //   }).then((data)=>{
-        //     this.changeInfo.id = data.id;
-        //     this.resultData.push(data);
-        //   }).catch((err)=>{
-        //     console.log(err);
-        //   });
+        fetch("/api/preresults/", {
+            headers:{
+                'X-CSRFToken': '{{ csrf_token }}',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(this.obj),
+            method: 'POST',
+          })
+          .then((res)=>{
+            return res.json();
+          }).then((data)=>{
+            this.changeInfo.id = data.id;
+            this.resultData.push(data);
+          }).catch((err)=>{
+            console.log(err);
+          });
 
         if(this.changeInfo.id){
           this.changedResult.push(this.obj);//之後丟去api修正
@@ -1723,7 +1723,7 @@
       recalculate() {
         this.isTARemarkShow = false;
         this.confirmRecalculate = true;
-        fetch('/api/recreate-result-monthly?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
+        fetch('/api/recreate-result?start=' + this.year.toString() + '-' + this.month.toString() + '-' + '01' + '&end=' + this.year.toString() + '-' + this.month.toString() + '-' + this.getYear(this.year, this.month).toString())
         .then(res=>{
           return res.json();
         }).then(data=>{
