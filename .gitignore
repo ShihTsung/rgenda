@@ -155,9 +155,6 @@ npm-debug.log
 # Nuxt generate
 dist
 
-# bundle
-schedule/static/assets/*
-
 # OS generated files
 .DS_Store
 ._*
