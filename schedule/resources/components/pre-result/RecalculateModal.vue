@@ -71,10 +71,6 @@ export default {
       type: Number,
       default: 30,
     },
-    isConfirm: {
-      type: Boolean,
-      default: false,
-    },
     couldRecalculate: {
       type: Boolean,
       default: true,
@@ -85,8 +81,17 @@ export default {
       isConfirmData: this.isConfirm,
       couldRecalculateData: this.couldRecalculate
 
+<<<<<<< HEAD
     };
   },
+=======
+  data() {
+    return {
+      isConfirm: false,//確認後控制正在重算載入畫面的變數
+    }
+  },
+
+>>>>>>> dd7e38f4cc881a71f3c6acb454ed7780fc5e8fe5
   methods: {
     async recalculate() {
       await this.$httpClient
@@ -101,10 +106,16 @@ export default {
           console.log(err);
         });
 
+<<<<<<< HEAD
 
       if (this.couldRecalculateData) {
         fetch(
           `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+=======
+      if (this.couldRecalculate) {
+        fetch(
+          `/api/recreate-result-monthly?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+>>>>>>> dd7e38f4cc881a71f3c6acb454ed7780fc5e8fe5
         )
           .then((res) => {
             $("#recalculateModal").modal("hide");
@@ -117,6 +128,7 @@ export default {
               path: "/",
               expires: d,
             });
+<<<<<<< HEAD
 
             this.$parent.getPreResults();
             this.$parent.getTotalPerDayData();
@@ -125,6 +137,10 @@ export default {
             console.log(err);
           });
       }
+=======
+          });
+      };
+>>>>>>> dd7e38f4cc881a71f3c6acb454ed7780fc5e8fe5
     },
   },
 };

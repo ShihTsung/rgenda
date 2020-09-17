@@ -87,8 +87,13 @@ def check_cycle(department, results, invalid):
                     break
             else:
                 break
+        if user.username == 'N31268':
+            print(i, [r.shift.shift_type for r in results])
         for result in results:
+            if user.username == 'N31268':
+                print(i, current_shift_type)
             if i % 7 == 0:
+                print('-')
                 current_shift_type = None
             if current_shift_type is None and result.shift.shift_type in [0, 1, 2, 7]:
                 current_shift_type = result.shift.shift_type
@@ -151,7 +156,7 @@ def check_rest_day(department, results, invalid):
     holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
     date0 = results[0].date
     ca = cycle_analysis(department, date0)
-    ind = ii = ca['day_no']
+    ind = ca['day_no']
     # add previous results to make a complete cycle
     for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
         if d < date0:
@@ -258,6 +263,9 @@ def get_work_time(result):
         work_time = datetime.combine(result.date, result.shift.start_time)
         off_time = datetime.combine(result.date, result.shift.end_time)
         if result.shift.end_time < result.shift.start_time:
+            off_time += timedelta(days=1)
+        if result.shift.shift_type == 2 and result.shift.start_time == time(hour=0, minute=0):
+            work_time += timedelta(days=1)
             off_time += timedelta(days=1)
     else:
         work_time = datetime.combine(

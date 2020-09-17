@@ -5,12 +5,17 @@
         <div class="cssload-progress-item"></div>
       </div>
     </div>
-    <h3 class="loading-text">載入中...</h3>
+    <h3 class="loading-text">{{text}}</h3>
   </div>
 </template>
 <script>
   export default {
-
+    props: {
+      text: {
+        type: String,
+        default: '',
+      }
+    },
   }
 </script>
 <style scpoed lang="scss">
