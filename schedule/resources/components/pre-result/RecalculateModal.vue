@@ -83,31 +83,43 @@ export default {
 
   methods: {
     recalculate() {
+      this.$httpClient
+        .get("/api/publish-or-not?year="+thos.year.toString()+'&month='+this.month.toString())
+        .then((response) => {
+          if (response.data===true){
+            console.log('已經發布過了')
+          }else{
+            console.log('還沒發布過')
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       this.isConfirm = true;
 
-      if (this.couldRecalculate) {
-        fetch(
-          `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-        )
-          .then((res) => {
-            $("#recalculateModal").modal("hide");
-            return res.json();
-          })
-          .then((data) => {
-            let name = `Announced${this.month}`;
-            let d = new Date(this.year, this.month - 1, this.getDays);
-            $.cookie(name, "true1", {
-              path: "/",
-              expires: d,
-            });
+      // if (this.couldRecalculate) {
+      //   fetch(
+      //     `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+      //   )
+      //     .then((res) => {
+      //       $("#recalculateModal").modal("hide");
+      //       return res.json();
+      //     })
+      //     .then((data) => {
+      //       let name = `Announced${this.month}`;
+      //       let d = new Date(this.year, this.month - 1, this.getDays);
+      //       $.cookie(name, "true1", {
+      //         path: "/",
+      //         expires: d,
+      //       });
 
-            this.$parent.getPreResults();
-            this.$parent.getTotalPerDayData();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+      //       this.$parent.getPreResults();
+      //       this.$parent.getTotalPerDayData();
+      //     })
+      //     .catch((err) => {
+      //       console.log(err);
+      //     });
+      // }
     },
   },
 };

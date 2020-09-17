@@ -1,10 +1,18 @@
 <template>
-  <td class="grid-width white-background" :class="[isPast, whichBorder]" @click="edit($event, shiftInfo)">
-    <div :class="shiftColor(shiftInfo)">{{ shiftType(shiftInfo) }}</div>
-    <div
-      v-if="adjustmentStr"
-      :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
-    >{{ adjustmentStr }}</div>
+  <td
+    class="grid-width white-background"
+    :class="[isPast, whichBorder]"
+    @click="edit($event, shiftInfo)"
+  >
+    <div>
+      <div :class="{triangle: triangle}"></div>
+      <div :class="shiftColor">{{ shiftType }}</div>
+      <div
+        v-if="adjustmentStr"
+        :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
+        :adjustment-remark="adjustmentRemark"
+      >{{ adjustmentStr }}</div>
+    </div>
   </td>
 </template>
 
@@ -33,15 +41,25 @@ export default {
       type: String,
       default: '',
     },
+    adjustmentRemark: {
+      type: String,
+      default: '',
+    },
+    triangle: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     edit(event, shiftInfo) {
       this.$parent.editShift(event, shiftInfo);
     },
+  },
+  computed: {
     //判斷該班別的樣式
-    shiftColor(shiftInfo) {
-      if (shiftInfo.shift) {
-        switch (shiftInfo.shift.shift_type) {
+    shiftColor() {
+      if (this.shiftInfo.shift) {
+        switch (this.shiftInfo.shift.shift_type) {
           case 0:
             return 'dayShift';
           case 1:
@@ -55,7 +73,7 @@ export default {
           case 4:
             return 'onCall';
           case 5:
-            switch (shiftInfo.shift.name) {
+            switch (this.shiftInfo.shift.name) {
               case '休息':
               case '例假':
               case '國定假日':
@@ -67,7 +85,7 @@ export default {
             }
             break;
           case 6:
-            if (shiftInfo.shift.name === '事假') {
+            if (this.shiftInfo.shift.name === '事假') {
               return 'restR';
             }
             break;
@@ -75,20 +93,20 @@ export default {
       }
       return '';
     },
-    shiftType(shiftInfo) {
-      if (this.isReady && shiftInfo.shift) {
-        switch (shiftInfo.shift.shift_type) {
+    shiftType() {
+      if (this.isReady && this.shiftInfo.shift) {
+        switch (this.shiftInfo.shift.shift_type) {
           case 0:
           case 1:
           case 2:
           case 7:
-            return shiftInfo.shift.code;
+            return this.shiftInfo.shift.code;
           case 3:
             return '公';
           case 4:
-            return shiftInfo.shift.code === '' ? 'On' : shiftInfo.shift.code;
+            return this.shiftInfo.shift.code === '' ? 'On' : this.shiftInfo.shift.code;
           case 5:
-            switch (shiftInfo.shift.name) {
+            switch (this.shiftInfo.shift.name) {
               case '休息':
                 return '休';
               case '例假':
@@ -112,7 +130,7 @@ export default {
             }
             break;
           case 6:
-            switch (shiftInfo.shift.name) {
+            switch (this.shiftInfo.shift.name) {
               case '無薪病假':
                 return '病';
               case '事假':
@@ -129,5 +147,36 @@ export default {
 };
 </script>
 
-<style>
+<style scoped lang="scss">
+$color-dark-blue: #37419a;
+
+td div {
+  position: relative;
+}
+
+.triangle {
+  width: 30px;
+  height: 30px;
+  clip-path: polygon(0 0, 0 50%, 50% 0);
+  background: $color-dark-blue;
+  position: absolute;
+  margin: 0;
+  top: 0;
+  left: 0;
+}
+.addWork[adjustment-remark]:hover::after {
+  content: attr(adjustment-remark);
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  z-index: 5;
+  padding: 1px 3px;
+  color: $color-dark-blue;
+  border-color: $color-dark-blue;
+  background-color: white;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  max-width: 200px;
+}
 </style>

@@ -41,4 +41,5 @@ urlpatterns = [
     path('suggest-user-num/<date_str>/', views.suggest_user_num),
     path('recreate-result-periodic', views.recreate_result_periodic),
     path('recreate-result-monthly', views.recreate_result_monthly),
+    path('published-or-not', views.published_or_not)
 ]

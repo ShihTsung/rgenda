@@ -132,7 +132,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .follow {
       width: 27vw;
       height: 500px;
