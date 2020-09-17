@@ -1320,19 +1320,10 @@ export default {
 
     //控制重算或者錯誤的小視窗
     callResetModal() {
-<<<<<<< HEAD
       this.$httpClient
         .get(`/api/published-or-not?year=${this.year}&month=${this.month}`)
         .then((response) => {
           this.couldRecalculate = response.data ? false : true;
-=======
-      fetch(`/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
-        .then((res)=> {
-          return res.json();
-        })
-        .then((data) => {
-          this.couldRecalculate = data.length === 0 ? true : false;
->>>>>>> dd7e38f4cc881a71f3c6acb454ed7780fc5e8fe5
         })
         .then(() => {
           this.couldRecalculate === true
@@ -1344,20 +1335,6 @@ export default {
         });
     },
 
-<<<<<<< HEAD
-=======
-    //如果這個月已發布班表則不能重算
-    couldReset() {
-      let resetPermit = $.cookie(`Announced${this.month}`);
-
-      if (resetPermit !== "true2") {
-        return "pointer";
-      } else {
-        return "not-allowed";
-      }
-    },
-
->>>>>>> dd7e38f4cc881a71f3c6acb454ed7780fc5e8fe5
     publishModal() {
       if (this.isEdit == true) {
         $("#publishModal").modal("show");
