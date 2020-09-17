@@ -78,7 +78,6 @@
             class="icon-bts"
             v-show="isEdit"
             @click="callResetModal()"
-            :style="{cursor: couldReset()}"
             data-tooltip="tooltip"
             title="重算"
           >
@@ -273,18 +272,10 @@
 
     <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
 
-    <recalculate-modal
-      :year="year"
-      :month="month"
-      :getDays="getDays"
-      v-show="couldRecalculate && (couldReset() !== 'not-allowed')"
-    ></recalculate-modal>
+    <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
 
-    <publish-modal
-      >
-
-    </publish-modal>
+    <publish-modal></publish-modal>
   </div>
 </template>
 <script>
@@ -686,17 +677,22 @@ export default {
 
     getAdjustmentRemark(userId, d) {
       let adjustment = this.adjustHr.find((item) => {
-        return item.user === userId &&
+        return (
+          item.user === userId &&
           parseInt(item.date.split("-")[1]) === this.month &&
-          parseInt(item.date.split("-")[2]) === d;
+          parseInt(item.date.split("-")[2]) === d
+        );
       });
-      if (adjustment &&
+      if (
+        adjustment &&
         adjustment.remark &&
-        adjustment.adjustment_item === this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE')) {
+        adjustment.adjustment_item ===
+          this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE")
+      ) {
         // 若為休息日出勤，則顯示備註
         return adjustment.remark;
       }
-      return '';
+      return "";
     },
 
     // 當月該使用者是否有備註
@@ -730,10 +726,14 @@ export default {
       // 公假時數
       let officialLeaveHour = 0;
       for (let day = 1; day < this.getDays; ++day) {
-        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][day]
+        ) {
           let i = this.shiftOfCurrentMonth[userId][day];
-          if (i.shift_type === '公') {
-            officialLeaveHour += i.shift.work_hours === 0 ? this.workDayHours : i.shift.work_hours;
+          if (i.shift_type === "公") {
+            officialLeaveHour +=
+              i.shift.work_hours === 0 ? this.workDayHours : i.shift.work_hours;
           } else {
             totalHour += i.shift.work_hours;
           }
@@ -742,9 +742,12 @@ export default {
       // 休息日出勤時數
       let offDateAttendantHour = 0;
       this.adjustHr.forEach((i) => {
-        if (i.user === userId &&
+        if (
+          i.user === userId &&
           parseInt(i.date.split("-")[1]) === this.month &&
-          this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item) {
+          this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE") ===
+            i.adjustment_item
+        ) {
           offDateAttendantHour += i.hours;
         }
       });
@@ -756,7 +759,10 @@ export default {
       // 班別時數總和
       let totalHour = 0;
       for (let day = 1; day <= this.getDays; ++day) {
-        if (this.shiftOfCurrentMonth[userId] && this.shiftOfCurrentMonth[userId][day]) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][day]
+        ) {
           let i = this.shiftOfCurrentMonth[userId][day];
           totalHour += i.shift.work_hours;
         }
@@ -764,8 +770,10 @@ export default {
       let addHour = 0;
       let subHour = 0;
       this.adjustHr.forEach((i) => {
-        if (i.user === userId &&
-          parseInt(i.date.split("-")[1]) === this.month) {
+        if (
+          i.user === userId &&
+          parseInt(i.date.split("-")[1]) === this.month
+        ) {
           if (i.adjustment_type === 0) {
             addHour += i.hours;
           } else if (i.adjustment_type === 1) {
@@ -777,7 +785,13 @@ export default {
       // 不出勤日
       let offDays = this.offHours(userId, 4);
 
-      return totalHour + addHour - subHour + offDays * this.workDayHours - this.getDays * this.workDayHours;
+      return (
+        totalHour +
+        addHour -
+        subHour +
+        offDays * this.workDayHours -
+        this.getDays * this.workDayHours
+      );
     },
 
     //排班時數、出勤時數、當月差額計算
@@ -803,20 +817,28 @@ export default {
         }
       }
 
-      this.adjustHr.filter((item) => {
-          return item.user == u &&
+      this.adjustHr
+        .filter((item) => {
+          return (
+            item.user == u &&
             parseInt(item.date.split("-")[1]) == month &&
-            parseInt(item.date.split("-")[2]) <= today;
-      }).forEach((i) => {
-        if (i.adjustment_type == 0) {
-          add_hr += i.hours;
-        } else if (i.adjustment_type == 1) {
-          sub_hr += i.hours;
-          if (this.$getTimeAdjustmentItemValue('ITEM_INSTITUTION_REDUCE_CLASS') === i.adjustment_item) {
-            institutionReduceClassHour += i.hours;
+            parseInt(item.date.split("-")[2]) <= today
+          );
+        })
+        .forEach((i) => {
+          if (i.adjustment_type == 0) {
+            add_hr += i.hours;
+          } else if (i.adjustment_type == 1) {
+            sub_hr += i.hours;
+            if (
+              this.$getTimeAdjustmentItemValue(
+                "ITEM_INSTITUTION_REDUCE_CLASS"
+              ) === i.adjustment_item
+            ) {
+              institutionReduceClassHour += i.hours;
+            }
           }
-        }
-      });
+        });
       switch (n) {
         case 1: //總計 = 累計至當日的(user 所有班別時數總和 + 公假時數 + 加班 - 減班)
           return total_hr + pubDay * this.workDayHours + add_hr - sub_hr;
@@ -841,15 +863,21 @@ export default {
       for (let day = 1; day <= this.getDays; ++day) {
         if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
           let i = this.shiftOfCurrentMonth[u][day];
-          if (this.$getShiftTypeValue('VALUE_PAID_LEAVE') === i.shift.shift_type) {
-            if (i.shift.name[0] == "例" ||
+          if (
+            this.$getShiftTypeValue("VALUE_PAID_LEAVE") === i.shift.shift_type
+          ) {
+            if (
+              i.shift.name[0] == "例" ||
               i.shift.name[0] == "休" ||
-              i.shift.name[0] == "國") {
+              i.shift.name[0] == "國"
+            ) {
               ++special;
             } else {
               ++count;
             }
-          } else if (this.$getShiftTypeValue('VALUE_UNPAID_LEAVE') === i.shift.shift_type) {
+          } else if (
+            this.$getShiftTypeValue("VALUE_UNPAID_LEAVE") === i.shift.shift_type
+          ) {
             ++notCount;
           }
         }
@@ -1307,14 +1335,10 @@ export default {
     },
 
     callResetModal() {
-      fetch(
-        `/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
-      )
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          this.couldRecalculate = data.length === 0 ? true : false;
+      this.$httpClient
+        .get(`/api/published-or-not?year=${this.year}&month=${this.month}`)
+        .then((response) => {
+          this.couldRecalculate = response.data ? false : true;
         })
         .then(() => {
           this.couldRecalculate === true
@@ -1324,16 +1348,6 @@ export default {
         .catch((err) => {
           console.log(err);
         });
-    },
-
-    couldReset() {
-      let resetPermit = $.cookie(`Announced${this.month}`);
-
-      if (resetPermit !== "true2") {
-        return "pointer";
-      } else {
-        return "not-allowed";
-      }
     },
 
     publishModal() {

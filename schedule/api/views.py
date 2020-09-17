@@ -2952,4 +2952,3 @@ def published_or_not(request):
             return Response(True)
         else:
             return Response(False)
-
