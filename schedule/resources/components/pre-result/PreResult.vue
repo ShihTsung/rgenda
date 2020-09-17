@@ -2,6 +2,7 @@
   <div id="pre-result" v-cloak>
     <loading v-show="!isReady" :text="text"></loading>
     <loading v-show="checkLoading" :text="text"></loading>
+    <check-pass></check-pass>
     <div id="top-info">
       <div class="time">
         <h2 class="year">{{year}}年</h2>
@@ -297,6 +298,7 @@ import FollowShiftModal from "./FollowShiftModal.vue";
 import RecalculateModal from "./RecalculateModal.vue";
 import ErrorAlertModal from "./ErrorAlertModal.vue";
 import PublishModal from "./PublishModal.vue";
+import CheckPass from "./CheckPass.vue";
 
 moment.locale("zh-tw");
 export default {
@@ -310,6 +312,7 @@ export default {
     RecalculateModal,
     ErrorAlertModal,
     PublishModal,
+    CheckPass,
   },
 
   props: {
@@ -355,6 +358,7 @@ export default {
       text: '載入中...',
       checkLoading: false,
       publishStatus: 0,
+      isPass: false,
     };
   },
 
@@ -582,8 +586,10 @@ export default {
           return res.json();
         }).then(data=>{
           this.checkResultData = data;
-          this.isCheck = this.checkResultData.length === 0 ? false : true;
+          this.isCheck = true;
           this.checkLoading = false;
+          this.text = '載入中...';
+          this.checkResultData.length === 0 ? $("#checkPass").modal("show") : $("#checkPass").modal("hide");
         }).catch(err=>{
           console.log(err);
         });
@@ -1036,24 +1042,31 @@ export default {
     editResult(changeShiftInfo) {
       $("#changeShiftModal").modal("hide");
       if (changeShiftInfo) {
-        this.changedResult.push({
+        let obj = {
           id: changeShiftInfo.id,
           date: changeShiftInfo.date,
           user: changeShiftInfo.user,
           shift: changeShiftInfo.shift,
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
+        }
+        let duplicate = this.changedResult.findIndex(d => {
+          return d.user == obj.user && d.date == obj.date;
         });
+        if(duplicate > -1) {
+          this.changedResult.splice(duplicate, 1);
+        };
+        this.changedResult.push(obj);
         let d = moment(changeShiftInfo.date).date();
         if (!this.shiftOfCurrentMonth[changeShiftInfo.user]) {
           this.$set(this.shiftOfCurrentMonth, changeShiftInfo.user, {});
         }
+        changeShiftInfo.isModified = true;
         this.$set(
           this.shiftOfCurrentMonth[changeShiftInfo.user],
           d,
           changeShiftInfo
         );
-      }
-      this.$set(this.shiftOfCurrentMonth[changeShiftInfo.user], d, changeShiftInfo);
+      };
 
       this.changeInfo = {};
     },
@@ -1124,6 +1137,12 @@ export default {
           else{
             obj.id = 0;
           }
+          let duplicate = this.changedResult.findIndex(d => {
+            return d.user == obj.user && d.date == obj.date;
+          });
+          if(duplicate > -1) {
+            this.changedResult.splice(duplicate, 1);
+          };
           this.changedResult.push(obj);
           let d = moment(e.date).date();
           let d_start = parseInt(followInfo.startDate.substring(8));
@@ -1133,6 +1152,7 @@ export default {
             if (!this.shiftOfCurrentMonth[followInfo.follower]) {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
+            obj.isModified = true;
             this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
           }
         }
@@ -1159,7 +1179,9 @@ export default {
       this.rsShow = false;
 
       let promises = [];
+
       this.changedResult.forEach((i) => {
+        console.log(i);
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1326,6 +1348,7 @@ export default {
       this.remarkS.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
+      this.isCheck = false;
     },
 
     //控制重算或者錯誤的小視窗
