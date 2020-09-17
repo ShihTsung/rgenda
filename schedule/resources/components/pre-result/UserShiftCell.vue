@@ -6,10 +6,10 @@
   >
     <div>
       <div :class="{triangle: triangle}"></div>
-      <div :class="shiftColor">{{ shiftType }}</div>
+      <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
       <div
         v-if="adjustmentStr"
-        :class="adjustmentStr[0] == '+' ? 'addWork' : 'subWork'"
+        :class="{addWork: adjustmentStr[0] === '+', subWork: adjustmentStr[0] === '-', showAdjustmentRemark: showAdjustmentRemark}"
         :adjustment-remark="adjustmentRemark"
       >{{ adjustmentStr }}</div>
     </div>
@@ -143,6 +143,9 @@ export default {
       }
       return '-';
     },
+    showAdjustmentRemark() {
+      return this.adjustmentRemark.length !== 0;
+    }
   },
 };
 </script>
@@ -150,8 +153,13 @@ export default {
 <style scoped lang="scss">
 $color-dark-blue: #37419a;
 
-td div {
+td > div {
   position: relative;
+}
+
+.shift-cell {
+  max-width: 45px;
+  overflow: hidden;
 }
 
 .triangle {
@@ -164,7 +172,8 @@ td div {
   top: 0;
   left: 0;
 }
-.addWork[adjustment-remark]:hover::after {
+
+.showAdjustmentRemark[adjustment-remark]:hover::after {
   content: attr(adjustment-remark);
   position: absolute;
   left: 30px;
@@ -178,5 +187,8 @@ td div {
   border-style: solid;
   border-radius: 5px;
   max-width: 200px;
+  white-space: normal;
+  width: max-content;
+  box-shadow: 0 0 2px;
 }
 </style>
