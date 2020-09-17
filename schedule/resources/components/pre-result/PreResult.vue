@@ -191,6 +191,7 @@
               :whichBorder="whichBorder(getUserShift(u.id, dd))"
               :shiftInfo="getUserShift(u.id, dd)"
               :adjustmentStr="getAdjustmentString(u.id, dd)"
+              :adjustmentRemark="getAdjustmentRemark(u.id, dd)"
               :triangle="userReserve(u.id, month, dd)"
             ></user-shift-cell>
             <td class="gray-background">
@@ -669,6 +670,21 @@ export default {
       }
     },
 
+    getAdjustmentRemark(userId, d) {
+      let adjustment = this.adjustHr.find((item) => {
+        return item.user === userId &&
+          parseInt(item.date.split("-")[1]) === this.month &&
+          parseInt(item.date.split("-")[2]) === d;
+      });
+      if (adjustment &&
+        adjustment.remark &&
+        adjustment.adjustment_item === this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE')) {
+        // 若為休息日出勤，則顯示備註
+        return adjustment.remark;
+      }
+      return '';
+    },
+
     // 當月該使用者是否有備註
     findRemark(id) {
       let remark = this.userRemarkData.find((i) => {
@@ -1085,7 +1101,7 @@ export default {
         });
         if(found) {
           return true;
-        };
+        }
 
         return false;
       },
@@ -1412,7 +1428,7 @@ export default {
       .grid-width {
         width: 45px;
         white-space: nowrap;
-        overflow-x: clip;
+        overflow-x: hidden;
       }
 
       .couldEdit {
