@@ -241,7 +241,7 @@
             shiftName="白班"
             shiftKey="D"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs1"
             :remarkContent="getRemarkSquare(1)"
           ></shift-statistics>
@@ -251,7 +251,7 @@
             shiftName="小夜班"
             shiftKey="E"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs2"
             :remarkContent="getRemarkSquare(2)"
           ></shift-statistics>
@@ -261,7 +261,7 @@
             shiftName="大夜班"
             shiftKey="N"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs3"
             :remarkContent="getRemarkSquare(3)"
           ></shift-statistics>
@@ -382,22 +382,58 @@ export default {
       return moment([this.year, this.month - 1, 1]).daysInMonth();
     },
 
+    stationPicker() {
+      return this.stationData.filter((i) => {
+        return i.name.indexOf("假") === -1;
+      });
+    },
+
     //取得當日人力配置的資料
-    getDemand() {
+    demandList() {
       let real = this.demandData.filter((i) => {
         return moment([this.year, this.month - 1, this.date]).isSame(
           moment(i.date),
           "month"
         );
       });
-
+      if (real.length > 0) {
+        for (let day = 1; day <= this.getDays; ++day) {
+          // if (!real[day - 1]) {
+          //   real[day - 1] = {};
+          // }
+          // if (!real[day - 1].D) {
+          //   real[day - 1].D = [0, 0];
+          // }
+          // if (!real[day - 1].E) {
+          //   real[day - 1].E = [0, 0];
+          // }
+          // if (!real[day - 1].N) {
+          //   real[day - 1].N = [0, 0];
+          // }
+          real[day - 1].D[1] = 0;
+          real[day - 1].E[1] = 0;
+          real[day - 1].N[1] = 0;
+        }
+        for (let userId in this.shiftOfCurrentMonth) {
+          for (let day in this.shiftOfCurrentMonth[userId]) {
+            if (!real[day - 1]) {
+              real[day - 1] = {};
+            }
+            switch(this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
+              case 0:
+                real[day - 1].D[1] += 1;
+                break;
+              case 1:
+                real[day - 1].E[1] += 1;
+                break;
+              case 2:
+                real[day - 1].N[1] += 1;
+                break;
+            }
+          }
+        }
+      }
       return real;
-    },
-
-    stationPicker() {
-      return this.stationData.filter((i) => {
-        return i.name.indexOf("假") === -1;
-      });
     },
   },
 
@@ -628,7 +664,7 @@ export default {
         return "gray-background";
       } else {
         if (this.isEdit) {
-          return "couldEdit";
+          return "couldEdit hoverEvent";
         }
         return "hoverEvent";
       }
@@ -717,7 +753,7 @@ export default {
       let totalHour = 0;
       // 公假時數
       let officialLeaveHour = 0;
-      for (let day = 1; day < this.getDays; ++day) {
+      for (let day = 1; day <= this.getDays; ++day) {
         if (
           this.shiftOfCurrentMonth[userId] &&
           this.shiftOfCurrentMonth[userId][day]
@@ -1176,7 +1212,6 @@ export default {
       let promises = [];
 
       this.changedResult.forEach((i) => {
-        console.log(i);
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1378,7 +1413,7 @@ export default {
       if(content) {
         return content;
       }
-    }
+    },
     //-------------------------------------------------
   },
 
