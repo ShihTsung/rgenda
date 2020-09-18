@@ -12,87 +12,89 @@
 <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
 <div class="container">
   <div class="dash">
-    <div class="card" style="margin-left: 30px;">
-      <div class="card-header text-center">
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header text-center">
 
-        <button class="btn" id="toggle-btn">
-          <i class="fa fa-bars"></i>
-        </button>人力分析<span class="unit">單位：人</span>
-      </div>
-      <div class="card-body DashCollapse">
-        <div class="half">
-          <div class='data'>
-            <div class="label">正職</div>
-            <div class="nums">{{types.正職}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">資深正職</div>
-            <div class="nums">{{types.資深正職}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">行政職</div>
-            <div class="nums">{{types.行政職}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">小計</div>
-            <div class="nums">{{types.小計1}}</div>
-          </div>
+          <button class="btn" id="toggle-btn">
+            <i class="fa fa-bars"></i>
+          </button>人力分析<span class="unit">單位：人</span>
         </div>
-        <div class="half">
-          <div class='data'>
-            <div class="label">新進人員</div>
-            <div class="nums">{{types.新進人員}}</div>
+        <div class="card-body DashCollapse">
+          <div class="half">
+            <div class='data'>
+              <div class="label">正職</div>
+              <div class="nums">{{types.正職}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">資深正職</div>
+              <div class="nums">{{types.資深正職}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">行政職</div>
+              <div class="nums">{{types.行政職}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">小計</div>
+              <div class="nums">{{types.小計1}}</div>
+            </div>
           </div>
-          <div class='data'>
-            <div class="label">兼職人員</div>
-            <div class="nums">{{types.兼職人員}}</div>
+          <div class="half">
+            <div class='data'>
+              <div class="label">新進人員</div>
+              <div class="nums">{{types.新進人員}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">兼職人員</div>
+              <div class="nums">{{types.兼職人員}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">實習生</div>
+              <div class="nums">{{types.實習生}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">小計</div>
+              <div class="nums">{{types.小計2}}</div>
+            </div>
           </div>
-          <div class='data'>
-            <div class="label">實習生</div>
-            <div class="nums">{{types.實習生}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">小計</div>
-            <div class="nums">{{types.小計2}}</div>
-          </div>
+
         </div>
 
-      </div>
-
-    </div>
-
-    <div class="card" style="margin-right: 30px;">
-      <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
-      <div class="card-body DashCollapse">
-        <div class="left">
-          <div class='data'>
-            <div class="label">排班</div>
-            <div class="nums">{{total_avg}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">on call</div>
-            <div class="nums">{{oncall}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">加班</div>
-            <div class="nums">{{overtime}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">減班</div>
-            <div class="nums">{{minustime}}</div>
-          </div>
-          <div class='data'>
-            <div class="label">差額</div>
-            <div class="nums">{{diff}}</div>
-          </div>
-        </div>
-        <div class="right">
-          <canvas id='chart2'>
-          </canvas>
-        </div>
       </div>
     </div>
-
+    <div class="col-6">
+      <div class="card">
+        <div class="card-header text-center">正職人力出勤分析<span class="unit">單位：時</span></div>
+        <div class="card-body DashCollapse">
+          <div class="left">
+            <div class='data'>
+              <div class="label">排班</div>
+              <div class="nums">{{total_avg}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">on call</div>
+              <div class="nums">{{oncall}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">加班</div>
+              <div class="nums">{{overtime}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">減班</div>
+              <div class="nums">{{minustime}}</div>
+            </div>
+            <div class='data'>
+              <div class="label">差額</div>
+              <div class="nums">{{diff}}</div>
+            </div>
+          </div>
+          <div class="right">
+            <canvas id='chart2'>
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- <div class="card">
         <div class="card-header text-center">兼職人力出勤分析<span class="unit">單位：時</span></div>
           <div class="card-body DashCollapse" >
@@ -661,10 +663,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
   }
-  .card {
-    width: 45%;
-    float: left;
-  }
+
   .card-header {
     font-size: 1.6rem;
   }

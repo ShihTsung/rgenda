@@ -1,15 +1,15 @@
 <template>
   <div class="row no-gutters">
-    <div class="offset-1 col-5">
+    <div class="col-6">
       <div class="card mx-1">
         <div class="card-header text-center">
-          <button class="btn" id="toggle-btn">
+          <button class="btn" id="toggle-btn" @click="show=!show">
             <i class="fa fa-bars"></i>
           </button>
           班表分析
           <span class="unit">單位：日</span>
         </div>
-        <div class="card-body DashCollapse">
+        <div class="card-body DashCollapse" v-show="show">
           <template v-if="dates">
             <div class="left">
               <div class='data' v-for="(date, index) in dates" :key="index">
@@ -32,13 +32,13 @@
       </div>
     </div>
 
-    <div class="col-5">
+    <div class="col-6">
       <div class="card mx-1">
         <div class="card-header text-center">
           出勤分析
           <span class="unit">單位：時</span>
         </div>
-        <div class="card-body DashCollapse">
+        <div class="card-body DashCollapse" v-show="show">
           <template v-if="hours">
             <div class="left">
               <div class='data' v-for="(hour, index) in hours" :key="index">
@@ -77,6 +77,7 @@ export default {
       dates: {},
       shiftDataCollection: null,
       hours: {},
+      show: true,
       hourDataCollection: null,
       chartOptions: {
         scales: {
@@ -396,7 +397,7 @@ export default {
   }
 
   .right {
-    width: 65%;
+    width: 78%;
     height: 100%;
     margin: 0;
     overflow: hidden;
@@ -406,7 +407,7 @@ export default {
   }
 
   .left {
-    width: 30%;
+    width: 20%;
     height: 100%;
     min-width: 10rem;
     margin: 0;
