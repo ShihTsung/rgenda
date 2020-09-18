@@ -249,7 +249,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs1"
-            :remarkContent="getRemarkSquare(1)"
+            :remarkContent="getRemarkSquare(0)"
           ></shift-statistics>
           <shift-statistics
             :isReady="isReady"
@@ -259,7 +259,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs2"
-            :remarkContent="getRemarkSquare(2)"
+            :remarkContent="getRemarkSquare(1)"
           ></shift-statistics>
           <shift-statistics
             :isReady="isReady"
@@ -269,7 +269,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs3"
-            :remarkContent="getRemarkSquare(3)"
+            :remarkContent="getRemarkSquare(2)"
           ></shift-statistics>
         </tbody>
       </table>
@@ -947,13 +947,10 @@ export default {
 
     //取得各個標誌的內容
     getRemarkSquare(index) {
-      let f = this.remarkSquareData.find((i) => {
-        return i.id == index;
-      });
-
-      if (f) {
-        return f.content;
+      if (this.remarkSquareData[index] && this.remarkSquareData[index].content) {
+        return this.remarkSquareData[index].content;
       }
+      return '';
     },
 
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
