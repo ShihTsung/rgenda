@@ -133,7 +133,13 @@
               />
             </svg>
           </div>
-          <div class="icon-bts check-btn" data-tooltip="tooltip" title="檢核" @click="getCheckResultData()">
+          <div
+            class="icon-bts check-btn"
+            data-tooltip="tooltip"
+            title="檢核"
+            @click="getCheckResultData()"
+            :style="{cursor: couldCheck()}"
+          >
             <svg
               class="icon-color"
               width="24"
@@ -280,10 +286,7 @@
     <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
 
-    <publish-modal
-     :year="year"
-     :month="month"
-     :status.sync="publishStatus"></publish-modal>
+    <publish-modal :year="year" :month="month" :status.sync="publishStatus"></publish-modal>
   </div>
 </template>
 <script>
@@ -324,6 +327,7 @@ export default {
 
   data() {
     return {
+      user: {},
       year: moment().year(),
       month: moment().add(1, "months").month() + 1,
       date: moment().date(),
@@ -355,25 +359,29 @@ export default {
       reserveData: [],
       checkResultData: [],
       isCheck: false,
-      text: '載入中...',
+      text: "載入中...",
       checkLoading: false,
       publishStatus: 0,
       isPass: false,
+      isSave: false,
     };
   },
 
   mounted() {
-    this.getUserData();
-    this.getPreResults();
-    this.getLastMonthData();
-    this.getAdjustment();
-    this.getUserRemark();
-    this.getTotalPerDayData();
-    this.getRemarkSquareData();
-    this.getPreResultRemarkData();
-    this.getShiftData();
-    this.getStationData();
-    this.getReserveData();
+    this.$httpClient.get("/api/users/curr/").then((res) => {
+      this.user = res.data;
+      this.getUserData();
+      this.getPreResults();
+      this.getLastMonthData();
+      this.getAdjustment();
+      this.getUserRemark();
+      this.getTotalPerDayData();
+      this.getRemarkSquareData();
+      this.getPreResultRemarkData();
+      this.getShiftData();
+      this.getStationData();
+      this.getReserveData();
+    })
   },
 
   computed: {
@@ -419,7 +427,7 @@ export default {
             if (!real[day - 1]) {
               real[day - 1] = {};
             }
-            switch(this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
+            switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
               case 0:
                 real[day - 1].D[1] += 1;
                 break;
@@ -459,7 +467,9 @@ export default {
       //處理懶加載畫面的變數設置
       this.isReady = false;
 
-      fetch(`/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+      fetch(
+        `/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+      )
         .then((res) => {
           return res.json();
         })
@@ -505,7 +515,9 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(`/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+      fetch(
+        `/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+      )
         .then((res) => {
           return res.json();
         })
@@ -533,7 +545,9 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(`/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+      fetch(
+        `/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+      )
         .then((res) => {
           return res.json();
         })
@@ -591,7 +605,7 @@ export default {
     getStationData() {
       let self = this;
       this.$httpClient
-        .get("/api/stations/")
+        .get("/api/stations/?department="+this.user.department.id)
         .then((response) => {
           self.stationData = response.data;
         })
@@ -614,21 +628,32 @@ export default {
 
     //取得檢核的資料
     getCheckResultData() {
-      this.checkLoading = true;
-      this.text = '檢核中...';
+      if(this.isSave) {
+        this.checkLoading = true;
+        this.text = "檢核中...";
 
-      fetch(`/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`)
-        .then(res=>{
-          return res.json();
-        }).then(data=>{
-          this.checkResultData = data;
-          this.isCheck = true;
-          this.checkLoading = false;
-          this.text = '載入中...';
-          this.checkResultData.length === 0 ? $("#checkPass").modal("show") : $("#checkPass").modal("hide");
-        }).catch(err=>{
-          console.log(err);
-        });
+        fetch(
+          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`
+        )
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            this.checkResultData = data;
+            this.isCheck = true;
+            this.checkLoading = false;
+            this.text = "載入中...";
+            this.checkResultData.length === 0
+              ? $("#checkPass").modal("show")
+              : $("#checkPass").modal("hide");
+          })
+          .then(() => {
+            this.isSave = false;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     },
 
     //----------------------------------------------------
@@ -959,111 +984,70 @@ export default {
       if (
         this.rsShow == true &&
         this.rsClass != "" &&
-        $(ev.target).closest('td').hasClass("couldEdit")
+        $(ev.target).closest("td").hasClass("couldEdit")
       ) {
         let data = {};
         data.result = info.id;
-        let classListStr = $(ev.target).closest('td').attr('class');
-        $(ev.target).closest('td').addClass(this.rsClass);
+        let classListStr = $(ev.target).closest("td").attr("class");
+        $(ev.target).closest("td").addClass(this.rsClass);
 
         let check = this.preResultRemarkData.find((item) => {
           return data.result == item.result;
         });
 
         if (classListStr.indexOf("rs1") != -1) {
-          $(ev.target).closest('td').removeClass("rs1");
-          if(check) {
-            fetch(`/api/preresult-remarks/${check.id}/`, {
-              headers: {
-                "X-CSRFToken": `${this.csrfToken}`,
-                "content-type": "application/json",
-              },
-              method: "DELETE",
-            })
-              .then((res) => {
-                return res.json();
-              })
-              .then(() => {
-                this.getPreResultRemarkData();
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }
+          $(ev.target).closest("td").removeClass("rs1");
         } else if (classListStr.indexOf("rs2") != -1) {
-          $(ev.target).closest('td').removeClass("rs2");
-          if(check) {
-            fetch(`/api/preresult-remarks/${check.id}/`, {
-              headers: {
-                "X-CSRFToken": `${this.csrfToken}`,
-                "content-type": "application/json",
-              },
-              method: "DELETE",
-            })
-              .then((res) => {
-                return res.json();
-              })
-              .then(() => {
-                this.getPreResultRemarkData();
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }
+          $(ev.target).closest("td").removeClass("rs2");
         } else if (classListStr.indexOf("rs3") != -1) {
-          $(ev.target).closest('td').removeClass("rs3");
-          if(check) {
+          $(ev.target).closest("td").removeClass("rs3");
+        }
+
+        if (classListStr.indexOf(this.rsClass) != -1) {
+          if (check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
                 "X-CSRFToken": `${this.csrfToken}`,
                 "content-type": "application/json",
               },
               method: "DELETE",
-            })
-              .then((res) => {
-                return res.json();
-              })
-              .then(() => {
-                this.getPreResultRemarkData();
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+            }).catch((err) => {
+              console.log(err);
+            });
+          }
+        } else {
+          switch (this.rsClass) {
+            case "rs1":
+              data.content = 1;
+              break;
+            case "rs2":
+              data.content = 2;
+              break;
+            case "rs3":
+              data.content = 3;
+              break;
+          }
+          let exist = this.resultRS.find((i) => {
+            return i.result == info.id;
+          });
+
+          //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
+          if (!exist) {
+            this.resultRS.push(data);
+          } else {
+            this.resultRS.forEach((i) => {
+              if (i.result == info.id) {
+                i.content = data.content;
+              }
+            });
           }
         }
 
-        switch (this.rsClass) {
-          case "rs1":
-            data.content = 1;
-            break;
-          case "rs2":
-            data.content = 2;
-            break;
-          case "rs3":
-            data.content = 3;
-            break;
-        }
-        let exist = this.resultRS.find((i) => {
-          return i.result == info.id;
-        });
-
-        //之後要送往preresult-remarks api的資料先暫存在resultRS的陣列中
-        if (!exist) {
-          this.resultRS.push(data);
-        } else {
-          this.resultRS.forEach((i) => {
-            if (i.result == info.id) {
-              i.content = data.content;
-            }
-          });
-        }
-
-        this.whichBorder(info);
       }
 
       if (
         this.isEdit == true &&
-        $(ev.target).closest('td').hasClass("couldEdit")
+        $(ev.target).closest("td").hasClass("couldEdit")
       ) {
         $("#changeShiftModal").modal("show");
         if (info != undefined) {
@@ -1084,11 +1068,11 @@ export default {
           user: changeShiftInfo.user,
           shift: changeShiftInfo.shift,
           station: changeShiftInfo.station ? changeShiftInfo.station : null,
-        }
-        let duplicate = this.changedResult.findIndex(d => {
+        };
+        let duplicate = this.changedResult.findIndex((d) => {
           return d.user == obj.user && d.date == obj.date;
         });
-        if(duplicate > -1) {
+        if (duplicate > -1) {
           this.changedResult.splice(duplicate, 1);
         }
         this.changedResult.push(obj);
@@ -1156,7 +1140,7 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
-      let preresults = this.shiftOfCurrentMonth[followInfo.follower] || {}
+      let preresults = this.shiftOfCurrentMonth[followInfo.follower] || {};
       let results = this.shiftOfCurrentMonth[followInfo.mentor];
       Object.keys(results).forEach((key) => {
         let e = results[key];
@@ -1172,10 +1156,10 @@ export default {
               station: e.station,
               date: e.date,
             };
-            let duplicate = this.changedResult.findIndex(d => {
+            let duplicate = this.changedResult.findIndex((d) => {
               return d.user == obj.user && d.date == obj.date;
             });
-            if(duplicate > -1) {
+            if (duplicate > -1) {
               this.changedResult.splice(duplicate, 1);
             }
             this.changedResult.push(obj);
@@ -1183,7 +1167,11 @@ export default {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
             obj.isModified = true;
-            this.$set(this.shiftOfCurrentMonth[followInfo.follower], shiftDate, obj);
+            this.$set(
+              this.shiftOfCurrentMonth[followInfo.follower],
+              shiftDate,
+              obj
+            );
           }
         }
       });
@@ -1208,6 +1196,7 @@ export default {
     sendToResults() {
       this.followEdit = false;
       this.rsShow = false;
+      this.isSave = true;
 
       let promises = [];
 
@@ -1399,20 +1388,32 @@ export default {
     },
 
     publishModal() {
-      if(this.isCheck){
+      if (this.isCheck) {
         this.publishStatus = 1;
       }
       $("#publishModal").modal("show");
     },
+
     checkPreResult(user, date) {
-      let content = this.checkResultData.find(item=>{
-        if (this.shiftOfCurrentMonth[user] && this.shiftOfCurrentMonth[user][date]) {
+      let content = this.checkResultData.find((item) => {
+        if (
+          this.shiftOfCurrentMonth[user] &&
+          this.shiftOfCurrentMonth[user][date]
+        ) {
           return this.shiftOfCurrentMonth[user][date].id === item.id;
         }
       });
-      if(content) {
+      if (content) {
         return content;
       }
+    },
+
+    couldCheck() {
+      if(this.isSave== true) {
+          return 'pointer';
+        }else {
+          return 'not-allowed';
+        }
     },
     //-------------------------------------------------
   },
@@ -1534,6 +1535,10 @@ export default {
 
     .master-scedule-table {
       text-align: center;
+
+      td {
+        padding: 0;
+      }
 
       .grid-width {
         width: 45px;

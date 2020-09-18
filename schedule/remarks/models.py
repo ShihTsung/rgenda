@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from account.models import CustomUser
+from account.models import CustomUser, Department
 from result.models import Result, PreResult
 
 
@@ -32,6 +32,12 @@ class RemarkSquare(models.Model):
         verbose_name=_('內容'),
         null=True,
         blank=True,
+    )
+    department = models.ForeignKey(
+        Department,
+        verbose_name=_('科別'),
+        on_delete=models.CASCADE,
+        null=True,
     )
 
     def __str__(self):
