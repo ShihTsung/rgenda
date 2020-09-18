@@ -337,11 +337,11 @@ export default {
       adjustHr: [],
       lastMonthData: [],
       userRemarkData: [],
-      remarks: [],
+      userRemarks: [],
       demandData: [],
       remarkSquareData: [],
       preResultRemarkData: [],
-      remarkS: [],
+      remarkSquare: [],
       shiftData: [],
       resultRS: [],
       changeInfo: {},
@@ -406,18 +406,6 @@ export default {
       });
       if (real.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
-          // if (!real[day - 1]) {
-          //   real[day - 1] = {};
-          // }
-          // if (!real[day - 1].D) {
-          //   real[day - 1].D = [0, 0];
-          // }
-          // if (!real[day - 1].E) {
-          //   real[day - 1].E = [0, 0];
-          // }
-          // if (!real[day - 1].N) {
-          //   real[day - 1].N = [0, 0];
-          // }
           real[day - 1].D[1] = 0;
           real[day - 1].E[1] = 0;
           real[day - 1].N[1] = 0;
@@ -975,7 +963,7 @@ export default {
       data.id = id[2];
       data.content = ev.target.value.toString();
 
-      this.remarkS.push(data);
+      this.remarkSquare.push(data);
     },
 
     //編輯個人當天的班別
@@ -1233,92 +1221,73 @@ export default {
         }
         promises.push(promise);
       });
-      Promise.all(promises).then(() => {
-        this.getPreResults();
-      });
 
-      this.remarks.forEach((i) => {
+      this.userRemarks.forEach((i) => {
         //檢查remarkData中有沒有資料
         let check = this.userRemarkData.find((item) => {
           return item.month == this.month && item.user == i.user;
         });
 
+        let promise;
         //remarkData有資料
         if (check) {
-          fetch(`/api/user-remarks/${check.id}/`, {
+          promise = fetch(`/api/user-remarks/${check.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
           //remarkData沒資料
-          fetch("/api/user-remarks/", {
+          promise = fetch("/api/user-remarks/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "POST",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
       });
 
       //正方形標誌說明
-      this.remarkS.forEach((item) => {
+      this.remarkSquare.forEach((item) => {
         let check = this.remarkSquareData.find((i) => {
           return i.id == item.id;
         });
 
+        let promise;
         if (check) {
-          fetch(`/api/remark-squares/${check.id}/`, {
+          promise = fetch(`/api/remark-squares/${check.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(item),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getRemarkSquareData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
-          fetch("/api/remark-squares/", {
+          promise = fetch("/api/remark-squares/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(item),
             method: "POST",
-          })
-            .then((res) => {
-              this.getRemarkSquareData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
       });
 
       //每個使用者每天是否有正方形標誌
@@ -1327,44 +1296,43 @@ export default {
           return i.result == item.result;
         });
 
+        let promise;
         if (check) {
-          fetch(`/api/preresult-remarks/${check.id}/`, {
+          promise = fetch(`/api/preresult-remarks/${check.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getPreResultRemarkData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
-          fetch("/api/preresult-remarks/", {
+          promise = fetch("/api/preresult-remarks/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "POST",
-          })
-            .then((res) => {
-              this.getPreResultRemarkData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then(() => {
+        this.getPreResults();
+        this.getUserRemark();
+        this.getRemarkSquareData();
+        this.getPreResultRemarkData();
       });
 
       this.changedResult.length = 0;
-      this.remarks.length = 0;
-      this.remarkS.length = 0;
+      this.userRemarks.length = 0;
+      this.remarkSquare.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
       this.isCheck = false;
