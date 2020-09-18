@@ -584,7 +584,9 @@ def get_workday_num(user_id, cycle_start, cycle_end, start=None, end=None):
     :param end: 結束日
     :return:
     """
-    total_days = (cycle_end - cycle_start).days + 1
+    if start and end:
+        workdays = list(red_dict(start, end).values()).count(False)
+        return workdays
     workdays = list(red_dict(cycle_start, cycle_end).values()).count(False)
     if start:
         results = Result.objects.filter(user__id=user_id, date__gte=cycle_start, date__lt=start)
@@ -801,7 +803,12 @@ def create_result(request, department_id, start, end):
                 for ind, cycle in enumerate(cycle_list):
 
                     # set workday_dict
-                    if ind == 0:
+
+                    if len(cycle_list) == 1:
+                        for user in demand['users']:
+                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start,
+                                                                         end=date_end)
+                    elif ind == 0:
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start)
                     elif ind == len(cycle_list) - 1:

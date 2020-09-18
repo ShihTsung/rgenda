@@ -26,7 +26,7 @@ from notifications.models import Notification
 from notifications.signals import notify
 from numpy.random import choice
 from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave, get_promise_other
-from result.views import str_to_date, get_continue_days, get_workday_num, get_used_rest
+from result.views import str_to_date, get_continue_days, get_workday_num, get_used_rest, check_eoa
 from shift.views import get_shifts
 from station.views import get_stations
 
@@ -1691,6 +1691,15 @@ def recreate_result_periodic(request):
                             output[user.id][str(d)] = 0
                     workday_dict[user.id] = dict()
 
+                    # 若當月為白班且上個月為小夜、大夜
+                    if demand['demand'].shift.shift_type == 0:
+                        eoa = check_eoa(user, date_start)
+                        if eoa == 1:
+                            user_pool[user.id]['promise_leave'].append(date_start)
+                        elif eoa == 2:
+                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
+
                 # 建立需求單
                 demand_dict = dict()
                 for ind, d in enumerate(date_list):
@@ -1705,7 +1714,13 @@ def recreate_result_periodic(request):
                 for ind, cycle in enumerate(cycle_list):
 
                     # set workday_dict
-                    if ind == 0:
+
+                    if len(cycle_list) == 1:
+                        # 只有一周期（8週變形 & 跨三個月）
+                        for user in demand['users']:
+                            workday_dict[user.id][ind] = get_workday_num(user.id, cycle[0], cycle[-1], start=date_start,
+                                                                         end=date_end)
+                    elif ind == 0:
                         for user in demand['users']:
                             workday_dict[user.id][ind] = get_workday_num(
                                 user.id, cycle[0], cycle[-1], start=date_start)
@@ -2447,6 +2462,15 @@ def recreate_result_monthly(request):
                             output[user.id][str(d)] = 0
 
                     workday_dict[user.id] = workday_num
+
+                    # 若當月為白班且上個月為小夜、大夜
+                    if demand['demand'].shift.shift_type == 0:
+                        eoa = check_eoa(user, date_start)
+                        if eoa == 1:
+                            user_pool[user.id]['promise_leave'].append(date_start)
+                        elif eoa == 2:
+                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
 
                 # 建立需求單
                 demand_dict = dict()
