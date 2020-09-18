@@ -234,7 +234,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         queryset = TimeAdjustment.objects.all()
         dep = self.request.user.department
         users = CustomUser.objects.filter(department=dep)
-        queryset = queryset.objects.filter(user__in=users)
+        queryset = queryset.filter(user__in=users)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
