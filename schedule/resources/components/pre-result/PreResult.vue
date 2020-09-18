@@ -1085,14 +1085,22 @@ export default {
           return i.result == obj.id;
         });
       }
+      let id = [0, 0, 0];
+      if (this.remarkSquareData[0] && this.remarkSquareData[0].id) {
+        id[0] = this.remarkSquareData[0].id;
+      } else if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
+        id[1] = this.remarkSquareData[1].id;
+      } else if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
+        id[2] = this.remarkSquareData[2].id;
+      }
 
       if (f) {
         switch (f.content) {
-          case this.remarkSquareData[0].id:
+          case id[0]:
             return "rs1";
-          case this.remarkSquareData[1].id:
+          case id[1]:
             return "rs2";
-          case this.remarkSquareData[2].id:
+          case id[2]:
             return "rs3";
         }
       }
