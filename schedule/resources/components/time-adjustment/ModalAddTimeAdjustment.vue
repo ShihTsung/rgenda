@@ -57,7 +57,7 @@
             </div>
             <div class="form-group">
               <label class="font-weight-bold">時數</label>
-              <input type="number" class="form-control" v-model="addTimeAdjustment.hours">
+              <input type="number" class="form-control" v-model="addTimeAdjustment.hours" @blur="addTimeAdjustment.hours = getPositiveOrZero(addTimeAdjustment.hours)">
               <small class="form-text text-danger" v-if="isOverHours">
                 超過法定上限 12 小時
               </small>
@@ -160,6 +160,9 @@ export default {
       }
 
       return [valid, errMsg];
+    },
+    getPositiveOrZero(number) {
+      return Math.max(0, parseInt(number));
     },
     store() {
       let self = this;
