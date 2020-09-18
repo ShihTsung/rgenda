@@ -248,8 +248,8 @@ td > div {
   background: $color-dark-blue;
   position: absolute;
   margin: 0;
-  top: 0;
-  left: 0;
+  top: -1px;
+  left: -1px;
 }
 
 .showAdjustmentRemark[adjustment-remark]:hover::after {

@@ -44,7 +44,7 @@ export default {
       type: Number,
       default: 30,
     },
-    getDemand: {
+    demandList: {
       type: Array,
       default: function () {
         return [];
@@ -61,8 +61,8 @@ export default {
   },
   methods: {
     getDemandClass(idx) {
-      if (this.getDemand[idx] && this.getDemand[idx][this.shiftKey]) {
-        let demand = this.getDemand[idx][this.shiftKey];
+      if (this.demandList[idx] && this.demandList[idx][this.shiftKey]) {
+        let demand = this.demandList[idx][this.shiftKey];
         if (demand[0] > demand[1]) {
           return "lack";
         } else if (demand[0] < demand[1]) {
@@ -72,8 +72,8 @@ export default {
       return "";
     },
     getDemandValue(idx) {
-      if (this.getDemand[idx] && this.getDemand[idx][this.shiftKey]) {
-        return this.getDemand[idx][this.shiftKey][1];
+      if (this.demandList[idx] && this.demandList[idx][this.shiftKey]) {
+        return this.demandList[idx][this.shiftKey][1];
       }
       return 0;
     },
