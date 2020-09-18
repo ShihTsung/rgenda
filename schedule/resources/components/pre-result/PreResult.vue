@@ -1004,13 +1004,13 @@ export default {
         } else {
           switch (this.rsClass) {
             case "rs1":
-              data.content = 1;
+              data.content = this.remarkSquareData[0].id;
               break;
             case "rs2":
-              data.content = 2;
+              data.content = this.remarkSquareData[1].id;
               break;
             case "rs3":
-              data.content = 3;
+              data.content = this.remarkSquareData[2].id;
               break;
           }
           let exist = this.resultRS.find((i) => {
