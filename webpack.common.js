@@ -25,7 +25,7 @@ module.exports = {
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.join(__dirname, '/schedule/static/assets'),
+    path: path.join(__dirname, '/schedule/prod_static/assets'),
     publicPath: ASSETS_PATH
   },
   resolve: {

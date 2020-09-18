@@ -241,7 +241,7 @@
             shiftName="白班"
             shiftKey="D"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs1"
             :remarkContent="getRemarkSquare(1)"
           ></shift-statistics>
@@ -251,7 +251,7 @@
             shiftName="小夜班"
             shiftKey="E"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs2"
             :remarkContent="getRemarkSquare(2)"
           ></shift-statistics>
@@ -261,7 +261,7 @@
             shiftName="大夜班"
             shiftKey="N"
             :getDays="getDays"
-            :getDemand="getDemand"
+            :demandList="demandList"
             rs="rs3"
             :remarkContent="getRemarkSquare(3)"
           ></shift-statistics>
@@ -382,22 +382,58 @@ export default {
       return moment([this.year, this.month - 1, 1]).daysInMonth();
     },
 
+    stationPicker() {
+      return this.stationData.filter((i) => {
+        return i.name.indexOf("假") === -1;
+      });
+    },
+
     //取得當日人力配置的資料
-    getDemand() {
+    demandList() {
       let real = this.demandData.filter((i) => {
         return moment([this.year, this.month - 1, this.date]).isSame(
           moment(i.date),
           "month"
         );
       });
-
+      if (real.length > 0) {
+        for (let day = 1; day <= this.getDays; ++day) {
+          // if (!real[day - 1]) {
+          //   real[day - 1] = {};
+          // }
+          // if (!real[day - 1].D) {
+          //   real[day - 1].D = [0, 0];
+          // }
+          // if (!real[day - 1].E) {
+          //   real[day - 1].E = [0, 0];
+          // }
+          // if (!real[day - 1].N) {
+          //   real[day - 1].N = [0, 0];
+          // }
+          real[day - 1].D[1] = 0;
+          real[day - 1].E[1] = 0;
+          real[day - 1].N[1] = 0;
+        }
+        for (let userId in this.shiftOfCurrentMonth) {
+          for (let day in this.shiftOfCurrentMonth[userId]) {
+            if (!real[day - 1]) {
+              real[day - 1] = {};
+            }
+            switch(this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
+              case 0:
+                real[day - 1].D[1] += 1;
+                break;
+              case 1:
+                real[day - 1].E[1] += 1;
+                break;
+              case 2:
+                real[day - 1].N[1] += 1;
+                break;
+            }
+          }
+        }
+      }
       return real;
-    },
-
-    stationPicker() {
-      return this.stationData.filter((i) => {
-        return i.name.indexOf("假") === -1;
-      });
     },
   },
 
@@ -628,7 +664,7 @@ export default {
         return "gray-background";
       } else {
         if (this.isEdit) {
-          return "couldEdit";
+          return "couldEdit hoverEvent";
         }
         return "hoverEvent";
       }
@@ -717,7 +753,7 @@ export default {
       let totalHour = 0;
       // 公假時數
       let officialLeaveHour = 0;
-      for (let day = 1; day < this.getDays; ++day) {
+      for (let day = 1; day <= this.getDays; ++day) {
         if (
           this.shiftOfCurrentMonth[userId] &&
           this.shiftOfCurrentMonth[userId][day]
@@ -923,19 +959,19 @@ export default {
       if (
         this.rsShow == true &&
         this.rsClass != "" &&
-        $(ev.target).parents('td').hasClass("couldEdit")
+        $(ev.target).closest('td').hasClass("couldEdit")
       ) {
         let data = {};
         data.result = info.id;
-        let classListStr = JSON.stringify(ev.target.parentNode.classList);
-        ev.target.parentNode.classList.add(this.rsClass);
+        let classListStr = $(ev.target).closest('td').attr('class');
+        $(ev.target).closest('td').addClass(this.rsClass);
 
         let check = this.preResultRemarkData.find((item) => {
           return data.result == item.result;
         });
 
         if (classListStr.indexOf("rs1") != -1) {
-          ev.target.parentNode.classList.remove("rs1");
+          $(ev.target).closest('td').removeClass("rs1");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -955,7 +991,7 @@ export default {
               });
           }
         } else if (classListStr.indexOf("rs2") != -1) {
-          ev.target.parentNode.classList.remove("rs2");
+          $(ev.target).closest('td').removeClass("rs2");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -975,7 +1011,7 @@ export default {
               });
           }
         } else if (classListStr.indexOf("rs3") != -1) {
-          ev.target.parentNode.classList.remove("rs3");
+          $(ev.target).closest('td').removeClass("rs3");
           if(check) {
             fetch(`/api/preresult-remarks/${check.id}/`, {
               headers: {
@@ -1027,7 +1063,7 @@ export default {
 
       if (
         this.isEdit == true &&
-        $(ev.target).parents('td').hasClass("couldEdit")
+        $(ev.target).closest('td').hasClass("couldEdit")
       ) {
         $("#changeShiftModal").modal("show");
         if (info != undefined) {
@@ -1054,7 +1090,7 @@ export default {
         });
         if(duplicate > -1) {
           this.changedResult.splice(duplicate, 1);
-        };
+        }
         this.changedResult.push(obj);
         let d = moment(changeShiftInfo.date).date();
         if (!this.shiftOfCurrentMonth[changeShiftInfo.user]) {
@@ -1066,7 +1102,7 @@ export default {
           d,
           changeShiftInfo
         );
-      };
+      }
 
       this.changeInfo = {};
     },
@@ -1120,43 +1156,38 @@ export default {
     // 送出跟班 api
     sendFollowShift(followInfo) {
       $("#followShiftModal").modal("hide");
-      let preresults = this.shiftOfCurrentMonth[followInfo.follower]
+      let preresults = this.shiftOfCurrentMonth[followInfo.follower] || {}
       let results = this.shiftOfCurrentMonth[followInfo.mentor];
       Object.keys(results).forEach((key) => {
         let e = results[key];
         if (e.user == followInfo.mentor) {
-          let obj = {
-            user: followInfo.follower,
-            shift: e.shift,
-            station: e.station,
-            date: e.date,
-          };
-          if (preresults[key]){
-            obj.id = preresults[key].id;
-          }
-          else{
-            obj.id = 0;
-          }
-          let duplicate = this.changedResult.findIndex(d => {
-            return d.user == obj.user && d.date == obj.date;
-          });
-          if(duplicate > -1) {
-            this.changedResult.splice(duplicate, 1);
-          };
-          this.changedResult.push(obj);
-          let d = moment(e.date).date();
-          let d_start = parseInt(followInfo.startDate.substring(8));
-          let d_end = parseInt(followInfo.endDate.substring(8));
-          let d_d = parseInt(e.date.substring(8));
-          if (d_d <= d_end && d_d >= d_start) {
+          let followStart = parseInt(followInfo.startDate.substring(8));
+          let followEnd = parseInt(followInfo.endDate.substring(8));
+          let shiftDate = parseInt(e.date.substring(8));
+          if (shiftDate <= followEnd && shiftDate >= followStart) {
+            let obj = {
+              id: preresults[key] ? preresults[key].id : 0,
+              user: followInfo.follower,
+              shift: e.shift,
+              station: e.station,
+              date: e.date,
+            };
+            let duplicate = this.changedResult.findIndex(d => {
+              return d.user == obj.user && d.date == obj.date;
+            });
+            if(duplicate > -1) {
+              this.changedResult.splice(duplicate, 1);
+            }
+            this.changedResult.push(obj);
             if (!this.shiftOfCurrentMonth[followInfo.follower]) {
               this.$set(this.shiftOfCurrentMonth, followInfo.follower, {});
             }
             obj.isModified = true;
-            this.$set(this.shiftOfCurrentMonth[followInfo.follower], d, obj);
+            this.$set(this.shiftOfCurrentMonth[followInfo.follower], shiftDate, obj);
           }
         }
       });
+      console.log(this.changedResult);
     },
     // 預排假顯示
     userReserve(id, month, day) {
@@ -1382,7 +1413,7 @@ export default {
       if(content) {
         return content;
       }
-    }
+    },
     //-------------------------------------------------
   },
 
@@ -1572,16 +1603,6 @@ export default {
       .mark-explanation {
         border: none;
         float: left;
-      }
-
-      .rs1 {
-        border: 5px solid #58b4ae;
-      }
-      .rs2 {
-        border: 5px solid #84b1ed;
-      }
-      .rs3 {
-        border: 5px solid #37419a;
       }
     }
   }

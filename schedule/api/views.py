@@ -1770,9 +1770,18 @@ def recreate_result_periodic(request):
                                     if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
                                                                            user_pool[user_id]['promise_other'] +
                                                                            user_pool[user_id]['official_leave']):
-                                        output[user_id][str(d)] = 1
-                                        demand_dict[str(d)] -= 1
-                                        workday_dict[user_id][ind] -= 1
+                                        # 檢查是否連續上班超過6天，沒有才塞入1
+                                        s = 0
+                                        d_n = d - timedelta(days=1)
+                                        while str(d_n) in output[user_id]:
+                                            if output[user_id][str(d_n)] == 0:
+                                                break
+                                            s += output[user_id][str(d_n)]
+                                            d_n -= timedelta(days=1)
+                                        if s < 6:
+                                            output[user_id][str(d)] = 1
+                                            demand_dict[str(d)] -= 1
+                                            workday_dict[user_id] -= 1
 
                 # 印出預先插入1的結果
                 print()
@@ -2321,6 +2330,11 @@ def recreate_result_monthly(request):
     # 日期資料
     date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
     attrs = attr_list(department.id, date_start, date_end)
+    # work_ind 紀錄非休診日的天
+    work_ind = list()
+    for ind, attr in enumerate(attrs):
+        if attr != '0':
+            work_ind.append(ind)
     reds = red_dict(date_start, date_end)
 
     # 本月工作天數
@@ -2455,7 +2469,7 @@ def recreate_result_monthly(request):
                 total_workdays = sum([workday_dict[user_id] for user_id in user_pool])
 
                 diff = total_workdays - total_demands
-                day_num = len(date_list)
+                day_num = len(work_ind)
                 diff_q = diff // day_num
                 diff_r = diff % day_num
 
@@ -2482,6 +2496,7 @@ def recreate_result_monthly(request):
                             if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
                                                                    user_pool[user_id]['promise_other'] +
                                                                    user_pool[user_id]['official_leave']):
+                                # 檢查是否連續上班超過6天，沒有才塞入1
                                 s = 0
                                 d_n = d - timedelta(days=1)
                                 while str(d_n) in output[user_id]:
@@ -2508,14 +2523,15 @@ def recreate_result_monthly(request):
                 for _ in range(1000):
 
                     # 產生需求校正list和指標
-                    diff_list = [diff_q for _ in range(day_num)]
+                    # 排除休診日（休診日校正數為0）
+                    diff_list = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
                     if demand['demand'].level == 1:
                         adjust_weight = [1 if i in r_ind else 1000 for i in range(day_num)]
                         weight_sum = sum(adjust_weight)
                         adjust_weight = [i / weight_sum for i in adjust_weight]
-                        adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                        adjust_index = choice(work_ind, diff_r, p=adjust_weight, replace=False)
                     else:
-                        adjust_index = choice(day_num, diff_r, replace=False)
+                        adjust_index = choice(work_ind, diff_r, replace=False)
                     for i in adjust_index:
                         diff_list[i] += 1
 
@@ -2531,6 +2547,10 @@ def recreate_result_monthly(request):
                     weight_holiday_rest = dict([(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
                     for ind, d in enumerate(date_list):
+
+                        # 休診日或需求人力等於0，直接跳下一天
+                        if demand_dict[str(d)] + diff_list[ind] <= 0:
+                            continue
 
                         # user可排人選
                         options = list()
@@ -2931,6 +2951,21 @@ def recreate_result_monthly(request):
     print('Complete')
     print('Time Used', time_end - time_start)
     print()
+
+    return Response({
+        'message': 'Success',
+    })
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='手動重排',
+    manual_parameters=[start, end],
+)
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def recreate_result_monthly_b(request):
+    from datetime import datetime, timedelta
 
     return Response({
         'message': 'Success',
