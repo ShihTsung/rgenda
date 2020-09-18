@@ -956,8 +956,9 @@ export default {
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
     setRemarkContent(ev) {
       let data = {};
-      let id = ev.target.parentNode.childNodes[0].classList[1];
-      data.id = id[2];
+      // rs1 or rs2 or rs3
+      let className = ev.target.parentNode.childNodes[0].classList[1];
+      data.index = className[2] - 1;
       data.content = ev.target.value.toString();
 
       this.remarkSquare.push(data);
@@ -1256,13 +1257,10 @@ export default {
 
       //正方形標誌說明
       this.remarkSquare.forEach((item) => {
-        let check = this.remarkSquareData.find((i) => {
-          return i.id == item.id;
-        });
-
         let promise;
-        if (check) {
-          promise = fetch(`/api/remark-squares/${check.id}/`, {
+        if (this.remarkSquareData[item.index]) {
+          let data = this.remarkSquareData[item.index];
+          promise = fetch(`/api/remark-squares/${data.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
