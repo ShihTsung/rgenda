@@ -327,6 +327,7 @@ export default {
 
   data() {
     return {
+      user: {},
       year: moment().year(),
       month: moment().add(1, "months").month() + 1,
       date: moment().date(),
@@ -367,17 +368,20 @@ export default {
   },
 
   mounted() {
-    this.getUserData();
-    this.getPreResults();
-    this.getLastMonthData();
-    this.getAdjustment();
-    this.getUserRemark();
-    this.getTotalPerDayData();
-    this.getRemarkSquareData();
-    this.getPreResultRemarkData();
-    this.getShiftData();
-    this.getStationData();
-    this.getReserveData();
+    this.$httpClient.get("/api/users/curr/").then((res) => {
+      this.user = res.data;
+      this.getUserData();
+      this.getPreResults();
+      this.getLastMonthData();
+      this.getAdjustment();
+      this.getUserRemark();
+      this.getTotalPerDayData();
+      this.getRemarkSquareData();
+      this.getPreResultRemarkData();
+      this.getShiftData();
+      this.getStationData();
+      this.getReserveData();
+    })
   },
 
   computed: {
@@ -601,7 +605,7 @@ export default {
     getStationData() {
       let self = this;
       this.$httpClient
-        .get("/api/stations/")
+        .get("/api/stations/?department="+this.user.department.id)
         .then((response) => {
           self.stationData = response.data;
         })
@@ -1531,6 +1535,10 @@ export default {
 
     .master-scedule-table {
       text-align: center;
+
+      td {
+        padding: 0;
+      }
 
       .grid-width {
         width: 45px;
