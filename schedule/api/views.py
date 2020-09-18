@@ -232,6 +232,9 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = TimeAdjustment.objects.all()
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = queryset.objects.filter(user__in=users)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -549,6 +552,9 @@ class PreResultViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = PreResult.objects.all()
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = queryset.filter(user__in=users)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -1051,11 +1057,29 @@ class UserRemarkViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    def get_queryset(self):
+        users = CustomUser.objects.filter(
+            department=self.request.user.department)
+        queryset = UserRemark.objects.filter(user__in=users)
+        return queryset
+
 
 class RemarkSquareViewSet(viewsets.ModelViewSet):
     queryset = RemarkSquare.objects.all()
     serializer_class = RemarkSquareSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        insertData = request.data
+        insertData['department'] = self.request.user.department.id
+        serializer = self.get_serializer(data=insertData)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers)
 
     @swagger_auto_schema(
         operation_summary='刪除備註方塊',
@@ -1068,6 +1092,11 @@ class RemarkSquareViewSet(viewsets.ModelViewSet):
             data=res,
             status=status.HTTP_200_OK,
         )
+
+    def get_queryset(self):
+        queryset = RemarkSquare.objects.filter(
+            department=self.request.user.department)
+        return queryset
 
 
 class ResultRemarkViewSet(viewsets.ModelViewSet):
@@ -1087,6 +1116,12 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    def get_queryset(self):
+        users = CustomUser.objects.filter(
+            department=self.request.user.department)
+        queryset = ResultRemark.objects.filter(result__user__in=users)
+        return queryset
+
 
 class PreResultRemarkViewSet(viewsets.ModelViewSet):
     queryset = PreResultRemark.objects.all()
@@ -1104,6 +1139,12 @@ class PreResultRemarkViewSet(viewsets.ModelViewSet):
             data=res,
             status=status.HTTP_200_OK,
         )
+
+    def get_queryset(self):
+        users = CustomUser.objects.filter(
+            department=self.request.user.department)
+        queryset = PreResultRemark.objects.filter(result__user__in=users)
+        return queryset
 
 
 @swagger_auto_schema(
@@ -2325,10 +2366,12 @@ def recreate_result_monthly(request):
     except Result.DoesNotExist:
         pass
 
-    PreResult.objects.filter(user__department=department, date__gte=date_start, date__lte=date_end).delete()
+    PreResult.objects.filter(user__department=department,
+                             date__gte=date_start, date__lte=date_end).delete()
 
     # 日期資料
-    date_list = [date_start + timedelta(days=i) for i in range((date_end - date_start).days + 1)]
+    date_list = [date_start + timedelta(days=i)
+                 for i in range((date_end - date_start).days + 1)]
     attrs = attr_list(department.id, date_start, date_end)
     # work_ind 紀錄非休診日的天
     work_ind = list()
@@ -2375,7 +2418,8 @@ def recreate_result_monthly(request):
     }
 
     # cycle0已排好的(前月的)班表
-    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
+    used_rest = get_used_rest(
+        department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -2462,11 +2506,12 @@ def recreate_result_monthly(request):
                 for user in demand['users']:
                     for d in date_list:
                         if output[user.id][str(d)] == 1 or d in user_pool[user.id]['promise_other']:
-                                workday_dict[user.id] -= 1
+                            workday_dict[user.id] -= 1
 
                 # 計算可工作天數、需求數
                 total_demands = sum([demand_dict[str(d)] for d in date_list])
-                total_workdays = sum([workday_dict[user_id] for user_id in user_pool])
+                total_workdays = sum([workday_dict[user_id]
+                                      for user_id in user_pool])
 
                 diff = total_workdays - total_demands
                 day_num = len(work_ind)
@@ -2513,8 +2558,10 @@ def recreate_result_monthly(request):
                 print()
                 print('      ', [i % 10 for i in range(32)])
                 for user_id in user_pool:
-                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(output[user_id].values()), sum(output[user_id].values()))
-                print('DEMAND   ', list(demand_dict.values()), sum(demand_dict.values()))
+                    print(CustomUser.objects.get(id=user_id).full_name[:3], list(
+                        output[user_id].values()), sum(output[user_id].values()))
+                print('DEMAND   ', list(demand_dict.values()),
+                      sum(demand_dict.values()))
 
                 print('q:', diff_q, 'r:', diff_r)
                 print('tw:', total_workdays, 'td:', total_demands)
@@ -2524,12 +2571,15 @@ def recreate_result_monthly(request):
 
                     # 產生需求校正list和指標
                     # 排除休診日（休診日校正數為0）
-                    diff_list = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
+                    diff_list = [diff_q if attrs[i] !=
+                                 '0' else 0 for i in range(len(attrs))]
                     if demand['demand'].level == 1:
-                        adjust_weight = [1 if i in r_ind else 1000 for i in range(day_num)]
+                        adjust_weight = [
+                            1 if i in r_ind else 1000 for i in range(day_num)]
                         weight_sum = sum(adjust_weight)
                         adjust_weight = [i / weight_sum for i in adjust_weight]
-                        adjust_index = choice(work_ind, diff_r, p=adjust_weight, replace=False)
+                        adjust_index = choice(
+                            work_ind, diff_r, p=adjust_weight, replace=False)
                     else:
                         adjust_index = choice(work_ind, diff_r, replace=False)
                     for i in adjust_index:
@@ -2543,8 +2593,10 @@ def recreate_result_monthly(request):
                     temp_output = deepcopy(output)
 
                     # set weight, start calculating
-                    weight_workday = dict([(user_id, workday_dict[user_id]) for user_id in user_pool])
-                    weight_holiday_rest = dict([(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
+                    weight_workday = dict(
+                        [(user_id, workday_dict[user_id]) for user_id in user_pool])
+                    weight_holiday_rest = dict(
+                        [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
                     for ind, d in enumerate(date_list):
 
@@ -2622,7 +2674,8 @@ def recreate_result_monthly(request):
                                               (100 - weight_holiday_rest[user_id]) * 1000 + 1)
                         else:
                             for user_id in options:
-                                weight.append(2 ** weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
+                                weight.append(
+                                    2 ** weight_workday[user_id] * weight_reserve_leave[user_id] * 1000 + 1)
                         weight_sum = sum(weight)
                         weight = [w / weight_sum for w in weight]
 
@@ -2649,7 +2702,8 @@ def recreate_result_monthly(request):
                         # 成功排完 1 cycle
                         # 儲存結果
                         output = temp_output
-                        print(station.name, shift.name, 'Level', str(demand['demand'].level), 'Success in 1000.')
+                        print(station.name, shift.name, 'Level', str(
+                            demand['demand'].level), 'Success in 1000.')
 
                         # 儲存剩餘工作天 & 可休假假日數
                         for user_id in user_pool:
@@ -2678,12 +2732,16 @@ def recreate_result_monthly(request):
                         # 產生需求校正list和指標
                         diff_list = [diff_q for _ in date_list]
                         if demand['demand'].level == 1:
-                            adjust_weight = [1 if i in r_ind else 1000 for i in range(day_num)]
+                            adjust_weight = [
+                                1 if i in r_ind else 1000 for i in range(day_num)]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [i / weight_sum for i in adjust_weight]
-                            adjust_index = choice(day_num, diff_r, p=adjust_weight, replace=False)
+                            adjust_weight = [
+                                i / weight_sum for i in adjust_weight]
+                            adjust_index = choice(
+                                day_num, diff_r, p=adjust_weight, replace=False)
                         else:
-                            adjust_index = choice(day_num, diff_r, replace=False)
+                            adjust_index = choice(
+                                day_num, diff_r, replace=False)
                         for i in adjust_index:
                             diff_list[i] += 1
                         diff_ind = 0
@@ -2693,7 +2751,8 @@ def recreate_result_monthly(request):
                         temp_output = deepcopy(output)
 
                         # set weight, start calculating
-                        weight_workday = dict([(user_id, workday_dict[user_id]) for user_id in user_pool])
+                        weight_workday = dict(
+                            [(user_id, workday_dict[user_id]) for user_id in user_pool])
                         weight_holiday_rest = dict(
                             [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
@@ -2753,7 +2812,8 @@ def recreate_result_monthly(request):
 
                             if len(options) <= demand_dict[str(d)] + diff_list[diff_ind] - assign_num:
                                 # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
-                                temp_demand_loss += demand_dict[str(d)] + diff_list[diff_ind] - len(options)
+                                temp_demand_loss += demand_dict[str(
+                                    d)] + diff_list[diff_ind] - len(options)
                                 for user_id in user_pool:
                                     if user_id in options:
                                         temp_output[user_id][str(d)] = 1
@@ -2995,6 +3055,7 @@ def published_or_not(request):
             return Response(True)
         else:
             return Response(False)
+
 
 @swagger_auto_schema(
     methods=['get'],
