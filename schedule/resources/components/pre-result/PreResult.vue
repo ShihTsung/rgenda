@@ -138,6 +138,7 @@
             data-tooltip="tooltip"
             title="檢核"
             @click="getCheckResultData()"
+            :style="{cursor: couldCheck()}"
           >
             <svg
               class="icon-color"
@@ -361,6 +362,7 @@ export default {
       checkLoading: false,
       publishStatus: 0,
       isPass: false,
+      isSave: false,
     };
   },
 
@@ -622,27 +624,32 @@ export default {
 
     //取得檢核的資料
     getCheckResultData() {
-      this.checkLoading = true;
-      this.text = "檢核中...";
+      if(this.isSave) {
+        this.checkLoading = true;
+        this.text = "檢核中...";
 
-      fetch(
-        `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`
-      )
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          this.checkResultData = data;
-          this.isCheck = true;
-          this.checkLoading = false;
-          this.text = "載入中...";
-          this.checkResultData.length === 0
-            ? $("#checkPass").modal("show")
-            : $("#checkPass").modal("hide");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        fetch(
+          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`
+        )
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            this.checkResultData = data;
+            this.isCheck = true;
+            this.checkLoading = false;
+            this.text = "載入中...";
+            this.checkResultData.length === 0
+              ? $("#checkPass").modal("show")
+              : $("#checkPass").modal("hide");
+          })
+          .then(() => {
+            this.isSave = false;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     },
 
     //----------------------------------------------------
@@ -1185,6 +1192,7 @@ export default {
     sendToResults() {
       this.followEdit = false;
       this.rsShow = false;
+      this.isSave = true;
 
       let promises = [];
 
@@ -1381,6 +1389,7 @@ export default {
       }
       $("#publishModal").modal("show");
     },
+
     checkPreResult(user, date) {
       let content = this.checkResultData.find((item) => {
         if (
@@ -1393,6 +1402,14 @@ export default {
       if (content) {
         return content;
       }
+    },
+
+    couldCheck() {
+      if(this.isSave== true) {
+          return 'pointer';
+        }else {
+          return 'not-allowed';
+        }
     },
     //-------------------------------------------------
   },
