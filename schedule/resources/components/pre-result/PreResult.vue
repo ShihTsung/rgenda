@@ -1088,11 +1088,11 @@ export default {
 
       if (f) {
         switch (f.content) {
-          case 1:
+          case this.remarkSquareData[0].id:
             return "rs1";
-          case 2:
+          case this.remarkSquareData[1].id:
             return "rs2";
-          case 3:
+          case this.remarkSquareData[2].id:
             return "rs3";
         }
       }
