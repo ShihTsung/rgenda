@@ -773,7 +773,7 @@ export default {
         month: this.month,
       };
 
-      this.remarks.push(data);
+      this.userRemarks.push(data);
     },
 
     getTotalShiftHour(userId) {
