@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} 排班規則管理 {% endblock %}
+{% block title %} 編輯科別 {% endblock %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load static %}
@@ -7,7 +7,7 @@
 {% block content %}
 <div id="app" class="container">
   <div class="title text-left mb-4">
-    <h3>排班規則管理</h3>
+    <h3>編輯科別</h3>
   </div>
   <department-edit :department-id="{{id}}" csrf-token="{{ csrf_token }}"></department-edit>
 </div>

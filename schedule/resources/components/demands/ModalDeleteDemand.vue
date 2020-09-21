@@ -14,7 +14,7 @@
         </div>
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">刪除確認</h3>
-          <p class="mb-4">確定要刪除 {{ deleteShift.stationName }} 班別 {{ deleteShift.shiftName }} 的配置嗎？</p>
+          <p class="mb-4">一旦刪除記錄，將無法復原。<br/>您確認仍要刪除 {{ deleteShift.stationName }} 班別 {{ deleteShift.shiftName }} 的配置嗎？</p>
           <div class="row">
             <div class="col mb-2">
               <button class="btn btn-rgenda" type="button"
@@ -46,10 +46,12 @@ export default {
     },
     deleteShift: {
       type: Object,
-      default: {
-        demandIds: [],
-        stationName: '',
-        shiftName: '',
+      default: function () {
+        return {
+          demandIds: [],
+          stationName: '',
+          shiftName: '',
+        };
       }
     }
   },
@@ -75,10 +77,6 @@ export default {
           }
         }
         self.$httpClient.delete(url, formConfig)
-          .then(function (response) {
-            // debug
-            // console.log(`delete demand id = ${id}`);
-          })
           .catch(function (error) {
             // handle error
             popup.error({
@@ -91,8 +89,7 @@ export default {
 
       Promise.all(
         promiseArr
-      ).then(function (response) {
-
+      ).then(() => {
         popup.success({
           title: '刪除人力配置',
           text: '請求成功',
@@ -108,7 +105,7 @@ export default {
           html: httpRep.messageJoin(error.message),
         });
         console.log(error);
-      });;
+      });
     },
     cancelDeletion() {
       this.$parent.cancelDeletion();

@@ -234,12 +234,19 @@
             <td class="white-background">-</td>
           </tr>
           <tr class="gray-background">
-            <td colspan="4">排班統計</td>
+            <td colspan="4" rowspan="2">排班統計</td>
             <td class="grid-width" v-for="(day, d4) in getDays" :key="d4">
               <div>{{ day }}</div>
             </td>
-            <td></td>
-            <td colspan="12">標誌說明</td>
+            <td rowspan="2"></td>
+            <td colspan="12" rowspan="2">標誌說明</td>
+          </tr>
+          <tr class="gray-background">
+            <td v-for="(d, d7) in getDays" :key="`7${d7}`" class="grid-width">
+              <div>
+                {{ getWeekday(d) }}
+              </div>
+            </td>
           </tr>
           <shift-statistics
             :isReady="isReady"
@@ -653,6 +660,10 @@ export default {
 
     //-------------------各個function----------------------
 
+    getWeekday(d) {
+      return moment([this.year, this.month - 1, d]).format('dd');
+    },
+
     // 改變當前月份
     changeMonth(ev) {
       let date = moment([this.year, this.month - 1, 1]);
@@ -1009,13 +1020,13 @@ export default {
         } else {
           switch (this.rsClass) {
             case "rs1":
-              data.content = 1;
+              data.content = this.remarkSquareData[0].id;
               break;
             case "rs2":
-              data.content = 2;
+              data.content = this.remarkSquareData[1].id;
               break;
             case "rs3":
-              data.content = 3;
+              data.content = this.remarkSquareData[2].id;
               break;
           }
           let exist = this.resultRS.find((i) => {
@@ -1090,14 +1101,22 @@ export default {
           return i.result == obj.id;
         });
       }
+      let id = [0, 0, 0];
+      if (this.remarkSquareData[0] && this.remarkSquareData[0].id) {
+        id[0] = this.remarkSquareData[0].id;
+      } else if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
+        id[1] = this.remarkSquareData[1].id;
+      } else if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
+        id[2] = this.remarkSquareData[2].id;
+      }
 
       if (f) {
         switch (f.content) {
-          case 1:
+          case id[0]:
             return "rs1";
-          case 2:
+          case id[1]:
             return "rs2";
-          case 3:
+          case id[2]:
             return "rs3";
         }
       }
