@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans 'Result' %}{% endblock %}
+{% block content %}
+
+<div id="app">
+  <results csrf-token="{{ csrf_token }}"></results>
+</div>
+
+<script src="{% static 'assets/results.bundle.js' %}"></script>
+
+<style>
+  footer {
+    position: fixed;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0px 0px 0px 0px !important;
+  }
+</style>
+{% endblock %}

@@ -13,5 +13,6 @@ urlpatterns = [
    path('exchange_application_audit', exchange_application_audit),
    path('create_result/<int:department_id>/<start>/<end>', create_result),
    path('delete/<int:year>/<int:month>', temp_remove),
-   path('preresult-test', test_preresult)
+   path('preresult-test', test_preresult),
+   path('results-test', test_results),
 ]
