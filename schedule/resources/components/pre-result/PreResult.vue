@@ -449,7 +449,7 @@ export default {
 
     //取得User的資料
     getUserData() {
-      fetch("/api/users/?mode=resource")
+      fetch("/api/user-resource")
         .then((res) => {
           return res.json();
         })
