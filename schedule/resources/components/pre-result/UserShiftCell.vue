@@ -294,7 +294,7 @@ td > div {
 }
 
 .rs1 {
-  border: 5px solid #58b4ae;
+  box-shadow: inset 0px 0px 0px 2px #58b4ae;
 }
 .rs2 {
   border: 5px solid #84b1ed;
