@@ -29,6 +29,9 @@ from remarks.models import ResultRemark, PreResultRemark
 def test_preresult(request):
     return render(request, 'calendars/pre_result_test.html')
 
+@login_required
+def test_results(request):
+    return render(request, 'calendars/results_test.html')
 
 # 計算月工時(可以輸入查找時間)
 @login_required

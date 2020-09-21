@@ -3092,17 +3092,17 @@ def recreate_result_monthly(request):
                             date=d,
                             station=station_rest,
                         )
-                    elif d.isoweekday() == 6:
+                    elif d.isoweekday() in [1, 2, 3, 4, 5] and reds[str(d)]:
                         PreResult.objects.create(
                             user=user,
-                            shift=shift_rest1,
+                            shift=shift_rest2,
                             date=d,
                             station=station_rest,
                         )
                     else:
                         PreResult.objects.create(
                             user=user,
-                            shift=shift_rest2,
+                            shift=shift_rest1,
                             date=d,
                             station=station_rest,
                         )
