@@ -225,7 +225,7 @@ class StationSerializer(serializers.ModelSerializer):
 class GetShiftSerializer(serializers.ModelSerializer):
     start_time = serializers.SerializerMethodField()
     end_time = serializers.SerializerMethodField()
-    department = DepartmentSerializer()
+    department = SimpleDepartmentSerializer()
 
     @staticmethod
     def setup_eager_loading(queryset):

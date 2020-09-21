@@ -75,5 +75,6 @@ def shift_delete(request, id=None):
 
 
 def get_shifts(department):
-    shifts = Shift.objects.filter(department=department, shift_type__in=[0, 1, 2])
+    shifts = Shift.objects.filter(
+        department=department, shift_type__in=[0, 1, 2])
     return shifts
