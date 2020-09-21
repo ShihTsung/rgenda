@@ -292,6 +292,27 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        date = serializer.validated_data['date']
+        user = serializer.validated_data['user']
+        results = PreResult.objects.filter(
+            date=date, user=user)
+        adjustments = TimeAdjustment.objects.filter(
+            date=date, user=user)
+        total_hours = 0
+        for r in results:
+            total_hours += r.shift.work_hours
+        for a in adjustments:
+            if a.adjustment_type == 0:
+                total_hours += a.hours
+            else:
+                total_hours -= a.hours
+
+        # 超過12小時回傳錯誤
+        if total_hours + serializer.validated_data['hours'] > 12:
+            return Response(
+                {'error': {'message': '當日工時超過12小時'}}
+                    )
+
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         data = serializer.data
@@ -708,7 +729,7 @@ class DemandViewSet(viewsets.ModelViewSet):
                 shift=shift,
                 level=d['level']
             )
-            return Response({'message': 'already exist'})
+            return Response({'error': {'message': 'already exist'}})
         except DemandOfStation.DoesNotExist:
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
@@ -2563,27 +2584,28 @@ def recreate_result_monthly(request):
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] +
                                    user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)] + diff_q + 1:
-                        for user_id in user_l:
-                            user_pool[user_id]['reserve_leave'].remove(d)
-                            user_pool[user_id]['promise_leave'].append(d)
-                    else:
-                        for user_id in user_current_level:
-                            if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
-                                                                   user_pool[user_id]['promise_other'] +
-                                                                   user_pool[user_id]['official_leave']):
-                                # 檢查是否連續上班超過6天，沒有才塞入1
-                                s = 0
-                                d_n = d - timedelta(days=1)
-                                while str(d_n) in output[user_id]:
-                                    if output[user_id][str(d_n)] == 0:
-                                        break
-                                    s += output[user_id][str(d_n)]
-                                    d_n -= timedelta(days=1)
-                                if s < 6:
-                                    output[user_id][str(d)] = 1
-                                    demand_dict[str(d)] -= 1
-                                    workday_dict[user_id] -= 1
+                    if count_reserve:
+                        if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)] + diff_q + 1:
+                            for user_id in user_l:
+                                user_pool[user_id]['reserve_leave'].remove(d)
+                                user_pool[user_id]['promise_leave'].append(d)
+                        else:
+                            for user_id in user_current_level:
+                                if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
+                                                                       user_pool[user_id]['promise_other'] +
+                                                                       user_pool[user_id]['official_leave']):
+                                    # 檢查是否連續上班超過6天，沒有才塞入1
+                                    s = 0
+                                    d_n = d - timedelta(days=1)
+                                    while str(d_n) in output[user_id]:
+                                        if output[user_id][str(d_n)] == 0:
+                                            break
+                                        s += output[user_id][str(d_n)]
+                                        d_n -= timedelta(days=1)
+                                    if s < 6:
+                                        output[user_id][str(d)] = 1
+                                        demand_dict[str(d)] -= 1
+                                        workday_dict[user_id] -= 1
 
                 # 印出預先插入1的結果
                 print()
@@ -3024,17 +3046,17 @@ def recreate_result_monthly(request):
                             date=d,
                             station=station_rest,
                         )
-                    elif d.isoweekday() == 6:
+                    elif d.isoweekday() in [1, 2, 3, 4, 5] and reds[str(d)]:
                         PreResult.objects.create(
                             user=user,
-                            shift=shift_rest1,
+                            shift=shift_rest2,
                             date=d,
                             station=station_rest,
                         )
                     else:
                         PreResult.objects.create(
                             user=user,
-                            shift=shift_rest2,
+                            shift=shift_rest1,
                             date=d,
                             station=station_rest,
                         )
@@ -3327,3 +3349,77 @@ def publish_result(request):
         return Response("發布完成")
     else:
         return Response("error: 請指定 year 和 month")
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='取得依照班別排序過的使用者',
+    # manual_parameters=[start, end],
+)
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, ])
+@parser_classes([JSONParser])
+def ordered_users(request):
+    """
+    參數：
+    year => 年份
+    month => 月份
+    rset => PreResult/Result
+
+    """
+    dep = request.user.department
+    users = CustomUser.objects.filter(department=dep, can_be_scheduled=True)
+    month = request.query_params.get('month')
+    year = request.query_params.get('year')
+
+    rset = request.query_params.get('rset')
+    # 沒有給年月就報錯
+    if not year or not month:
+        res_data = [{
+            'username': u.username,
+            'full_name': u.full_name,
+            'id':  u.id,
+            'level': u.level,
+            'eid': u.eid
+        } for u in users]
+        return Response(res_data)
+    # 有給年月繼續
+    start = datetime.date(int(year), int(month), 1)
+    end = datetime.date(int(year), int(month), 5)
+    if rset == 'preresult':
+
+        results = PreResult.objects.filter(
+            user__in=users,
+            date__range=[start, end]).prefetch_related(
+                'shift'
+            )
+    else:
+        results = Result.objects.filter(
+            user__in=users,
+            date__range=[start, end]).prefetch_related(
+                'shift'
+            )
+
+    user_set = {user.username: 100 for user in users}
+    user_dict_set = {
+        u.username: {
+            'username': u.username,
+            'full_name': u.full_name,
+            'id':  u.id,
+            'level': u.level,
+            'eid': u.eid} for u in users
+        }
+    for result in results:
+        if result.shift.shift_type in [0, 1, 2, 7]:
+            user_set[result.user.username] = result.shift.shift_type
+    sorted_users = [v[0] for v in sorted(user_set.items(), key=lambda d: d[1])]
+    res_data=[]
+    for u in sorted_users:
+        res_data.append(user_dict_set[u])
+    for u in user_set.keys():
+        if user_set[u] == 100:
+            res_data.append(user_dict_set[u])
+    return Response(res_data)
+
+
+

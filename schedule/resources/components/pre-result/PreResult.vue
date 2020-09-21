@@ -375,6 +375,7 @@ export default {
       publishStatus: 0,
       isPass: false,
       isSave: false,
+      demandList: [],
     };
   },
 
@@ -406,42 +407,6 @@ export default {
         return i.name.indexOf("假") === -1;
       });
     },
-
-    //取得當日人力配置的資料
-    demandList() {
-      let real = this.demandData.filter((i) => {
-        return moment([this.year, this.month - 1, this.date]).isSame(
-          moment(i.date),
-          "month"
-        );
-      });
-      if (real.length > 0) {
-        for (let day = 1; day <= this.getDays; ++day) {
-          real[day - 1].D[1] = 0;
-          real[day - 1].E[1] = 0;
-          real[day - 1].N[1] = 0;
-        }
-        for (let userId in this.shiftOfCurrentMonth) {
-          for (let day in this.shiftOfCurrentMonth[userId]) {
-            if (!real[day - 1]) {
-              real[day - 1] = {};
-            }
-            switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
-              case 0:
-                real[day - 1].D[1] += 1;
-                break;
-              case 1:
-                real[day - 1].E[1] += 1;
-                break;
-              case 2:
-                real[day - 1].N[1] += 1;
-                break;
-            }
-          }
-        }
-      }
-      return real;
-    },
   },
 
   methods: {
@@ -449,7 +414,7 @@ export default {
 
     //取得User的資料
     getUserData() {
-      fetch("/api/users/?mode=resource")
+      return fetch("/api/user-resource")
         .then((res) => {
           return res.json();
         })
@@ -466,7 +431,7 @@ export default {
       //處理懶加載畫面的變數設置
       this.isReady = false;
 
-      fetch(
+      return fetch(
         `/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -500,7 +465,7 @@ export default {
 
     //取得前一個月最後幾天排班資料
     getLastMonthData() {
-      fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
+      return fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
         .then((res) => {
           return res.json();
         })
@@ -514,7 +479,7 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(
+      return fetch(
         `/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -544,7 +509,7 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(
+      return fetch(
         `/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -566,6 +531,24 @@ export default {
         })
         .then((data) => {
           this.remarkSquareData = data;
+          for (let i = 0; i < 3; ++i) {
+            if (!this.remarkSquareData[i] || Object.keys(this.remarkSquareData[i]).length === 0) {
+              let data = {
+                content: '',
+                department: this.user.department.id,
+              };
+              let config = {
+                headers: {
+                  "X-CSRFToken": `${this.csrfToken}`,
+                  "content-type": "application/json",
+                },
+              };
+              this.$httpClient.post('/api/remark-squares/', data, config)
+                .then(res => {
+                  this.remarkSquareData.push(res.data);
+                });
+            }
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -1120,9 +1103,11 @@ export default {
       let id = [0, 0, 0];
       if (this.remarkSquareData[0] && this.remarkSquareData[0].id) {
         id[0] = this.remarkSquareData[0].id;
-      } else if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
+      }
+      if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
         id[1] = this.remarkSquareData[1].id;
-      } else if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
+      }
+      if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
         id[2] = this.remarkSquareData[2].id;
       }
 
@@ -1417,17 +1402,57 @@ export default {
         }else {
           return 'not-allowed';
         }
-    }
+    },
+
+    //取得當日人力配置的資料
+    getDemandList() {
+      let real = this.demandData.filter((i) => {
+        return moment([this.year, this.month - 1, this.date]).isSame(
+          moment(i.date),
+          "month"
+        );
+      });
+      if (real.length > 0) {
+        for (let day = 1; day <= this.getDays; ++day) {
+          real[day - 1].D[1] = 0;
+          real[day - 1].E[1] = 0;
+          real[day - 1].N[1] = 0;
+        }
+        for (let userId in this.shiftOfCurrentMonth) {
+          for (let day in this.shiftOfCurrentMonth[userId]) {
+            if (!real[day - 1]) {
+              real[day - 1] = {};
+            }
+            switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
+              case 0:
+                real[day - 1].D[1] += 1;
+                break;
+              case 1:
+                real[day - 1].E[1] += 1;
+                break;
+              case 2:
+                real[day - 1].N[1] += 1;
+                break;
+            }
+          }
+        }
+      }
+      this.demandList = real;
+    },
     //-------------------------------------------------
   },
 
   watch: {
     month() {
-      this.getUserData();
-      this.getPreResults();
-      this.getLastMonthData();
-      this.getAdjustment();
-      this.getTotalPerDayData();
+      Promise.all([
+        this.getUserData(),
+        this.getPreResults(),
+        this.getLastMonthData(),
+        this.getAdjustment(),
+        this.getTotalPerDayData(),
+      ]).then(() => {
+        this.getDemandList();
+      })
     },
   },
 };

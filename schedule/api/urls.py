@@ -44,4 +44,5 @@ urlpatterns = [
     path('recreate-result-monthly-b', views.recreate_result_monthly_b),
     path('published-or-not', views.published_or_not),
     path('publish-results', views.publish_result),
+    path('user-resource', views.ordered_users)
 ]
