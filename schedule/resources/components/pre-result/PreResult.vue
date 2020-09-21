@@ -225,6 +225,7 @@
             <td class="white-background">{{ workhr(u.id, date, 2) }}</td>
             <td class="gray-background">{{ offHours(u.id, 4) }}</td>
             <td class="white-background">{{ offHours(u.id, 1) }}</td>
+            <td class="white-background">{{ offHours(u.id, 5) }}</td>
             <td class="white-background">{{ offHours(u.id, 2) }}</td>
             <td class="white-background">{{ offHours(u.id, 3) }}</td>
             <td class="gray-background">{{ getDiffHour(u.id) }}</td>
@@ -237,7 +238,7 @@
               <div>{{ day }}</div>
             </td>
             <td rowspan="2"></td>
-            <td colspan="12" rowspan="2">標誌說明</td>
+            <td colspan="13" rowspan="2">標誌說明</td>
           </tr>
           <tr class="gray-background">
             <td v-for="(d, d7) in getDays" :key="`7${d7}`" class="grid-width">
@@ -296,7 +297,7 @@
     <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
 
-    <publish-modal :year="year" :month="month" :status.sync="publishStatus"></publish-modal>
+    <publish-modal :year="year" :month="month" :status.sync="publishStatus" :isCheck.sync="isCheck"></publish-modal>
   </div>
 </template>
 <script>
@@ -914,6 +915,7 @@ export default {
       let special = 0;
       let count = 0;
       let notCount = 0;
+      let noRest = 0;
 
       for (let day = 1; day <= this.getDays; ++day) {
         if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
@@ -938,6 +940,20 @@ export default {
         }
       }
 
+      this.adjustHr
+        .filter((item) => {
+          return (
+            item.user == u &&
+            parseInt(item.date.split("-")[1]) == this.month &&
+            parseInt(item.date.split("-")[2]) <= this.date
+          );
+        })
+        .forEach((i) => {
+          if ((i.adjustment_item == 1) || (i.adjustment_item == 2)) {
+            noRest ++;
+          }
+        });
+
       switch (index) {
         case 1: // 例休國
           return special;
@@ -948,6 +964,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
+        case 5:
+          return (special - noRest);
         default:
           return -1;
       }
@@ -1399,7 +1417,7 @@ export default {
         }else {
           return 'not-allowed';
         }
-    },
+    }
     //-------------------------------------------------
   },
 

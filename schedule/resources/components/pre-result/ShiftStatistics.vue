@@ -5,7 +5,7 @@
       <div :class="getDemandClass(d5)">{{ getDemandValue(d5) }}</div>
     </td>
     <td class="gray-background"></td>
-    <td colspan="12">
+    <td colspan="13">
       <div class="mark" :class="rs"></div>
       <input
         type="text"

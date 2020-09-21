@@ -15,7 +15,7 @@
       <td rowspan="2" class="remark">備註</td>
       <td rowspan="2">排班</td>
       <td colspan="4">出勤</td>
-      <td colspan="4">不出勤</td>
+      <td colspan="5">不出勤</td>
       <td rowspan="2" style="width: 40px">當月差額</td>
       <td rowspan="2" style="width: 40px">剩餘補休</td>
       <td rowspan="2" style="width: 40px">剩餘年假</td>
@@ -27,6 +27,7 @@
       <td>公假</td>
       <td>總計</td>
       <td>例休國</td>
+      <td>實際off</td>
       <td>計薪請假</td>
       <td>扣薪請假</td>
     </tr>
@@ -37,6 +38,7 @@
       <td>時</td>
       <td>時</td>
       <td>時</td>
+      <td>天</td>
       <td>天</td>
       <td>天</td>
       <td>天</td>
