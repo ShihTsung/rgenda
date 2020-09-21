@@ -1,7 +1,6 @@
 <template>
   <div id="pre-result" v-cloak>
-    <loading v-show="!isReady" :text="text"></loading>
-    <loading v-show="checkLoading" :text="text"></loading>
+    <loading v-show="showLoading" :text="text"></loading>
     <check-pass></check-pass>
     <div id="top-info">
       <div class="time">
@@ -371,7 +370,7 @@ export default {
       checkResultData: [],
       isCheck: false,
       text: "載入中...",
-      checkLoading: false,
+      showLoading: false,
       publishStatus: 0,
       isPass: false,
       isSave: false,
@@ -434,6 +433,7 @@ export default {
     getPreResults() {
       //處理懶加載畫面的變數設置
       this.isReady = false;
+      this.showLoading = true;
 
       return fetch(
         `/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
@@ -460,6 +460,9 @@ export default {
             });
             this.shiftOfCurrentMonth = processedShifts;
             this.isReady = true;
+            this.showLoading = false;
+          } else {
+            this.showLoading = false;
           }
         })
         .catch((err) => {
@@ -615,11 +618,11 @@ export default {
     //取得檢核的資料
     getCheckResultData() {
       if(this.isSave) {
-        this.checkLoading = true;
+        this.showLoading = true;
         this.text = "檢核中...";
 
         fetch(
-          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`
+          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.user.department.id}`
         )
           .then((res) => {
             return res.json();
@@ -627,7 +630,7 @@ export default {
           .then((data) => {
             this.checkResultData = data;
             this.isCheck = true;
-            this.checkLoading = false;
+            this.showLoading = false;
             this.text = "載入中...";
             this.checkResultData.length === 0
               ? $("#checkPass").modal("show")
