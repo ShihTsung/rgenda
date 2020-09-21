@@ -359,9 +359,9 @@ def departmentCreate(request):
             form.save()
             department = Department.objects.last()
             names = ['休息', '例假', '公假', 'oncall', '事假', '家庭照顧假', '無薪病假', '產假', '生理假', '特休', '補休', '婚假',
-                     '計薪病假', '喪假', '安胎休養假', '產檢假', '陪產假']
-            types = [5, 5, 3, 4, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
-            hours = [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                     '計薪病假', '喪假', '安胎休養假', '產檢假', '陪產假', '國定假日']
+            types = [5, 5, 3, 4, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+            hours = [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for i in range(len(names)):
                 shift = Shift.objects.create(
                     name=names[i],
