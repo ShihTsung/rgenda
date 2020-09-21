@@ -2563,27 +2563,28 @@ def recreate_result_monthly(request):
                         elif d in (user_pool[user_id]['promise_leave'] + user_pool[user_id]['promise_other'] +
                                    user_pool[user_id]['official_leave']):
                             count_promise += 1
-                    if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)] + diff_q + 1:
-                        for user_id in user_l:
-                            user_pool[user_id]['reserve_leave'].remove(d)
-                            user_pool[user_id]['promise_leave'].append(d)
-                    else:
-                        for user_id in user_current_level:
-                            if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
-                                                                   user_pool[user_id]['promise_other'] +
-                                                                   user_pool[user_id]['official_leave']):
-                                # 檢查是否連續上班超過6天，沒有才塞入1
-                                s = 0
-                                d_n = d - timedelta(days=1)
-                                while str(d_n) in output[user_id]:
-                                    if output[user_id][str(d_n)] == 0:
-                                        break
-                                    s += output[user_id][str(d_n)]
-                                    d_n -= timedelta(days=1)
-                                if s < 6:
-                                    output[user_id][str(d)] = 1
-                                    demand_dict[str(d)] -= 1
-                                    workday_dict[user_id] -= 1
+                    if count_reserve:
+                        if len(user_current_level) - count_promise - count_reserve >= demand_dict[str(d)] + diff_q + 1:
+                            for user_id in user_l:
+                                user_pool[user_id]['reserve_leave'].remove(d)
+                                user_pool[user_id]['promise_leave'].append(d)
+                        else:
+                            for user_id in user_current_level:
+                                if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
+                                                                       user_pool[user_id]['promise_other'] +
+                                                                       user_pool[user_id]['official_leave']):
+                                    # 檢查是否連續上班超過6天，沒有才塞入1
+                                    s = 0
+                                    d_n = d - timedelta(days=1)
+                                    while str(d_n) in output[user_id]:
+                                        if output[user_id][str(d_n)] == 0:
+                                            break
+                                        s += output[user_id][str(d_n)]
+                                        d_n -= timedelta(days=1)
+                                    if s < 6:
+                                        output[user_id][str(d)] = 1
+                                        demand_dict[str(d)] -= 1
+                                        workday_dict[user_id] -= 1
 
                 # 印出預先插入1的結果
                 print()
