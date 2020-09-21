@@ -234,12 +234,19 @@
             <td class="white-background">-</td>
           </tr>
           <tr class="gray-background">
-            <td colspan="4">排班統計</td>
+            <td colspan="4" rowspan="2">排班統計</td>
             <td class="grid-width" v-for="(day, d4) in getDays" :key="d4">
               <div>{{ day }}</div>
             </td>
-            <td></td>
-            <td colspan="12">標誌說明</td>
+            <td rowspan="2"></td>
+            <td colspan="12" rowspan="2">標誌說明</td>
+          </tr>
+          <tr class="gray-background">
+            <td v-for="(d, d7) in getDays" :key="`7${d7}`" class="grid-width">
+              <div>
+                {{ getWeekday(d) }}
+              </div>
+            </td>
           </tr>
           <shift-statistics
             :isReady="isReady"
@@ -659,6 +666,10 @@ export default {
     //----------------------------------------------------
 
     //-------------------各個function----------------------
+
+    getWeekday(d) {
+      return moment([this.year, this.month - 1, d]).format('dd');
+    },
 
     // 改變當前月份
     changeMonth(ev) {
