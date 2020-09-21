@@ -176,9 +176,7 @@
     </div>
     <div class="calendar">
       <table
-        class="master-scedule-table"
-        width="100%"
-        height="70"
+        class="master-schedule-table"
         border="1"
         cellspacing="0"
         bordercolor="black"
@@ -1518,10 +1516,19 @@ export default {
     top: 180px;
     width: 88vw;
     height: 73vh;
-    overflow: auto;
+    // overflow: auto;
+    overflow-y: scroll;
 
-    .master-scedule-table {
+    .master-schedule-table {
       text-align: center;
+      width: 100%;
+      height: 70;
+      // border-top: 0;
+
+      /* here is the trick */
+      tbody:nth-of-type(1) tr:nth-of-type(1) td {
+        border-top: none !important;
+      }
 
       td {
         padding: 0;
