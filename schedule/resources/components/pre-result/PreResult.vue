@@ -566,6 +566,24 @@ export default {
         })
         .then((data) => {
           this.remarkSquareData = data;
+          for (let i = 0; i < 3; ++i) {
+            if (!this.remarkSquareData[i] || Object.keys(this.remarkSquareData[i]).length === 0) {
+              let data = {
+                content: '',
+                department: this.user.department.id,
+              };
+              let config = {
+                headers: {
+                  "X-CSRFToken": `${this.csrfToken}`,
+                  "content-type": "application/json",
+                },
+              };
+              this.$httpClient.post('/api/remark-squares/', data, config)
+                .then(res => {
+                  this.remarkSquareData.push(res.data);
+                });
+            }
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -1120,9 +1138,11 @@ export default {
       let id = [0, 0, 0];
       if (this.remarkSquareData[0] && this.remarkSquareData[0].id) {
         id[0] = this.remarkSquareData[0].id;
-      } else if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
+      }
+      if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
         id[1] = this.remarkSquareData[1].id;
-      } else if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
+      }
+      if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
         id[2] = this.remarkSquareData[2].id;
       }
 
