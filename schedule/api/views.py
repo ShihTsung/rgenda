@@ -1073,7 +1073,7 @@ class RemarkSquareViewSet(viewsets.ModelViewSet):
         data = OrderedDict()
         data.update(request.data)
         data['department'] = self.request.user.department.id
-        serializer = self.get_serializer(data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
