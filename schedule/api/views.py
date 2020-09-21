@@ -2404,8 +2404,10 @@ def recreate_result_monthly(request):
         if reds[str(d)]:
             if d.isoweekday() == 7:
                 rz_options.append('例')
-            else:
+            elif d.isoweekday() == 6:
                 rz_options.append('休')
+            else:
+                rz_options.append('國')
 
     # 連續工作天、預排假、保證假、公假
     continue_dict = get_continue_days(department, date_start)
@@ -2458,6 +2460,10 @@ def recreate_result_monthly(request):
     shift_rest1 = Shift.objects.get(
         department=department,
         name='休息',
+    )
+    shift_rest2 = Shift.objects.get(
+        department=department,
+        name='國定假日',
     )
     shift_official_leave = Shift.objects.get(
         department=department,
@@ -2952,6 +2958,25 @@ def recreate_result_monthly(request):
                                     date=d,
                                     station=station_rest,
                                 )
+                            elif '國' in temp_options:
+                                tos = [o for o in temp_options if o != '例']
+                                to = choice(tos, 1)
+                                temp_options.remove(to)
+                                output[user_id][str(d)] = '休'
+                                if to == '休':
+                                    PreResult.objects.create(
+                                        user=user,
+                                        shift=shift_rest1,
+                                        date=d,
+                                        station=station_rest,
+                                    )
+                                else:
+                                    PreResult.objects.create(
+                                        user=user,
+                                        shift=shift_rest2,
+                                        date=d,
+                                        station=station_rest,
+                                    )
                             elif '休' in temp_options:
                                 temp_options.remove('休')
                                 output[user_id][str(d)] = '休'
@@ -3050,6 +3075,130 @@ def recreate_result_monthly(request):
 @parser_classes([JSONParser])
 def recreate_result_monthly_b(request):
     from datetime import datetime, timedelta
+
+    return Response({
+        'message': 'Success',
+    })
+
+
+@swagger_auto_schema(
+    methods=['get'],
+    operation_summary='手動重排',
+    manual_parameters=[start, end],
+)
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def recreate_result_weekly(request):
+
+    from datetime import datetime, timedelta
+
+    time_start = datetime.now()
+
+    department = request.user.department
+
+    try:
+        date_start = str_to_date(request.GET.get('start'))
+        date_end = str_to_date(request.GET.get('end'))
+
+        date_last = date_start - timedelta(days=1)
+    except ValueError:
+        return Response({
+            'message': 'wrong date input',
+        })
+
+    # 檢查班表是否已建立
+    try:
+        exist = Result.objects.filter(
+            date=date_start, user__department=department)
+        if len(exist):
+            return Response({
+                'message': 'results already exist',
+            })
+    except Result.DoesNotExist:
+        pass
+
+    PreResult.objects.filter(user__department=department,
+                             date__gte=date_start, date__lte=date_end).delete()
+
+    # 日期資料
+    date_list = [date_start + timedelta(days=i)
+                 for i in range((date_end - date_start).days + 1)]
+    attrs = attr_list(department.id, date_start, date_end)
+    # work_ind 紀錄非休診日的天
+    work_ind = list()
+    for ind, attr in enumerate(attrs):
+        if attr != '0':
+            work_ind.append(ind)
+    reds = red_dict(date_start, date_end)
+
+    # 本月工作天數
+    workday_num = list(reds.values()).count(0)
+
+    # 計算當月例假/休息天數
+    rz_options = list()
+    for d in date_list:
+        if reds[str(d)]:
+            if d.isoweekday() == 7:
+                rz_options.append('例')
+            else:
+                rz_options.append('休')
+
+    # 連續工作天、預排假、保證假、公假
+    continue_dict = get_continue_days(department, date_start)
+    reserve_leave_dict = get_reserve_leave(department, date_start, date_end)
+    promise_leave_dict = get_promise_leave(department, date_start, date_end)
+    promise_other_dict = get_promise_other(department, date_start, date_end)
+    official_leave_dict = get_official_leave(department, date_start, date_end)
+
+    rest_dict = {
+        0: '事假',
+        1: '家庭照顧假',
+        2: '無薪病假',
+        # 3: '公假',
+        4: '產假',
+        # 5: '例/休',
+        6: '生理假',
+        7: '特休',
+        8: '補休',
+        9: '婚假',
+        10: '計薪病假',
+        11: '喪假',
+        12: '安胎休養假',
+        13: '產檢假',
+        14: '陪產假',
+    }
+
+    # cycle0已排好的(前月的)班表
+    used_rest = get_used_rest(
+        department, date_start - timedelta(days=7), date_start)
+
+    # get all stations, shifts in department
+    stations = get_stations(department)
+    shifts = get_shifts(department)
+
+    output = dict()
+
+    # 例假/休息用的 shift & station
+    station_rest = Station.objects.get(
+        department=department,
+        name='休假',
+    )
+    station_official_leave = Station.objects.get(
+        department=department,
+        name='公假',
+    )
+    shift_rest0 = Shift.objects.get(
+        department=department,
+        name='例假',
+    )
+    shift_rest1 = Shift.objects.get(
+        department=department,
+        name='休息',
+    )
+    shift_official_leave = Shift.objects.get(
+        department=department,
+        name='公假',
+    )
 
     return Response({
         'message': 'Success',
