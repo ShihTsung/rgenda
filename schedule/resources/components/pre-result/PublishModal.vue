@@ -79,6 +79,10 @@ export default {
       type: Number,
       default: 1,
     },
+    isCheck: {
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
@@ -103,6 +107,7 @@ export default {
           })
           .then((res) => {
             this.$emit("update:status", 3);
+            this.$emit('update:isCheck', false);
           });
       }
       if (this.status == 3 || this.status == 0) {
