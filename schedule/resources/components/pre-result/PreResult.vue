@@ -179,7 +179,7 @@
         class="master-schedule-table"
         border="1"
         cellspacing="0"
-        bordercolor="black"
+        bordercolor="#b2b2b2"
       >
         <pre-result-table-head :year="year" :month="month" :getDays="getDays"></pre-result-table-head>
         <tbody style="overflow: scroll">
