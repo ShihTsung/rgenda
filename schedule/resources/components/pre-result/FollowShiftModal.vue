@@ -45,11 +45,15 @@
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">起始日期</label>
-              <input class="col-sm-6 form-control" type="date" v-model="startDate" />
+              <select class="col-sm-4 col-form-label offset-1" v-model="startDay">
+                <option v-for="i in days()" :key="i"> {{i}} </option>
+              </select> <label class="col-sm-1 col-form-label">日</label>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">結束日期</label>
-              <input class="col-sm-6 form-control" type="date" v-model="endDate" />
+              <select class="col-sm-4 col-form-label offset-1" v-model="endDay">
+                <option v-for="i in days()" :key="i"> {{i}} </option>
+              </select><label class="col-sm-1 col-form-label">日</label>
             </div>
             <div class="row">
               <div class="col mb-2 text-center">
@@ -73,7 +77,18 @@
 import popup from "common/popup";
 export default {
   props: {
-
+    year:{
+      type: Number,
+      default: 2020
+    },
+    month:{
+      type: Number,
+      default: 1
+    },
+    getDays:{
+      type: Number,
+      default: 1
+    },
     userData: {
       type: Array,
       default: function () {
@@ -98,16 +113,20 @@ export default {
       mentor: "",
       follower: '',
       startDate: '',
-      endDate: ''
+      endDate: '',
+      startDay: 0,
+      endDay: 0,
     };
   },
-  computed: {},
+  computed: {
+  },
   methods: {
     cancelFollowEdit() {
       Object.assign(this.$data, this.$options.data.apply(this));
     },
     save() {
-
+      this.startDate = `${this.year}-${this.month}-${this.startDay}`
+      this.endDate = `${this.year}-${this.month}-${this.endDay}`
       this.$parent.sendFollowShift({
         mentor: this.mentor,
         follower: this.follower,
@@ -127,6 +146,9 @@ export default {
         return i.type_of_user < 3;
       });
       return mentor;
+    },
+    days(){
+      return [...Array(this.getDays+1).keys()].splice(1);
     },
   },
 };

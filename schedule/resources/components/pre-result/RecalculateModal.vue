@@ -91,7 +91,7 @@ export default {
           if (response.data===true){
             this.couldRecalculateData = false
           }
-        this.isConfirmData = true;
+            this.isConfirmData = true;
         })
         .catch((err) => {
           console.log(err);
@@ -104,6 +104,7 @@ export default {
         )
           .then((res) => {
             $("#recalculateModal").modal("hide");
+            this.isConfirmData = false;
             return res.json();
           })
           .then((data) => {

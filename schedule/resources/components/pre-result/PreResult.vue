@@ -281,7 +281,12 @@
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
-    <follow-shift-modal :userData="userData" :follower="follower"></follow-shift-modal>
+    <follow-shift-modal
+      :userData="userData"
+      :follower="follower"
+      :getDays="getDays"
+      :year="year"
+      :month="month"></follow-shift-modal>
 
     <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>

@@ -117,6 +117,9 @@ export default {
 
 <style lang="scss" scoped>
 #publishModal {
+  .plane{
+    fill:#37419a;
+  }
   .loading-text {
     position: absolute;
     bottom: 1.5rem;
@@ -269,5 +272,6 @@ export default {
       -moz-transform: rotate(360deg);
     }
   }
+
 }
 </style>

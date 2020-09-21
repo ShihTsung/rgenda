@@ -1069,9 +1069,11 @@ class RemarkSquareViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
-        insertData = request.data
-        insertData['department'] = self.request.user.department.id
-        serializer = self.get_serializer(data=insertData)
+        from collections import OrderedDict
+        data = OrderedDict()
+        data.update(request.data)
+        data['department'] = self.request.user.department.id
+        serializer = self.get_serializer(data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
