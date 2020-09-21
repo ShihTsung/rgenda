@@ -382,12 +382,16 @@ export default {
   mounted() {
     this.$httpClient.get("/api/users/curr/").then((res) => {
       this.user = res.data;
-      this.getUserData();
-      this.getPreResults();
-      this.getLastMonthData();
-      this.getAdjustment();
+      Promise.all([
+        this.getUserData(),
+        this.getPreResults(),
+        this.getLastMonthData(),
+        this.getAdjustment(),
+        this.getTotalPerDayData(),
+      ]).then(() => {
+        this.getDemandList();
+      });
       this.getUserRemark();
-      this.getTotalPerDayData();
       this.getRemarkSquareData();
       this.getPreResultRemarkData();
       this.getShiftData();
@@ -1406,38 +1410,47 @@ export default {
 
     //取得當日人力配置的資料
     getDemandList() {
-      let real = this.demandData.filter((i) => {
+      let demandList = this.demandData.filter((i) => {
         return moment([this.year, this.month - 1, this.date]).isSame(
           moment(i.date),
           "month"
         );
       });
-      if (real.length > 0) {
+      if (demandList.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
-          real[day - 1].D[1] = 0;
-          real[day - 1].E[1] = 0;
-          real[day - 1].N[1] = 0;
+          demandList[day - 1].D[1] = 0;
+          demandList[day - 1].E[1] = 0;
+          demandList[day - 1].N[1] = 0;
         }
         for (let userId in this.shiftOfCurrentMonth) {
           for (let day in this.shiftOfCurrentMonth[userId]) {
-            if (!real[day - 1]) {
-              real[day - 1] = {};
-            }
             switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
               case 0:
-                real[day - 1].D[1] += 1;
+                demandList[day - 1].D[1] += 1;
                 break;
               case 1:
-                real[day - 1].E[1] += 1;
+                demandList[day - 1].E[1] += 1;
                 break;
               case 2:
-                real[day - 1].N[1] += 1;
+                demandList[day - 1].N[1] += 1;
                 break;
             }
           }
         }
+        this.adjustHr.forEach(adjustment => {
+          if (adjustment.adjustment_item === this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE")) {
+            let day = new Date(adjustment.date).getDate();
+            if (adjustment.remark === "白班") {
+              demandList[day - 1].D[1] += 1;
+            } else if (adjustment.remark === "小夜") {
+              demandList[day - 1].E[1] += 1;
+            } else if (adjustment.remark === "大夜") {
+              demandList[day - 1].N[1] += 1;
+            }
+          }
+        })
       }
-      this.demandList = real;
+      this.demandList = demandList;
     },
     //-------------------------------------------------
   },
@@ -1452,7 +1465,7 @@ export default {
         this.getTotalPerDayData(),
       ]).then(() => {
         this.getDemandList();
-      })
+      });
     },
   },
 };
