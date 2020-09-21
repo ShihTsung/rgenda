@@ -91,7 +91,7 @@ export default {
           if (response.data===true){
             this.couldRecalculateData = false
           }
-        this.isConfirmData = true;
+            this.isConfirmData = true;
         })
         .catch((err) => {
           console.log(err);
@@ -100,10 +100,11 @@ export default {
 
       if (this.couldRecalculateData) {
         fetch(
-          `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+          `/api/recreate-result-monthly?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
         )
           .then((res) => {
             $("#recalculateModal").modal("hide");
+            this.isConfirmData = false;
             return res.json();
           })
           .then((data) => {

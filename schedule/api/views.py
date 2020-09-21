@@ -640,9 +640,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
             if same_day_num > max_reserve:
                 self.perform_create(serializer)
                 headers = self.get_success_headers(serializer.data)
-                serializer.data['alarm'] = 'too many same day'
                 return Response(
-                    {"alarm": "too many same day"},
+                    {"alarm": "本日預約休假人數已達上限，<br/>請改預約其他日期"},
                     status=status.HTTP_201_CREATED)
             # 否則response就是 data
             else:
@@ -1070,9 +1069,11 @@ class RemarkSquareViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
-        insertData = request.data
-        insertData['department'] = self.request.user.department.id
-        serializer = self.get_serializer(data=insertData)
+        from collections import OrderedDict
+        data = OrderedDict()
+        data.update(request.data)
+        data['department'] = self.request.user.department.id
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
