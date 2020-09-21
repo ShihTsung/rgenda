@@ -41,6 +41,10 @@
           <label for="department-can-rest-redday">週末及國定假日可休數量</label>
           <input type="number" class="form-control" id="department-can-rest-redday" v-model="department.can_rest_redday">
         </div>
+        <div class="form-group mb-2">
+          <label for="department-same-day-notice">預約休假日人數過多提示</label>
+          <input type="number" class="form-control" id="department-save-day-notice" min="0" v-model="department.same_day_notice">
+        </div>
         <div class="form-group">
           <label for="department-reset">時數重置規則</label>
           <select class="form-control" id="department-reset" v-model="department.reset">
@@ -54,16 +58,6 @@
             <option value="0">星期日</option>
             <option value="1">星期一</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label for="department-date-start">起始日期</label>
-          <date-picker
-          id="department-date-start"
-          v-model="department.date_start"
-          :masks="{L: 'YYYY-MM-DD'}"
-          :is-required="true"
-          :popover="{visibility: 'focus'}">
-          </date-picker>
         </div>
       </div>
     </div>
@@ -82,10 +76,20 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="department-date-start">起始日期</label>
+          <date-picker
+          id="department-date-start"
+          v-model="department.date_start"
+          :masks="{L: 'YYYY-MM-DD'}"
+          :is-required="true"
+          :popover="{visibility: 'focus'}">
+          </date-picker>
+        </div>
+        <div class="form-group">
           <label for="department-overtime-rule">加班規則</label>
           <select class="form-control" id="department-overtime-rule" v-model="department.overtime_rule">
             <option value="0">單月46小時</option>
-            <option value="1">三個月138小時</option>
+            <!-- <option value="1">三個月138小時</option> -->
           </select>
         </div>
       </div>
@@ -100,16 +104,12 @@
           <select class="form-control" id="department-schedule-rule" v-model="department.schedule_rule">
             <!-- <option value="0">單週同班種</option> -->
             <option value="1">單月同班種</option>
-            <option value="2">三月同班種</option>
+            <!-- <option value="2">三月同班種</option> -->
           </select>
         </div>
         <div class="form-check mb-2">
           <input type="checkbox" class="form-check-input" id="department-admin-in-schedule" v-model="department.admin_in_schedule">
           <label class="form-check-label" for="department-admin-in-schedule">管理者是否排班</label>
-        </div>
-        <div class="form-group mb-2">
-          <label for="department-same-day-notice">預約休假日人數過多提示</label>
-          <input type="number" class="form-control" id="department-save-day-notice" min="0" v-model="department.same_day_notice">
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@ import popup from 'common/popup';
 import moment from 'moment';
 import DatePicker from 'v-calendar/lib/components/date-picker.umd';
 import UserSearchInput from './UserSearchInput';
-import {cloneDeep, isEmpty, isEqual} from 'lodash';
+import {cloneDeep, isEmpty} from 'lodash';
 
 export default {
   components: {
@@ -238,8 +238,8 @@ export default {
       }
       Promise.all([
         this.$httpClient.patch('/api/departments/' + this.departmentId + '/', departmentData, formConfig),
-        departmentManagerData,
-      ]).then(responses => {
+        departmentManagerPromise,
+      ]).then(() => {
         popup.success({
           title: '修改排班規則',
           text: '請求成功',

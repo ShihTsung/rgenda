@@ -100,7 +100,7 @@ export default {
 
       if (this.couldRecalculateData) {
         fetch(
-          `/api/recreate-result?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+          `/api/recreate-result-monthly?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
         )
           .then((res) => {
             $("#recalculateModal").modal("hide");

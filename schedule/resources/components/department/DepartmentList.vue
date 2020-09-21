@@ -13,7 +13,7 @@
           </div>
           <div class="modal-body text-center pt-0">
             <h3 class="modal-title mb-4">刪除科別</h3>
-            <p class="mb-4">是否確認刪除？</p>
+            <p class="mb-4">一旦刪除記錄，將無法復原。<br/>您確認仍要刪除 {{ deleteRowName }} 嗎？</p>
             <div class="row">
               <div class="col mb-2">
                 <button class="btn btn-rgenda" type="button" data-dismiss="modal">取消</button>
@@ -42,7 +42,7 @@
           <a class="icon-bts btn-sm" :href="'/departments/update/'+props.row.id" data-tooltip="tooltip" title="編輯">
             <i class="fa fa-edit"></i>
           </a>
-          <div class="icon-bts btn-sm" @click="saveDeleteRowId(props.row.id)" data-tooltip="tooltip" data-toggle="modal" data-target="#deleteModal" title="刪除">
+          <div class="icon-bts btn-sm" @click="saveDeleteRowId(props.row.id, props.row.detail)" data-tooltip="tooltip" data-toggle="modal" data-target="#deleteModal" title="刪除">
             <i class="fa fa-trash-alt"></i>
           </div>
         </span>
@@ -89,6 +89,7 @@ export default {
         }
       ],
       deleteRowId: -1,
+      deleteRowName: '',
       rowData: {},
     };
   },
@@ -125,8 +126,9 @@ export default {
         console.log(err);
       });
     },
-    saveDeleteRowId(rowId) {
+    saveDeleteRowId(rowId, name) {
       this.deleteRowId = rowId;
+      this.deleteRowName = name;
     },
     showRowData(rowId) {
       this.rowData = this.rows.find(row => row.id == rowId);

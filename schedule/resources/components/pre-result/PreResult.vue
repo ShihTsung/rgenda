@@ -256,7 +256,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs1"
-            :remarkContent="getRemarkSquare(1)"
+            :remarkContent="getRemarkSquare(0)"
           ></shift-statistics>
           <shift-statistics
             :isReady="isReady"
@@ -266,7 +266,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs2"
-            :remarkContent="getRemarkSquare(2)"
+            :remarkContent="getRemarkSquare(1)"
           ></shift-statistics>
           <shift-statistics
             :isReady="isReady"
@@ -276,7 +276,7 @@
             :getDays="getDays"
             :demandList="demandList"
             rs="rs3"
-            :remarkContent="getRemarkSquare(3)"
+            :remarkContent="getRemarkSquare(2)"
           ></shift-statistics>
         </tbody>
       </table>
@@ -344,11 +344,11 @@ export default {
       adjustHr: [],
       lastMonthData: [],
       userRemarkData: [],
-      remarks: [],
+      userRemarks: [],
       demandData: [],
       remarkSquareData: [],
       preResultRemarkData: [],
-      remarkS: [],
+      remarkSquare: [],
       shiftData: [],
       resultRS: [],
       changeInfo: {},
@@ -413,18 +413,6 @@ export default {
       });
       if (real.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
-          // if (!real[day - 1]) {
-          //   real[day - 1] = {};
-          // }
-          // if (!real[day - 1].D) {
-          //   real[day - 1].D = [0, 0];
-          // }
-          // if (!real[day - 1].E) {
-          //   real[day - 1].E = [0, 0];
-          // }
-          // if (!real[day - 1].N) {
-          //   real[day - 1].N = [0, 0];
-          // }
           real[day - 1].D[1] = 0;
           real[day - 1].E[1] = 0;
           real[day - 1].N[1] = 0;
@@ -970,23 +958,21 @@ export default {
 
     //取得各個標誌的內容
     getRemarkSquare(index) {
-      let f = this.remarkSquareData.find((i) => {
-        return i.id == index;
-      });
-
-      if (f) {
-        return f.content;
+      if (this.remarkSquareData[index] && this.remarkSquareData[index].content) {
+        return this.remarkSquareData[index].content;
       }
+      return '';
     },
 
     //之後要送往remark-squares api的資料先暫存在remarkS的陣列中
     setRemarkContent(ev) {
       let data = {};
-      let id = ev.target.parentNode.childNodes[0].classList[1];
-      data.id = id[2];
+      // rs1 or rs2 or rs3
+      let className = ev.target.parentNode.childNodes[0].classList[1];
+      data.index = className[2] - 1;
       data.content = ev.target.value.toString();
 
-      this.remarkS.push(data);
+      this.remarkSquare.push(data);
     },
 
     //編輯個人當天的班別
@@ -1029,13 +1015,13 @@ export default {
         } else {
           switch (this.rsClass) {
             case "rs1":
-              data.content = 1;
+              data.content = this.remarkSquareData[0].id;
               break;
             case "rs2":
-              data.content = 2;
+              data.content = this.remarkSquareData[1].id;
               break;
             case "rs3":
-              data.content = 3;
+              data.content = this.remarkSquareData[2].id;
               break;
           }
           let exist = this.resultRS.find((i) => {
@@ -1110,14 +1096,22 @@ export default {
           return i.result == obj.id;
         });
       }
+      let id = [0, 0, 0];
+      if (this.remarkSquareData[0] && this.remarkSquareData[0].id) {
+        id[0] = this.remarkSquareData[0].id;
+      } else if (this.remarkSquareData[1] && this.remarkSquareData[1].id) {
+        id[1] = this.remarkSquareData[1].id;
+      } else if (this.remarkSquareData[2] && this.remarkSquareData[2].id) {
+        id[2] = this.remarkSquareData[2].id;
+      }
 
       if (f) {
         switch (f.content) {
-          case 1:
+          case id[0]:
             return "rs1";
-          case 2:
+          case id[1]:
             return "rs2";
-          case 3:
+          case id[2]:
             return "rs3";
         }
       }
@@ -1244,92 +1238,70 @@ export default {
         }
         promises.push(promise);
       });
-      Promise.all(promises).then(() => {
-        this.getPreResults();
-      });
 
-      this.remarks.forEach((i) => {
+      this.userRemarks.forEach((i) => {
         //檢查remarkData中有沒有資料
         let check = this.userRemarkData.find((item) => {
           return item.month == this.month && item.user == i.user;
         });
 
+        let promise;
         //remarkData有資料
         if (check) {
-          fetch(`/api/user-remarks/${check.id}/`, {
+          promise = fetch(`/api/user-remarks/${check.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
           //remarkData沒資料
-          fetch("/api/user-remarks/", {
+          promise = fetch("/api/user-remarks/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "POST",
-          })
-            .then((res) => {
-              this.getUserRemark();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
       });
 
       //正方形標誌說明
-      this.remarkS.forEach((item) => {
-        let check = this.remarkSquareData.find((i) => {
-          return i.id == item.id;
-        });
-
-        if (check) {
-          fetch(`/api/remark-squares/${check.id}/`, {
+      this.remarkSquare.forEach((item) => {
+        let promise;
+        if (this.remarkSquareData[item.index]) {
+          let data = this.remarkSquareData[item.index];
+          promise = fetch(`/api/remark-squares/${data.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(item),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getRemarkSquareData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
-          fetch("/api/remark-squares/", {
+          promise = fetch("/api/remark-squares/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(item),
             method: "POST",
-          })
-            .then((res) => {
-              this.getRemarkSquareData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
       });
 
       //每個使用者每天是否有正方形標誌
@@ -1338,44 +1310,43 @@ export default {
           return i.result == item.result;
         });
 
+        let promise;
         if (check) {
-          fetch(`/api/preresult-remarks/${check.id}/`, {
+          promise = fetch(`/api/preresult-remarks/${check.id}/`, {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "PATCH",
-          })
-            .then((res) => {
-              this.getPreResultRemarkData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         } else {
-          fetch("/api/preresult-remarks/", {
+          promise = fetch("/api/preresult-remarks/", {
             headers: {
               "X-CSRFToken": `${this.csrfToken}`,
               "content-type": "application/json",
             },
             body: JSON.stringify(i),
             method: "POST",
-          })
-            .then((res) => {
-              this.getPreResultRemarkData();
-              return res.json();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          }).catch((err) => {
+            console.log(err);
+          });
         }
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then(() => {
+        this.getPreResults();
+        this.getUserRemark();
+        this.getRemarkSquareData();
+        this.getPreResultRemarkData();
       });
 
       this.changedResult.length = 0;
-      this.remarks.length = 0;
-      this.remarkS.length = 0;
+      this.userRemarks.length = 0;
+      this.remarkSquare.length = 0;
       this.resultRS.length = 0;
       this.isEdit = false;
       this.isCheck = false;
