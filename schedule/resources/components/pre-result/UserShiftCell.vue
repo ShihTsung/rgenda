@@ -297,10 +297,10 @@ td > div {
   box-shadow: inset 0px 0px 0px 2px #58b4ae;
 }
 .rs2 {
-  border: 5px solid #84b1ed;
+  box-shadow: inset 0px 0px 0px 2px #84b1ed;
 }
 .rs3 {
-  border: 5px solid #37419a;
+  box-shadow: inset 0px 0px 0px 2px #37419a;
 }
 
 .forbidden-mark {
