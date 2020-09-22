@@ -289,8 +289,8 @@ export default {
         .then((data) => {
           this.preResultData = data;
           //處理懶加載畫面的變數設置
+          let processedShifts = {}; // index by user id
           if (this.preResultData.length != 0) {
-            let processedShifts = {}; // index by user id
             this.preResultData.forEach((i) => {
               if (moment(i.date).month() + 1 === this.month) {
                 if (!processedShifts[i.user]) {
@@ -305,10 +305,10 @@ export default {
             });
             this.shiftOfCurrentMonth = processedShifts;
             this.isReady = true;
-            this.showLoading = false;
-          } else {
-            this.showLoading = false;
+
           }
+            this.showLoading = false;
+            this.shiftOfCurrentMonth = processedShifts;
         })
         .catch((err) => {
           console.log(err);
@@ -1146,8 +1146,8 @@ export default {
     .bt-group {
       float: right;
       height: 70px;
-      width: 30%;
-      padding: 10px 15px;
+      width: 70%;
+      padding: 10px 10%;
 
       .add-sub-wrapper {
         border: 1px solid #a6a6a6;
