@@ -108,6 +108,7 @@ export default {
 .todayMark {
   border-top: 5px solid #37419a;
 }
+
 .fixed-header {
   td {
     position: -webkit-sticky;
@@ -120,7 +121,13 @@ export default {
     border-top: none !important;
     border-bottom: none !important;
     box-shadow: inset 0 0 0 #b2b2b2,
-                inset 0 -1px 0 #b2b2b2;
+      inset 0 -1px 0 #b2b2b2;
   }
+}
+
+/** for print **/
+.print.print.calendar .fixed-header td {
+  position: relative;
+  top: 0 !important;
 }
 </style>
