@@ -2826,7 +2826,7 @@ def recreate_result_monthly(request):
                     print(station.name, shift.name, 'Level', str(demand['demand'].level),
                           'Fail in 1000, force creating.')
                     best_temp_output = None
-                    demand_loss = total_demands
+                    demand_loss = total_workdays
 
                     best_weight_workday = dict()
                     best_weight_holiday_rest = dict()
