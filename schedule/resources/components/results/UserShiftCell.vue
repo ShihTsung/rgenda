@@ -184,6 +184,8 @@ export default {
                 return "生";
               case "國定假日":
                 return "國";
+              default:
+                return this.shiftInfo.shift.name[0]
             }
             break;
           case 6:
