@@ -298,7 +298,7 @@
                 e.sort = 3;
               }
               const color = shiftColor.hasOwnProperty(shift.shift_type) ? shiftColor[shift.shift_type] : shiftColor.default;
-              if ([0, 1, 2, 4].indexOf(shift.shift_type) >= 0 || e.shift_type === '空') {
+              if ([0, 1, 2, 4, 7].indexOf(shift.shift_type) >= 0 || e.shift_type === '空') {
                 e.className = 'shift-type';
                 e.backgroundColor = color;
                 e.borderColor = color;
