@@ -1205,11 +1205,8 @@ export default {
           );
         }
       });
-      if (found) {
-        return true;
-      }
 
-      return false;
+      return Boolean(found);
     },
 
     sendToResults() {
