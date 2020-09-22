@@ -2701,6 +2701,7 @@ def recreate_result_monthly(request):
 
                         # 休診日或需求人力等於0，直接跳下一天
                         if demand_dict[str(d)] + diff_list[ind] <= 0:
+                            print('test', _, d, 'demand is 0')
                             continue
 
                         # user可排人選
@@ -2710,6 +2711,10 @@ def recreate_result_monthly(request):
                         assign_num = 0
 
                         for user_id, user_data in user_pool.items():
+
+                            # 指定人數已滿足需求 結束迴圈
+                            if assign_num == demand_dict[str(d)] + diff_list[ind]:
+                                break
 
                             # 特殊假、公假、保證假、工作天不足 略過
                             if d in (user_data['promise_leave'] + user_data['promise_other']) or \
@@ -2829,21 +2834,19 @@ def recreate_result_monthly(request):
                     for _ in range(1000):
 
                         # 產生需求校正list和指標
-                        diff_list = [diff_q for _ in date_list]
+                        # 排除休診日（休診日校正數為0）
+                        diff_list = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
                         if demand['demand'].level == 1:
                             adjust_weight = [
                                 1 if i in r_ind else 1000 for i in range(day_num)]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [
-                                i / weight_sum for i in adjust_weight]
+                            adjust_weight = [i / weight_sum for i in adjust_weight]
                             adjust_index = choice(
-                                day_num, diff_r, p=adjust_weight, replace=False)
+                                work_ind, diff_r, p=adjust_weight, replace=False)
                         else:
-                            adjust_index = choice(
-                                day_num, diff_r, replace=False)
+                            adjust_index = choice(work_ind, diff_r, replace=False)
                         for i in adjust_index:
                             diff_list[i] += 1
-                        diff_ind = 0
 
                         # 每次回圈重設 weight_workday、weight_holiday_rest
                         temp_demand_loss = 0
@@ -2855,7 +2858,11 @@ def recreate_result_monthly(request):
                         weight_holiday_rest = dict(
                             [(user_id, user_pool[user_id]['holiday_rest']) for user_id in user_pool])
 
-                        for d in date_list:
+                        for ind, d in enumerate(date_list):
+
+                            # 休診日或需求人力等於0，直接跳下一天
+                            if demand_dict[str(d)] + diff_list[ind] <= 0:
+                                continue
 
                             # user可排人選
                             options = list()
@@ -2864,6 +2871,10 @@ def recreate_result_monthly(request):
                             assign_num = 0
 
                             for user_id, user_data in user_pool.items():
+
+                                # 指定人數已滿足需求 結束迴圈
+                                if assign_num == demand_dict[str(d)] + diff_list[ind]:
+                                    break
 
                                 # 特殊假、公假、保證假、工作天不足 略過
                                 if d in (user_data['promise_leave'] + user_data['promise_other']) or \
@@ -2906,13 +2917,13 @@ def recreate_result_monthly(request):
                                             options.append(user_id)
 
                             # 需求小於等於被指定人數 直接進入下一天
-                            if demand_dict[str(d)] + diff_list[diff_ind] <= assign_num:
+                            if demand_dict[str(d)] + diff_list[ind] <= assign_num:
                                 continue
 
-                            if len(options) <= demand_dict[str(d)] + diff_list[diff_ind] - assign_num:
+                            if len(options) <= demand_dict[str(d)] + diff_list[ind] - assign_num:
                                 # 可排人數不足或等於需求 所有可排人員皆排班 記錄差額
                                 temp_demand_loss += demand_dict[str(
-                                    d)] + diff_list[diff_ind] - len(options)
+                                    d)] + diff_list[ind] - len(options)
                                 for user_id in user_pool:
                                     if user_id in options:
                                         temp_output[user_id][str(d)] = 1
@@ -2942,7 +2953,7 @@ def recreate_result_monthly(request):
                                 weight_sum = sum(weight)
                                 weight = [w / weight_sum for w in weight]
                                 try:
-                                    on_duty = choice(options, demand_dict[str(d)] + diff_list[diff_ind] - assign_num,
+                                    on_duty = choice(options, demand_dict[str(d)] + diff_list[ind] - assign_num,
                                                      p=weight, replace=False)
                                 except ValueError:
                                     print('------------------------------------')
@@ -2959,7 +2970,6 @@ def recreate_result_monthly(request):
                                             weight_holiday_rest[user_id] += 1
                                     elif reds[str(d)] and user_id in user_current_level:
                                         weight_holiday_rest[user_id] -= 1
-                            diff_ind += 1
 
                         if temp_demand_loss < demand_loss:
                             demand_loss = temp_demand_loss
