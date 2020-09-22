@@ -61,7 +61,7 @@ def show_results(request):
     lang = request.LANGUAGE_CODE
     start, end = date_range(0, 3)
     context = {'LANG': lang, 'start': start, 'end': end}
-    return render(request, 'calendars/results.html', context)
+    return render(request, 'calendars/results_test.html', context)
 
 
 # 唯讀班表

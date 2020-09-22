@@ -164,7 +164,7 @@ def index(request):
         'diff': data['差額'],
         'firstday': request.user.department.start_of_week
     }
-    if request.user.is_staff:
+    if request.user.role in ['admin', 'manager']:
         return render(request, 'mainpage/manager_index.html', context)
     else:
         return render(request, 'mainpage/employee_index.html', context)
