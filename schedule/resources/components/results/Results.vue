@@ -281,7 +281,7 @@ export default {
       this.showLoading = true;
 
       return fetch(
-        `/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
+        `/api/results/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
           return res.json();
