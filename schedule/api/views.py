@@ -2616,10 +2616,13 @@ def recreate_result_monthly(request):
                 diff_q = diff // day_num
                 diff_r = diff % day_num
 
+                # 校正基底
+                diff_list_base = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
+
                 # 調整預排假
                 # 若人數許可則改為保證假
                 # 若不足則將沒有申請預排假的人插入1
-                for d in date_list:
+                for ind, d in enumerate(date_list):
                     count_reserve = 0
                     count_promise = 0
                     user_l = list()
@@ -2637,6 +2640,8 @@ def recreate_result_monthly(request):
                                 user_pool[user_id]['promise_leave'].append(d)
                         else:
                             for user_id in user_current_level:
+                                if demand_dict[str(d)] + diff_list_base[ind] == 0:
+                                    break
                                 if user_id not in user_l and d not in (user_pool[user_id]['promise_leave'] +
                                                                        user_pool[user_id]['promise_other'] +
                                                                        user_pool[user_id]['official_leave']):
@@ -2670,8 +2675,7 @@ def recreate_result_monthly(request):
 
                     # 產生需求校正list和指標
                     # 排除休診日（休診日校正數為0）
-                    diff_list = [diff_q if attrs[i] !=
-                                 '0' else 0 for i in range(len(attrs))]
+                    diff_list = diff_list_base.copy()
                     if demand['demand'].level == 1:
                         adjust_weight = [
                             1 if i in r_ind else 1000 for i in range(day_num)]
@@ -2701,7 +2705,6 @@ def recreate_result_monthly(request):
 
                         # 休診日或需求人力等於0，直接跳下一天
                         if demand_dict[str(d)] + diff_list[ind] <= 0:
-                            print('test', _, d, 'demand is 0')
                             continue
 
                         # user可排人選
@@ -2835,7 +2838,7 @@ def recreate_result_monthly(request):
 
                         # 產生需求校正list和指標
                         # 排除休診日（休診日校正數為0）
-                        diff_list = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
+                        diff_list = diff_list_base.copy()
                         if demand['demand'].level == 1:
                             adjust_weight = [
                                 1 if i in r_ind else 1000 for i in range(day_num)]
