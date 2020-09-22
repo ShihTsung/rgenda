@@ -3389,8 +3389,8 @@ def publish_result(request):
         year = int(year)
         month = int(month)
         days_in_month = monthrange(year, month)[1]
-        start = datetime.date(now.year, month, 1)
-        end = datetime.date(now.year, month, days_in_month)
+        start = datetime.date(year, month, 1)
+        end = datetime.date(year, month, days_in_month)
 
         results = PreResult.objects.filter(
             date__range=[start, end],
