@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
         (_('Profile'), {'fields': (
             'role', 'type_of_user', 'can_be_scheduled', 'holiday_rest_num',
             'special_rest_num', 'hour_required', 'hour_realized',
-            'level', 'job_title', 'full_name'
+            'level', 'job_title', 'full_name',
             'department',
             'gender',
             'eid',

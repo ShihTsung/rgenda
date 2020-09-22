@@ -351,12 +351,58 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             return Department.objects.all()
         return Department.objects.filter(id=self.request.user.department.id)
 
+    @swagger_auto_schema(
+        operation_summary='更新科別資料',
+        operation_description='會將選為管理者的user權限設為管理者，把其他人權限拿掉',
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        CustomUser.objects.filter(
+            department=instance).update(role='user')
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
 
 class DepartmentManagerViewSet(viewsets.ModelViewSet):
     queryset = DepartmentManager.objects.all()
     serializer_class = DepartmentManagerSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    @swagger_auto_schema(
+        operation_summary='更新科別的管理者',
+        operation_description='會將選為管理者的user權限設為管理者，把其他人權限拿掉',
+    )
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        mgr1 = serializer.validated_data['manager_one']
+        mgr2 = serializer.validated_data['manager_two']
+        if mgr1.role != 'admin':
+            mgr1.role = 'manager'
+            mgr1.save()
+        if mgr1.role != 'admin':
+            mgr2.role = 'manager'
+            mgr2.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
@@ -3430,6 +3476,3 @@ def ordered_users(request):
         if user_set[u] == 100:
             res_data.append(user_dict_set[u])
     return Response(res_data)
-
-
-

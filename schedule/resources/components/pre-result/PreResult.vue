@@ -1,7 +1,6 @@
 <template>
   <div id="pre-result" v-cloak>
-    <loading v-show="!isReady" :text="text"></loading>
-    <loading v-show="checkLoading" :text="text"></loading>
+    <loading v-show="showLoading" :text="text"></loading>
     <check-pass></check-pass>
     <div id="top-info">
       <div class="time">
@@ -371,22 +370,27 @@ export default {
       checkResultData: [],
       isCheck: false,
       text: "載入中...",
-      checkLoading: false,
+      showLoading: false,
       publishStatus: 0,
       isPass: false,
       isSave: false,
+      demandList: [],
     };
   },
 
   mounted() {
     this.$httpClient.get("/api/users/curr/").then((res) => {
       this.user = res.data;
-      this.getUserData();
-      this.getPreResults();
-      this.getLastMonthData();
-      this.getAdjustment();
+      Promise.all([
+        this.getUserData(),
+        this.getPreResults(),
+        this.getLastMonthData(),
+        this.getAdjustment(),
+        this.getTotalPerDayData(),
+      ]).then(() => {
+        this.getDemandList();
+      });
       this.getUserRemark();
-      this.getTotalPerDayData();
       this.getRemarkSquareData();
       this.getPreResultRemarkData();
       this.getShiftData();
@@ -406,42 +410,6 @@ export default {
         return i.name.indexOf("假") === -1;
       });
     },
-
-    //取得當日人力配置的資料
-    demandList() {
-      let real = this.demandData.filter((i) => {
-        return moment([this.year, this.month - 1, this.date]).isSame(
-          moment(i.date),
-          "month"
-        );
-      });
-      if (real.length > 0) {
-        for (let day = 1; day <= this.getDays; ++day) {
-          real[day - 1].D[1] = 0;
-          real[day - 1].E[1] = 0;
-          real[day - 1].N[1] = 0;
-        }
-        for (let userId in this.shiftOfCurrentMonth) {
-          for (let day in this.shiftOfCurrentMonth[userId]) {
-            if (!real[day - 1]) {
-              real[day - 1] = {};
-            }
-            switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
-              case 0:
-                real[day - 1].D[1] += 1;
-                break;
-              case 1:
-                real[day - 1].E[1] += 1;
-                break;
-              case 2:
-                real[day - 1].N[1] += 1;
-                break;
-            }
-          }
-        }
-      }
-      return real;
-    },
   },
 
   methods: {
@@ -449,7 +417,7 @@ export default {
 
     //取得User的資料
     getUserData() {
-      fetch("/api/user-resource")
+      return fetch("/api/user-resource")
         .then((res) => {
           return res.json();
         })
@@ -465,8 +433,9 @@ export default {
     getPreResults() {
       //處理懶加載畫面的變數設置
       this.isReady = false;
+      this.showLoading = true;
 
-      fetch(
+      return fetch(
         `/api/preresults/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -491,6 +460,9 @@ export default {
             });
             this.shiftOfCurrentMonth = processedShifts;
             this.isReady = true;
+            this.showLoading = false;
+          } else {
+            this.showLoading = false;
           }
         })
         .catch((err) => {
@@ -500,7 +472,7 @@ export default {
 
     //取得前一個月最後幾天排班資料
     getLastMonthData() {
-      fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
+      return fetch(`/api/last-month-continue?month_head=${this.year}-${this.month}-01`)
         .then((res) => {
           return res.json();
         })
@@ -514,7 +486,7 @@ export default {
 
     //取得加減班的資料
     getAdjustment() {
-      fetch(
+      return fetch(
         `/api/time-adjustment/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -544,7 +516,7 @@ export default {
 
     //取得當月人力配置的預設值跟實際值的資料
     getTotalPerDayData() {
-      fetch(
+      return fetch(
         `/api/total-per-day/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`
       )
         .then((res) => {
@@ -646,11 +618,11 @@ export default {
     //取得檢核的資料
     getCheckResultData() {
       if(this.isSave) {
-        this.checkLoading = true;
+        this.showLoading = true;
         this.text = "檢核中...";
 
         fetch(
-          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.userData[0].department}`
+          `/api/checkresult/?date=${this.year}-${this.month}-01&department=${this.user.department.id}`
         )
           .then((res) => {
             return res.json();
@@ -658,7 +630,7 @@ export default {
           .then((data) => {
             this.checkResultData = data;
             this.isCheck = true;
-            this.checkLoading = false;
+            this.showLoading = false;
             this.text = "載入中...";
             this.checkResultData.length === 0
               ? $("#checkPass").modal("show")
@@ -1437,17 +1409,66 @@ export default {
         }else {
           return 'not-allowed';
         }
-    }
+    },
+
+    //取得當日人力配置的資料
+    getDemandList() {
+      let demandList = this.demandData.filter((i) => {
+        return moment([this.year, this.month - 1, this.date]).isSame(
+          moment(i.date),
+          "month"
+        );
+      });
+      if (demandList.length > 0) {
+        for (let day = 1; day <= this.getDays; ++day) {
+          demandList[day - 1].D[1] = 0;
+          demandList[day - 1].E[1] = 0;
+          demandList[day - 1].N[1] = 0;
+        }
+        for (let userId in this.shiftOfCurrentMonth) {
+          for (let day in this.shiftOfCurrentMonth[userId]) {
+            switch (this.shiftOfCurrentMonth[userId][day].shift.shift_type) {
+              case 0:
+                demandList[day - 1].D[1] += 1;
+                break;
+              case 1:
+                demandList[day - 1].E[1] += 1;
+                break;
+              case 2:
+                demandList[day - 1].N[1] += 1;
+                break;
+            }
+          }
+        }
+        this.adjustHr.forEach(adjustment => {
+          if (adjustment.adjustment_item === this.$getTimeAdjustmentItemValue("ITEM_OFF_DAY_ATTENDANCE")) {
+            let day = new Date(adjustment.date).getDate();
+            if (adjustment.remark === "白班") {
+              demandList[day - 1].D[1] += 1;
+            } else if (adjustment.remark === "小夜") {
+              demandList[day - 1].E[1] += 1;
+            } else if (adjustment.remark === "大夜") {
+              demandList[day - 1].N[1] += 1;
+            }
+          }
+        })
+      }
+      this.demandList = demandList;
+    },
     //-------------------------------------------------
   },
 
   watch: {
     month() {
-      this.getUserData();
-      this.getPreResults();
-      this.getLastMonthData();
-      this.getAdjustment();
-      this.getTotalPerDayData();
+      Promise.all([
+        this.getUserData(),
+        this.getPreResults(),
+        this.getLastMonthData(),
+        this.getAdjustment(),
+        this.getTotalPerDayData(),
+      ]).then(() => {
+        this.getDemandList();
+      });
     },
   },
 };

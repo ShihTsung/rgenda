@@ -22,6 +22,7 @@ module.exports = {
     'employee-main-page': './mainpage/employee-main-page.js',
     'rgenda': './rgenda.scss',
     'pre-result': './pre-result/pre-result.js',
+    'results': './results/results.js',
   },
   output: {
     filename: '[name].bundle.js',

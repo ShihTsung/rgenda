@@ -71,6 +71,11 @@ export default {
       default: 30,
     },
   },
+  data() {
+    return {
+      tableHeaderTop: 0,
+    };
+  },
   methods: {
     isToday(d) {
       return moment([this.year, this.month - 1, d]).isSame(moment(), 'date');
@@ -78,15 +83,23 @@ export default {
     getWeekday(d) {
       return moment([this.year, this.month - 1, d]).format('dd');
     },
+    stickyHeader() {
+      if (this.tableHeaderTop == 0) {
+        this.tableHeaderTop = document.querySelector('thead.fixed-header').getBoundingClientRect().top;
+      }
+      let tds = document.querySelectorAll('thead.fixed-header td');
+      let headerTdLength = tds.length;
+      for(let i = 0; i < headerTdLength; i++) {
+        let td = tds[i];
+        td.style.top = td.getBoundingClientRect().top - this.tableHeaderTop + "px";
+      }
+    },
   },
   mounted() {
-    let tableHeaderTop = document.querySelector('thead.fixed-header').getBoundingClientRect().top;
-    let ths = document.querySelectorAll('thead.fixed-header td')
-
-    for(let i = 0; i < ths.length; i++) {
-      let th = ths[i];
-      th.style.top = th.getBoundingClientRect().top - tableHeaderTop + "px";
-    }
+    this.stickyHeader();
+  },
+  updated() {
+    this.stickyHeader();
   },
 };
 </script>
@@ -106,7 +119,7 @@ export default {
     background-clip: padding-box;
     border-top: none !important;
     border-bottom: none !important;
-    box-shadow: inset 0 0px 0 #b2b2b2,
+    box-shadow: inset 0 0 0 #b2b2b2,
                 inset 0 -1px 0 #b2b2b2;
   }
 }
