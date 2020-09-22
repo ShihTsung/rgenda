@@ -1092,6 +1092,8 @@ export default {
           d,
           changeShiftInfo
         );
+
+        this.getDemandList();
       }
 
       this.changeInfo = {};
@@ -1191,6 +1193,7 @@ export default {
           }
         }
       });
+      this.getDemandList();
       console.log(this.changedResult);
     },
     // 預排假顯示
