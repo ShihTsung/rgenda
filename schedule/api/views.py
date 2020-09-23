@@ -618,6 +618,9 @@ class ResultViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Result.objects.all()
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = queryset.filter(user__in=users)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -735,6 +738,9 @@ class AfterResultViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = AfterResult.objects.all()
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = queryset.filter(user__in=users)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
