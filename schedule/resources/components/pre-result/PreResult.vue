@@ -1005,8 +1005,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
-        case 5:
-          return (special - noRest);
+        case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
+          return (special + count - notCount - noRest);
         default:
           return -1;
       }

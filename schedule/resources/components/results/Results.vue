@@ -802,22 +802,14 @@ export default {
         }
       }
 
-      let month = new Date().getMonth() + 1;
       this.adjustHr
-        .filter((item) => {
-          return (
-            item.user == u && (
-              parseInt(item.date.split("-")[1]) < month || (
-                parseInt(item.date.split("-")[1]) === month &&
-                parseInt(item.date.split("-")[2]) <= this.date
-              )
-            )
-          );
-        })
         .forEach((i) => {
           if (
-            this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
-            this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+            i.user == u &&
+            parseInt(i.date.split("-")[1]) === this.month && (
+              this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
+              this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+            )
           ) {
             ++noRest;
           }
@@ -857,8 +849,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
-        case 5:
-          return (special - noRest);
+        case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
+          return (special + count - notCount - noRest);
         default:
           return -1;
       }
