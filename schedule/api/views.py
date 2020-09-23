@@ -605,7 +605,6 @@ def get_type(shift):
 
 
 class ResultViewSet(viewsets.ModelViewSet):
-    queryset = Result.objects.all()
     serializer_class = ResultSerializer
     permission_classes = (IsManagerOrReadOnly, permissions.IsAuthenticated)
 
@@ -616,11 +615,10 @@ class ResultViewSet(viewsets.ModelViewSet):
         return ResultSerializer
 
     def get_queryset(self):
-        queryset = Result.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         dep = self.request.user.department
         users = CustomUser.objects.filter(department=dep)
-        queryset = queryset.filter(user__in=users)
+        queryset = Result.objects.filter(user__in=users)
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -665,7 +663,6 @@ class ResultViewSet(viewsets.ModelViewSet):
 
 
 class PreResultViewSet(viewsets.ModelViewSet):
-    queryset = PreResult.objects.all()
     serializer_class = PreResultSerializer
     permission_classes = (IsManagerOrReadOnly,)
 
@@ -675,11 +672,10 @@ class PreResultViewSet(viewsets.ModelViewSet):
         return PreResultSerializer
 
     def get_queryset(self):
-        queryset = PreResult.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         dep = self.request.user.department
         users = CustomUser.objects.filter(department=dep)
-        queryset = queryset.filter(user__in=users)
+        queryset = PreResult.objects.filter(user__in=users)
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -726,7 +722,6 @@ class PreResultViewSet(viewsets.ModelViewSet):
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
-    queryset = AfterResult.objects.all()
     serializer_class = AfterResultSerializer
     permission_classes = (IsManagerOrReadOnly,)
 
@@ -736,11 +731,10 @@ class AfterResultViewSet(viewsets.ModelViewSet):
         return AfterResultSerializer
 
     def get_queryset(self):
-        queryset = AfterResult.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         dep = self.request.user.department
         users = CustomUser.objects.filter(department=dep)
-        queryset = queryset.filter(user__in=users)
+        queryset = PreResult.objects.filter(user__in=users)
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -3547,7 +3541,6 @@ def ordered_users(request):
     users = CustomUser.objects.filter(department=dep, can_be_scheduled=True)
     month = request.query_params.get('month')
     year = request.query_params.get('year')
-
     rset = request.query_params.get('rset')
     # 沒有給年月就報錯
     if not year or not month:
