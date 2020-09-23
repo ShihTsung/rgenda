@@ -845,7 +845,7 @@ export default {
             ++notCount;
           }
         }
-      })
+      });
 
       switch (index) {
         case 1: // 例休國
