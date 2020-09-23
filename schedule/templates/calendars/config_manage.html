@@ -171,6 +171,8 @@
                     $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
                     $('#myModal').modal('show');
                     $('#locked').prop('checked',info.event.extendedProps.locked);
+
+
                 },
                 eventRender: function(info) {
                   info.el.innerHTML = "";
@@ -199,7 +201,6 @@
                   ]).then(dataArr => {
                     const data = dataArr[0];
                     const user = dataArr[1];
-
                     department = user.department;
                     successCallback(data);
                   }).catch(err => {
