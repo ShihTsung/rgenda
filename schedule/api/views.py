@@ -313,7 +313,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             if serializer.validated_data['adjustment_type'] == 0:
                 return Response(
                     {'error': {'message': '當日工時超過12小時'}}
-                        )
+                )
         # 例假日不可加班
         result = PreResult.objects.filter(
             date=date, user=user
@@ -321,7 +321,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         if result.shift.name == '例假':
             return Response(
                 {'error': {'message': '例假日不可加班'}}
-                        )
+            )
 
         # 檢查當月總時數
         department = request.user.department
@@ -335,8 +335,6 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             limit_range = 3
         total_hours = 0
         for i in range(limit_range):
-            if i > 0:
-                hours = 0
             local_hours = 0
             start = datetime.date(year, month, 1)
             end = datetime.date(year, month, monthrange(year, month)[1])
@@ -457,6 +455,7 @@ class DepartmentManagerViewSet(viewsets.ModelViewSet):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
 
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
@@ -1858,10 +1857,13 @@ def recreate_result_periodic(request):
                     if demand['demand'].shift.shift_type == 0:
                         eoa = check_eoa(user, date_start)
                         if eoa == 1:
-                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
                         elif eoa == 2:
-                            user_pool[user.id]['promise_leave'].append(date_start)
-                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start + timedelta(days=1))
 
                 # 建立需求單
                 demand_dict = dict()
@@ -2639,10 +2641,13 @@ def recreate_result_monthly(request):
                     if demand['demand'].shift.shift_type == 0:
                         eoa = check_eoa(user, date_start)
                         if eoa == 1:
-                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
                         elif eoa == 2:
-                            user_pool[user.id]['promise_leave'].append(date_start)
-                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start + timedelta(days=1))
 
                 # 建立需求單
                 demand_dict = dict()
@@ -2671,7 +2676,8 @@ def recreate_result_monthly(request):
                 diff_r = diff % day_num
 
                 # 校正基底
-                diff_list_base = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
+                diff_list_base = [diff_q if attrs[i] !=
+                                  '0' else 0 for i in range(len(attrs))]
 
                 # 調整預排假
                 # 若人數許可則改為保證假
@@ -2897,11 +2903,13 @@ def recreate_result_monthly(request):
                             adjust_weight = [
                                 1 if i in r_ind else 1000 for i in range(day_num)]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [i / weight_sum for i in adjust_weight]
+                            adjust_weight = [
+                                i / weight_sum for i in adjust_weight]
                             adjust_index = choice(
                                 work_ind, diff_r, p=adjust_weight, replace=False)
                         else:
-                            adjust_index = choice(work_ind, diff_r, replace=False)
+                            adjust_index = choice(
+                                work_ind, diff_r, replace=False)
                         for i in adjust_index:
                             diff_list[i] += 1
 
@@ -3313,7 +3321,8 @@ def recreate_result_weekly(request):
     }
 
     # 已排好的(前月的)班表
-    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
+    used_rest = get_used_rest(
+        department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3362,7 +3371,8 @@ def recreate_result_weekly(request):
             weekly_cycles[-1].append(d)
 
     # get users
-    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_total = CustomUser.objects.filter(
+        department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
     users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
                                              pregnant=False)
     users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
@@ -3550,13 +3560,13 @@ def ordered_users(request):
             user__in=users,
             date__range=[start, end]).prefetch_related(
                 'shift'
-            )
+        )
     else:
         results = Result.objects.filter(
             user__in=users,
             date__range=[start, end]).prefetch_related(
                 'shift'
-            )
+        )
 
     user_set = {user.username: 100 for user in users}
     user_dict_set = {
@@ -3566,12 +3576,12 @@ def ordered_users(request):
             'id':  u.id,
             'level': u.level,
             'eid': u.eid} for u in users
-        }
+    }
     for result in results:
         if result.shift.shift_type in [0, 1, 2, 7]:
             user_set[result.user.username] = result.shift.shift_type
     sorted_users = [v[0] for v in sorted(user_set.items(), key=lambda d: d[1])]
-    res_data=[]
+    res_data = []
     for u in sorted_users:
         res_data.append(user_dict_set[u])
     for u in user_set.keys():
