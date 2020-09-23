@@ -32,6 +32,16 @@
             </div>
             <div class="form-group row" v-if="shiftCategory === 'adjustment'">
               <label class="col-sm-4 col-form-label offset-1">加班選項</label>
+              <select class="col-sm-6 form-control" v-model="adjustmentType">
+                <option
+                  v-for="item in adjustmentTypes"
+                  :key="item.id"
+                  :value="item"
+                >{{item.name}}</option>
+              </select>
+            </div>
+            <div class="form-group row" v-if="shiftCategory !== 'adjustment'">
+              <label class="col-sm-4 col-form-label offset-1">項目</label>
               <select class="col-sm-6 form-control" v-model="changeShift.shift">
                 <option
                   v-for="item in processedShiftData[shiftCategory]"
@@ -40,11 +50,11 @@
                 >{{item.name}}</option>
               </select>
             </div>
-            <div class="form-group row">
-              <label class="col-sm-4 col-form-label offset-1">項目</label>
-              <select class="col-sm-6 form-control" v-model="changeShift.shift">
+            <div class="form-group row" v-if="shiftCategory === 'adjustment'">
+              <label class="col-sm-4 col-form-label offset-1">班別</label>
+              <select class="col-sm-6 form-control" v-model="adjustmentShift">
                 <option
-                  v-for="item in processedShiftData[shiftCategory]"
+                  v-for="item in adjustmentShifts"
                   :key="item.id"
                   :value="item"
                 >{{item.name}}</option>
@@ -113,7 +123,8 @@ export default {
   data() {
     return {
       shiftCategory: '',
-      test: ''
+      adjustmentShift: -1,
+      adjustmentType: -1
     };
   },
   computed: {
@@ -124,7 +135,15 @@ export default {
       let holiday = this.shiftData.filter(
         (item) => [3, 5, 6].indexOf(item.shift_type) >= 0
       );
-      let adjustment_remark = [
+
+      return {
+        default: [],
+        shift: shift,
+        holiday: holiday,
+      };
+    },
+    adjustmentTypes(){
+      return [
         {
           id: 0,
           name: "休息日出勤"
@@ -138,24 +157,34 @@ export default {
           name: "空班出勤"
         }
       ]
-
-      return {
-        default: [],
-        shift: shift,
-        holiday: holiday,
-        adjustment: adjustment_remark,
-      };
     },
-    AdjustmentTypes(){
-      return [{
-
-      }]
+    adjustmentShifts(){
+      return this.shiftData.filter(
+        (item) => [0, 1, 2].indexOf(item.shift_type) >= 0
+      );
     }
+
   },
   methods: {
     save() {
-      this.shiftCategory = '';
-      this.$parent.editResult(this.changeShift);
+      if (this.shiftCategory !== 'adjustment'){
+        this.shiftCategory = '';
+        this.$parent.editResult(this.changeShift);
+      }else{
+        console.log(this.adjustmentShift.shift_type)
+        console.log(this.adjustmentType.id)
+        if (this.adjustmentShift.shift_type == 0){
+
+        }
+        new_changeShift = {
+          id: this.changeShift.id,
+          user: this.changeShift.user,
+          date: this.changeShift.date,
+          shift: {},
+          station: {},
+        }
+      }
+
     },
 
   },
