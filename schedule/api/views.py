@@ -347,12 +347,12 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             if department.overtime_rule == 0:
                 if local_hours + hours > 46:
                     return Response(
-                        {'error': {'message': '當月工時超過46小時'}}
+                        {'error': {'message': '單月工時超過46小時'}}
                     )
             else:
                 if local_hours + hours > 54:
                     return Response(
-                        {'error': {'message': '當月工時超過54小時'}}
+                        {'error': {'message': '單月工時超過54小時'}}
                     )
             # 往前一個月
             month -= 1
