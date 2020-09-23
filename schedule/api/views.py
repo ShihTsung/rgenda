@@ -334,7 +334,9 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         else:
             limit_range = 3
         total_hours = 0
-        for _ in range(limit_range):
+        for i in range(limit_range):
+            if i > 0:
+                hours = 0
             local_hours = 0
             start = datetime.date(year, month, 1)
             end = datetime.date(year, month, monthrange(year, month)[1])
@@ -350,10 +352,11 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                         {'error': {'message': '單月工時超過46小時'}}
                     )
             else:
-                if local_hours + hours > 54:
-                    return Response(
-                        {'error': {'message': '單月工時超過54小時'}}
-                    )
+                if i == 0:
+                    if local_hours + hours > 54:
+                        return Response(
+                            {'error': {'message': '單月工時超過54小時'}}
+                        )
             # 往前一個月
             month -= 1
             if month < 1:
@@ -361,7 +364,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                 month = 12
         if total_hours + hours > 138:
             return Response(
-                {'error': {'message': '當月工時超過54小時'}}
+                {'error': {'message': '三個月工時超過138小時'}}
             )
 
         self.perform_create(serializer)
