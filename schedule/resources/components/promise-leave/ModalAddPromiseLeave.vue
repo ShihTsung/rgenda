@@ -243,6 +243,7 @@ export default {
       }
 
       let d = new Date();
+      d.setMonth(d.getMonth() + 1);
       d.setDate(1);
       getPublishedOrNot(d);
     },
