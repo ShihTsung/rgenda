@@ -107,7 +107,7 @@ class Department(models.Model):
         null=True,
         choices=(
             (0, _('單月46小時')),
-            (1, _('三個月138小時'))
+            (1, _('單月54小時, 三個月138小時'))
         )
     )
     month_cycle = models.IntegerField(

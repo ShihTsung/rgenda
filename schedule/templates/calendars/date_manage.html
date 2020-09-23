@@ -114,7 +114,14 @@
         let Draggable = FullCalendarInteraction.Draggable;
         let calendarEl = document.getElementById('calendar');
         let initialLocaleCode = 'en';
-
+        let user;
+        fetch('/api/users/curr')
+        .then(res=>{
+          return res.json()
+        })
+        .then(json=>{
+          user=json;
+        });
 
         calendar = new FullCalendar.Calendar(calendarEl, {
                 plugins: ['interaction', 'dayGrid'],
@@ -142,15 +149,17 @@
                 droppable: true,
                 eventClick: function(info){
                     currInfo = info;
-                    $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
-                    $('#myModal').modal('show');
-                    let red = info.event.extendedProps.red_day;
-                    if (red){
-                      $("#day")[0].selectedIndex = 1
-                    }else{
-                      $("#day")[0].selectedIndex = 0
+                    if(user.role==='admin'){
+                      $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
+                      $('#myModal').modal('show');
+                      let red = info.event.extendedProps.red_day;
+                      if (red){
+                        $("#day")[0].selectedIndex = 1
+                      }else{
+                        $("#day")[0].selectedIndex = 0
+                      }
+                      $('#locked').prop('checked',info.event.extendedProps.locked);
                     }
-                    $('#locked').prop('checked',info.event.extendedProps.locked);
                 },
                 eventRender: function(info) {
                   info.el.innerHTML = "";

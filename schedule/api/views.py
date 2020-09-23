@@ -294,6 +294,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         date = serializer.validated_data['date']
         user = serializer.validated_data['user']
+        hours = serializer.validated_data['hours']
         results = PreResult.objects.filter(
             date=date, user=user)
         adjustments = TimeAdjustment.objects.filter(
@@ -308,10 +309,60 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                 total_hours -= a.hours
 
         # 超過12小時回傳錯誤
-        if total_hours + serializer.validated_data['hours'] > 12:
+        if total_hours + hours > 12:
+            if serializer.validated_data['adjustment_type'] == 0:
+                return Response(
+                    {'error': {'message': '當日工時超過12小時'}}
+                        )
+        # 例假日不可加班
+        result = PreResult.objects.filter(
+            date=date, user=user
+        ).first()
+        if result.shift.name == '例假':
             return Response(
-                {'error': {'message': '當日工時超過12小時'}}
+                {'error': {'message': '例假日不可加班'}}
+                        )
+
+        # 檢查當月總時數
+        department = request.user.department
+        year = date.year
+        month = date.month
+        # 單月46小時
+        if department.overtime_rule == 0:
+            limit_range = 1
+        # 單月54小時, 三月138小時
+        else:
+            limit_range = 3
+        total_hours = 0
+        for _ in range(limit_range):
+            local_hours = 0
+            start = datetime.date(year, month, 1)
+            end = datetime.date(year, month, monthrange(year, month)[1])
+            adjustments = TimeAdjustment.objects.filter(
+                date__range=[start, end], user=user)
+            for a in adjustments:
+                if a.adjustment_type == 0:
+                    local_hours += a.hours
+                    total_hours += a.hours
+            if department.overtime_rule == 0:
+                if local_hours + hours > 46:
+                    return Response(
+                        {'error': {'message': '當月工時超過46小時'}}
                     )
+            else:
+                if local_hours + hours > 54:
+                    return Response(
+                        {'error': {'message': '當月工時超過54小時'}}
+                    )
+            # 往前一個月
+            month -= 1
+            if month < 1:
+                year -= 1
+                month = 12
+        if total_hours + hours > 138:
+            return Response(
+                {'error': {'message': '當月工時超過54小時'}}
+            )
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -3383,8 +3434,8 @@ def publish_result(request):
         year = int(year)
         month = int(month)
         days_in_month = monthrange(year, month)[1]
-        start = datetime.date(now.year, month, 1)
-        end = datetime.date(now.year, month, days_in_month)
+        start = datetime.date(year, month, 1)
+        end = datetime.date(year, month, days_in_month)
 
         results = PreResult.objects.filter(
             date__range=[start, end],

@@ -168,4 +168,16 @@ PROMISE_LEAVE_ITEM.install = function (Vue, options) {
     });
     return obj;
   }
+
+  Vue.prototype.$getPromiseLeaveCategoryByItemValue = (key) => {
+    for (let categoryKey in groupedPromiseLeaveItems) {
+      let idx = groupedPromiseLeaveItems[categoryKey].findIndex((item) => {
+        return item.id === key;
+      });
+      if (idx >= 0) {
+        return categoryKey;
+      }
+    }
+    return -1;
+  }
 }

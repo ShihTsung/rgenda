@@ -89,7 +89,7 @@
           <label for="department-overtime-rule">加班規則</label>
           <select class="form-control" id="department-overtime-rule" v-model="department.overtime_rule">
             <option value="0">單月46小時</option>
-            <!-- <option value="1">三個月138小時</option> -->
+            <option value="1">三個月138小時</option>
           </select>
         </div>
       </div>
