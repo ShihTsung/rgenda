@@ -350,4 +350,21 @@ def statistics_department(request):
 
 @login_required
 def statistics_person(request):
-    return render(request, 'statistics/statistics_person.html')
+    context = {
+        'LANG': request.LANGUAGE_CODE,
+        # 'start': start,
+        # 'end': end,
+        # 'results': 'results',
+        # 'default': start,
+        # 'department': request.user.department,
+        # 'bars': data['bars'],
+        # 'total_avg': data['總時數'],
+        # 'types': data['類別統計'],
+        # 'workhours': data['應上工時'],
+        # 'oncall': data['oncall'],
+        # 'overtime': data['加班'],
+        # 'minustime': data['減班'],
+        # 'diff': data['差額'],
+        'firstDay': request.user.department.start_of_week
+    }
+    return render(request, 'statistics/statistics_person.html', context)

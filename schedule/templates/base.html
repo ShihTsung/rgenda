@@ -633,6 +633,14 @@
           selector: '[data-tooltip="tooltip"]',
           trigger: 'hover',
         });
+
+        $('[data-toggle="collapse"]').on('click', function () {
+          if ($(this).hasClass('collapsed')) {
+            $(this).children().removeClass('fa-plus').addClass('fa-minus');
+          } else {
+            $(this).children().removeClass('fa-minus').addClass('fa-plus');
+          }
+        });
       })
     </script>
 

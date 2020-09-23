@@ -24,6 +24,7 @@ module.exports = {
     'rgenda': './rgenda.scss',
     'pre-result': './pre-result/pre-result.js',
     'results': './results/results.js',
+    'statistics-personal': './statistics/personal.js',
   },
   output: {
     filename: '[name].bundle.js',

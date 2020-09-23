@@ -1,19 +1,26 @@
-{% extends "base.html" %}
-{% block title %} 人員清單 {% endblock %}
+{% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% block title %} 資料分析 {% endblock %}
 
 {% block content %}
 <!-- 內容  -->
 
 <div id="app" class="container">
-  <h1>個人查詢</h1>
+  <div class="title text-left">
+    <h3>資料分析</h3>
+  </div>
+
+  <personal
+  locale="{{ LANG }}"
+  :first-day="{{ firstDay }}"
+  :current-user-id="{{ user.id }}"
+  current-user-role="{{ user.role }}"
+  csrf-token="{{ csrf_token }}"></personal>
 </div>
 
-
-<style>
-
-</style>
-
+{% block head %}
+<script src="{% static 'assets/statistics-personal.bundle.js' %}"></script>
+{% endblock %}
 
 {% endblock %}
