@@ -220,6 +220,7 @@ export default {
       isPass: false,
       isSave: false,
       demandList: [],
+      promiseData: [],
     };
   },
 
@@ -241,6 +242,7 @@ export default {
       this.getShiftData();
       this.getStationData();
       this.getReserveData();
+      this.getPromiseData();
     })
   },
 
@@ -490,6 +492,15 @@ export default {
       }
     },
 
+    getPromiseData() {
+      this.$httpClient.get(`/api/promises/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+        .then((res) => {
+          this.promiseData = res.data;
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+    },
     //----------------------------------------------------
 
     //-------------------各個function----------------------
@@ -611,6 +622,10 @@ export default {
     },
 
     getTotalShiftHour(userId) {
+      if (!this.isReady) {
+        return -1;
+      }
+
       // 排班 = user 所有班別時數總和 + 公假時數 + 休息日出勤
       // 班別時數總和
       let totalHour = 0;
@@ -646,6 +661,10 @@ export default {
     },
 
     getDiffHour(userId) {
+      if (!this.isReady) {
+        return -1;
+      }
+
       // 當月差額 = user 所有班別時數總和 + 加班時數 - 減班時數 + 不出勤時數 - 當月時數
       // 班別時數總和
       let totalHour = 0;
@@ -695,8 +714,12 @@ export default {
       // 機構減班時數
       let institutionReduceClassHour = 0;
 
-      if (this.month === month) {
-        for (let day = 1; day <= today; ++day) {
+      if (!this.isReady) {
+        return -1;
+      }
+
+      for (let day = 1; day <= this.getDays; ++day) {
+        if (this.month < month || (this.month === month && day < today)) {
           if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
             let i = this.shiftOfCurrentMonth[u][day];
             if (i.shift_type == "公") {
@@ -752,6 +775,10 @@ export default {
       let notCount = 0;
       let noRest = 0;
 
+      if (!this.isReady) {
+        return -1;
+      }
+
       for (let day = 1; day <= this.getDays; ++day) {
         if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
           let i = this.shiftOfCurrentMonth[u][day];
@@ -775,19 +802,50 @@ export default {
         }
       }
 
+      let month = new Date().getMonth() + 1;
       this.adjustHr
         .filter((item) => {
           return (
-            item.user == u &&
-            parseInt(item.date.split("-")[1]) == this.month &&
-            parseInt(item.date.split("-")[2]) <= this.date
+            item.user == u && (
+              parseInt(item.date.split("-")[1]) < month || (
+                parseInt(item.date.split("-")[1]) === month &&
+                parseInt(item.date.split("-")[2]) <= this.date
+              )
+            )
           );
         })
         .forEach((i) => {
-          if ((i.adjustment_item == 1) || (i.adjustment_item == 2)) {
-            noRest ++;
+          if (
+            this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
+            this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+          ) {
+            ++noRest;
           }
         });
+
+      this.promiseData.forEach((item) => {
+        let day = parseInt(item.date.split("-")[2]);
+        // 只有當
+        // 1. 當日無預排結果
+        // 2. 預排結果與預約假勤不同
+        // 時才計算，不重複計算假日
+        if (
+          item.user.id === u &&
+          (
+            !this.shiftOfCurrentMonth[u] ||
+            !this.shiftOfCurrentMonth[u][day] ||
+            this.shiftOfCurrentMonth[u][day].shift.shift_type !== item.shift_type
+          )
+        ) {
+          if (
+            this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)
+          ) {
+            ++count;
+          } else {
+            ++notCount;
+          }
+        }
+      })
 
       switch (index) {
         case 1: // 例休國
@@ -976,12 +1034,43 @@ export default {
     },
 
     getUserShift(userId, date) {
-      if (
-        this.shiftOfCurrentMonth[userId] &&
-        this.shiftOfCurrentMonth[userId][date]
-      ) {
-        return this.shiftOfCurrentMonth[userId][date];
+      if (this.isReady) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][date]
+        ) {
+          return this.shiftOfCurrentMonth[userId][date];
+        }
+
+        let promise = this.promiseData.find((i) => {
+          return (
+            i.user.id === userId &&
+            parseInt(i.date.split("-")[1]) === this.month &&
+            parseInt(i.date.split("-")[2]) === date
+          );
+        });
+        if (promise) {
+          let shiftType;
+          if (this.$getPromiseLeaveCategoryValue('PAID_LEAVE') == this.$getPromiseLeaveCategoryByItemValue(promise.shift_type)) {
+            shiftType = this.$getShiftTypeValue('VALUE_PAID_LEAVE');
+          } else {
+            shiftType = this.$getShiftTypeValue('VALUE_UNPAID_LEAVE');
+          }
+
+
+          return {
+            id: 0,
+            date: promise.date,
+            user: userId,
+            shift: {
+              shift_type: shiftType,
+              name: this.$getPromiseLeaveItemText(promise.shift_type),
+              code: '',
+            },
+          };
+        }
       }
+
       return {
         id: 0,
         date:
@@ -1114,6 +1203,7 @@ export default {
       ]).then(() => {
         this.getDemandList();
       });
+      this.getPromiseData();
     },
   },
 };

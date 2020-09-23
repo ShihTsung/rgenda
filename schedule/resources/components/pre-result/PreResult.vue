@@ -1001,7 +1001,7 @@ export default {
             ++notCount;
           }
         }
-      })
+      });
 
       switch (index) {
         case 1: // 例休國
@@ -1192,14 +1192,14 @@ export default {
     },
 
     getUserShift(userId, date) {
-      if (
-        this.shiftOfCurrentMonth[userId] &&
-        this.shiftOfCurrentMonth[userId][date]
-      ) {
-        return this.shiftOfCurrentMonth[userId][date];
-      }
+      if (this.isReady) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][date]
+        ) {
+          return this.shiftOfCurrentMonth[userId][date];
+        }
 
-      if (this.shiftData.length > 0) {
         let promise = this.promiseData.find((i) => {
           return (
             i.user.id === userId &&
