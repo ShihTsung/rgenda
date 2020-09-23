@@ -14,7 +14,7 @@
         </div>
         <div class="modal-body text-center pt-0">
           <h3 class="modal-title rgenda-text-dark-blue mb-4">新增假勤</h3>
-          <div class="container-fluid text-left">
+          <div class="container-fluid text-left" v-if="minDate">
             <div class="form-group">
               <label class="font-weight-bold">日期</label>
                 <date-picker
@@ -25,7 +25,7 @@
                 :input-props='{
                   placeholder: "日期"
                 }'
-                :min-date='new Date()'
+                :min-date="minDate"
                 ></date-picker>
             </div>
             <div class="form-group">
@@ -111,7 +111,9 @@ export default {
     },
     suggestions: {
       type: Array,
-      default: [],
+      default: function () {
+        return [];
+      },
     }
   },
   data() {
@@ -121,8 +123,9 @@ export default {
       levels: [],
       selectedType: 0,
       selectedItem: 0,
+      minDate: null,
       addPromiseLeave: {
-        startDate: moment().toDate(), // Must be Date Object
+        startDate: null,
         hours: 0,
         selection: {
           id: 0,
@@ -217,10 +220,36 @@ export default {
         });
     },
     cancelAddition() {
+      let minDate = this.minDate;
       Object.assign(this.$data, this.$options.data.apply(this));
+      this.minDate = minDate;
+      this.$set(this.addPromiseLeave, 'startDate', minDate);
+    },
+    getNearestUnpublishedMonth() {
+      let self = this;
+
+      function getPublishedOrNot(date) {
+        self.$httpClient
+          .get(`/api/published-or-not?year=${date.getYear()}&month=${date.getMonth() + 1}`)
+          .then((response) => {
+            if (response.data) {
+              date.setMonth(date.getMonth() + 1)
+              getPublishedOrNot(date);
+            } else {
+              self.minDate = date;
+              self.$set(self.addPromiseLeave, 'startDate', date);
+            }
+          });
+      }
+
+      let d = new Date();
+      d.setMonth(d.getMonth() + 1);
+      d.setDate(1);
+      getPublishedOrNot(d);
     },
   },
   mounted() {
+    this.getNearestUnpublishedMonth();
   },
   watch: {
     selectedType: function(value, oldValue) {
