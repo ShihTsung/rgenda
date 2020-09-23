@@ -991,7 +991,7 @@ export default {
             this.shiftOfCurrentMonth[u][day].shift.shift_type !== shiftType
           )
         ) {
-          if (shiftType === this.$getShiftTypeValue("VALUE_PAID_LEAVE")) {
+          if (shiftType === this.$getShiftTypeValue("VALUE_PAID_LEAVE") && item.shift_type !== this.$getPromiseLeaveItemValue('ITEM_OFFICIAL_LEAVE')) {
             ++count;
           } else {
             ++notCount;
@@ -1010,7 +1010,7 @@ export default {
           total = special + count + notCount;
           return total;
         case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
-          return (special + count - notCount - noRest);
+          return (special + count + notCount - noRest);
         default:
           return -1;
       }
