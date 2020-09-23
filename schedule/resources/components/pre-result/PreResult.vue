@@ -288,6 +288,8 @@
       :changeShift="changeInfo"
       :shiftData="shiftData"
       :stationPicker="stationPicker"
+      :year="year"
+      :month="month"
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 

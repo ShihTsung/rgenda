@@ -27,10 +27,21 @@
                 <option disabled="disabled" style="display: none" value="default"></option>
                 <option value="shift">排班</option>
                 <option value="holiday">排假</option>
+                <option value="adjustment">加班</option>
               </select>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">項目</label>
+              <select class="col-sm-6 form-control" v-model="changeShift.shift">
+                <option
+                  v-for="item in processedShiftData[shiftCategory]"
+                  :key="item.id"
+                  :value="item"
+                >{{item.name}}</option>
+              </select>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label offset-1">加班選項</label>
               <select class="col-sm-6 form-control" v-model="changeShift.shift">
                 <option
                   v-for="item in processedShiftData[shiftCategory]"
@@ -89,10 +100,20 @@ export default {
         return [];
       },
     },
+    year: {
+      type: Number,
+      default: 0
+    },
+    month: {
+      type: Number,
+      default: 0
+    }
+
   },
   data() {
     return {
       shiftCategory: '',
+      test: ''
     };
   },
   computed: {
@@ -103,18 +124,27 @@ export default {
       let holiday = this.shiftData.filter(
         (item) => [3, 5, 6].indexOf(item.shift_type) >= 0
       );
+      let adjustment_remark = this.shiftData.filter(
+        (item) => [0, 1, 2].indexOf(item.shift_type) >= 0
+      )
       return {
         default: [],
         shift: shift,
         holiday: holiday,
       };
     },
+    AdjustmentTypes(){
+      return [{
+
+      }]
+    }
   },
   methods: {
     save() {
       this.shiftCategory = '';
       this.$parent.editResult(this.changeShift);
     },
+
   },
 };
 </script>
