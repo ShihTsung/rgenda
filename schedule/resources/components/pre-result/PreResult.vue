@@ -973,6 +973,12 @@ export default {
 
       this.promiseData.forEach((item) => {
         let day = parseInt(item.date.split("-")[2]);
+        let shiftType;
+        if (this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)) {
+          shiftType = this.$getShiftTypeValue("VALUE_PAID_LEAVE");
+        } else {
+          shiftType = this.$getShiftTypeValue("VALUE_UNPAID_LEAVE");
+        }
         // 只有當
         // 1. 當日無預排結果
         // 2. 預排結果與預約假勤不同
@@ -982,12 +988,10 @@ export default {
           (
             !this.shiftOfCurrentMonth[u] ||
             !this.shiftOfCurrentMonth[u][day] ||
-            this.shiftOfCurrentMonth[u][day].shift.shift_type !== item.shift_type
+            this.shiftOfCurrentMonth[u][day].shift.shift_type !== shiftType
           )
         ) {
-          if (
-            this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)
-          ) {
+          if (shiftType === this.$getShiftTypeValue("VALUE_PAID_LEAVE")) {
             ++count;
           } else {
             ++notCount;
@@ -1005,8 +1009,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
-        case 5:
-          return (special - noRest);
+        case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
+          return (special + count - notCount - noRest);
         default:
           return -1;
       }
