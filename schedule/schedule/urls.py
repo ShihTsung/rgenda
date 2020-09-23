@@ -76,6 +76,7 @@ urlpatterns += i18n_patterns(
     path('reserves/', include('reservation.urls')),
     path('results/', include('result.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('statistics/', include('mainpage.urls')),
     re_path('^inbox/notifications/',
             include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
