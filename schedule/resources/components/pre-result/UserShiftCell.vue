@@ -132,18 +132,17 @@ export default {
               case "休息":
               case "例假":
               case "國定假日":
-              case "公假":
                 return "rest";
               case "補休":
               case "特休":
                 return "restR";
             }
-            break;
+            return "restR";
           case 6:
             if (this.shiftInfo.shift.name === "事假") {
               return "restR";
             }
-            break;
+            return "restR";
         }
       }
       return "";
@@ -187,7 +186,6 @@ export default {
               default:
                 return this.shiftInfo.shift.name[0]
             }
-            break;
           case 6:
             switch (this.shiftInfo.shift.name) {
               case "無薪病假":
