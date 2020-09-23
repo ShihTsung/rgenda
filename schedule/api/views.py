@@ -2663,7 +2663,7 @@ def recreate_result_monthly(request):
                 print('      ', [i % 10 for i in range(32)])
                 for user_id in user_pool:
                     print(CustomUser.objects.get(id=user_id).full_name[:3], list(
-                        output[user_id].values()), sum(output[user_id].values()))
+                        output[user_id].values()), sum(list(output[user_id].values())[1:]))
                 print('DEMAND   ', list(demand_dict.values()),
                       sum(demand_dict.values()))
 
@@ -3213,6 +3213,7 @@ def recreate_result_weekly(request):
     date_list = [date_start + timedelta(days=i)
                  for i in range((date_end - date_start).days + 1)]
     attrs = attr_list(department.id, date_start, date_end)
+
     # work_ind 紀錄非休診日的天
     work_ind = list()
     for ind, attr in enumerate(attrs):
@@ -3257,9 +3258,8 @@ def recreate_result_weekly(request):
         14: '陪產假',
     }
 
-    # cycle0已排好的(前月的)班表
-    used_rest = get_used_rest(
-        department, date_start - timedelta(days=7), date_start)
+    # 已排好的(前月的)班表
+    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3284,10 +3284,55 @@ def recreate_result_weekly(request):
         department=department,
         name='休息',
     )
+    shift_rest2 = Shift.objects.get(
+        department=department,
+        name='國定假日',
+    )
     shift_official_leave = Shift.objects.get(
         department=department,
         name='公假',
     )
+
+    # 依週期起始日切分 week cycle
+    weekly_ind_0 = department.date_start.isoweekday()
+    weekly_cycles = list()
+    week0 = list()
+    weekly_cycles.append(week0)
+
+    for d in date_list:
+        if d.isoweekday() == weekly_ind_0:
+            new_week = list()
+            new_week.append(d)
+            weekly_cycles.append(new_week)
+        else:
+            weekly_cycles[-1].append(d)
+
+    # get users
+    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
+                                             pregnant=False)
+    users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
+                                                      pregnant=True)
+    users_junior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=0,
+                                             pregnant=False)
+    users_junior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=0,
+                                                      pregnant=True)
+
+    # 產生output
+    output = dict()
+    for user in users_total:
+        output[user.id] = dict()
+        output[user.id][str(date_last)] = continue_dict[user.id]
+        for d in date_list:
+            output[user.id][str(d)] = 0
+
+    # 計算供需
+    workday_dict = dict()
+    for user in users_total:
+        workday_dict[user.id] = workday_num - len(promise_other_dict[user.id]) - len(
+            official_leave_dict[users_senior.id])
+
+    total_workdays = sum(workday_dict.values())
 
     return Response({
         'message': 'Success',
