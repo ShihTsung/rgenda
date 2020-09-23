@@ -30,8 +30,8 @@
                 <option value="adjustment">加班</option>
               </select>
             </div>
-            <div class="form-group row">
-              <label class="col-sm-4 col-form-label offset-1">項目</label>
+            <div class="form-group row" v-if="shiftCategory === 'adjustment'">
+              <label class="col-sm-4 col-form-label offset-1">加班選項</label>
               <select class="col-sm-6 form-control" v-model="changeShift.shift">
                 <option
                   v-for="item in processedShiftData[shiftCategory]"
@@ -41,7 +41,7 @@
               </select>
             </div>
             <div class="form-group row">
-              <label class="col-sm-4 col-form-label offset-1">加班選項</label>
+              <label class="col-sm-4 col-form-label offset-1">項目</label>
               <select class="col-sm-6 form-control" v-model="changeShift.shift">
                 <option
                   v-for="item in processedShiftData[shiftCategory]"
@@ -124,13 +124,26 @@ export default {
       let holiday = this.shiftData.filter(
         (item) => [3, 5, 6].indexOf(item.shift_type) >= 0
       );
-      let adjustment_remark = this.shiftData.filter(
-        (item) => [0, 1, 2].indexOf(item.shift_type) >= 0
-      )
+      let adjustment_remark = [
+        {
+          id: 0,
+          name: "休息日出勤"
+        },
+        {
+          id: 1,
+          name: "國定假日出勤"
+        },
+        {
+          id: 2,
+          name: "空班出勤"
+        }
+      ]
+
       return {
         default: [],
         shift: shift,
         holiday: holiday,
+        adjustment: adjustment_remark,
       };
     },
     AdjustmentTypes(){
