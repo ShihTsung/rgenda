@@ -383,8 +383,9 @@ export default {
     this.$httpClient.get("/api/users/curr/").then((res) => {
       this.user = res.data;
       Promise.all([
-        this.getUserData(),
-        this.getPreResults(),
+        this.getUserData().then(() => {
+          return this.getPreResults();
+        }),
         this.getLastMonthData(),
         this.getAdjustment(),
         this.getTotalPerDayData(),
@@ -449,7 +450,7 @@ export default {
           let processedShifts = {}; // index by user id
           if (this.preResultData.length != 0) {
             this.preResultData.forEach((i) => {
-              if (moment(i.date).month() + 1 === this.month) {
+              if (moment(i.date).month() + 1 === this.month && this.userData.find((u) => u.id == i.user)) {
                 if (!processedShifts[i.user]) {
                   processedShifts[i.user] = {};
                 }
