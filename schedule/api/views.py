@@ -1,4 +1,5 @@
 # django
+import re
 from django.shortcuts import render
 
 # restframework
@@ -318,10 +319,11 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         result = PreResult.objects.filter(
             date=date, user=user
         ).first()
-        if result.shift.name == '例假':
-            return Response(
-                {'error': {'message': '例假日不可加班'}}
-            )
+        if result:
+            if result.shift.name == '例假':
+                return Response(
+                    {'error': {'message': '例假日不可加班'}}
+                )
 
         # 檢查當月總時數
         department = request.user.department
