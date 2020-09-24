@@ -3549,7 +3549,9 @@ def ordered_users(request):
             'full_name': u.full_name,
             'id':  u.id,
             'level': u.level,
-            'eid': u.eid
+            'eid': u.eid,
+            'type_of_user': u.type_of_user,
+            'department': u.department
         } for u in users]
         return Response(res_data)
     # 有給年月繼續
