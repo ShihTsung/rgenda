@@ -27,7 +27,7 @@ from notifications.models import Notification
 from notifications.signals import notify
 from numpy.random import choice
 from reservation.views import get_reserve_leave, get_promise_leave, get_official_leave, get_promise_other
-from result.views import str_to_date, get_continue_days, get_workday_num, get_used_rest, check_eoa
+from result.views import str_to_date, get_continue_days, get_workday_num, get_used_rest, check_eoa, check_noe
 from shift.views import get_shifts
 from station.views import get_stations
 
@@ -2650,6 +2650,12 @@ def recreate_result_monthly(request):
                                 date_start)
                             user_pool[user.id]['promise_leave'].append(
                                 date_start + timedelta(days=1))
+
+                    # 若當月為小夜且上個月為大夜
+                    if demand['demand'].shift.shift_type == 1:
+                        eoa = check_noe(user, date_start)
+                        if eoa == 1:
+                            user_pool[user.id]['promise_leave'].append(date_start)
 
                 # 建立需求單
                 demand_dict = dict()
