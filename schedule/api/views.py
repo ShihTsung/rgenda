@@ -3557,7 +3557,10 @@ def ordered_users(request):
             'level': u.level,
             'eid': u.eid,
             'type_of_user': u.type_of_user,
-            'department': u.department
+            'department': {
+                'id': u.department.id,
+                'name': u.department.detail,
+            }
         } for u in users]
         return Response(res_data)
     # 有給年月繼續
@@ -3584,7 +3587,13 @@ def ordered_users(request):
             'full_name': u.full_name,
             'id':  u.id,
             'level': u.level,
-            'eid': u.eid} for u in users
+            'eid': u.eid,
+            'type_of_user': u.type_of_user,
+            'department':  {
+                'id': u.department.id,
+                'name': u.department.detail,
+            }
+        } for u in users
     }
     for result in results:
         if result.shift.shift_type in [0, 1, 2, 7]:
