@@ -8,9 +8,14 @@
         <h2 class="month">&nbsp;{{month}}月</h2>
       </div>
 
-      <div class="bt-group">
+      <div class="bt-group pr-0">
+        <div class="icon-bts float-right" data-tooltip="tooltip" title="列印"
+        @click="printHtml"
+        >
+          <svg class="icon-color" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 5h-4v-5h-16v5h-4v13h4v6h9.519c2.947 0 6.029-3.577 6.434-6h4.047v-13zm-18-3h12v3h-12v-3zm8.691 16.648s1.469 3.352-2 3.352h-6.691v-8h12v2.648c0 3.594-3.309 2-3.309 2zm6.809-10.648c-.276 0-.5-.224-.5-.5s.224-.5.5-.5.5.224.5.5-.224.5-.5.5zm-5.5 9h-8v-1h8v1zm-3 1h-5v1h5v-1z"/></svg>
+        </div>
         <div class="add-sub-wrapper" @click="changeMonth($event)">
-          <div id="prev" data-tooltip="tooltip" title="上個月">
+          <div id="prev" class="icon-bts border-0 m-0 px-0" data-tooltip="tooltip" title="上個月">
             <svg
               class="icon-color left"
               xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +39,7 @@
               />
             </svg>
           </div>
-          <div id="next" data-tooltip="tooltip" title="下個月">
+          <div id="next" class="icon-bts border-0 m-0 px-0" data-tooltip="tooltip" title="下個月">
             <svg
               class="icon-color right"
               xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +178,7 @@
         </div>
       </div>
     </div>
-    <div class="calendar">
+    <div id="print-result" class="calendar">
       <table
         class="master-schedule-table"
         border="1"
@@ -312,6 +317,9 @@ import RecalculateModal from "./RecalculateModal.vue";
 import ErrorAlertModal from "./ErrorAlertModal.vue";
 import PublishModal from "./PublishModal.vue";
 import CheckPass from "./CheckPass.vue";
+import printJS from 'print-js';
+import popup from 'common/popup';
+import browser from 'common/browser';
 
 moment.locale("zh-tw");
 export default {
@@ -1092,6 +1100,8 @@ export default {
           d,
           changeShiftInfo
         );
+
+        this.getDemandList();
       }
 
       this.changeInfo = {};
@@ -1191,6 +1201,7 @@ export default {
           }
         }
       });
+      this.getDemandList();
       console.log(this.changedResult);
     },
     // 預排假顯示
@@ -1202,11 +1213,8 @@ export default {
           );
         }
       });
-      if (found) {
-        return true;
-      }
 
-      return false;
+      return Boolean(found);
     },
 
     sendToResults() {
@@ -1454,6 +1462,48 @@ export default {
       this.demandList = demandList;
     },
     //-------------------------------------------------
+    printHtml() {
+      if (!(browser.isChrome() || browser.isEdge())) {
+        popup.warning({
+          title: '不支援的瀏覽器',
+          text: '此功能僅支援最新版的 Google Chrome/ Microsoft Edge 瀏覽器',
+        });
+
+        return;
+      }
+
+      new Promise((resolve) => {
+        popup.loading({
+          title: '列印準備中...',
+        });
+        setTimeout(function () {
+          resolve();
+        }, 100);
+      }).then(() => {
+        let target = document.getElementById('print-result').cloneNode(true);
+        target.setAttribute('id', 'printTarget');
+        target.classList.add('print');
+
+        let iframe = document.createElement('iframe');
+        iframe.setAttribute('style', 'visibility: ; height: 100vh; width: 100vw; position: absolute; border: 0; z-index: -999');
+        iframe.setAttribute('id', 'prePrint');
+        iframe.appendChild(target);
+        document.body.appendChild(iframe);
+
+        printJS({
+          printable: 'printTarget',
+          type: 'html',
+          targetStyles: '*',
+          maxWidth: 1320,
+          header: `${this.year}年${this.month}月`,
+          onPrintDialogClose: function () {
+            popup.close();
+            iframe.remove();
+            document.getElementById('printJS').remove();
+          },
+        });
+      });
+    },
   },
 
   watch: {
@@ -1475,6 +1525,7 @@ export default {
 #pre-result {
   height: 100vh;
   width: 90vw;
+
   #top-info {
     height: 70px;
     width: 88vw;
@@ -1491,6 +1542,7 @@ export default {
       .year {
         display: inline;
       }
+
       .month {
         display: inline;
       }
@@ -1518,22 +1570,28 @@ export default {
           display: inline-block;
           margin: 0px;
         }
+
         #prev {
           display: inline-block;
         }
+
         #next {
           display: inline-block;
         }
       }
+
       #btn-manage {
         float: right;
+
         .mark-group {
           .mark-title {
             float: left;
             margin-right: 10px;
           }
+
           .mark-content {
             float: right;
+
             .marks {
               width: 20px;
               height: 20px;
@@ -1545,20 +1603,26 @@ export default {
                 background: #f0faff;
               }
             }
+
             .rs1 {
               border: 3px solid #58b4ae;
+
               &:hover {
                 border: 5px solid #58b4ae;
               }
             }
+
             .rs2 {
               border: 3px solid #84b1ed;
+
               &:hover {
                 border: 5px solid #84b1ed;
               }
             }
+
             .rs3 {
               border: 3px solid #37419a;
+
               &:hover {
                 border: 5px solid #37419a;
               }
@@ -1568,6 +1632,7 @@ export default {
       }
     }
   }
+
   .calendar {
     position: fixed;
     top: 180px;
@@ -1661,6 +1726,16 @@ export default {
         float: left;
       }
     }
+  }
+
+  /** for print **/
+  .print.calendar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    overflow: auto;
+    padding-bottom: 100px;
   }
 }
 </style>

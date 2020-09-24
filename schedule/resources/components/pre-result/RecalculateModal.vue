@@ -29,7 +29,7 @@
             </svg>
           </div>
           <h3 class="modal-title rgenda-text-dark-blue mb-4 text-center">即將重新排班</h3>
-          <div class="text-left">
+          <div class="col-10 offset-1 text-center">
             <div class="form-group row">按下「確認」後，系統會重新計算本月排班，不會保留任何修改結果。</div>
             <div class="row">
               <div class="col mb-2 mt-2 text-center">

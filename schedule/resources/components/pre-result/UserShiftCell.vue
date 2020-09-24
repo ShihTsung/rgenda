@@ -1,12 +1,12 @@
 <template>
   <td
     class="grid-width white-background"
-    :class="[isPast, whichBorder]"
+    :class="[isPast, whichBorder, shiftColor]"
     @click="edit($event, shiftInfo)"
   >
     <div>
       <div :class="{triangle: triangle}"></div>
-      <div class="shift-cell" :class="shiftColor">{{ shiftType }}</div>
+      <div class="shift-cell">{{ shiftType }}</div>
       <div
         v-if="adjustmentStr"
         :class="{addWork: adjustmentStr[0] === '+', subWork: adjustmentStr[0] === '-', showAdjustmentRemark: showAdjustmentRemark}"
@@ -184,6 +184,8 @@ export default {
                 return "生";
               case "國定假日":
                 return "國";
+              default:
+                return this.shiftInfo.shift.name[0]
             }
             break;
           case 6:
@@ -242,14 +244,15 @@ td > div {
 }
 
 .triangle {
-  width: 30px;
-  height: 30px;
-  clip-path: polygon(0 0, 0 50%, 50% 0);
-  background: $color-dark-blue;
   position: absolute;
   margin: 0;
   top: 0;
   left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 11px 11px 0 0;
+  border-color: $color-dark-blue transparent transparent transparent;
 }
 
 .showAdjustmentRemark[adjustment-remark]:hover::after {

@@ -341,3 +341,13 @@ def assignment(attendance_matrix, department):
                 v[idx] = result[i]
 
     return attendance_matrix
+
+
+@login_required
+def statistics_department(request):
+    return render(request, 'statistics/statistics_department.html')
+
+
+@login_required
+def statistics_person(request):
+    return render(request, 'statistics/statistics_person.html')
