@@ -3445,10 +3445,8 @@ def published_or_not(request):
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
 def publish_result(request):
-    lang = request.LANGUAGE_CODE
     month = request.query_params.get('month', None)
     year = request.query_params.get('year', None)
-    now = datetime.datetime.now()
     dep = request.user.department
     shifts = Shift.objects.filter(department=dep)
     if month and year:
@@ -3600,9 +3598,11 @@ def ordered_users(request):
             user_set[result.user.username] = result.shift.shift_type
     sorted_users = [v[0] for v in sorted(user_set.items(), key=lambda d: d[1])]
     res_data = []
+    # 排序過的人員名單
     for u in sorted_users:
         res_data.append(user_dict_set[u])
-    for u in user_set.keys():
-        if user_set[u] == 100:
-            res_data.append(user_dict_set[u])
+    i = 0
+    for data in res_data:
+        data['sort'] = i
+        i += 1
     return Response(res_data)

@@ -430,11 +430,14 @@ export default {
 
     //取得User的資料
     getUserData() {
-      return fetch("/api/user-resource")
+      return fetch(`/api/user-resource?year=${this.year}&month=${this.month}&rset=preresult`)
         .then((res) => {
           return res.json();
         })
         .then((data) => {
+          data.sort(function (a, b) {
+            return a.sort - b.sort;
+          });
           this.userData = data;
         })
         .catch((err) => {
