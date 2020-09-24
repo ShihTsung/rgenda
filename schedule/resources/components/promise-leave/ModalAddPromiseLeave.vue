@@ -27,6 +27,9 @@
                 }'
                 :min-date="minDate"
                 ></date-picker>
+                <small class="form-text text-danger">
+                  只可選擇未發布班表的月份。若班表已發佈，請至總班表管理頁面編輯。
+                </small>
             </div>
             <div class="form-group">
               <label class="font-weight-bold">類別</label>
