@@ -461,8 +461,8 @@ export default {
                 processedShifts[i.user][date] = i;
               }
             });
-            this.isReady = true;
           }
+          this.isReady = true;
           this.showLoading = false;
           this.shiftOfCurrentMonth = processedShifts;
         })
@@ -1509,6 +1509,13 @@ export default {
       });
       if (demandList.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
+          if (!demandList[day - 1]) {
+            demandList[day - 1] = {
+              D: [],
+              E: [],
+              N: [],
+            };
+          }
           demandList[day - 1].D[1] = 0;
           demandList[day - 1].E[1] = 0;
           demandList[day - 1].N[1] = 0;
