@@ -383,8 +383,9 @@ export default {
     this.$httpClient.get("/api/users/curr/").then((res) => {
       this.user = res.data;
       Promise.all([
-        this.getUserData(),
-        this.getPreResults(),
+        this.getUserData().then(() => {
+          return this.getPreResults();
+        }),
         this.getLastMonthData(),
         this.getAdjustment(),
         this.getTotalPerDayData(),
@@ -449,7 +450,7 @@ export default {
           let processedShifts = {}; // index by user id
           if (this.preResultData.length != 0) {
             this.preResultData.forEach((i) => {
-              if (moment(i.date).month() + 1 === this.month) {
+              if (moment(i.date).month() + 1 === this.month && this.userData.find((u) => u.id == i.user)) {
                 if (!processedShifts[i.user]) {
                   processedShifts[i.user] = {};
                 }
@@ -460,8 +461,8 @@ export default {
                 processedShifts[i.user][date] = i;
               }
             });
-            this.isReady = true;
           }
+          this.isReady = true;
           this.showLoading = false;
           this.shiftOfCurrentMonth = processedShifts;
         })
@@ -958,22 +959,14 @@ export default {
         }
       }
 
-      let month = new Date().getMonth() + 1;
       this.adjustHr
-        .filter((item) => {
-          return (
-            item.user == u && (
-              parseInt(item.date.split("-")[1]) < month || (
-                parseInt(item.date.split("-")[1]) === month &&
-                parseInt(item.date.split("-")[2]) <= this.date
-              )
-            )
-          );
-        })
         .forEach((i) => {
           if (
-            this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
-            this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+            i.user == u &&
+            parseInt(i.date.split("-")[1]) === this.month && (
+              this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
+              this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+            )
           ) {
             ++noRest;
           }
@@ -981,27 +974,32 @@ export default {
 
       this.promiseData.forEach((item) => {
         let day = parseInt(item.date.split("-")[2]);
+        let shiftType;
+        if (this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)) {
+          shiftType = this.$getShiftTypeValue("VALUE_PAID_LEAVE");
+        } else {
+          shiftType = this.$getShiftTypeValue("VALUE_UNPAID_LEAVE");
+        }
         // 只有當
         // 1. 當日無預排結果
         // 2. 預排結果與預約假勤不同
-        // 時才計算，不重複計算假日
+        // 時才計算，不重複計算假日，且排除公假
         if (
           item.user.id === u &&
           (
             !this.shiftOfCurrentMonth[u] ||
             !this.shiftOfCurrentMonth[u][day] ||
-            this.shiftOfCurrentMonth[u][day].shift.shift_type !== item.shift_type
+            this.shiftOfCurrentMonth[u][day].shift.shift_type !== shiftType &&
+            item.shift_type !== this.$getPromiseLeaveItemValue('ITEM_OFFICIAL_LEAVE')
           )
         ) {
-          if (
-            this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)
-          ) {
+          if (shiftType === this.$getShiftTypeValue("VALUE_PAID_LEAVE")) {
             ++count;
           } else {
             ++notCount;
           }
         }
-      })
+      });
 
       switch (index) {
         case 1: // 例休國
@@ -1013,8 +1011,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
-        case 5:
-          return (special - noRest);
+        case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
+          return (special + count + notCount - noRest);
         default:
           return -1;
       }
@@ -1192,14 +1190,14 @@ export default {
     },
 
     getUserShift(userId, date) {
-      if (
-        this.shiftOfCurrentMonth[userId] &&
-        this.shiftOfCurrentMonth[userId][date]
-      ) {
-        return this.shiftOfCurrentMonth[userId][date];
-      }
+      if (this.isReady) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][date]
+        ) {
+          return this.shiftOfCurrentMonth[userId][date];
+        }
 
-      if (this.shiftData.length > 0) {
         let promise = this.promiseData.find((i) => {
           return (
             i.user.id === userId &&
@@ -1511,6 +1509,13 @@ export default {
       });
       if (demandList.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
+          if (!demandList[day - 1]) {
+            demandList[day - 1] = {
+              D: [],
+              E: [],
+              N: [],
+            };
+          }
           demandList[day - 1].D[1] = 0;
           demandList[day - 1].E[1] = 0;
           demandList[day - 1].N[1] = 0;

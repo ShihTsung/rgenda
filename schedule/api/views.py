@@ -1,4 +1,5 @@
 # django
+import re
 from django.shortcuts import render
 
 # restframework
@@ -313,15 +314,16 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             if serializer.validated_data['adjustment_type'] == 0:
                 return Response(
                     {'error': {'message': '當日工時超過12小時'}}
-                        )
+                )
         # 例假日不可加班
         result = PreResult.objects.filter(
             date=date, user=user
         ).first()
-        if result.shift.name == '例假':
-            return Response(
-                {'error': {'message': '例假日不可加班'}}
-                        )
+        if result:
+            if result.shift.name == '例假':
+                return Response(
+                    {'error': {'message': '例假日不可加班'}}
+                )
 
         # 檢查當月總時數
         department = request.user.department
@@ -334,7 +336,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         else:
             limit_range = 3
         total_hours = 0
-        for _ in range(limit_range):
+        for i in range(limit_range):
             local_hours = 0
             start = datetime.date(year, month, 1)
             end = datetime.date(year, month, monthrange(year, month)[1])
@@ -347,13 +349,14 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             if department.overtime_rule == 0:
                 if local_hours + hours > 46:
                     return Response(
-                        {'error': {'message': '當月工時超過46小時'}}
+                        {'error': {'message': '單月工時超過46小時'}}
                     )
             else:
-                if local_hours + hours > 54:
-                    return Response(
-                        {'error': {'message': '當月工時超過54小時'}}
-                    )
+                if i == 0:
+                    if local_hours + hours > 54:
+                        return Response(
+                            {'error': {'message': '單月工時超過54小時'}}
+                        )
             # 往前一個月
             month -= 1
             if month < 1:
@@ -361,7 +364,7 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
                 month = 12
         if total_hours + hours > 138:
             return Response(
-                {'error': {'message': '當月工時超過54小時'}}
+                {'error': {'message': '三個月工時超過138小時'}}
             )
 
         self.perform_create(serializer)
@@ -454,6 +457,7 @@ class DepartmentManagerViewSet(viewsets.ModelViewSet):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
 
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
@@ -601,7 +605,6 @@ def get_type(shift):
 
 
 class ResultViewSet(viewsets.ModelViewSet):
-    queryset = Result.objects.all()
     serializer_class = ResultSerializer
     permission_classes = (IsManagerOrReadOnly, permissions.IsAuthenticated)
 
@@ -612,7 +615,9 @@ class ResultViewSet(viewsets.ModelViewSet):
         return ResultSerializer
 
     def get_queryset(self):
-        queryset = Result.objects.all()
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = Result.objects.filter(user__in=users)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
@@ -658,7 +663,6 @@ class ResultViewSet(viewsets.ModelViewSet):
 
 
 class PreResultViewSet(viewsets.ModelViewSet):
-    queryset = PreResult.objects.all()
     serializer_class = PreResultSerializer
     permission_classes = (IsManagerOrReadOnly,)
 
@@ -668,11 +672,10 @@ class PreResultViewSet(viewsets.ModelViewSet):
         return PreResultSerializer
 
     def get_queryset(self):
-        queryset = PreResult.objects.all()
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         dep = self.request.user.department
         users = CustomUser.objects.filter(department=dep)
-        queryset = queryset.filter(user__in=users)
+        queryset = PreResult.objects.filter(user__in=users)
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
             end = self.request.query_params.get('end')
@@ -719,7 +722,6 @@ class PreResultViewSet(viewsets.ModelViewSet):
 
 
 class AfterResultViewSet(viewsets.ModelViewSet):
-    queryset = AfterResult.objects.all()
     serializer_class = AfterResultSerializer
     permission_classes = (IsManagerOrReadOnly,)
 
@@ -729,7 +731,9 @@ class AfterResultViewSet(viewsets.ModelViewSet):
         return AfterResultSerializer
 
     def get_queryset(self):
-        queryset = AfterResult.objects.all()
+        dep = self.request.user.department
+        users = CustomUser.objects.filter(department=dep)
+        queryset = PreResult.objects.filter(user__in=users)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
             start = self.request.query_params.get('start')
@@ -1855,10 +1859,13 @@ def recreate_result_periodic(request):
                     if demand['demand'].shift.shift_type == 0:
                         eoa = check_eoa(user, date_start)
                         if eoa == 1:
-                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
                         elif eoa == 2:
-                            user_pool[user.id]['promise_leave'].append(date_start)
-                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start + timedelta(days=1))
 
                 # 建立需求單
                 demand_dict = dict()
@@ -2636,10 +2643,13 @@ def recreate_result_monthly(request):
                     if demand['demand'].shift.shift_type == 0:
                         eoa = check_eoa(user, date_start)
                         if eoa == 1:
-                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
                         elif eoa == 2:
-                            user_pool[user.id]['promise_leave'].append(date_start)
-                            user_pool[user.id]['promise_leave'].append(date_start + timedelta(days=1))
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start + timedelta(days=1))
 
                     # 若當月為小夜且上個月為大夜
                     if demand['demand'].shift.shift_type == 1:
@@ -2674,7 +2684,8 @@ def recreate_result_monthly(request):
                 diff_r = diff % day_num
 
                 # 校正基底
-                diff_list_base = [diff_q if attrs[i] != '0' else 0 for i in range(len(attrs))]
+                diff_list_base = [diff_q if attrs[i] !=
+                                  '0' else 0 for i in range(len(attrs))]
 
                 # 調整預排假
                 # 若人數許可則改為保證假
@@ -2900,11 +2911,13 @@ def recreate_result_monthly(request):
                             adjust_weight = [
                                 1 if i in r_ind else 1000 for i in range(day_num)]
                             weight_sum = sum(adjust_weight)
-                            adjust_weight = [i / weight_sum for i in adjust_weight]
+                            adjust_weight = [
+                                i / weight_sum for i in adjust_weight]
                             adjust_index = choice(
                                 work_ind, diff_r, p=adjust_weight, replace=False)
                         else:
-                            adjust_index = choice(work_ind, diff_r, replace=False)
+                            adjust_index = choice(
+                                work_ind, diff_r, replace=False)
                         for i in adjust_index:
                             diff_list[i] += 1
 
@@ -3316,7 +3329,8 @@ def recreate_result_weekly(request):
     }
 
     # 已排好的(前月的)班表
-    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
+    used_rest = get_used_rest(
+        department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3365,7 +3379,8 @@ def recreate_result_weekly(request):
             weekly_cycles[-1].append(d)
 
     # get users
-    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_total = CustomUser.objects.filter(
+        department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
     users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
                                              pregnant=False)
     users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
@@ -3532,7 +3547,6 @@ def ordered_users(request):
     users = CustomUser.objects.filter(department=dep, can_be_scheduled=True)
     month = request.query_params.get('month')
     year = request.query_params.get('year')
-
     rset = request.query_params.get('rset')
     # 沒有給年月就報錯
     if not year or not month:
@@ -3553,13 +3567,13 @@ def ordered_users(request):
             user__in=users,
             date__range=[start, end]).prefetch_related(
                 'shift'
-            )
+        )
     else:
         results = Result.objects.filter(
             user__in=users,
             date__range=[start, end]).prefetch_related(
                 'shift'
-            )
+        )
 
     user_set = {user.username: 100 for user in users}
     user_dict_set = {
@@ -3569,12 +3583,12 @@ def ordered_users(request):
             'id':  u.id,
             'level': u.level,
             'eid': u.eid} for u in users
-        }
+    }
     for result in results:
         if result.shift.shift_type in [0, 1, 2, 7]:
             user_set[result.user.username] = result.shift.shift_type
     sorted_users = [v[0] for v in sorted(user_set.items(), key=lambda d: d[1])]
-    res_data=[]
+    res_data = []
     for u in sorted_users:
         res_data.append(user_dict_set[u])
     for u in user_set.keys():

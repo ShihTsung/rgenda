@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import { getShiftClass, getShiftText } from 'src/results/shift-util.js';
 export default {
   props: {
     isReady: {
@@ -106,6 +107,8 @@ export default {
   },
 
   methods: {
+    getShiftClass,
+    getShiftText,
     edit(event, shiftInfo) {
       this.$parent.editShift(event, shiftInfo);
     },
@@ -113,90 +116,14 @@ export default {
   computed: {
     //判斷該班別的樣式
     shiftColor() {
-      if (this.shiftInfo.shift) {
-        switch (this.shiftInfo.shift.shift_type) {
-          case 0:
-            return "dayShift";
-          case 1:
-            return "nightShift";
-          case 2:
-            return "graveyardShift";
-          case 7:
-            return "adminis";
-          case 3:
-            return "rest";
-          case 4:
-            return "onCall";
-          case 5:
-            switch (this.shiftInfo.shift.name) {
-              case "休息":
-              case "例假":
-              case "國定假日":
-                return "rest";
-              case "補休":
-              case "特休":
-                return "restR";
-            }
-            return "restR";
-          case 6:
-            if (this.shiftInfo.shift.name === "事假") {
-              return "restR";
-            }
-            return "restR";
-        }
+      if (this.isReady) {
+        return this.getShiftClass(this.shiftInfo.shift);
       }
       return "";
     },
     shiftType() {
-      if (this.isReady && this.shiftInfo.shift) {
-        switch (this.shiftInfo.shift.shift_type) {
-          case 0:
-          case 1:
-          case 2:
-          case 7:
-            return this.shiftInfo.shift.code;
-          case 3:
-            return "公";
-          case 4:
-            return this.shiftInfo.shift.code === ""
-              ? "On"
-              : this.shiftInfo.shift.code;
-          case 5:
-            switch (this.shiftInfo.shift.name) {
-              case "休息":
-                return "休";
-              case "例假":
-                return "例";
-              case "補休":
-                return "補";
-              case "特休":
-                return "特";
-              case "空班":
-                return "空";
-              case "婚假":
-                return "婚";
-              case "喪假":
-                return "喪";
-              case "產假":
-                return "產";
-              case "生理假":
-                return "生";
-              case "國定假日":
-                return "國";
-              default:
-                return this.shiftInfo.shift.name[0]
-            }
-          case 6:
-            switch (this.shiftInfo.shift.name) {
-              case "無薪病假":
-                return "病";
-              case "事假":
-                return "事";
-              case "家庭照顧假":
-                return "家";
-            }
-            break;
-        }
+      if (this.isReady) {
+        return this.getShiftText(this.shiftInfo.shift)
       }
       return "-";
     },
