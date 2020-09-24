@@ -4,27 +4,41 @@ from rest_framework import routers
 
 
 router = routers.DefaultRouter()
-router.register(r'users', views.CustomUserViewSet)
-router.register(r'stations', views.StationViewSet)
-router.register(r'shifts', views.ShiftViewSet)
+router.register(r'users', views.CustomUserViewSet, basename='users')
+router.register(r'stations', views.StationViewSet, basename='stations')
+router.register(r'shifts', views.ShiftViewSet, basename='shifts')
 router.register(r'departments', views.DepartmentViewSet)
 router.register(r'dates', views.HCalendarViewSet)
-router.register(r'results', views.ResultViewSet)
-router.register(r'preresults', views.PreResultViewSet)
-router.register(r'afterresults', views.AfterResultViewSet)
-router.register(r'reservations', views.ReservationViewSet)
-router.register(r'demands', views.DemandViewSet)
-router.register(r'promises', views.PromiseShiftViewSet)
-router.register(r'liscenses', views.LiscenseViewSet)
-router.register(r'notifications', views.NotificationViewSet)
-router.register(r'time-adjustment', views.TimeAdjustmentViewSet)
-router.register(r'user-remarks', views.UserRemarkViewSet)
-router.register(r'remark-squares', views.RemarkSquareViewSet)
-router.register(r'result-remarks', views.ResultRemarkViewSet)
-router.register(r'demand-user', views.DemandUserTableViewset)
-router.register(r'exchange-shift', views.ExchangeApplicationViewSet)
-router.register(r'department-manager', views.DepartmentManagerViewSet)
-router.register(r'preresult-remarks', views.PreResultRemarkViewSet)
+router.register(r'results', views.ResultViewSet, basename='results')
+router.register(r'preresults', views.PreResultViewSet, basename='preresults')
+router.register(r'afterresults', views.AfterResultViewSet,
+                basename='afterresults')
+router.register(r'reservations', views.ReservationViewSet,
+                basename='reservations')
+router.register(r'demands', views.DemandViewSet,
+                basename='demands')
+router.register(r'promises', views.PromiseShiftViewSet,
+                basename='promises')
+router.register(r'liscenses', views.LiscenseViewSet,
+                basename='liscenses')
+router.register(r'notifications', views.NotificationViewSet,
+                basename='notifications')
+router.register(r'time-adjustment', views.TimeAdjustmentViewSet,
+                basename='time-adjustment')
+router.register(r'user-remarks', views.UserRemarkViewSet,
+                basename='user-remarks')
+router.register(r'remark-squares', views.RemarkSquareViewSet,
+                basename='remark-squares')
+router.register(r'result-remarks', views.ResultRemarkViewSet,
+                basename='result-remarks')
+router.register(r'demand-user', views.DemandUserTableViewset,
+                basename='demand-user')
+router.register(r'exchange-shift', views.ExchangeApplicationViewSet,
+                basename='exchange-shift')
+router.register(r'department-manager', views.DepartmentManagerViewSet,
+                basename='department-manager')
+router.register(r'preresult-remarks', views.PreResultRemarkViewSet,
+                basename='preresult-remarks')
 
 
 urlpatterns = [
