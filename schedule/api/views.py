@@ -3213,6 +3213,7 @@ def recreate_result_weekly(request):
     date_list = [date_start + timedelta(days=i)
                  for i in range((date_end - date_start).days + 1)]
     attrs = attr_list(department.id, date_start, date_end)
+
     # work_ind 紀錄非休診日的天
     work_ind = list()
     for ind, attr in enumerate(attrs):
@@ -3257,9 +3258,8 @@ def recreate_result_weekly(request):
         14: '陪產假',
     }
 
-    # cycle0已排好的(前月的)班表
-    used_rest = get_used_rest(
-        department, date_start - timedelta(days=7), date_start)
+    # 已排好的(前月的)班表
+    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3284,10 +3284,135 @@ def recreate_result_weekly(request):
         department=department,
         name='休息',
     )
+    shift_rest2 = Shift.objects.get(
+        department=department,
+        name='國定假日',
+    )
     shift_official_leave = Shift.objects.get(
         department=department,
         name='公假',
     )
+
+    # 依週期起始日切分 week cycle
+    weekly_ind_0 = department.date_start.isoweekday()
+    weekly_cycles = list()
+    week0 = list()
+    weekly_cycles.append(week0)
+
+    for d in date_list:
+        if d.isoweekday() == weekly_ind_0:
+            new_week = list()
+            new_week.append(d)
+            weekly_cycles.append(new_week)
+        else:
+            weekly_cycles[-1].append(d)
+
+    # get users
+    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True,
+                                             type_of_user=1, pregnant=False)
+
+    users_junior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=0,
+                                             pregnant=False)
+    users_junior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=0,
+                                                      pregnant=True)
+
+    # 產生output 公假為1 其他0
+    output = dict()
+    for user in users_total:
+        output[user.id] = dict()
+        output[user.id][str(date_last)] = continue_dict[user.id]
+        for d in date_list:
+            output[user.id][str(d)] = {
+                'v': 0,
+                'demand': 0,
+            }
+        for d in official_leave_dict[user.id]:
+            output[user.id][str(d)]['v'] = 1
+
+    # 排班 user pool
+
+    # 計算供需
+    workday_dict = dict()
+    for user in users_total:
+        workday_dict[user.id] = workday_num - len(promise_other_dict[user.id]) - len(
+            official_leave_dict[user.id])
+
+    total_workdays = sum(workday_dict.values())
+
+    stations = get_stations(department)
+    shifts = get_shifts(department)
+    demand_dict_senior = dict()
+    demand_dict_junior = dict()
+
+    demand_d_senior_list = list()
+    demand_d_junior_list = list()
+
+    for station in stations:
+        for shift in shifts:
+            try:
+                demand_senior = DemandOfStation.objects.get(station=station, shift=shift, level=2)
+                k = str(station.id) + '-' + str(shift.id)
+                demand_dict_senior[k] = dict()
+                demand_dict_senior[k]['shift'] = shift
+                demand_dict_senior[k]['station'] = station
+                demand_dict_senior[k]['shift type'] = shift.shift_type
+                demand_dict_senior[k]['total'] = 0
+                if shift.shift_type == 0:
+                    demand_d_senior_list.append(k)
+                for ind, d in enumerate(date_list):
+                    if attrs[ind] == '0':
+                        demand_dict_senior[k][str(d)] = 0
+                    elif attrs[ind] == '1':
+                        demand_dict_senior[k][str(d)] = demand_senior.config1
+                        demand_dict_senior[k]['total'] += demand_senior.config1
+                    elif attrs[ind] == '2':
+                        demand_dict_senior[k][str(d)] = demand_senior.config2
+                        demand_senior.config1['total'] += demand_senior.config2
+            except DemandOfStation.DoesNotExist:
+                pass
+            try:
+                demand_junior = DemandOfStation.objects.get(station=station, shift=shift, level=1)
+                k = str(station.id) + '-' + str(shift.id)
+                demand_dict_junior[k] = dict()
+                demand_dict_senior[k]['shift'] = shift
+                demand_dict_senior[k]['station'] = station
+                demand_dict_junior[k]['shift type'] = shift.shift_type
+                demand_dict_junior[k]['total'] = 0
+                if shift.shift_type == 0:
+                    demand_d_junior_list.append(k)
+                for ind, d in enumerate(date_list):
+                    if attrs[ind] == '0':
+                        demand_dict_junior[k][str(d)] = 0
+                    elif attrs[ind] == '1':
+                        demand_dict_junior[k][str(d)] = demand_junior.config1
+                        demand_dict_junior[k]['total'] += demand_junior.config1
+                    elif attrs[ind] == '2':
+                        demand_dict_junior[k][str(d)] = demand_junior.config2
+                        demand_dict_junior[k]['total'] += demand_junior.config2
+            except DemandOfStation.DoesNotExist:
+                pass
+
+    # 將預約假併入保證假
+    for user in users_total:
+        promise_other_dict[user.id] += reserve_leave_dict[user.id]
+
+    # 計算班表：
+    # 1. 懷孕 資深 >> 白班
+    # 2. 資深 >> 每週計算各demand需求，依照比例抽人(10)，排班(1000)
+    # 3. 懷孕 一般 >> 白班
+    # 4. 一般 >> 每週計算各demand需求，依照供給校正，依照比例抽人(10)，排班(1000)
+    # 5. 缺人的找預排假補
+
+    # 1.
+    try:
+        users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
+                                                          pregnant=True)
+
+
+    except CustomUser.DoesNotExist:
+        pass
+
 
     return Response({
         'message': 'Success',
