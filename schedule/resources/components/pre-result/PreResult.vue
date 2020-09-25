@@ -386,6 +386,7 @@ export default {
       isSave: false,
       demandList: [],
       promiseData: [],
+      newAdjustmentList: [],
     };
   },
 
@@ -1606,6 +1607,11 @@ export default {
         });
       });
     },
+    //加入加班資料, 儲存時才送出
+    addAdjustment(adjInfo){
+      this.newAdjustmentList.push(adjInfo);
+      this.adjustHr.push(adjInfo);
+    }
   },
 
   watch: {

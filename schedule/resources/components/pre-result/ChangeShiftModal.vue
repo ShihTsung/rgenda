@@ -171,18 +171,47 @@ export default {
         this.shiftCategory = '';
         this.$parent.editResult(this.changeShift);
       }else{
-        console.log(this.adjustmentShift.shift_type)
-        console.log(this.adjustmentType.id)
-        if (this.adjustmentShift.shift_type == 0){
-
-        }
-        new_changeShift = {
+        let new_changeShift = {
           id: this.changeShift.id,
           user: this.changeShift.user,
           date: this.changeShift.date,
-          shift: {},
-          station: {},
+          shift: null,
+          station: this.changeShift.station,
         }
+        switch(this.adjustmentType.id){
+          case 0:
+            new_changeShift['shift'] = this.shiftData.filter(
+              e=>e.name=='休息')[0];
+            break;
+          case 1:
+            new_changeShift['shift'] = this.shiftData.filter(
+              e=>e.name=='國定假日')[0];
+            break;
+          case 2:
+            new_changeShift['shift'] = this.shiftData.filter(
+              e=>e.name=='空班')[0];
+        }
+        this.shiftCategory = '';
+        this.$parent.editResult(new_changeShift);
+        let new_adjustment = {
+          user: this.changeShift.user,
+          date: this.changeShift.date,
+          hours: 8,
+          adjustment_type: 0,
+          adjustment_item: this.adjustmentType.id,
+          remark: null
+        }
+        switch(this.adjustmentShift.shift_type){
+          case 0:
+            new_adjustment['remark'] = '白班';
+            break;
+          case 1:
+            new_adjustment['remark'] = '小夜';
+            break;
+          case 2:
+            new_adjustment['remark'] = '大夜';
+        }
+        this.$parent.addAdjustment(new_adjustment);
       }
 
     },
