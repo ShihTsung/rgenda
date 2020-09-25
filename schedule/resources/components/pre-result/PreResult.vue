@@ -1313,14 +1313,14 @@ export default {
       return Boolean(found);
     },
 
-    sendToResults() {
+    async sendToResults() {
       this.followEdit = false;
       this.rsShow = false;
       this.isSave = true;
 
       let promises = [];
 
-      this.changedResult.forEach((i) => {
+      await this.changedResult.forEach((i) => {
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1336,7 +1336,11 @@ export default {
             },
             body: JSON.stringify(data),
             method: "POST",
-          }).catch((err) => {
+          })
+          .then(res=>{
+            console.log(res);
+          })
+          .catch((err) => {
             console.log(err);
           });
         } else {
@@ -1451,8 +1455,31 @@ export default {
         }
         promises.push(promise);
       });
+        // 送出加班資料
+      this.newAdjustmentList.forEach(e=>{
+        let promise;
+        let config = {
+                headers: {
+                  "X-CSRFToken": `${this.csrfToken}`,
+                  "content-type": "application/json",
+                },
+              };
+        promise = this.$httpClient.post("/api/time-adjustment/", e, config).then(res=>{
+            console.log('success');
+            console.log(res.data);
+          })
+          .catch(err=>{
+            console.log(err);
+          })
+        promises.push(promise);
+      })
+
+
+
 
       Promise.all(promises).then(() => {
+
+        this.getAdjustment();
         this.getPreResults();
         this.getUserRemark();
         this.getRemarkSquareData();
@@ -1463,6 +1490,7 @@ export default {
       this.userRemarks.length = 0;
       this.remarkSquare.length = 0;
       this.resultRS.length = 0;
+      this.newAdjustmentList.length = 0;
       this.isEdit = false;
       this.isCheck = false;
     },

@@ -191,8 +191,6 @@ export default {
             new_changeShift['shift'] = this.shiftData.filter(
               e=>e.name=='空班')[0];
         }
-        this.shiftCategory = '';
-        this.$parent.editResult(new_changeShift);
         let new_adjustment = {
           user: this.changeShift.user,
           date: this.changeShift.date,
@@ -211,6 +209,9 @@ export default {
           case 2:
             new_adjustment['remark'] = '大夜';
         }
+
+        this.shiftCategory = '';
+        this.$parent.editResult(new_changeShift);
         this.$parent.addAdjustment(new_adjustment);
       }
 
