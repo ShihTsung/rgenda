@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %} Edit User {% endblock %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+          {% for message in messages %}
+          <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+            {{message}}
+          </div>
+          {% endfor %}
+            <form method="post">
+                <div class="title text-center">
+                    <h2>編輯使用者</h2>
+                </div>
+                {% csrf_token %}
+                {% for field in form%}
+                    {% if field.name not in 'password, holiday_rest_num, special_rest_num, hour_required, hour_realized' %}
+                    {{ field |as_crispy_field }}
+                    {% endif %}
+                {% endfor %}
+            <div class="d-flex justify-content-around text-center">
+                <a href="/accounts/list" class="btn btn-secondary btn-lg col-3">取消</a>
+                <button class='btn-primary btn-lg col-md-3' type="submit">儲存</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card{
+    margin-top:5rem;
+    box-shadow: 1px 1px 2px 0px;
+    min-width: 20rem;
+    }
+    .card-body{
+        padding: 5rem 10rem;
+    }
+</style>
+{% endblock %}

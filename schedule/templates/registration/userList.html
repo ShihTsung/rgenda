@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %} 人員清單 {% endblock %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+<div id="app" class="container">
+
+  {% include "modal_form.html" %}
+
+  <div class="title text-left">
+    <h3>人員清單</h3>
+  </div>
+
+  {% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{message}}
+  </div>
+  {% endfor %}
+
+  <div class="row mb-2">
+    <div class="col-12">
+      <div class="float-right">
+        <!-- 新增人員 -->
+        <a href="/accounts/register" class="icon-bts m-0" data-tooltip="tooltip" title="新增人員">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M19.5 15c-2.483 0-4.5 2.015-4.5 4.5s2.017 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.017-4.5-4.5-4.5zm2.5 5h-2v2h-1v-2h-2v-1h2v-2h1v2h2v1zm-7.18 4h-14.815l-.005-1.241c0-2.52.199-3.975 3.178-4.663 3.365-.777 6.688-1.473 5.09-4.418-4.733-8.729-1.35-13.678 3.732-13.678 6.751 0 7.506 7.595 3.64 13.679-1.292 2.031-2.64 3.63-2.64 5.821 0 1.747.696 3.331 1.82 4.5z"/></svg>
+        </a>
+        <!-- \新增人員 -->
+        <!-- 下載模板 -->
+        <a href="/accounts/download/empty-excel" class="icon-bts m-0"
+        data-tooltip="tooltip" title="下載模板">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M15 10h4l-7 8-7-8h4v-10h6v10zm6 9v5h-18v-5h18zm-6 2h-1v1h1v-1zm2 0h-1v1h1v-1zm2 0h-1v1h1v-1z"/></svg>
+        </a>
+        <!-- \下載模板 -->
+        <!-- 匯入 -->
+        <a href="#" class="icon-bts m-0" id="import-user"
+        data-tooltip="tooltip" title="匯入">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M9 8h-4l7-8 7 8h-4v9h-6v-9zm12 11v5h-18v-5h18zm-6 2h-1v1h1v-1zm2 0h-1v1h1v-1zm2 0h-1v1h1v-1z"/></svg>
+        </a>
+        <!-- \匯入 -->
+      </div>
+    </div>
+  </div>
+
+
+  <account-list
+  role="{{user.role}}"
+  is-supervisor="{{user.is_superuser}}"
+  csrf-token="{{ csrf_token }}"
+  ></account-list>
+
+</div>
+
+<style scoped>
+  table {
+      background-color: white;
+      box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+  }
+
+  /* #myInput {
+      outline: none;
+  } */
+  .thead-dark {
+      background: #f1f1f1;
+  }
+</style>
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+{% endblock %}
+
+<script src="{% static 'assets/account-list.bundle.js' %}"></script>
+
+<script>
+  // function searchFilter() {
+  //   // Declare variables
+  //   var input, filter, table, tr, td, i, txtValue;
+  //   input = document.getElementById("myInput");
+  //   filter = input.value.toUpperCase();
+  //   table = document.getElementById("myTable");
+  //   tr = table.getElementsByTagName("tr");
+
+  //   // Loop through all table rows, and hide those who don't match the search query
+  //   for (i = 0; i < tr.length; i++) {
+  //     td = tr[i].getElementsByTagName("td")[sid];
+  //     if (td) {
+  //       txtValue = td.textContent || td.innerText;
+  //       if (txtValue.toUpperCase().indexOf(filter) > -1) {
+  //         tr[i].style.display = "";
+  //       } else {
+  //         tr[i].style.display = "none";
+  //       }
+  //     }
+  //   }
+  // }
+
+  // function printOption() {
+  //   let e = document.getElementById('condition');
+  //   sid = e.options[e.selectedIndex].value;
+  //   optiontext = e.options[e.selectedIndex].text;
+  //   searchFilter(sid);
+  //   document.getElementById('myInput').placeholder = "search by " + optiontext;
+  // }
+
+  // let sid = 0
+  // let inputBox = document.getElementById("myInput");
+  // inputBox.addEventListener('keyup', searchFilter);
+
+  document.addEventListener("DOMContentLoaded", function (event) {
+    // Your code to run since DOM is loaded and ready
+    let id = "#";
+    let name = "";
+    document.querySelectorAll(".btn-delete").forEach(function (el) {
+      el.addEventListener('click', function () {
+        id = this.parentNode.parentNode.getAttribute('idx');
+        name = this.parentNode.parentNode.childNodes[1].innerText;
+        document.querySelector(".modal-body").querySelector("p").innerText = "您確定要刪除 " + name + " 嗎?";
+        document.querySelector("#btn-delete").addEventListener('click', function () {
+          window.location.href = "/accounts/delete/" + id;
+        });
+      });
+    });
+  });
+  let conditions = [''];
+
+  $('#import-user').on('click', function (e) {
+    e.preventDefault();
+    $('#modal-form').modal();
+  });
+</script>
+{% endblock %}

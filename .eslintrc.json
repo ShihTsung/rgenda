@@ -1,0 +1,23 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jquery": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:vue/essential"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "ignorePatterns": "webpack.*.js",
+    "plugins": [
+        "vue"
+    ],
+    "rules": {
+      "no-prototype-builtins": "off",
+      "operator-linebreak": "error"
+    }
+}

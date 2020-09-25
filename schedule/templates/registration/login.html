@@ -1,50 +1,153 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags %}
-{% block title %}Login{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+    <link rel="bookmark" href="{% static 'images/favicon.ico' %}" />
+    <title></title>
+    <style>
+      body{
+        background-color: #84C0E9 !important;
+        font-family: arial,"Microsoft JhengHei","微軟正黑體",sans-serif !important;
+      }
+      .form-check-label{
+        color: #848584;
+      }
+      .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 90vh;
+      }
+      .forgetPassword{
+        color: #38449a;
+        margin-left: 41%;
+        transform: translateX(-50%);
+      }
+      .form-control{
+        font-weight: 300;
+
+      }
+        .card {
+            background-color: #fff;
+            padding: 3rem 2rem;
+            box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
+            width: 25rem;
+            min-width: 25rem;
+            color: rgb(5, 7, 50);
+            border-radius: 3px;
+
+        }
+        .card-title h2{
+          width: 100%;
+          text-align: center;
+        }
+        .card-title h3{
+          width: 50%;
+          margin-left: 73%;
+          transform: translateX(-70%);
+        }
+        #username{
+          margin-left: 50%;
+          transform: translateX(-50%);
+          border: 1px solid #dcdcdc;
+          width: 50%;
+          height: 30px;
+          border-radius: 3px;
+        }
+        #password{
+          margin-left: 50%;
+          transform: translateX(-50%);
+          border: 1px solid #dcdcdc;
+          width: 50%;
+          height: 30px;
+          border-radius: 3px;
+        }
+        .form-check{
+          margin-top: 2%;
+        }
+        .form-check-input{
+          margin-left: 25%;
+        }
+        .form-check-label{
+          font-weight: 300;
+        }
+        .btn-primary {
+            background: #38449a;
+            border: none;
+            font-weight: 300;
+            width: 20%;
+            height: 40px;
+            color: white;
+            border-radius: 5px;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            margin-top: 3%;
+            font-size: 17px;
+        }
+
+        @media(max-width:600px) {
+          .card{
+            width:90vw;
+          }
+        }
+
+        .copyright{
+          font-weight: 400;
+          margin-left: 200px;
+          margin-top: 45px;
+          font-size: 18px;
+        }
+    </style>
+  </head>
+  <body>
     <div class="container">
-        <div class="card">
-            <div class="card-body">
-                    <form method="post">
-                            <div class="title text-center">
-                                    <h2>User Login</h2>
-                            </div>
-                        {% csrf_token %}
-                        {{ form |crispy }}
-                        <br>
-                        <div class="col-12 text-center">
-                            <button class='btn-primary btn-lg col-md-6' type="submit">Login</button>
-                        </div>
-                        <br>
-                        <!-- <small><a href="{% url 'password_reset' %}" class="btn btn-link">forgot password?</a></small> -->
-                    </form>
-            </div>
+      <div class="card">
+        <div class="card-title text-center">
+          <h2>睿驊醫院</h2>
+          <h3>AI智慧排班</h3>
         </div>
-        
+        <div class="card-body">
+          <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text"> &nbsp<i class="fa fa-envelope" aria-hidden="true"></i> &nbsp</div>
+              </div>
+              <input type="text" class="form-control form-control-lg" id="username"  name="username" placeholder="帳號"">
+            </div>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text"> &nbsp<i class="fa fa-lock" aria-hidden="true"></i> &nbsp</div>
+              </div>
+              <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="密碼">
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="autoSizingCheck">
+              <label class="form-check-label" for="autoSizingCheck">
+                自動登入
+              </label>
+            </div>
+          </div>
+          {% if form.errors %}
+          <p class=" label label-danger">
+              Your username and password didn't match.
+              Please try again.
+          </p>
+          {% endif %}
+            <div class="col-12 text-center">
+              <input class='btn-primary btn-lg' type="submit" value="登入">
+              <input type="hidden" name="next" value="{{ next }}" />
+              <br>
+              <br>
+              <a class="forgetPassword" href="{% url 'password_reset' %}">忘記密碼?</a>
+
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
-
-
-{%endblock%}
-
-{% block styles %}
-<style>
-.container{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-}
-.card{
-    margin-top:3em;
-    background-color: #555;
-    color:#eee;
-    box-shadow: 2px 2px 2px #000;
-    width: 25vw;
-}
-.btn-primary{
-    box-shadow: 2px 2px 1px #000;
-}
-h1{
-    color:#eee;
-}
-</style>
-{% endblock %}
+  </body>
+</html>

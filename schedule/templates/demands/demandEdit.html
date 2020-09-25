@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %} Edit Demand {% endblock %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="title text-center">
+        <h1>編輯需求</h1>
+    </div>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        <button id="btn-submit" class="btn btn-success" type="submit"><i
+                class="far fa-save"></i></button>
+        {{ form.demand | as_crispy_field }}
+        <table class="table table-striped text-center" id="myTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th rowspan="2" scope="col">工作站</th>
+                    <th rowspan="2" scope="col">班別</th>
+                    <th colspan="4" scope="col">一般工作日</th>
+                    <th colspan="4" scope="col">休假工作日</th>
+                </tr>
+                <tr>
+                    <th>Level 4</th>
+                    <th>Level 3</th>
+                    <th>Level 2</th>
+                    <th>Level 1</th>
+                    <th>Level 4</th>
+                    <th>Level 3</th>
+                    <th>Level 2</th>
+                    <th>Level 1</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </form>
+</div>
+
+<script src="{% static 'jquery-validation-1.19.1/jquery.validate.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        // Build the form.
+        var demands = {{ demands | safe }};
+        let input_field = $("#id_demand");
+        $.each(demands, function(station, shifts){
+            let first_of_station = true;
+            let rowspan = Object.keys(shifts).length;
+            $.each(shifts, function(shift, val){
+                let tr = $("<tr></tr>");
+                if (first_of_station) {
+                    first_of_station = false;
+                    let td_station = $("<td rowspan=" + rowspan + ">" + station + "</td>");
+                    $(tr).append(td_station);
+                }
+                $(tr).append("<td>" + shift + "</td>");
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[4]["id"] + "w").attr("name", val[4]["id"] + "w").val(val[4]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "w").attr("name", val[3]["id"] + "w").val(val[3]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "w").attr("name", val[2]["id"] + "w").val(val[2]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "w").attr("name", val[1]["id"] + "w").val(val[1]["weekday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[4]["id"] + "h").attr("name", val[4]["id"] + "h").val(val[4]["holiday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[3]["id"] + "h").attr("name", val[3]["id"] + "h").val(val[3]["holiday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[2]["id"] + "h").attr("name", val[2]["id"] + "h").val(val[2]["holiday"])));
+                $(tr).append($("<td></td>").append($(input_field).clone().attr("id", val[1]["id"] + "h").attr("name", val[1]["id"] + "h").val(val[1]["holiday"])));
+                $("tbody").append(tr);
+            });
+        });
+        $("#div_id_demand").remove();
+    });
+</script>
+<style>
+	table {
+		background-color: white;
+		box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.8);
+	}
+	table th, table td {
+		vertical-align: middle !important;
+        width: 10%;
+	}
+	#btn-submit {
+		margin-left: 0;
+	}
+    .form-control {
+        height: 24px;
+        width: 80%;
+        margin: 0 auto;
+        padding: 0 12px;
+    }
+</style>
+{% endblock %}

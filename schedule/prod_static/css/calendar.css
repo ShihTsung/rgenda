@@ -1,0 +1,29 @@
+.fc-title{
+    color:white;
+}
+
+#calendar{
+    background-color: white;
+    padding: 2rem;
+    box-shadow: 0px 0px 1px 0px;
+    border-radius: .3rem;
+}
+.fc-content{
+    font-size: 1rem;
+}
+.bigEvent{
+    height: 3rem;
+    width: 80%;
+    margin-left: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.card-body {
+    font-size: 24px;
+    text-decoration: none;
+    min-height: 10rem;
+    text-overflow: hide;
+}

@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}單科行事曆{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+
+<div class="container">
+  <!-- 警告訊息 -->
+  <div class="alert" role="alert" style="visibility:hidden;" id="message">
+    permission denied
+  </div>
+
+  <!-- 日歷 -->
+  <div id="calendar">
+
+  </div>
+</div>
+<!-- modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"></h5>
+        <button type="button" class="close" data-dismiss="modal"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="">
+          <div class="form-grounp">
+            <label for="day">配置</label>
+            <select name="day" id="day" class="form-control">
+              <option value="" disabled selected hidden>選擇配置或休診</option>
+              <option value="1">
+                配置一
+              </option>
+              <option value="2">
+                配置二
+              </option>
+              <option value="0">
+                休診日
+              </option>
+            </select>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="locked">
+            <label class="form-check-label" for="locked">禁止預約休假</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{%trans 'Cancel'%}</button>
+        <button type="button" class="btn btn-primary" id="save">{%trans 'Save'%}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let currInfo = {};
+    let calendar = {};
+    let department;
+
+    // 送出修改某天的資料
+    let sendData = function(){
+        let target = currInfo.event.id;
+        let e = document.getElementById("day")
+        let oldAttribute = currInfo.event.extendedProps.attribute
+        let newChoice = e.options[e.selectedIndex].value;
+        let locked = document.getElementById("locked").checked;
+        let date = currInfo.event.start.toISOString().split('T')[0];
+        d_id = department.id.toString()
+        if(typeof oldAttribute === typeof 'a'){
+          oldAttribute={}
+        }
+        oldAttribute[d_id] = newChoice
+        updateData = {
+            'id': target,
+            'date': date,
+            'attribute': oldAttribute,
+            'locked': locked
+        }
+        fetch('/api/dates/' + target + '/', {
+          method: "PATCH",
+          headers:{
+            'X-CSRFToken': '{{ csrf_token }}',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        }).then(response => {
+          if(response.ok){
+            calendar.refetchEvents();
+            let msg = document.getElementById('message');
+
+            msg.style.visibility = '';
+            msg.classList.remove('alert-danger')
+            msg.classList.add('alert-success')
+            msg.innerText = 'change sucess'
+            setTimeout(function (){
+              msg.style.visibility = 'hidden';
+            }, 2000);
+          }else{
+            let msg = document.getElementById('message');
+            msg.style.visibility = '';
+            msg.classList.remove('alert-success')
+            msg.classList.add('alert-danger')
+            msg.innerText = 'permission denied'
+            setTimeout(function (){
+              msg.style.visibility = 'hidden';
+            }, 2000);
+          }
+        });
+        $('#myModal').modal('hide');
+      }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let Calendar = FullCalendar.Calendar;
+        let Draggable = FullCalendarInteraction.Draggable;
+        let calendarEl = document.getElementById('calendar');
+        let initialLocaleCode = 'en';
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['interaction', 'dayGrid'],
+                selectable: false,
+                selectHelper: true,
+                theme: true,
+                editable: true,
+                themeSystem: 'bootstrap',
+                eventLimit: true, // when too many events in a day, show the popover
+                timeZone: 'UTC',
+                customButtons: {
+                    submitButton: {
+                        text: '  返回  ',
+                        click: function () {
+                            window.location = "/";
+                        }
+                    }
+                },
+                header: {
+                    left: '',
+                    center: 'title',
+                    right: 'prev,next'
+                },
+                footer: {
+                },
+                showNonCurrentDates: false,
+                droppable: true,
+                datesRender: function(){
+
+                },
+                dayRender: function(info){
+                  let d_str = info.date.toISOString().split('T')[0];
+                  fetch('/api/dates/?start='+d_str+'&end='+d_str)
+                  .then(res=>{
+                    return res.json();
+                  })
+                  .then(data=>{
+                    if(data[0].title=='假日'){
+                      info.el.style.backgroundColor='#A6C2CE';
+                    }
+                  })
+                },
+                eventClick: function(info){
+                    currInfo = info;
+                    $('#exampleModalLabel').text(info.event.start.toISOString().split('T')[0]);
+                    $('#myModal').modal('show');
+                    $('#locked').prop('checked',info.event.extendedProps.locked);
+
+
+                },
+                eventRender: function(info) {
+                  info.el.innerHTML = "";
+                  if (info.event.extendedProps.locked){
+                    x = document.createElement('div');
+                    x.innerHTML = '<i class="fas fa-lock" style="margin-left:5px;font-size:1rem;"></i>';
+                    info.el.appendChild(x);
+                  }
+                  if(info.event.extendedProps.attribute.hasOwnProperty(department.id)){
+                    if (info.event.extendedProps.attribute[department.id.toString()]==1){
+                      info.el.classList.add('one');
+                      info.el.innerHTML += "<div style='font-size: 14px;'>配置一</div>";
+                    }else if(info.event.extendedProps.attribute[department.id.toString()]==2){
+                      info.el.classList.add('two');
+                      info.el.innerHTML += "<div style='font-size: 14px;'>配置二</div>";
+                    }else{
+                      info.el.classList.add('closed-day');
+                      info.el.innerHTML += "<div style='font-size: 14px;'>休診</div>";
+                    }
+                  }
+                },
+                events: function (fetchInfo, successCallback, failureCallback) {
+                  Promise.all([
+                    fetch('/api/dates/').then(res => res.json()),
+                    fetch('/api/users/curr/').then(res => res.json()),
+                  ]).then(dataArr => {
+                    const data = dataArr[0];
+                    const user = dataArr[1];
+                    department = user.department;
+                    successCallback(data);
+                  }).catch(err => {
+                    failureCallback(err);
+                  });
+                },
+            });
+            if ("{{LANG}}" == 'zh-hant') {
+                calendar.setOption('locale', 'zh-tw');
+            }
+            calendar.render();
+
+        });
+        saveButton = document.getElementById('save');
+        saveButton.addEventListener('click', sendData);
+
+</script>
+<style>
+  .container{
+    padding-top: 80px;
+  }
+  .fc-event.fc-draggable{
+    color: white;
+  }
+  .one{
+    background: #37419A;
+    border: none;
+    height: 2.5rem;
+
+  }
+  .one:hover{
+    background: #37419A;
+    color: white !important;
+  }
+  .two{
+    background: #84B1ED !important;
+    border: none;
+    height: 2.5rem;
+  }
+  .two:hover{
+    background: #84B1ED !important;
+    color: white !important;
+  }
+  .closed-day{
+    color: #b5b5b5 !important;
+    background: white !important;
+    border: 1px solid #b5b5b5;
+    height: 2.5rem;
+  }
+  .closed-day:hover{
+    color:#838080 !important;
+    border-color: #838080;
+  }
+</style>
+{% endblock %}

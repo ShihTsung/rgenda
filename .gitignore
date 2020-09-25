@@ -60,6 +60,9 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+/schedule/prod_static/*
+/schedule/*/migrations/*
+!/schedule/*/migrations/__init__.py
 
 # Flask stuff:
 instance/
@@ -76,6 +79,12 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# pycharm
+.idea/
+
+# Visual Studio Code
+.vscode/
 
 # IPython
 profile_default/
@@ -145,3 +154,10 @@ npm-debug.log
 
 # Nuxt generate
 dist
+
+# OS generated files
+.DS_Store
+._*
+.Trashes
+Thumbs.db
+desktop.ini

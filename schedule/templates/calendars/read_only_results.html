@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans 'Result' %}{% endblock %}
+{% block content %}
+
+<div class="container">
+    {% include 'total_calendar.html' %}
+</div>
+
+{% endblock %}

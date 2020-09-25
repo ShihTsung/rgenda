@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} Edit Shift {% endblock %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="title text-center">
+                    <h2>編輯班別</h2>
+                </div>
+                {% csrf_token %}
+                
+                {{ form.name |as_crispy_field }}
+                {{ form.shift_type |as_crispy_field }}
+                {{ form.start_time |as_crispy_field }}
+                {{ form.end_time |as_crispy_field }}
+                {{ form.department |as_crispy_field }}
+                {{ form.work_hours |as_crispy_field }}
+                    
+            <div class="col-12 text-center">
+                <a href="/shifts/list" class="btn btn-secondary btn-lg col-3">取消</a>
+                <button class='btn btn-primary btn-lg col-md-3' type="submit">儲存</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card{
+    margin-top:5rem;
+    box-shadow: 1px 1px 2px 0px;
+    min-width: 20rem;
+    }
+    .card-body{
+        padding: 5rem 10rem;
+    }
+</style>
+{% endblock %}

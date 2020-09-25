@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans '預排假勤' %}{% endblock %}
+
+{% block content %}
+
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>預排假勤</h3>
+  </div>
+
+  <promise-leave
+  csrf-token="{{ csrf_token }}"></promise-leave>
+</div>
+
+{% block head %}
+<script src="{% static 'assets/promise-leave.bundle.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

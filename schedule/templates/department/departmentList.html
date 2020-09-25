@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %} 科別管理 {% endblock %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>科別管理</h3>
+  </div>
+
+  {% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{message}}
+  </div>
+  {% endfor %}
+
+  {% if user.role in 'admin' or user.is_superuser %}
+  <div class="row">
+    <div class="col-sm-12">
+      <a href="/departments/create" class="icon-bts float-right" data-tooltip="tooltip" title="新增科別">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="icon-color"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"></path></svg>
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <department-list role="{{user.role}}" csrf-token="{{ csrf_token }}"></department-list>
+</div>
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/searchbar.css' %}">
+{% endblock %}
+
+<script src="{% static 'assets/department-list.bundle.js' %}"></script>
+
+{% endblock %}

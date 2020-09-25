@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+    通知
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4 ml-4">
+        <a href="{% url "notice:update" %}" class="btn btn-warning" role="button">全部已讀</a>
+    </div>
+    <!-- 未讀通知列表 -->
+    <div class="row mt-2 ml-4">
+        <ul class="list-group">
+            {% for notice in notices %}
+                <li class="list-group-item" id="notice_link"
+                    {% if notice.unread%}
+                        style="background-color:#C0E9F9"
+                    {% else %}
+                        style="background-color:#FFF"
+                    {% endif%}>
+
+                    <a href="{% url 'notice:update' %}?department_id={{ notice.target.id }}&notice_id={{ notice.id }}"
+                       target="_blank"
+                    >
+                      <div class="content">
+                          {{ notice.verb }}
+                      </div>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div style="float:right">
+                        {{ notice.timesince}} {%trans 'ago'%}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<style>
+    #notice_link a {
+        color: black;
+        display: flex;
+    }
+    .list-group-item{
+      display:flex;
+    }
+    .content{
+      min-width: 35rem;
+    }
+</style>
+{% endblock content %}

@@ -8,8 +8,11 @@ verify_ssl = true
 [packages]
 django = "==3.0.3"
 pymysql = "*"
-django-rest-framework = "*"
 django-crispy-forms = "*"
+django-crontab = "*"
+python-crontab = "*"
+django-notification-hq = "*"
+django-notifications-hq = "*"
 
 [requires]
 python_version = "3.7"

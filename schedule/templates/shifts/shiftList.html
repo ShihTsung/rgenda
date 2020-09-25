@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %} 班別管理 {% endblock %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>班別管理</h3>
+  </div>
+
+  {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+        {{message}}
+    </div>
+  {% endfor %}
+  <shifts-list
+  csrf-token="{{ csrf_token }}"
+  :my-department-id="{{ user.department.id }}"></shifts-list>
+</div>
+
+{% block head %}
+
+<script src="{% static 'assets/shift-list.bundle.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import pytz
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.messages import constants as messages
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,8 +27,9 @@ SECRET_KEY = '3mi1ba0@-#df52x1s@-3a^tzb%a6bx^z(0!ijyi25^o2f)+@u3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.55', '124.219.88.108']
 
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -40,15 +41,45 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account.apps.AccountConfig',
-    'mainpage',
+    'corsheaders',
+    'rest_framework',
     'crispy_forms',
+    'mainpage',
+    'api',
+    'result',
+    'station',
+    'demand',
+    'shift',
+    'date',
+    'remarks',
+    'reservation',
+    'notifications',
+    'notice',
+    'drf_yasg',
+    'django_mysql',
 ]
 
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,6 +99,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -76,6 +108,36 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'schedule.wsgi.application'
+
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:*',
+]
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+)
 
 
 # Database
@@ -116,18 +178,33 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+# messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}
 
+# email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'service@redfalcon-hpc.com'
+EMAIL_HOST_PASSWORD = 'qzvlwieykdwwyjfz'
+EMAIL_USE_TLS = 'True'
+EMAIL_POST = '587'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hant'
 
-TIME_ZONE = 'UTC'
-
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Taipei'
 USE_I18N = True
-
-USE_L10N = True
+DATE_FORMAT = 'Y-m-d'
+USE_L10N = False
 
 USE_TZ = True
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
@@ -136,13 +213,17 @@ LANGUAGES = [
     ('zh-hant', _('Traditional Chinese')),
 ]
 
+
+# SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+LOGIN_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-
-LOGIN_REDIRECT_URL = '/'
 STATIC_URL = '/static/'
-AUTH_USER_MODEL = 'account.CustomUser'  # new
+MEDIA_URL = '/images/'
+AUTH_USER_MODEL = 'account.CustomUser'  # self defined user model
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+MEDIA_ROOT = '/code/schedule/prod_static/images'
+STATIC_ROOT = '/code/schedule/prod_static/'

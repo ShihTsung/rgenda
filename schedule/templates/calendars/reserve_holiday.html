@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}預約休假{% endblock %}
+
+
+<!-- 加入full calendar套件 -->
+{% block content %}
+<div class="container">
+
+  <div class="greet text-center">
+    {% if user.is_authenticated %}
+    <h1> 預約休假 </h1>
+    {% endif%}
+  </div>
+  <!-- 警告訊息 -->
+  <div id="errorAlertModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path
+                  d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" />
+              </svg>
+            </span>
+          </button>
+        </div>
+        <div class="modal-body pt-0">
+          <div class="mb-4 text-center icon_color_red">
+            <svg width="100" height="100" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
+              clip-rule="evenodd">
+              <path
+                d="M12 0c6.623 0 12 5.377 12 12s-5.377 12-12 12-12-5.377-12-12 5.377-12 12-12zm0 1c6.071 0 11 4.929 11 11s-4.929 11-11 11-11-4.929-11-11 4.929-11 11-11zm0 10.293l5.293-5.293.707.707-5.293 5.293 5.293 5.293-.707.707-5.293-5.293-5.293 5.293-.707-.707 5.293-5.293-5.293-5.293.707-.707 5.293 5.293z" />
+            </svg>
+          </div>
+          <h3 class="modal-title rgenda-text-dark-blue mb-4 text-center" id="errorAlertModalText">選擇這天的人數已經超過上限，請考慮別天
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-container">
+    <div id="calendar">
+
+    </div>
+  </div>
+  <!-- <img style="margin-top: 10%; margin-left: 30%;" src="{% static 'logo/on-construction.png' %}"/> -->
+</div>
+{% endblock %}
+
+<!-- 自訂 CSS -->
+
+{% block styles %}
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  #calendar {
+    padding: 2rem;
+    max-width: 900px;
+    background-color: white;
+  }
+
+  .calendar-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+  }
+
+  .bigEvent {
+    height: 2rem;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 2rem;
+  }
+
+  .icon_color_red {
+    fill: red;
+  }
+</style>
+{% endblock %}
+
+
+
+<!-- 自訂 scripts -->
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
+<script>
+  function showAlert(text) {
+    $('#errorAlertModalText').html(text);
+    $('#errorAlertModal').modal('show');
+    setTimeout(function () {
+      $('#errorAlertModal').modal('hide')
+    }, 5000);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var Calendar = FullCalendar.Calendar;
+    var Draggable = FullCalendarInteraction.Draggable;
+    var calendarEl = document.getElementById('calendar');
+    var initialLocaleCode = 'en';
+    var localeSelectorEl = document.getElementById('locale-selector')
+    let locked_days = new Array()  // 紀錄被鎖的日期
+    let choosed_days = new Array() // 紀錄目前被選的日期
+    let curr_user = {}
+    let days = {}
+    let max = parseInt("{{max}}")
+
+    fetch('/api/users/curr')
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        curr_user = data;
+      })
+
+
+    //  fullcalender define
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      plugins: ['interaction', 'dayGrid'],
+      selectable: true,
+      selectHelper: true,
+      theme: true,
+      editable: true,
+      defaultDate: "{{start}}",
+      themeSystem: 'bootstrap',
+      dayRender: function (info) {
+        // console.log(info.date.toISOString().split('T')[0]=='2020-04-13')
+        // dateStr = info.date.toISOString().split('T')[0]
+        // if (days[dateStr].extendedProps.locked === true){
+        //   info.el.style.backgroundColor = 'red';
+        // }
+      },
+      eventLimit: true, // when too many events in a day, show the popover
+      timeZone: 'UTC',
+      locale: 'en',
+      eventOverlap: false,
+      // validRange:{
+      //       start: "{{start}}",
+      //       end: "{{end}}"
+      //     },
+      // 點一下加入事件
+      dateClick: function (info) {
+        if (!locked_days.includes(info.dateStr)) {
+          if (!choosed_days.includes(info.dateStr)) {
+            if (choosed_days.length < max) {
+              newEvent = {
+                user: curr_user.id,
+                year: info.dateStr.split('-')[0],
+                date: info.dateStr.split('T')[0]
+              }
+              fetch('/api/reservations/',
+                {
+                  method: "POST",
+                  headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'content-type': 'application/json'
+                  },
+                  body: JSON.stringify(newEvent)
+                })
+                .then(response => {
+                  return response.json()
+                })
+                .then(jsonData => {
+                  if (jsonData.alarm) {
+                    showAlert(jsonData.alarm);
+                  }
+                  calendar.refetchEvents();
+                });
+            } else {
+              showAlert('超過限制天數！');
+            }
+          }
+        }
+      },
+      customButtons: {
+        submitButton: {
+          text: '  submit  ',
+          click: function () {
+            $.cookie("sideClicked", null, { path: '/', expires: 0 });
+            window.location = "/";
+          }
+        }
+      },
+      eventSources: [{
+        // 每天的資訊
+        events: function (fetchInfo, successCallback, failureCallback) {
+          let url = '/api/dates/'
+          start_str = fetchInfo.startStr
+          end_str = fetchInfo.endStr
+          url += '?start=' + start_str + '&end=' + end_str
+          fetch(url)
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (jsonData) {
+              jsonData.forEach(e => {
+                days[e.start] = e.id
+                if (e.title == 'holiday') {
+                  e.color = 'yellow';
+                }
+                else {
+                  e.color = 'white';
+                }
+                if (e.extendedProps.locked == true) {
+                  e.color = 'red';
+                  locked_days.push(e.start);
+                }
+                e.rendering = "background";
+                e.overlap = true;
+              })
+              successCallback(jsonData);
+
+            })
+        }
+      }, {
+        // 已經預定的資料
+        events: function (fetchInfo, successCallback, failureCallback) {
+          choosed_days = new Array()
+          let url = '/api/reservations/'
+          start_str = fetchInfo.startStr
+          end_str = fetchInfo.endStr
+          url += '?start=' + start_str + '&end=' + end_str
+          url += '&mode=personal'
+          fetch(url)
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              data.forEach(e => {
+                e.className = 'bigEvent';
+                e.title = "預約休假";
+                e.textColor = 'white';
+                e.overlap = false;
+                choosed_days.push(e.date)
+              });
+              successCallback(data);
+            });
+        }
+      }],
+      eventClick: function (info) {
+        fetch('/api/reservations/' + info.event.id + '/', {
+          method: "DELETE",
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+        }).then(res => {
+          calendar.refetchEvents();
+        });
+        // 點擊事件可以刪除
+        // index = choosed_days.indexOf(info.event.start.toISOString().split('T')[0])
+        // console.log(index)
+
+        // info.event.remove();
+
+      },
+      header: {
+        left: 'prev',
+        center: 'title',
+        right: 'next'
+      },
+      showNonCurrentDates: false,
+      droppable: true,
+    });
+    if ("{{LANG}}" == 'zh-hant') {
+      calendar.setOption('locale', 'zh-tw');
+    }
+    calendar.render();
+
+
+    // 印出目前顯示的最早與最晚時間
+
+    //console.log(calendar.view.activeStart);
+    //console.log(calendar.view.activeEnd);
+  });
+</script>
+{% endblock %}

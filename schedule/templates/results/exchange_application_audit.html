@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}部門調班審核{% endblock %}
+
+{% block content %}
+<div id="app" class="container">
+    <h3>部門調班審核</h3>
+    <hr/>
+    <h4 class="modal-title">待審核表單</h4>
+    <application-audit csrf-token="{{ csrf_token }}"></application-audit>
+    <hr/>
+    <h4 class="modal-title">紀錄查詢</h4>
+    <application-records csrf-token="{{ csrf_token }}"></application-records>
+</div>
+
+<script src="{% static 'assets/application-audit.bundle.js' %}"></script>
+
+{% endblock %}
+{% block styles %}
+{% endblock %}

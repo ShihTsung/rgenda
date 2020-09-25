@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %} 個人資料維護 {% endblock %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+
+<div id="app" class="container">
+
+  <add-license
+  :user-id="{{ target_user.id }}"
+  username="{{ target_user.username }}"
+  csrf-token="{{ csrf_token }}"></add-license>
+
+  <div class="row">
+    <div class="col-6">
+      <div class="d-flex">
+        <div style="background-color:{{user_color}};width:4rem;height:4rem;"
+        class="rounded d-flex justify-content-center align-items-center">
+          <h3 style="color:white;">
+            {%if target_user.level > 4%}
+            Nn
+            {%else%}
+            N{{target_user.level}}
+            {%endif%}</h3>
+        </div>
+        <div class="col">
+          <h2>{{target_user.full_name}}</h2>
+          <h5>{{target_user.department}}-{{target_user.job_title}}</h5>
+        </div>
+      </div>
+
+      <table class="table table-striped table-bordered">
+        <tbody>
+          <tr>
+            <td>帳號</td>
+            <td>{{target_user.username}}</td>
+          </tr>
+          <tr>
+            <td>{% trans 'email' %}</td>
+            <td>{{target_user.email}}</td>
+          </tr>
+          <tr>
+            <td>員工編號</td>
+            <td>{{target_user.eid}}</td>
+          </tr>
+          <tr>
+            <td>性別</td>
+            <td>{{target_user.gender_text}}</td>
+          </tr>
+          <tr>
+            <td>到職日</td>
+            <td>{{target_user.onboard_date}}</td>
+          </tr>
+          <tr>
+            <td>特休(未休/可休)</td>
+            <td>{{unused}}/{{target_user.special_rest_num}}</td>
+          </tr>
+          <tr>
+            <td>累計補休</td>
+            <td>0</td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      <h2> 排班狀況</h2>
+      <br>
+      <table class="table table-striped table-bordered">
+        <tbody>
+          <tr>
+            <td>排班狀況</td>
+            <td>{%if target_user.can_be_scheduled%}
+              一般排班
+              {%else%}
+              暫停排班
+              {%endif%}
+            </td>
+          </tr>
+          <tr>
+            <td>排班身份</td>
+            <td>
+              {{target_user.type_of_user_text}}
+            </td>
+          </tr>
+          <tr>
+            <td>排班規則</td>
+            <td>
+              {{rule}}
+            </td>
+          </tr>
+          <!-- <tr>
+            <td>包班</td>
+            <td>
+              X
+            </td>
+          </tr> -->
+          <tr>
+            <td>其他</td>
+            <td>
+              {%if target_user.pregnant%}
+              妊娠/哺乳期
+              {%else%}
+              無
+              {%endif%}
+            </td>
+          </tr>
+          <tr>
+            <td>已休週末及國定假日</td>
+            <td>
+              {{target_user.holiday_rest_num_used}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-6 right">
+      <h3>待簽核表單</h3>
+      <div class="card audit-card">
+        {% if applications %}
+        {% for app in applications %}
+        {% endfor %}
+        {% else %}
+        <div>無待簽核表單</div>
+        {% endif %}
+      </div>
+      <div>
+        <h3>證照管理
+          {% if target_user == user%}
+          <div class="float-right">
+            <a href="#" id="newLiscense" class="icon-bts border-0 m-0" data-toggle="modal" data-target="#addLicenseModal"
+            data-tooltip="tooltip" title="新增證照"><svg xmlns="http://www.w3.org/2000/svg" class="icon-color" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/></svg></a>
+          </div>
+          {% endif %}
+        </h3>
+      </div>
+
+      <div class="card liscense-card">
+        {% if liscense %}
+        {% for app in applications %}
+        {% endfor %}
+        {% else %}
+        <div>無證照</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+  {% if target_user == user %}
+  <a href="/accounts/change_password" class="btn btn-rgenda">
+    {% trans 'ChangePassword' %}</a>
+  {% endif %}
+  {% if user.is_staff %}
+  <a href="/accounts/update/{{target_user.id}}" class="btn btn-rgenda">{% trans 'Edit' %}</a>
+  {% endif %}
+
+</div>
+
+<style scoped>
+  table {
+    font-size: 1rem;
+    background-color: white;
+    box-shadow: 0 0 1px 0;
+  }
+
+  .right h3 {
+    margin-top: 2.5rem;
+  }
+
+  .audit-card {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 3rem;
+    box-shadow: 0 0 1px 0;
+  }
+
+  .liscense-card {
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 10rem;
+    box-shadow: 0 0 1px 0;
+  }
+
+  .right a {
+    float: right;
+    margin-top: 2.8rem;
+  }
+
+  .preview {
+    width: 100%;
+  }
+</style>
+
+<script src="{% static 'assets/account-detail.bundle.js' %}"></script>
+
+<script>
+  // let newLiscenseBtn = document.querySelector('#newLiscense');
+  // newLiscenseBtn.addEventListener('click', function () {
+  //   $('#myModal').modal();
+  // });
+
+  // function readURL(input) {
+  //   if (input.files && input.files[0]) {
+  //     var imageTagID = input.getAttribute("targetID");
+  //     console.log(input.files)
+  //     let img = document.createElement('img');
+  //     img.classList.add('preview');
+  //     let prewin = document.getElementById(imageTagID);
+  //     prewin.innerHTML = '';
+  //     prewin.appendChild(img);
+  //     var reader = new FileReader();
+  //     reader.onload = function (e) {
+  //       img.setAttribute("src", e.target.result);
+  //     }
+  //     reader.readAsDataURL(input.files[0]);
+  //   }
+  // }
+  // // 送出表單
+  // let form = document.querySelector('#addLiscense');
+  // // form.addEventListener('submit', function(ev){
+  // //     ev.preventDefault();
+  // //     let uploadData = new FormData();
+  // //     let file = form.elements.liscensePicture.files[0]
+  // //     uploadData.append('liscense_name', form.elements.liscenseName)
+  // //     uploadData.append('liscense_date', form.elements.liscenseDate)
+  // //     uploadData.append('liscense_due_date', form.elements.liscenseDueDate)
+  // //     // uploadData.append('liscense_picture', file, file.name);
+  // //     // file = form.elements.liscensePicture2.files[0]
+  // //     // uploadData.append('liscense_picture2', file, file.name);
+  // //     console.log(uploadData)
+
+  // // });
+  // document.getElementById('save').addEventListener('click', function (e) {
+  //   // e.preventDefault();
+  //   user = "{{user.id}}";
+  //   let form = document.querySelector('#addLiscense');
+  //   let uploadData = new FormData();
+  //   uploadData.append('name', form.elements.liscenseName);
+  //   uploadData.append('user', user);
+  //   uploadData.append('date', form.elements.liscenseDate);
+  //   uploadData.append('due', form.elements.liscenseDueDate);
+  //   for (var pair of uploadData.entries()) {
+  //     console.log(pair[0]+ ', ' + pair[1]);
+  //   }
+
+  // });
+</script>
+
+{% endblock %}

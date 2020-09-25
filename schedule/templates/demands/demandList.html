@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} 人力配置管理 {% endblock %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div id="app" class="container">
+  <div class="title text-left">
+    <h3>人力配置管理</h3>
+  </div>
+
+  <demand-list
+  :user-id="{{ user.id }}"
+  username="{{ user.username }}"
+  csrf-token="{{ csrf_token }}"
+  :my-department-id="{{ user.department.id }}"></demand-list>
+
+  {% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    {{message}}
+  </div>
+  {% endfor %}
+</div>
+
+{% block head %}
+<script src="{% static 'assets/demand-list.bundle.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

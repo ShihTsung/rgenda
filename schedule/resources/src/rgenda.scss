@@ -1,0 +1,117 @@
+$color-dark-blue: #37419a;
+$color-dark-blue-2:#303987;
+$color-light-gray:#d0d0d0;
+$icon-color: #a6a6a6;
+
+.btn-outline-rgenda {
+  color: $color-dark-blue;
+  border-color: $color-dark-blue;
+}
+
+.btn-outline-rgenda:hover {
+  color: $color-light-gray;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue;
+}
+
+.btn-rgenda {
+  color: #fff;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue;
+}
+
+.btn-rgenda:hover {
+  color: $color-light-gray;
+  border-color: $color-dark-blue;
+  background-color: $color-dark-blue-2;
+}
+
+.w-1p5 {
+  width: 1.5em;
+}
+
+.icon-bts {
+  display: inline-block;
+  font-weight: 400;
+  border: 1px solid $icon-color;
+  border-radius: .25rem;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  margin: .25em;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: $icon-color;
+}
+
+.icon-bts:hover {
+  background-color: $icon-color;
+  border-color: $icon-color;
+  color: #fff;
+}
+
+.icon-color {
+  fill: $icon-color;
+}
+
+.icon-bts:hover svg path {
+  fill: #fff;
+}
+
+.icon-bts.btn-sm {
+  padding: .25rem .5rem;
+}
+
+.modal-title {
+  color: $color-dark-blue;
+}
+
+.rgenda-text-dark-blue {
+  color: $color-dark-blue !important;
+}
+
+.rgenda-table {
+  background-color: #fff;
+}
+
+.rgenda-table thead th {
+  background-color: #f4f5f8;
+}
+
+.dayShift {
+  color: #ebc57c;
+}
+
+.nightShift {
+  color: #84b1ed;
+}
+
+.graveyardShift {
+  color: #6b799e;
+}
+
+.rest {
+  color: #c2c2c2;
+}
+
+.restR {
+  background: #adaaaa !important;
+  color: black;
+}
+
+.onCall {
+  color: #9c8f96;
+}
+
+.adminis {
+  color: #58b4ae;
+}
+
+.addWork {
+  color: #eb8f90;
+}
+
+.subWork {
+  color: #3d313f;
+}

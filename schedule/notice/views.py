@@ -1,0 +1,36 @@
+from django.shortcuts import render, redirect
+from django.views import View
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from account.models import Department
+
+
+class CommentNoticeListView(LoginRequiredMixin, ListView):
+    """通知列表"""
+    # 上下文的名稱
+    context_object_name = 'notices'
+    # 模板位置
+    template_name = 'notice/list.html'
+    # 登錄重定向
+    login_url = '/login/'
+
+    # 未讀通知的查詢集
+    def get_queryset(self):
+        return self.request.user.notifications.all()
+
+
+class CommentNoticeUpdateView(View):
+    """更新通知狀態"""
+    # 處理 get 請求
+    def get(self, request):
+        # 獲取未讀消息
+        notice_id = request.GET.get('notice_id')
+        # 更新單條通知
+        if notice_id:
+            notice = request.user.notifications.get(id=notice_id)
+            notice.mark_as_read()
+            return redirect(notice.description)
+        # 更新全部通知
+        else:
+            request.user.notifications.mark_all_as_read()
+            return redirect('notice:list')

@@ -12,15 +12,48 @@ services:
     env_file:
       - ./.env
     restart: on-failure:3
+  nginx:
+    container_name: nginx-container
+    build: ./nginxconf
+    restart: always
+    ports:
+      # - "8080:80"
+      - "80:80"
+    volumes:
+      - .:/code
+      - ./schedule:/code/schedule
+      - ./log:/var/log/nginx
+    depends_on:
+      - app
   app:
-    restart: on-failure:3
-    build: . # Current directory!
-    command: bash -c "cd schedule && python3 manage.py makemigrations && python3 manage.py migrate && python3 scripts/fake_data.py && python3 manage.py runserver 0.0.0.0:80"
+    restart: always
+    build: ./schedule 
+    # command: bash -c "cd schedule && python3 manage.py crontab add && python3 manage.py makemigrations && python3 manage.py migrate &&  python3 manage.py runserver 0.0.0.0:80"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        python3 manage.py crontab add
+        python3 manage.py collectstatic --noinput
+        django-admin compilemessages
+        python3 manage.py makemigrations
+        python3 manage.py migrate
+        uwsgi --ini /code/schedule/uwsgi_conf.ini
     container_name: schedule_web
     volumes:
       - .:/code
-    ports:
-      - 80:80
+      - ./schedule:/code/schedule
+    # ports:
+    #   - 80:80
     depends_on:
       - db
-  
+  cron:
+    build: ./schedule
+    container_name: cronjob
+    command: 
+      - /bin/sh
+      - -c
+      - cron -f
+    volumes:
+      - .:/code
+      - ./schedule:/code/schedule

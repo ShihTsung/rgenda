@@ -1,0 +1,269 @@
+from date.models import H_Calendar
+from account.models import CustomUser as User
+from account.models import Department
+from copy import deepcopy
+from scripts.get_date_range import *
+from datetime import time, datetime, timedelta, date
+from collections import defaultdict
+from date.models import H_Calendar
+from result.models import Result, PreResult
+from account.views import cycle_analysis, get_cycle, assign_user
+
+
+def check_result(d_id, month_to_check):
+    """
+    """
+    invalid = defaultdict(list)
+    department = Department.objects.get(id=d_id)
+    try:
+        results = Result.objects.filter(date__month=month_to_check, station__department=department).order_by('date')
+    except Result.DoesNotExist:
+        return []
+    to_check = defaultdict(list)
+    for result in results:
+        to_check[result.user.id].append(result)
+    for user_id, schedule in to_check.items():
+        check_cycle(department, deepcopy(schedule), invalid)
+        check_rest_day(department, deepcopy(schedule), invalid)
+        check_rest_hour(deepcopy(schedule), invalid)
+        if User.objects.get(id=user_id).pregnant:
+            check_hour_pregnant(deepcopy(schedule), invalid)
+    invalid = dict(invalid)
+    output = [{
+        'id': ind,
+        'reason': val,
+    } for ind, val in invalid.items()]
+    return output
+
+
+def check_pre_result(d_id, month_to_check):
+    """
+    """
+    invalid = defaultdict(list)
+    department = Department.objects.get(id=d_id)
+    try:
+        results = PreResult.objects.filter(date__month=month_to_check, station__department=department).order_by('date')
+    except PreResult.DoesNotExist:
+        return []
+    to_check = defaultdict(list)
+    for result in results:
+        to_check[result.user.id].append(result)
+    for user_id, schedule in to_check.items():
+        check_cycle(department, deepcopy(schedule), invalid)
+        check_rest_day(department, deepcopy(schedule), invalid)
+        check_rest_hour(deepcopy(schedule), invalid)
+        if User.objects.get(id=user_id).pregnant:
+            check_hour_pregnant(deepcopy(schedule), invalid)
+    invalid = dict(invalid)
+    output = [{
+        'id': ind,
+        'reason': val,
+    } for ind, val in invalid.items()]
+    return output
+
+
+def check_cycle(department, results, invalid):
+    """
+    檢查 單週/單月/三月 內班種是否相同，增加 unique shift type in 1 week/1 month/3 months
+    :param department:
+    :param results:
+    :param invalid:
+    :return:
+    """
+    date0 = results[0].date
+    user = results[0].user
+
+    # 單週同班種
+    if department.schedule_rule == 0:
+        ca = cycle_analysis(department, date0)
+        current_shift_type = None
+        i = ca['day_no']
+        for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
+            if d < date0:
+                try:
+                    results.insert(0, Result.objects.get(date=d, user=user))
+                    i -= 1
+                except Result.DoesNotExist:
+                    break
+            else:
+                break
+        for result in results:
+            if i % 7 == 0:
+                current_shift_type = None
+            if current_shift_type is None and result.shift.shift_type in [0, 1, 2, 7]:
+                current_shift_type = result.shift.shift_type
+            elif result.shift.shift_type in [0, 1, 2, 7] and result.shift.shift_type != current_shift_type and result.date >= date0:
+                invalid[result.id].append('不合排班條件：每週排同一種班')
+            i += 1
+        return None
+    # 三月同班種 & 需與前一個月同班種
+    if department.schedule_rule == 2 and date0.month % 3 != department.month_cycle:
+        current_shift_type = None
+        results_last_month = Result.objects.filter(date__month=results[0].date.month - 1,
+                                                   user=user,
+                                                   shift__shift_type__in=[0, 1, 2, 7])
+        shift_types = [
+            result.shift.shift_type for result in results_last_month]
+        counter = 0
+        for st in [0, 1, 2, 7]:
+            if shift_types.count(st) > counter:
+                counter = shift_types.count(st)
+                current_shift_type = st
+        for result in results:
+            if result.shift.shift_type in [0, 1, 2, 7] and result.shift.shift_type != current_shift_type:
+                invalid[result.id].append('不合排班條件：三個月排同一種班')
+        return None
+    # 單月同班種 or 三月同班種且為第一個月
+    shift_types = [
+        result.shift.shift_type for result in results if result.shift.shift_type in [0, 1, 2, 7]]
+    counter = 0
+    current_shift_type = None
+    for st in [0, 1, 2, 7]:
+        if shift_types.count(st) > counter:
+            counter = shift_types.count(st)
+            current_shift_type = st
+    invalid_type = [0, 1, 2, 7]
+    try:
+        invalid_type.remove(current_shift_type)
+    except ValueError:
+        print(current_shift_type)
+    for result in results:
+        if result.shift.shift_type in invalid_type:
+            if department.schedule_rule == 2:
+                invalid[result.id].append('不合排班條件：三個月排同一種班')
+            else:
+                invalid[result.id].append('不合排班條件：每月排同一種班')
+    return None
+
+
+def check_rest_day(department, results, invalid):
+    """
+    檢查
+    1. 連續工作超過6天，增加 continue working over 6 days
+    2. 單一週期內休假數目不足，增加 workday too much in the cycle
+    3. 週末/國定假日休假額度用完，增加 holiday rest out of limit
+    :param department:
+    :param results:
+    :param invalid:
+    :return:
+    """
+    user = results[0].user
+    holiday_rest_remain = user.holiday_rest_num - user.holiday_rest_num_used
+    date0 = results[0].date
+    ca = cycle_analysis(department, date0)
+    ind = ca['day_no']
+    # add previous results to make a complete cycle
+    for d in get_cycle(department, ca['cycle_no'])[-1::-1]:
+        if d < date0:
+            try:
+                results.insert(0, Result.objects.get(date=d, user=user))
+                ind -= 1
+            except Result.DoesNotExist:
+                break
+    # get continue workday number
+    last_week_results = Result.objects.filter(
+        date__in=[results[0].date - timedelta(days=i) for i in range(1, 8)],
+        user=user).order_by('date')
+    continue_workday = 0
+    for result in last_week_results:
+        if result.shift.shift_type in [0, 1, 2, 3, 7]:
+            continue_workday += 1
+        else:
+            continue_workday = 0
+    # start checking
+    work_days_limit = 5 * 2 ** department.law_rule * \
+        (7 * 2 ** department.law_rule - ind) / (7 * 2 ** department.law_rule)
+    work_days = 0
+    for result in results:
+        attr = H_Calendar.objects.get(date=result.date).attribute
+        if ind % (7 * 2 ** department.law_rule) == 0:
+            work_days_limit = 5 * 2 ** department.law_rule
+            work_days = 0
+        if attr == 'holiday':
+            work_days_limit -= 1
+        if result.shift.shift_type in [0, 1, 2, 3, 7]:
+            continue_workday += 1
+            work_days += 1
+        else:
+            continue_workday = 0
+            if H_Calendar.objects.filter(date=result.date).first().attribute in ['weekend', 'holiday']:
+                holiday_rest_remain -= 1
+        if continue_workday > 6 and result.date >= date0:
+            invalid[result.id].append('不合法規：7天需有1天例假')
+        if work_days > work_days_limit and result.date >= date0 and result.shift.shift_type in [0, 1, 2, 3, 7]:
+            invalid[result.id].append('不合法規：週期內休息日不足')
+        if holiday_rest_remain < 0 and attr == 'holiday' and result.shift.shift_type in [5, 6]:
+            invalid[result.id].append('超過可休週末及國定假日數')
+        ind += 1
+    return None
+
+
+def check_rest_hour(results, invalid):
+    """
+    檢查兩班之間休息是否過11小時，不足的話增加 rest time less than 11 hours
+    :param results:
+    :param invalid:
+    :return:
+    """
+    try:
+        last_result = Result.objects.get(
+            user=results[0].user, date=results[0].date - timedelta(days=1))
+        last_off_time = datetime.combine(
+            last_result.date, time(hour=0, minute=0, second=0))
+        if last_result.shift.shift_type in [0, 1, 2, 7]:
+            if last_result.shift.start_time > last_result.shift.end_time:
+                last_off_time = datetime.combine(
+                    last_result.date, last_result.shift.end_time) + timedelta(days=1)
+            else:
+                last_off_time = datetime.combine(
+                    last_result.date, last_result.shift.end_time)
+    except Result.DoesNotExist:
+        last_off_time = datetime.combine(results[0].date, time(
+            hour=0, minute=0, second=0)) - timedelta(days=1)
+    for result in results:
+        if result.shift.shift_type in [0, 1, 2, 7]:
+            start_time = datetime.combine(result.date, result.shift.start_time)
+            if start_time - last_off_time < timedelta(hours=11):
+                invalid[result.id].append('不合法規：兩班之間需間隔11小時')
+            if result.shift.start_time > result.shift.end_time:
+                last_off_time = datetime.combine(
+                    result.date, result.shift.end_time) + timedelta(days=1)
+            else:
+                last_off_time = datetime.combine(
+                    result.date, result.shift.end_time)
+    return None
+
+
+def check_hour_pregnant(results, invalid):
+    """
+    檢查孕婦上班時間是否早於6點或下班時間晚於22點，是的話增加 pregnant woman work between 22 PM to 6 AM
+    :param results:
+    :param invalid:
+    :return:
+    """
+    for result in results:
+        if result.shift.shift_type in [0, 1, 2] and not (
+                result.shift.start_time >= time(hour=6, minute=0) and result.shift.end_time <= time(hour=22, minute=0)):
+            invalid[result.id].append('不合排班身份：妊娠或哺乳期間不得於晚上10點後工作')
+    return None
+
+
+def get_work_time(result):
+    """
+    取得上下班時間，若為休假則上班時間為 23:59:59、下班時間為 00:00:00
+    :param result:
+    :return:
+    """
+    if result.shift.shift_type in [0, 1, 2]:
+        work_time = datetime.combine(result.date, result.shift.start_time)
+        off_time = datetime.combine(result.date, result.shift.end_time)
+        if result.shift.end_time < result.shift.start_time:
+            off_time += timedelta(days=1)
+        if result.shift.shift_type == 2 and result.shift.start_time == time(hour=0, minute=0):
+            work_time += timedelta(days=1)
+            off_time += timedelta(days=1)
+    else:
+        work_time = datetime.combine(
+            result.date, time(0, 0, 0)) + timedelta(days=1)
+        off_time = datetime.combine(result.date, time(0, 0, 0))
+    return work_time, off_time
