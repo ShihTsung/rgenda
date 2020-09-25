@@ -626,6 +626,16 @@ def check_eoa(user, date):
     return 0
 
 
+def check_noe(user, date):
+    try:
+        last = Result.objects.get(user=user, date=date - timedelta(days=1))
+    except Result.DoesNotExist:
+        return 0
+    if last.shift.shift_type == 2:
+        return 1
+    return 0
+
+
 def create_result(request, department_id, start, end):
     """
 

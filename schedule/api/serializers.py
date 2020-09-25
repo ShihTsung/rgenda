@@ -324,11 +324,11 @@ class PreResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
@@ -342,11 +342,11 @@ class ResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
@@ -361,11 +361,11 @@ class AfterResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
