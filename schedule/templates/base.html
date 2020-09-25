@@ -259,25 +259,23 @@
                     </div>
                     {% endif %}
 
-                    <!-- <div id="side-arrange" class="list-group-item list-group-item-action sidebar_w fold_m">
+                    <div id="side-arrange" class="list-group-item list-group-item-action sidebar_w fold_m">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 18c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm-14-3c-1.654 0-3 1.346-3 3s1.346 3 3 3h14c1.654 0 3-1.346 3-3s-1.346-3-3-3h-14zm19 3c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm0-12c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm-15 0c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2z"/></svg>
                         調班管理
-                    </div> -->
+                    </div>
                     <!-- sidebar shrink -->
-                    <!-- <div class="side_s" id="arrange" style="visibility: hidden;">
+                    <div class="side_s" id="arrange" style="visibility: hidden;">
                         <svg class="icon_color icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path d="M19 18c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm-14-3c-1.654 0-3 1.346-3 3s1.346 3 3 3h14c1.654 0 3-1.346 3-3s-1.346-3-3-3h-14zm19 3c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm0-12c0 2.761-2.239 5-5 5h-14c-2.761 0-5-2.239-5-5s2.239-5 5-5h14c2.761 0 5 2.239 5 5zm-15 0c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2z"/></svg>
-                    </div> -->
+                    </div>
 
-                    <!-- <div id="arr_fold" class="fold arr">
+                    <div id="arr_fold" class="fold arr">
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_audit" class="fold_obj sidebar_w">
-                            部門調班審核</a>
-                        {% if user.role in 'admin, manager' or user.is_superuser %}
+                            調班審核</a>
                         <a id="side-arrange" style="color: #37419A;" href="/results/exchange_application_list" class="fold_obj sidebar_w">
-                            我的調班申請</a>
-                        {% endif %}
+                            調班申請</a>
                         <a id="side-arrange" style="color: #37419A;" href="/results/time_adjustment" class="fold_obj sidebar_w">
-                            我的調班紀錄</a>
-                    </div> -->
+                            調班紀錄</a>
+                    </div>
 
                     {% if user.role in 'admin, manager' or user.is_superuser %}
                     <div id="side-work-manage" class="list-group-item list-group-item-action sidebar_w fold_m">
