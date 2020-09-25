@@ -1465,8 +1465,7 @@ export default {
                 },
               };
         promise = this.$httpClient.post("/api/time-adjustment/", e, config).then(res=>{
-            console.log('success');
-            console.log(res.data);
+            console.log(res);
           })
           .catch(err=>{
             console.log(err);
