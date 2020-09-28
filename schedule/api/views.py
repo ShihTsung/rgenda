@@ -3606,14 +3606,3 @@ def ordered_users(request):
         data['sort'] = i
         i += 1
     return Response(res_data)
-
-# @swagger_auto_schema(
-#     methods=['post'],
-#     operation_summary='加班並且修改班別',
-#     # manual_parameters=[start, end],
-# )
-# @api_view(['POST'])
-# @permission_classes([permissions.IsAuthenticated, ])
-# @parser_classes([JSONParser])
-# def rest_to_shift(request):
-#     target = request.data[id]
