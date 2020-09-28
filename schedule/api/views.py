@@ -78,7 +78,7 @@ class IsManagerOrReadOnly(BasePermission):
 
 
 get_all = openapi.Parameter('all', openapi.IN_QUERY,
-                            description="全部或是單一部門", type=openapi.TYPE_BOOLEAN)
+                            description="全部或是單一部門", type=openapi.TYPE_STRING)
 start_date = openapi.Parameter('start', openapi.IN_QUERY,
                                description="開始日期", type=openapi.TYPE_STRING)
 start = openapi.Parameter('start', openapi.IN_QUERY,
@@ -468,7 +468,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         queryset = Shift.objects.all()
         user = self.request.user
         if self.request.query_params:
-            if self.request.query_params.get('all') == "True":
+            if self.request.query_params.get('all') == "true":
                 queryset = queryset
             else:
                 queryset = queryset.filter(department=user.department)
