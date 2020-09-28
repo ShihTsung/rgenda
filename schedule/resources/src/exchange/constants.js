@@ -33,7 +33,37 @@ APPLICATION_STATUS_CONST.install = function (Vue, options) {
     return obj.hasOwnProperty(key) ? obj[key] : 'N/A';
   }
 
-  Vue.prototype.$getNextStep = (key) => {
-    return statusFlow.hasOwnProperty(key) ? statusFlow[key] : null;
+  Vue.prototype.$getNextStep = (key, choice) => {
+    if (statusFlow.hasOwnProperty(key)) {
+      if (statusFlow[key][choice]) {
+        return statusFlow[key][choice];
+      }
+      return statusFlow[key].next;
+    }
+    return null;
+  }
+
+  Vue.prototype.$userApprovable = (key) => {
+    return APPLICATION_STATUS_CONST.TO_BE_CONFIRM === key;
+  }
+
+  Vue.prototype.$managerApprovable = (key) => {
+    return APPLICATION_STATUS_CONST.REVIEWING === key;
+  }
+
+  Vue.prototype.$withdrawable = (key) => {
+    const withdrawable = [
+      APPLICATION_STATUS_CONST.TO_BE_CONFIRM,
+      APPLICATION_STATUS_CONST.REVIEWING,
+    ];
+    return withdrawable.indexOf(key) >= 0;
+  }
+
+  Vue.prototype.$confirmable = (key) => {
+    const confirmable = [
+      APPLICATION_STATUS_CONST.REJECT,
+      APPLICATION_STATUS_CONST.APPROVE,
+    ];
+    return confirmable.indexOf(key) >= 0;
   }
 }

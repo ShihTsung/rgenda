@@ -11,7 +11,8 @@
   <h3>調班審核</h3>
   {% endif %}
   <hr />
-  <application-audit role="{{ user.role }}" is-superuser="{{ user.is_superuser }}" csrf-token="{{ csrf_token }}">
+  <application-audit role="{{ user.role }}" is-superuser="{{ user.is_superuser }}" csrf-token="{{ csrf_token }}"
+    user-id="{{ user.id }}" user-name="{{ user.full_name }}">
   </application-audit>
 </div>
 

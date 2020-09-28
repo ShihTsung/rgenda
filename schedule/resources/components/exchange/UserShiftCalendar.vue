@@ -5,7 +5,6 @@
 <script>
 import FullCalendar from "@fullcalendar/vue";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import moment from "moment";
 import { shiftColor, adjustColor } from "src/constants/color";
 import { getShiftTimeStr } from "src/exchange/util";
 

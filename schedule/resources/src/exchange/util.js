@@ -25,7 +25,7 @@ export function getShiftTimeStr(shift) {
 }
 
 export function getArrow(application) {
-  return application.user_apply_id !== null
+  return application.user_apply !== null
     ? "fas fa-exchange-alt"
     : "fas fa-long-arrow-alt-right";
 }
