@@ -412,7 +412,7 @@
         Promise.all([
           fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users/').then(res => res.json()),
-          fetch('/api/shifts/?all=true').then(res => res.json()),
+          fetch('/api/shifts/?all=True').then(res => res.json()),
           fetch('/api/dates/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr).then(res => res.json())
         ]).then(dataArr => {
