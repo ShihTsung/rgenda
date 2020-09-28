@@ -33,20 +33,20 @@
               <label class="col-sm-4 col-form-label offset-1">跟班</label>
               <select class="col-sm-6 form-control" v-model="follower">
                 <option selected disabled="disabled" style="display: none" value></option>
-                <option v-for="f in findFollowers()" :key="f.eid" :value="f.id">{{f.full_name}}</option>
+                <option v-for="f in findFollowers()" :key="`d${f.eid}`" :value="f.id">{{f.full_name}}</option>
               </select>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">帶班</label>
               <select class="col-sm-6 form-control" v-model="mentor">
                 <option selected disabled="disabled" style="display: none" value></option>
-                <option v-for="t in findMentors()" :key="t.full_name" :value="t.id">{{t.full_name}}</option>
+                <option v-for="t in findMentors()" :key="`k${t.full_name}`" :value="t.id">{{t.full_name}}</option>
               </select>
             </div>
             <div class="form-group row">
               <label class="col-sm-4 col-form-label offset-1">起始日期</label>
               <select class="col-sm-4 col-form-label offset-1" v-model="startDay">
-                <option v-for="i in days()" :key="i"> {{i}} </option>
+                <option v-for="i in days()" :key="`2${i}`"> {{i}} </option>
               </select> <label class="col-sm-1 col-form-label">日</label>
             </div>
             <div class="form-group row">

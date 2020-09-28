@@ -984,10 +984,26 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = ExchangeApplication.objects.all()
         if self.request.query_params:
-            mode = self.request.query_params.get('mode')
-            if mode == 'personal':
+            apply_id = self.request.query_params.get('applyId', None)
+            receive_id = self.request.query_params.get('receiveId', None)
+            department_id = self.request.query_params.get('department', None)
+
+            if department_id:
+                dep = Department.objects.get(id=int(department_id))
+                users = CustomUser.objects.filter(department=dep)
                 queryset = queryset.filter(
-                    user_receive=self.request.user)
+                    user_receive__in=users
+                )
+            if apply_id:
+                user = CustomUser.objects.get(id=int(apply_id))
+                queryset = queryset.filter(
+                    user_apply=user
+                )
+            if receive_id:
+                user = CustomUser.objects.get(id=int(receive_id))
+                queryset = queryset.filter(
+                    user_receive=user
+                )
         return queryset
 
     @swagger_auto_schema(
@@ -995,7 +1011,8 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
-        self.perform_destroy(instance)
+        instance.deleted = True
+        instance.save()
         res = {'message': 'success'}
         return Response(
             data=res,

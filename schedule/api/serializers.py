@@ -637,7 +637,8 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user_apply', 'user_receive',
             'date_start', 'date_end', 'application_status',
-            'receive_result', 'apply_result')
+            'receive_result', 'apply_result', 'created_at', 'is_confirm',
+            'deleted')
 
 
 class NotificationSerializer(serializers.ModelSerializer):
