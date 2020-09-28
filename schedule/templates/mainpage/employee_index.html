@@ -232,7 +232,7 @@
 
         let resultPromise = Promise.all([
           fetch('/api/results/' + queryString).then(res => res.json()),
-          fetch('/api/shifts/?all=true').then(res => res.json()),
+          fetch('/api/shifts/?all=True').then(res => res.json()),
           fetch('/api/stations/').then(res => res.json()),
           fetch('/api/dates/' + queryString).then(res => res.json()),
         ]).then(processResult);
