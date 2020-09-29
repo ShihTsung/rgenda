@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import ApplicationAudit from 'components/exchange/ApplicationAudit.vue';
-import ApplicationRecords from 'components/exchange/ApplicationRecords.vue';
 import VueGoodTablePlugin from 'vue-good-table';
 Vue.use(VueGoodTablePlugin);
 import 'vue-good-table/dist/vue-good-table.css';
@@ -13,6 +12,5 @@ new Vue({
   el: '#app',
   components: {
     ApplicationAudit,
-    ApplicationRecords,
   },
 });
