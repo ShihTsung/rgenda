@@ -455,6 +455,9 @@ class DepartmentManagerViewSet(viewsets.ModelViewSet):
         if mgr1.role != 'admin':
             mgr2.role = 'manager'
             mgr2.save()
+        if not instance.department.admin_in_schedule:
+            users = [mgr1, mgr2]
+            DemandUserTable.objects.filter(user__in=users).delete()
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
