@@ -192,7 +192,9 @@ class ExchangeApplication(models.Model):
         null=True
     )
     is_confirm = models.BooleanField(
-        verbose_name="確認流程結束"
+        verbose_name="確認流程結束",
+        default=False,
+        null=True,
     )
     deleted = models.BooleanField(
         verbose_name="刪除與否",
