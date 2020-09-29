@@ -288,6 +288,8 @@
       :changeShift="changeInfo"
       :shiftData="shiftData"
       :stationPicker="stationPicker"
+      :year="year"
+      :month="month"
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
@@ -384,6 +386,7 @@ export default {
       isSave: false,
       demandList: [],
       promiseData: [],
+      newAdjustmentList: [],
     };
   },
 
@@ -428,11 +431,14 @@ export default {
 
     //取得User的資料
     getUserData() {
-      return fetch("/api/user-resource")
+      return fetch(`/api/user-resource?year=${this.year}&month=${this.month}&rset=preresult`)
         .then((res) => {
           return res.json();
         })
         .then((data) => {
+          data.sort(function (a, b) {
+            return a.sort - b.sort;
+          });
           this.userData = data;
         })
         .catch((err) => {
@@ -1307,14 +1313,14 @@ export default {
       return Boolean(found);
     },
 
-    sendToResults() {
+    async sendToResults() {
       this.followEdit = false;
       this.rsShow = false;
       this.isSave = true;
 
       let promises = [];
 
-      this.changedResult.forEach((i) => {
+      await this.changedResult.forEach((i) => {
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1330,7 +1336,11 @@ export default {
             },
             body: JSON.stringify(data),
             method: "POST",
-          }).catch((err) => {
+          })
+          .then(res=>{
+            console.log(res);
+          })
+          .catch((err) => {
             console.log(err);
           });
         } else {
@@ -1445,8 +1455,30 @@ export default {
         }
         promises.push(promise);
       });
+        // 送出加班資料
+      this.newAdjustmentList.forEach(e=>{
+        let promise;
+        let config = {
+                headers: {
+                  "X-CSRFToken": `${this.csrfToken}`,
+                  "content-type": "application/json",
+                },
+              };
+        promise = this.$httpClient.post("/api/time-adjustment/", e, config).then(res=>{
+            console.log(res);
+          })
+          .catch(err=>{
+            console.log(err);
+          })
+        promises.push(promise);
+      })
+
+
+
 
       Promise.all(promises).then(() => {
+
+        this.getAdjustment();
         this.getPreResults();
         this.getUserRemark();
         this.getRemarkSquareData();
@@ -1457,6 +1489,7 @@ export default {
       this.userRemarks.length = 0;
       this.remarkSquare.length = 0;
       this.resultRS.length = 0;
+      this.newAdjustmentList.length = 0;
       this.isEdit = false;
       this.isCheck = false;
     },
@@ -1601,6 +1634,11 @@ export default {
         });
       });
     },
+    //加入加班資料, 儲存時才送出
+    addAdjustment(adjInfo){
+      this.newAdjustmentList.push(adjInfo);
+      this.adjustHr.push(adjInfo);
+    }
   },
 
   watch: {
