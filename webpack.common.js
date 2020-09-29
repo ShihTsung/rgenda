@@ -15,6 +15,7 @@ module.exports = {
     'account-detail': './accounts/account-detail.js',
     'demand-list': './demands/list.js',
     'exchange-application-audit': './exchange/application-audit.js',
+    'exchange-application-records': './exchange/application-records.js',
     'promise-leave': './promise-leave/promise-leave.js',
     'time-adjustment': './time-adjustment/time-adjustment.js',
     'shift-list': './shifts/shift-list.js',
