@@ -18,27 +18,34 @@
     transform: translateX(-50%);
     margin: 0px 0px 0px 0px !important;
   }
+  .hide{
+    display: none;
+  }
 </style>
 <script>
   var ox = document.createElement('div');
   var oy = document.createElement('div');
+  ox.setAttribute('id', 'ox');
+  oy.setAttribute('id', 'oy');
   ox.style.width = '100%';
   ox.style.height = '2px';
-  ox.style.backgroundColor = '#46A3FF';
+  ox.style.backgroundColor = '#37419A';
   ox.style.position = 'fixed';
   ox.style.left = 0;
   document.body.appendChild(ox);
   oy.style.height = '100%';
   oy.style.width = '2px';
-  oy.style.backgroundColor = '#46A3FF';
+  oy.style.backgroundColor = '#37419A';
   oy.style.position = 'fixed';
   oy.style.top = 0;
   document.body.appendChild(oy);
+  ox.classList.add('hide');
+  oy.classList.add('hide');
   document.onmousemove = function(e){
-  var e = e || event;
-  var x = e.pageX + 10;
-  var y = e.pageY + 20;
-  ox.style.top = y + 'px';
-  oy.style.left = x + 'px';
+    var e = e || event;
+    var x = e.pageX + 10;
+    var y = e.pageY + 20;
+    ox.style.top = y + 'px';
+    oy.style.left = x + 'px';
   };</script>
 {% endblock %}

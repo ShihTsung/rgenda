@@ -8,7 +8,7 @@
         <h2 class="month">&nbsp;{{month}}月</h2>
       </div>
 
-      <div class="bt-group pr-0">
+      <div class="bt-group">
         <div class="icon-bts float-right" data-tooltip="tooltip" title="列印"
         @click="printHtml"
         >
@@ -175,6 +175,19 @@
               />
             </svg>
           </div>
+        </div>
+        <div
+          class="icon-bts float-right"
+          data-tooltip="tooltip"
+          title="輔助線"
+          @click="toggleCross">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            class="icon-color">
+            <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg>
         </div>
       </div>
     </div>
@@ -1638,6 +1651,12 @@ export default {
     addAdjustment(adjInfo){
       this.newAdjustmentList.push(adjInfo);
       this.adjustHr.push(adjInfo);
+    },
+    toggleCross(){
+      let ox = document.getElementById('ox');
+      let oy = document.getElementById('oy');
+      ox.classList.toggle('hide');
+      oy.classList.toggle('hide');
     }
   },
 
@@ -1688,7 +1707,7 @@ export default {
       float: right;
       height: 70px;
       width: 70%;
-      padding: 10px 15px;
+      padding: 10px 50px;
 
       .add-sub-wrapper {
         border: 1px solid #a6a6a6;
