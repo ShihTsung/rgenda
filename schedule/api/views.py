@@ -982,7 +982,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
         return ExchangeApplicationSerializer
 
     def get_queryset(self):
-        queryset = ExchangeApplication.objects.all()
+        queryset = ExchangeApplication.objects.filter(deleted=False)
         if self.request.query_params:
             apply_id = self.request.query_params.get('applyId', None)
             receive_id = self.request.query_params.get('receiveId', None)
@@ -1007,7 +1007,7 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
         return queryset
 
     @swagger_auto_schema(
-        operation_summary='刪除調班',
+        operation_summary='刪除調班(軟刪除)',
     )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
