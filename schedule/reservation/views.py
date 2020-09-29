@@ -71,7 +71,3 @@ def get_promise_other(department, date_start, date_end):
     for pr in promise_rest:
         output[pr.user.id][str(pr.date)] = pr.shift_type
     return output
-
-
-def time_adjustment(request):
-    return render(request, 'time_adjustment/time_adjustment.html')
