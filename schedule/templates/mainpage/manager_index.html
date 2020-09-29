@@ -289,7 +289,7 @@
       },
       resourceOrder: 'sort',
       resources: function (fetchInfo, successCallback, failureCallback) {
-        fetch('/api/stations/?mode=resource/')
+        fetch('/api/stations/?department={{department.id}}')
           .then(res => res.json())
           .then(data => {
             data.forEach(e => {
@@ -412,7 +412,7 @@
         Promise.all([
           fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users/').then(res => res.json()),
-          fetch('/api/shifts/?all=true').then(res => res.json()),
+          fetch('/api/shifts/').then(res => res.json()),
           fetch('/api/dates/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
           fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr).then(res => res.json())
         ]).then(dataArr => {
@@ -699,7 +699,7 @@
   .left {
     width: 20%;
     height: 100%;
-    min-width: 3rem;
+    min-width: 10rem;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
@@ -721,7 +721,7 @@
   }
 
   .label {
-    width: 80%;
+    width: 60%;
   }
 
   .card-header .fa-bars::before {

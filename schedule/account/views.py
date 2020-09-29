@@ -269,7 +269,7 @@ def check_excel(row, users, departments, eids, manager_num, data):
 
 @login_required
 def download_empty_excel(request):
-    file = open('static/RgendaUsers.xlsx', 'rb')
+    file = open('prod_static/RgendaUsers.xlsx', 'rb')
     return FileResponse(file)
 
 

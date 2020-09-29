@@ -8,7 +8,7 @@
         <h2 class="month">&nbsp;{{month}}月</h2>
       </div>
 
-      <div class="bt-group pr-0">
+      <div class="bt-group">
         <div class="icon-bts float-right" data-tooltip="tooltip" title="列印"
         @click="printHtml"
         >
@@ -176,6 +176,16 @@
             </svg>
           </div>
         </div>
+        <div
+          class="icon-bts float-right"
+          data-tooltip="tooltip"
+          title="輔助線"
+          @click="toggleCross">
+          <svg class="icon-color" xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24" viewBox="0 0 24 24">
+            <path d="M24 11h-2.051c-.469-4.725-4.224-8.48-8.949-8.95v-2.05h-2v2.05c-4.725.47-8.48 4.225-8.949 8.95h-2.051v2h2.051c.469 4.725 4.224 8.48 8.949 8.95v2.05h2v-2.05c4.725-.469 8.48-4.225 8.949-8.95h2.051v-2zm-11 8.931v-3.931h-2v3.931c-3.611-.454-6.478-3.32-6.931-6.931h3.931v-2h-3.931c.453-3.611 3.32-6.477 6.931-6.931v3.931h2v-3.931c3.611.454 6.478 3.319 6.931 6.931h-3.931v2h3.931c-.453 3.611-3.32 6.477-6.931 6.931zm1-7.931c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z"/>
+          </svg>
+        </div>
       </div>
     </div>
     <div id="print-result" class="calendar">
@@ -288,6 +298,8 @@
       :changeShift="changeInfo"
       :shiftData="shiftData"
       :stationPicker="stationPicker"
+      :year="year"
+      :month="month"
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
@@ -383,6 +395,8 @@ export default {
       isPass: false,
       isSave: false,
       demandList: [],
+      promiseData: [],
+      newAdjustmentList: [],
     };
   },
 
@@ -390,8 +404,9 @@ export default {
     this.$httpClient.get("/api/users/curr/").then((res) => {
       this.user = res.data;
       Promise.all([
-        this.getUserData(),
-        this.getPreResults(),
+        this.getUserData().then(() => {
+          return this.getPreResults();
+        }),
         this.getLastMonthData(),
         this.getAdjustment(),
         this.getTotalPerDayData(),
@@ -404,6 +419,7 @@ export default {
       this.getShiftData();
       this.getStationData();
       this.getReserveData();
+      this.getPromiseData();
     })
   },
 
@@ -425,11 +441,14 @@ export default {
 
     //取得User的資料
     getUserData() {
-      return fetch("/api/user-resource")
+      return fetch(`/api/user-resource?year=${this.year}&month=${this.month}&rset=preresult`)
         .then((res) => {
           return res.json();
         })
         .then((data) => {
+          data.sort(function (a, b) {
+            return a.sort - b.sort;
+          });
           this.userData = data;
         })
         .catch((err) => {
@@ -455,7 +474,7 @@ export default {
           let processedShifts = {}; // index by user id
           if (this.preResultData.length != 0) {
             this.preResultData.forEach((i) => {
-              if (moment(i.date).month() + 1 === this.month) {
+              if (moment(i.date).month() + 1 === this.month && this.userData.find((u) => u.id == i.user)) {
                 if (!processedShifts[i.user]) {
                   processedShifts[i.user] = {};
                 }
@@ -466,8 +485,8 @@ export default {
                 processedShifts[i.user][date] = i;
               }
             });
-            this.isReady = true;
           }
+          this.isReady = true;
           this.showLoading = false;
           this.shiftOfCurrentMonth = processedShifts;
         })
@@ -651,6 +670,15 @@ export default {
       }
     },
 
+    getPromiseData() {
+      this.$httpClient.get(`/api/promises/?start=${this.year}-${this.month}-01&end=${this.year}-${this.month}-${this.getDays}`)
+        .then((res) => {
+          this.promiseData = res.data;
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+    },
     //----------------------------------------------------
 
     //-------------------各個function----------------------
@@ -772,6 +800,10 @@ export default {
     },
 
     getTotalShiftHour(userId) {
+      if (!this.isReady) {
+        return -1;
+      }
+
       // 排班 = user 所有班別時數總和 + 公假時數 + 休息日出勤
       // 班別時數總和
       let totalHour = 0;
@@ -807,6 +839,10 @@ export default {
     },
 
     getDiffHour(userId) {
+      if (!this.isReady) {
+        return -1;
+      }
+
       // 當月差額 = user 所有班別時數總和 + 加班時數 - 減班時數 + 不出勤時數 - 當月時數
       // 班別時數總和
       let totalHour = 0;
@@ -856,8 +892,12 @@ export default {
       // 機構減班時數
       let institutionReduceClassHour = 0;
 
-      if (this.month === month) {
-        for (let day = 1; day <= today; ++day) {
+      if (!this.isReady) {
+        return -1;
+      }
+
+      for (let day = 1; day <= this.getDays; ++day) {
+        if (this.month < month || (this.month === month && day <= today)) {
           if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
             let i = this.shiftOfCurrentMonth[u][day];
             if (i.shift_type == "公") {
@@ -872,9 +912,12 @@ export default {
       this.adjustHr
         .filter((item) => {
           return (
-            item.user == u &&
-            parseInt(item.date.split("-")[1]) == month &&
-            parseInt(item.date.split("-")[2]) <= today
+            item.user == u && (
+              parseInt(item.date.split("-")[1]) < month || (
+                parseInt(item.date.split("-")[1]) === month &&
+                parseInt(item.date.split("-")[2]) <= today
+              )
+            )
           );
         })
         .forEach((i) => {
@@ -913,6 +956,10 @@ export default {
       let notCount = 0;
       let noRest = 0;
 
+      if (!this.isReady) {
+        return -1;
+      }
+
       for (let day = 1; day <= this.getDays; ++day) {
         if (this.shiftOfCurrentMonth[u] && this.shiftOfCurrentMonth[u][day]) {
           let i = this.shiftOfCurrentMonth[u][day];
@@ -937,18 +984,46 @@ export default {
       }
 
       this.adjustHr
-        .filter((item) => {
-          return (
-            item.user == u &&
-            parseInt(item.date.split("-")[1]) == this.month &&
-            parseInt(item.date.split("-")[2]) <= this.date
-          );
-        })
         .forEach((i) => {
-          if ((i.adjustment_item == 1) || (i.adjustment_item == 2)) {
-            noRest ++;
+          if (
+            i.user == u &&
+            parseInt(i.date.split("-")[1]) === this.month && (
+              this.$getTimeAdjustmentItemValue('ITEM_OFF_DAY_ATTENDANCE') === i.adjustment_item ||
+              this.$getTimeAdjustmentItemValue('ITEM_NATIONAL_HOLIDAY_ATTENDANCE') === i.adjustment_item
+            )
+          ) {
+            ++noRest;
           }
         });
+
+      this.promiseData.forEach((item) => {
+        let day = parseInt(item.date.split("-")[2]);
+        let shiftType;
+        if (this.$getPromiseLeaveCategoryValue("PAID_LEAVE") == this.$getPromiseLeaveCategoryByItemValue(item.shift_type)) {
+          shiftType = this.$getShiftTypeValue("VALUE_PAID_LEAVE");
+        } else {
+          shiftType = this.$getShiftTypeValue("VALUE_UNPAID_LEAVE");
+        }
+        // 只有當
+        // 1. 當日無預排結果
+        // 2. 預排結果與預約假勤不同
+        // 時才計算，不重複計算假日，且排除公假
+        if (
+          item.user.id === u &&
+          (
+            !this.shiftOfCurrentMonth[u] ||
+            !this.shiftOfCurrentMonth[u][day] ||
+            this.shiftOfCurrentMonth[u][day].shift.shift_type !== shiftType &&
+            item.shift_type !== this.$getPromiseLeaveItemValue('ITEM_OFFICIAL_LEAVE')
+          )
+        ) {
+          if (shiftType === this.$getShiftTypeValue("VALUE_PAID_LEAVE")) {
+            ++count;
+          } else {
+            ++notCount;
+          }
+        }
+      });
 
       switch (index) {
         case 1: // 例休國
@@ -960,8 +1035,8 @@ export default {
         case 4: // 總計 = 例假日 + 休假日 + 國定假日 + 計薪請假 + 扣薪請假
           total = special + count + notCount;
           return total;
-        case 5:
-          return (special - noRest);
+        case 5: // 實際Off = 例休國 + 有薪假 + 無薪假 - 加班「休假出勤」、「國定假日出勤」
+          return (special + count + notCount - noRest);
         default:
           return -1;
       }
@@ -1139,12 +1214,43 @@ export default {
     },
 
     getUserShift(userId, date) {
-      if (
-        this.shiftOfCurrentMonth[userId] &&
-        this.shiftOfCurrentMonth[userId][date]
-      ) {
-        return this.shiftOfCurrentMonth[userId][date];
+      if (this.isReady) {
+        if (
+          this.shiftOfCurrentMonth[userId] &&
+          this.shiftOfCurrentMonth[userId][date]
+        ) {
+          return this.shiftOfCurrentMonth[userId][date];
+        }
+
+        let promise = this.promiseData.find((i) => {
+          return (
+            i.user.id === userId &&
+            parseInt(i.date.split("-")[1]) === this.month &&
+            parseInt(i.date.split("-")[2]) === date
+          );
+        });
+        if (promise) {
+          let shiftType;
+          if (this.$getPromiseLeaveCategoryValue('PAID_LEAVE') == this.$getPromiseLeaveCategoryByItemValue(promise.shift_type)) {
+            shiftType = this.$getShiftTypeValue('VALUE_PAID_LEAVE');
+          } else {
+            shiftType = this.$getShiftTypeValue('VALUE_UNPAID_LEAVE');
+          }
+
+
+          return {
+            id: 0,
+            date: promise.date,
+            user: userId,
+            shift: {
+              shift_type: shiftType,
+              name: this.$getPromiseLeaveItemText(promise.shift_type),
+              code: '',
+            },
+          };
+        }
       }
+
       return {
         id: 0,
         date:
@@ -1217,14 +1323,14 @@ export default {
       return Boolean(found);
     },
 
-    sendToResults() {
+    async sendToResults() {
       this.followEdit = false;
       this.rsShow = false;
       this.isSave = true;
 
       let promises = [];
 
-      this.changedResult.forEach((i) => {
+      await this.changedResult.forEach((i) => {
         let data = {
           user: i.user,
           shift: i.shift.id,
@@ -1240,7 +1346,11 @@ export default {
             },
             body: JSON.stringify(data),
             method: "POST",
-          }).catch((err) => {
+          })
+          .then(res=>{
+            console.log(res);
+          })
+          .catch((err) => {
             console.log(err);
           });
         } else {
@@ -1355,8 +1465,30 @@ export default {
         }
         promises.push(promise);
       });
+        // 送出加班資料
+      this.newAdjustmentList.forEach(e=>{
+        let promise;
+        let config = {
+                headers: {
+                  "X-CSRFToken": `${this.csrfToken}`,
+                  "content-type": "application/json",
+                },
+              };
+        promise = this.$httpClient.post("/api/time-adjustment/", e, config).then(res=>{
+            console.log(res);
+          })
+          .catch(err=>{
+            console.log(err);
+          })
+        promises.push(promise);
+      })
+
+
+
 
       Promise.all(promises).then(() => {
+
+        this.getAdjustment();
         this.getPreResults();
         this.getUserRemark();
         this.getRemarkSquareData();
@@ -1367,6 +1499,7 @@ export default {
       this.userRemarks.length = 0;
       this.remarkSquare.length = 0;
       this.resultRS.length = 0;
+      this.newAdjustmentList.length = 0;
       this.isEdit = false;
       this.isCheck = false;
     },
@@ -1427,6 +1560,13 @@ export default {
       });
       if (demandList.length > 0) {
         for (let day = 1; day <= this.getDays; ++day) {
+          if (!demandList[day - 1]) {
+            demandList[day - 1] = {
+              D: [],
+              E: [],
+              N: [],
+            };
+          }
           demandList[day - 1].D[1] = 0;
           demandList[day - 1].E[1] = 0;
           demandList[day - 1].N[1] = 0;
@@ -1504,6 +1644,17 @@ export default {
         });
       });
     },
+    //加入加班資料, 儲存時才送出
+    addAdjustment(adjInfo){
+      this.newAdjustmentList.push(adjInfo);
+      this.adjustHr.push(adjInfo);
+    },
+    toggleCross(){
+      let ox = document.getElementById('ox');
+      let oy = document.getElementById('oy');
+      ox.classList.toggle('hide');
+      oy.classList.toggle('hide');
+    }
   },
 
   watch: {
@@ -1517,6 +1668,7 @@ export default {
       ]).then(() => {
         this.getDemandList();
       });
+      this.getPromiseData();
     },
   },
 };
@@ -1552,7 +1704,7 @@ export default {
       float: right;
       height: 70px;
       width: 70%;
-      padding: 10px 15px;
+      padding: 10px 50px;
 
       .add-sub-wrapper {
         border: 1px solid #a6a6a6;

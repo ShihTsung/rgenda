@@ -186,6 +186,21 @@ class ExchangeApplication(models.Model):
         default="",
         max_length=100,
     )
+    created_at = models.DateTimeField(
+        verbose_name="申請時間",
+        auto_now=True,
+        null=True
+    )
+    is_confirm = models.BooleanField(
+        verbose_name="確認流程結束",
+        default=False,
+        null=True,
+    )
+    deleted = models.BooleanField(
+        verbose_name="刪除與否",
+        default=False,
+        null=True
+    )
 
 
 class HistoryResult(models.Model):

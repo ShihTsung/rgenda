@@ -324,11 +324,11 @@ class PreResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
@@ -342,11 +342,11 @@ class ResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
@@ -361,11 +361,11 @@ class AfterResultSerializer(serializers.ModelSerializer):
     @staticmethod
     def setup_eager_loading(queryset):
         queryset = queryset.prefetch_related(
-            'shift', 'shift__department')
+            'shift')
         queryset = queryset.prefetch_related(
-            'station', 'station__department')
+            'station')
         queryset = queryset.prefetch_related(
-            'user', 'user__department')
+            'user')
         return queryset
 
     class Meta:
@@ -637,7 +637,8 @@ class GetExchangeApplicationSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user_apply', 'user_receive',
             'date_start', 'date_end', 'application_status',
-            'receive_result', 'apply_result')
+            'receive_result', 'apply_result', 'created_at', 'is_confirm',
+            'deleted')
 
 
 class NotificationSerializer(serializers.ModelSerializer):

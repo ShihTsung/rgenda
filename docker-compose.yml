@@ -27,13 +27,12 @@ services:
       - app
   app:
     restart: always
-    build: ./schedule 
+    build: ./schedule
     # command: bash -c "cd schedule && python3 manage.py crontab add && python3 manage.py makemigrations && python3 manage.py migrate &&  python3 manage.py runserver 0.0.0.0:80"
-    command: 
+    command:
       - /bin/sh
       - -c
       - |
-        python3 manage.py crontab add
         python3 manage.py collectstatic --noinput
         django-admin compilemessages
         python3 manage.py makemigrations
@@ -50,7 +49,7 @@ services:
   cron:
     build: ./schedule
     container_name: cronjob
-    command: 
+    command:
       - /bin/sh
       - -c
       - cron -f
