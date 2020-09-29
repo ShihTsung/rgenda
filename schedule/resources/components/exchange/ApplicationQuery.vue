@@ -42,7 +42,7 @@
     </div>
     <vue-good-table :columns="columns" :rows="rows" class="text-nowrap">
       <template slot="table-row" slot-scope="props">
-        <span v-if="props.column.field === 'content'" class="text-nowrap row">
+        <span v-if="props.column.field === 'content'" class="text-nowrap row justify-content-center">
           <span class="col-5">
             <span class="shift-cell" :style="props.row.apply_result.style">
               <span class="h5 shift-type">{{ props.row.apply_result.shift.name }}</span>
