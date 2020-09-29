@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export function getShiftTimeStr(shift) {
   let start, end;
   if (shift.start) {
@@ -17,11 +15,7 @@ export function getShiftTimeStr(shift) {
   } else {
     throw "No valid end time property.";
   }
-  return (
-    moment(start, ["HH:mm:ss", "HH:mm"]).format("HH") +
-    "-" +
-    moment(end, ["HH:mm:ss", "HH:mm"]).format("HH")
-  );
+  return start.substring(0, 2) + "-" + end.substring(0, 2);
 }
 
 export function getArrow(application) {

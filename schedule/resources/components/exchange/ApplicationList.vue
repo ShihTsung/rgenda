@@ -432,7 +432,7 @@ export default {
     },
     confirm(applicationId) {
       let data = {
-        is_confirmed: 1, //TODO: 與後端確認欄位名稱
+        is_confirm: 1,
       };
       let config = {
         headers: {

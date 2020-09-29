@@ -15,6 +15,7 @@ export default {
   data() {
     return {
       calendarOptions: {
+        locale: "zh-TW",
         plugins: [dayGridPlugin],
         editable: false,
         themeSystem: "bootstrap",

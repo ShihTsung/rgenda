@@ -8,18 +8,18 @@
       <div class="col-sm-2 my-auto">
         <date-picker
           v-model="startDate"
-          :masks="{L: 'YYYY-MM-DD'}"
+          :masks="{ L: 'YYYY-MM-DD' }"
           :is-required="true"
-          :popover="{visibility: 'focus'}"
+          :popover="{ visibility: 'focus' }"
         ></date-picker>
       </div>
       <span class="my-auto">-</span>
       <div class="col-sm-2 my-auto">
         <date-picker
           v-model="endDate"
-          :masks="{L: 'YYYY-MM-DD'}"
+          :masks="{ L: 'YYYY-MM-DD' }"
           :is-required="true"
-          :popover="{visibility: 'focus'}"
+          :popover="{ visibility: 'focus' }"
         ></date-picker>
       </div>
       <div class="col-sm-2 my-auto">
@@ -31,37 +31,56 @@
         <span class="align-middle">狀態</span>
       </div>
       <div class="col-sm-2 my-auto">
-        <select class="form-control" v-model="status">
+        <select class="form-control" v-model="queryStatus">
           <option
             v-for="option in statusOptions"
             :key="option.value"
             :value="option.value"
-          >{{ option.text }}</option>
+          >
+            {{ option.text }}
+          </option>
         </select>
       </div>
     </div>
     <vue-good-table :columns="columns" :rows="rows" class="text-nowrap">
       <template slot="table-row" slot-scope="props">
-        <span v-if="props.column.field === 'content'" class="text-nowrap row justify-content-center">
+        <span
+          v-if="props.column.field === 'content'"
+          class="text-nowrap row justify-content-center"
+        >
           <span class="col-5">
             <span class="shift-cell" :style="props.row.apply_result.style">
-              <span class="h5 shift-type">{{ props.row.apply_result.shift.name }}</span>
-              <span class="shift-time">{{ getShiftTimeStr(props.row.apply_result.shift) }}</span>
-              <span class="shift-station">{{ props.row.apply_result.station.name }}</span>
+              <span class="h5 shift-type">{{
+                props.row.apply_result.shift.name
+              }}</span>
+              <span class="shift-time">{{
+                getShiftTimeStr(props.row.apply_result.shift)
+              }}</span>
+              <span class="shift-station">{{
+                props.row.apply_result.station.name
+              }}</span>
             </span>
           </span>
           <i class="col-1" :class="getArrow(props.row)"></i>
           <span class="col-5">
             <span class="shift-cell" :style="props.row.receive_result.style">
-              <span class="h5 shift-type">{{ props.row.receive_result.shift.name }}</span>
-              <span class="shift-time">{{ getShiftTimeStr(props.row.receive_result.shift) }}</span>
-              <span class="shift-station">{{ props.row.receive_result.station.name }}</span>
+              <span class="h5 shift-type">{{
+                props.row.receive_result.shift.name
+              }}</span>
+              <span class="shift-time">{{
+                getShiftTimeStr(props.row.receive_result.shift)
+              }}</span>
+              <span class="shift-station">{{
+                props.row.receive_result.station.name
+              }}</span>
             </span>
           </span>
         </span>
         <span v-else>{{ props.formattedRow[props.column.field] }}</span>
       </template>
-      <div slot="emptystate" class="vgt-center-align vgt-text-disabled">無資料</div>
+      <div slot="emptystate" class="vgt-center-align vgt-text-disabled">
+        無資料
+      </div>
     </vue-good-table>
   </div>
 </template>
@@ -70,6 +89,7 @@ import moment from "moment";
 import DatePicker from "v-calendar/lib/components/date-picker.umd";
 import { shiftColor } from "src/constants/color";
 import { getShiftTimeStr, getArrow } from "src/exchange/util";
+import { APPLICATION_STATUS_CONST } from "src/exchange/constants";
 
 export default {
   components: {
@@ -83,16 +103,25 @@ export default {
     toggleReady: {
       type: Function,
       default: null,
-    }
+    },
+    userId: {
+      type: String,
+      default: "",
+    },
+    departmentId: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
       startDate: moment().subtract(1, "months").toDate(),
       endDate: moment().toDate(),
-      status: 0,
+      queryStatus: -1,
       statusOptions: [
-        { text: "已生效", value: 2 },
-        { text: "退回", value: 3 },
+        { text: "--", value: -1 },
+        { text: "退回", value: 2 },
+        { text: "已生效", value: 3 },
       ],
       columns: [
         {
@@ -123,7 +152,6 @@ export default {
         {
           label: "狀態",
           field: "statusText",
-          sortable: false,
         },
         {
           label: "備註",
@@ -152,42 +180,66 @@ export default {
       }
       return style;
     },
-    getShiftTimeStr,
-    getArrow,
     query() {
       this.toggleReady(false);
-      let url = "/api/exchange-shift/"; //TODO: 以 department 查詢
+      let url = "/api/exchange-shift/"; //TODO: 依時間搜尋
       if (this.isUser) {
-        url += "?mode=personal";
+        url += `?receiveId=${this.userId}`;
+      } else {
+        url += `?department=${this.departmentId}`
       }
       this.$httpClient.get(url).then((res) => {
         this.applicationList = res.data;
         this.toggleReady(true);
       });
     },
+    showQueryResult(status) {
+      if (this.queryStatus === -1) {
+        return (
+          [
+            APPLICATION_STATUS_CONST.REJECT,
+            APPLICATION_STATUS_CONST.APPROVE,
+          ].indexOf(status) >= 0
+        );
+      }
+      return status === this.queryStatus;
+    },
+    getShiftTimeStr,
+    getArrow,
   },
   computed: {
     rows() {
-      return this.applicationList.map((application) => {
-        let computedApplication = Object.assign({}, application, {
-          application_date: "", //TODO: created_at
-          exchange_period:
-            application.date_start + " - " + application.date_end,
-          applicant: application.apply_result.user.name,
-          exchange_target: application.receive_result.user.name,
-          content: application.content,
-          statusText: this.$getApplicationStatusString(
-            application.application_status
-          ),
-        });
-        computedApplication.apply_result.style = this.getShiftStyle(
-          application.apply_result.shift
-        );
-        computedApplication.receive_result.style = this.getShiftStyle(
-          application.receive_result.shift
-        );
-        return computedApplication;
-      });
+      return this.applicationList.reduce((processedList, application) => {
+        let status = application.application_status;
+        if (
+          status === this.queryStatus ||
+          (this.queryStatus === -1 &&
+            [
+              APPLICATION_STATUS_CONST.REJECT,
+              APPLICATION_STATUS_CONST.APPROVE,
+            ].indexOf(status) >= 0)
+        ) {
+          let computedApplication = Object.assign({}, application, {
+            application_date: application.created_at.substring(0, 10),
+            exchange_period:
+              application.date_start + " - " + application.date_end,
+            applicant: application.apply_result.user.name,
+            exchange_target: application.receive_result.user.name,
+            content: application.content,
+            statusText: this.$getApplicationStatusString(
+              application.application_status
+            ),
+          });
+          computedApplication.apply_result.style = this.getShiftStyle(
+            application.apply_result.shift
+          );
+          computedApplication.receive_result.style = this.getShiftStyle(
+            application.receive_result.shift
+          );
+          processedList.push(computedApplication);
+        }
+        return processedList;
+      }, []);
     },
   },
   mounted() {

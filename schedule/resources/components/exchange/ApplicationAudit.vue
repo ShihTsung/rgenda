@@ -9,7 +9,13 @@
       :userName="userName"
     ></application-list>
     <hr />
-    <application-query v-if="!isUser" :isUser="isUser" :toggleReady="toggleQueryReady"></application-query>
+    <application-query
+      v-if="!isUser && currUser"
+      :isUser="isUser"
+      :toggleReady="toggleQueryReady"
+      :userId="userId"
+      :departmentId="currUser.department.id"
+    ></application-query>
     <user-shift-calendar v-if="isUser"></user-shift-calendar>
   </div>
 </template>
@@ -27,7 +33,7 @@ export default {
       isQueryReady: false,
       auditColumns: [
         {
-          label: "申請單號",
+          label: "單號",
           field: "id",
         },
         {
@@ -54,6 +60,7 @@ export default {
           sortable: false,
         },
       ],
+      currUser: null,
     };
   },
   props: {
@@ -79,6 +86,16 @@ export default {
     },
   },
   methods: {
+    getCurrUser() {
+      this.$httpClient
+        .get("/api/users/curr/")
+        .then((response) => {
+          this.currUser = response.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     getExchangeApplications() {
       let url = "/api/exchange-shift/";
       if (this.isUser) {
@@ -121,6 +138,10 @@ export default {
   },
   mounted() {
     this.getExchangeApplications();
+    this.getCurrUser();
+    if (this.isUser) {
+      this.toggleQueryReady(true);
+    }
   },
   components: {
     ApplicationList,

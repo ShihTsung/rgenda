@@ -168,8 +168,11 @@
     ></application-list>
     <hr />
     <application-query
+      v-if="currUser"
       :isUser="isUser"
       :toggleReady="toggleQueryReady"
+      :userId="userId"
+      :departmentId="currUser.department.id"
     ></application-query>
   </div>
 </template>
@@ -284,7 +287,7 @@ export default {
     getExchangeApplications() {
       this.isListReady = false;
       this.$httpClient
-        .get("/api/exchange-shift/") //TODO: 以 user_apply 查詢
+        .get(`/api/exchange-shift/?applyId=${this.userId}`)
         .then((response) => {
           let applicationList = [];
           response.data.forEach((application) => {
@@ -295,7 +298,7 @@ export default {
 
               application.confirmable =
                 this.$confirmable(application.application_status) &&
-                application.is_confirmed !== 1;
+                application.is_confirm !== 1;
 
               applicationList.push(application);
             }
