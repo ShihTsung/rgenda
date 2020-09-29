@@ -278,6 +278,10 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
             (3, '空班出勤'),
             (4, 'On Call出勤'),
             (5, '機構減班'),
+
+        start: 開始時間
+        end: 結束時間
+        uid: 使用者 id
         ''',
         manual_parameters=[
             start_date, end_date, uid, adj_type, adj_item
@@ -620,14 +624,15 @@ class ResultViewSet(viewsets.ModelViewSet):
         queryset = Result.objects.filter(user__in=users)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
         if self.request.query_params:
-            start = self.request.query_params.get('start')
-            end = self.request.query_params.get('end')
-            mode = self.request.query_params.get('mode', None)
+            start = self.request.query_params.get('start', None)
+            end = self.request.query_params.get('end', None)
+            uid = self.request.query_params.get('uid', None)
             if start and end:
                 queryset = queryset.filter(date__range=[start[:10], end[:10]])
 
-            if mode == 'personal':
-                queryset = queryset.filter(user=self.request.user)
+            if uid:
+                user = CustomUser.objects.filter(id=int(uid)).first()
+                queryset = queryset.filter(user=user)
 
         return queryset
 
@@ -637,6 +642,11 @@ class ResultViewSet(viewsets.ModelViewSet):
         manual_parameters=[start_date, end_date]
     )
     def list(self, request, *args, **kwargs):
+        """
+        uid: 使用者id
+        start: 開始時間
+        end: 結束時間
+        """
         return super().list(self, request, *args, **kwargs)
 
     @swagger_auto_schema(
@@ -676,12 +686,18 @@ class PreResultViewSet(viewsets.ModelViewSet):
         users = CustomUser.objects.filter(department=dep)
         queryset = PreResult.objects.filter(user__in=users)
         queryset = self.get_serializer_class().setup_eager_loading(queryset)
+
         if self.request.query_params:
-            start = self.request.query_params.get('start')
-            end = self.request.query_params.get('end')
+            start = self.request.query_params.get('start', None)
+            end = self.request.query_params.get('end', None)
+            uid = self.request.query_params.get('uid', None)
             if start and end:
-                queryset = PreResult.objects.filter(
+                queryset = queryset.filter(
                     date__range=[start[:10], end[:10]])
+            if uid:
+                user = CustomUser.objects.filter(id=int(uid)).first()
+                queryset = queryset.filter(user=user)
+
         return queryset
 
     @swagger_auto_schema(
@@ -779,10 +795,17 @@ class ReservationViewSet(viewsets.ModelViewSet):
         mode = self.request.query_params.get('mode', None)
         start = self.request.query_params.get('start', None)
         end = self.request.query_params.get('end', None)
-        if mode == 'personal' and start and end:
+        uid = self.request.query_params.get('uid', None)
+        if start and end:
             queryset = queryset.filter(
-                user=self.request.user,
-                date__range=[start[:10], end[:10]])
+                date__range=[start[:10], end[:10]]
+            )
+        if uid:
+            user = CustomUser.objects.filter(id=int(id)).first()
+            queryset = queryset.filter(
+                user=user
+            )
+
         return queryset
 
     def get_serializer_class(self):
@@ -933,8 +956,9 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
                         shift_type__in=[3, 7]
                     )
             if uid:
+                user = CustomUser.objects.filter(id=int(uid)).first()
                 queryset = queryset.filter(
-                    user=CustomUser.objects.get(id=int(uid))
+                    user=user
                 )
 
         return queryset
