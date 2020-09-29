@@ -115,8 +115,7 @@ export default {
               expires: d,
             });
 
-            this.$parent.getPreResults();
-            this.$parent.getTotalPerDayData();
+            this.$parent.reloadData();
           })
           .catch((err) => {
             console.log(err);

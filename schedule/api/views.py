@@ -2523,6 +2523,16 @@ def recreate_result_periodic(request):
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result_monthly(request):
+    """
+    依照月份計算例休國數量
+    不考慮週期
+
+    預約假全部給假
+    修改 user_pool.update()
+
+    :param request:
+    :return:
+    """
 
     from datetime import datetime, timedelta
 
@@ -2663,11 +2673,20 @@ def recreate_result_monthly(request):
                     continue
                 for user in demand['users']:
                     user_current_level.append(user.id)
+                    # user_pool.update({
+                    #     user.id: {
+                    #         'holiday_rest': user.holiday_rest_num - user.holiday_rest_num_used,
+                    #         'reserve_leave': reserve_leave_dict[user.id],
+                    #         'promise_leave': promise_leave_dict[user.id],
+                    #         'promise_other': [str_to_date(d) for d in promise_other_dict[user.id]],
+                    #         'official_leave': official_leave_dict[user.id],
+                    #     },
+                    # })
                     user_pool.update({
                         user.id: {
                             'holiday_rest': user.holiday_rest_num - user.holiday_rest_num_used,
-                            'reserve_leave': reserve_leave_dict[user.id],
-                            'promise_leave': promise_leave_dict[user.id],
+                            'reserve_leave': [],
+                            'promise_leave': promise_leave_dict[user.id] + reserve_leave_dict[user.id],
                             'promise_other': [str_to_date(d) for d in promise_other_dict[user.id]],
                             'official_leave': official_leave_dict[user.id],
                         },
@@ -3373,8 +3392,7 @@ def recreate_result_weekly(request):
     }
 
     # 已排好的(前月的)班表
-    used_rest = get_used_rest(
-        department, date_start - timedelta(days=7), date_start)
+    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3423,8 +3441,7 @@ def recreate_result_weekly(request):
             weekly_cycles[-1].append(d)
 
     # get users
-    users_total = CustomUser.objects.filter(
-        department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
     users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
                                              pregnant=False)
     users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
@@ -3434,21 +3451,172 @@ def recreate_result_weekly(request):
     users_junior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=0,
                                                       pregnant=True)
 
-    # 產生output
+    # 產生output 公假為'O' 其他0
+    # 可填 0, O, D, E, N
     output = dict()
     for user in users_total:
         output[user.id] = dict()
         output[user.id][str(date_last)] = continue_dict[user.id]
         for d in date_list:
             output[user.id][str(d)] = 0
+        for d in official_leave_dict[user.id]:
+            output[user.id][str(d)] = 'O'
+
+    # 配置
+    # 1. by demand - 指定孕婦用
+    # 2. by shift type - 計算班表用
+    config_by_demand = dict()
+    config_by_st = {
+        'D': {},
+        'E': {},
+        'N': {},
+    }
+    for i in range(len(weekly_cycles)):
+        config_by_st['D'][i] = list()
+        config_by_st['E'][i] = list()
+        config_by_st['N'][i] = list()
 
     # 計算供需
     workday_dict = dict()
     for user in users_total:
-        workday_dict[user.id] = workday_num - len(promise_other_dict[user.id]) - len(
-            official_leave_dict[users_senior.id])
+        workday_dict[user.id] = workday_num - len(promise_other_dict[user.id]) - len(official_leave_dict[user.id])
 
-    total_workdays = sum(workday_dict.values())
+    stations = get_stations(department)
+    shifts = get_shifts(department)
+    demand_dict_senior = dict()
+    demand_dict_junior = dict()
+
+    demand_senior_for_p = dict()
+    demand_junior_for_p = dict()
+
+    for station in stations:
+        for shift in shifts:
+            try:
+                demand_senior = DemandOfStation.objects.get(station=station, shift=shift, level=2)
+                k = str(station.id) + '-' + str(shift.id)
+                demand_dict_senior[k] = dict()
+                demand_dict_senior[k]['shift'] = shift
+                demand_dict_senior[k]['station'] = station
+                demand_dict_senior[k]['shift type'] = shift.shift_type
+                demand_dict_senior[k]['total'] = 0
+                for ind, d in enumerate(date_list):
+                    if attrs[ind] == '0':
+                        demand_dict_senior[k][str(d)] = 0
+                    elif attrs[ind] == '1':
+                        demand_dict_senior[k][str(d)] = demand_senior.config1
+                        demand_dict_senior[k]['total'] += demand_senior.config1
+                    elif attrs[ind] == '2':
+                        demand_dict_senior[k][str(d)] = demand_senior.config2
+                        demand_dict_senior[k]['total'] += demand_senior.config2
+                if shift.start_time >= time(hour=6, minute=0) and shift.end_time <= time(hour=22, minute=0):
+                    demand_senior_for_p[k] = demand_dict_senior[k]['total']
+            except DemandOfStation.DoesNotExist:
+                pass
+            try:
+                demand_junior = DemandOfStation.objects.get(station=station, shift=shift, level=1)
+                k = str(station.id) + '-' + str(shift.id)
+                demand_dict_junior[k] = dict()
+                demand_dict_senior[k]['shift'] = shift
+                demand_dict_senior[k]['station'] = station
+                demand_dict_junior[k]['shift type'] = shift.shift_type
+                demand_dict_junior[k]['total'] = 0
+                for ind, d in enumerate(date_list):
+                    if attrs[ind] == '0':
+                        demand_dict_junior[k][str(d)] = 0
+                    elif attrs[ind] == '1':
+                        demand_dict_junior[k][str(d)] = demand_junior.config1
+                        demand_dict_junior[k]['total'] += demand_junior.config1
+                    elif attrs[ind] == '2':
+                        demand_dict_junior[k][str(d)] = demand_junior.config2
+                        demand_dict_junior[k]['total'] += demand_junior.config2
+                if shift.start_time >= time(hour=6, minute=0) and shift.end_time <= time(hour=22, minute=0):
+                    demand_junior_for_p[k] = demand_dict_junior[k]['total']
+            except DemandOfStation.DoesNotExist:
+                pass
+
+    # 指定懷孕人員給需求最高的demand
+    for user in users_senior_pregnant:
+        pass
+
+    total_proportion_senior = {
+        'D': 0,
+        'E': 0,
+        'N': 0,
+        'sum': 0,
+    }
+    for demand_k in demand_dict_senior:
+        if demand_dict_senior[demand_k]['shift type'] == 0:
+            total_proportion_senior['D'] += demand_dict_senior[demand_k]['shift type']['total']
+        elif demand_dict_senior[demand_k]['shift type'] == 1:
+            total_proportion_senior['E'] += demand_dict_senior[demand_k]['shift type']['total']
+        elif demand_dict_senior[demand_k]['shift type'] == 2:
+            total_proportion_senior['N'] += demand_dict_senior[demand_k]['shift type']['total']
+    total_proportion_senior['sum'] = sum(total_proportion_senior.values())
+
+    # 將預約假併入保證假
+    for user in users_total:
+        promise_other_dict[user.id] += reserve_leave_dict[user.id]
+
+    # 行政職
+    try:
+        user_admin = CustomUser.objects.filter(type_of_user=2)
+        station_admin = Station.objects.get(department=department, name='行政')
+        shift_admin = Shift.objects.get(department=department, name='行政')
+
+        for user in user_admin:
+            for i, d in enumerate(date_list):
+                if reds[str(d)] or attrs[i] == '0':
+                    if d.isoweekday() == 7:
+                        PreResult.objects.create(
+                            user=user,
+                            shift=shift_rest0,
+                            date=d,
+                            station=station_rest,
+                        )
+                    elif d.isoweekday() in [1, 2, 3, 4, 5] and reds[str(d)]:
+                        PreResult.objects.create(
+                            user=user,
+                            shift=shift_rest2,
+                            date=d,
+                            station=station_rest,
+                        )
+                    else:
+                        PreResult.objects.create(
+                            user=user,
+                            shift=shift_rest1,
+                            date=d,
+                            station=station_rest,
+                        )
+                elif d in official_leave_dict[user.id]:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=shift_official_leave,
+                        date=d,
+                        station=station_official_leave,
+                    )
+                elif str(d) in promise_other_dict[user.id]:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=Shift.objects.get(department=department,
+                                                name=rest_dict[promise_other_dict[user.id][str(d)]]),
+                        date=d,
+                        station=station_rest,
+                    )
+                else:
+                    PreResult.objects.create(
+                        user=user,
+                        shift=shift_admin,
+                        date=d,
+                        station=station_admin,
+                    )
+    except CustomUser.DoesNotExist:
+        pass
+
+    time_end = datetime.now()
+    print()
+    print('Complete')
+    print('Time Used', time_end - time_start)
+    print()
 
     return Response({
         'message': 'Success',
