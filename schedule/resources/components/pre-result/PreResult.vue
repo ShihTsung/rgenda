@@ -8,7 +8,7 @@
         <h2 class="month">&nbsp;{{month}}月</h2>
       </div>
 
-      <div class="bt-group pr-0">
+      <div class="bt-group">
         <div class="icon-bts float-right" data-tooltip="tooltip" title="列印"
         @click="printHtml"
         >
@@ -175,6 +175,16 @@
               />
             </svg>
           </div>
+        </div>
+        <div
+          class="icon-bts float-right"
+          data-tooltip="tooltip"
+          title="輔助線"
+          @click="toggleCross">
+          <svg class="icon-color" xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24" viewBox="0 0 24 24">
+            <path d="M24 11h-2.051c-.469-4.725-4.224-8.48-8.949-8.95v-2.05h-2v2.05c-4.725.47-8.48 4.225-8.949 8.95h-2.051v2h2.051c.469 4.725 4.224 8.48 8.949 8.95v2.05h2v-2.05c4.725-.469 8.48-4.225 8.949-8.95h2.051v-2zm-11 8.931v-3.931h-2v3.931c-3.611-.454-6.478-3.32-6.931-6.931h3.931v-2h-3.931c.453-3.611 3.32-6.477 6.931-6.931v3.931h2v-3.931c3.611.454 6.478 3.319 6.931 6.931h-3.931v2h3.931c-.453 3.611-3.32 6.477-6.931 6.931zm1-7.931c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -1638,6 +1648,12 @@ export default {
     addAdjustment(adjInfo){
       this.newAdjustmentList.push(adjInfo);
       this.adjustHr.push(adjInfo);
+    },
+    toggleCross(){
+      let ox = document.getElementById('ox');
+      let oy = document.getElementById('oy');
+      ox.classList.toggle('hide');
+      oy.classList.toggle('hide');
     }
   },
 
@@ -1688,7 +1704,7 @@ export default {
       float: right;
       height: 70px;
       width: 70%;
-      padding: 10px 15px;
+      padding: 10px 50px;
 
       .add-sub-wrapper {
         border: 1px solid #a6a6a6;
