@@ -312,7 +312,6 @@
 
     <recalculate-modal :year="year" :month="month" :getDays="getDays" v-show="couldRecalculate"></recalculate-modal>
     <error-alert-modal v-show="!couldRecalculate"></error-alert-modal>
-
     <publish-modal :year="year" :month="month" :status.sync="publishStatus" :isCheck.sync="isCheck"></publish-modal>
   </div>
 </template>
@@ -1483,11 +1482,7 @@ export default {
         promises.push(promise);
       })
 
-
-
-
       Promise.all(promises).then(() => {
-
         this.getAdjustment();
         this.getPreResults();
         this.getUserRemark();
@@ -1654,11 +1649,8 @@ export default {
       let oy = document.getElementById('oy');
       ox.classList.toggle('hide');
       oy.classList.toggle('hide');
-    }
-  },
-
-  watch: {
-    month() {
+    },
+    reloadData() {
       Promise.all([
         this.getUserData(),
         this.getPreResults(),
@@ -1669,6 +1661,14 @@ export default {
         this.getDemandList();
       });
       this.getPromiseData();
+      this.getPreResultRemarkData();
+      this.getUserRemark();
+    },
+  },
+
+  watch: {
+    month() {
+      this.reloadData();
     },
   },
 };
