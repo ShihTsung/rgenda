@@ -222,13 +222,13 @@
         }
       }, {
         // 已經預定的資料
-        events: function (fetchInfo, successCallback, failureCallback) {
+        events: async function (fetchInfo, successCallback, failureCallback) {
           choosed_days = new Array()
-          let url = '/api/reservations/'
+          await fetch('/api/users/curr').then(res=>{});
+          let url = `/api/reservations/`
           start_str = fetchInfo.startStr
           end_str = fetchInfo.endStr
-          url += '?start=' + start_str + '&end=' + end_str
-          url += '&mode=personal'
+          url += `?start=${start_str}&end=${end_str}&uid=${curr_user.id}`
           fetch(url)
             .then(function (response) {
               return response.json();
