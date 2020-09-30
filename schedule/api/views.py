@@ -3462,16 +3462,16 @@ def recreate_result_weekly(request):
     # 配置
     # 1. by demand - 指定孕婦用
     # 2. by shift type - 計算班表用
-    config_by_demand = dict()
+    config_by_demand = defaultdict(list)
     config_by_st = {
-        'D': {},
-        'E': {},
-        'N': {},
+        0: {},
+        1: {},
+        2: {},
     }
     for i in range(len(weekly_cycles)):
-        config_by_st['D'][i] = list()
-        config_by_st['E'][i] = list()
-        config_by_st['N'][i] = list()
+        config_by_st[0][i] = list()
+        config_by_st[1][i] = list()
+        config_by_st[2][i] = list()
 
     # 計算供需
     workday_dict = dict()
@@ -3531,10 +3531,25 @@ def recreate_result_weekly(request):
             except DemandOfStation.DoesNotExist:
                 pass
 
+    # FOR SENIOR
     # 指定懷孕人員給需求最高的demand
+    # 在 配置by需求 & 配置by班別 中分別紀錄 user_id
+    # 需求總數扣掉被指定user的工作天數
     for user in users_senior_pregnant:
-        pass
+        max_k = None
+        max_v = 0
+        for k, v in demand_senior_for_p.items():
+            if v > max_v:
+                max_v = v
+                max_k = k
+        config_by_demand[max_k].append(user.id)
+        for i in range(len(weekly_cycles)):
+            config_by_st[demand_dict_senior[max_k]['shift type']][i].append(user.id)
+        demand_senior_for_p[max_k] -= workday_dict[user.id]
+        demand_dict_senior[max_k]['total'] -= workday_dict[user.id]
 
+    # FOR SENIOR
+    # 計算DEN比例
     total_proportion_senior = {
         'D': 0,
         'E': 0,
