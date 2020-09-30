@@ -455,6 +455,9 @@ class DepartmentManagerViewSet(viewsets.ModelViewSet):
         if mgr1.role != 'admin':
             mgr2.role = 'manager'
             mgr2.save()
+        if not instance.department.admin_in_schedule:
+            users = [mgr1, mgr2]
+            DemandUserTable.objects.filter(user__in=users).delete()
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
@@ -801,7 +804,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
                 date__range=[start[:10], end[:10]]
             )
         if uid:
-            user = CustomUser.objects.filter(id=int(id)).first()
+            user = CustomUser.objects.filter(id=int(uid)).first()
             queryset = queryset.filter(
                 user=user
             )
@@ -1011,6 +1014,14 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
             apply_id = self.request.query_params.get('applyId', None)
             receive_id = self.request.query_params.get('receiveId', None)
             department_id = self.request.query_params.get('department', None)
+            start = self.request.query_params.get('start', None)
+            end = self.request.query_params.get('end', None)
+
+            if start and end:
+                start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+                end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
+                queryset = queryset.filter(
+                    date_start__gte=start, date_end__lte=end)
 
             if department_id:
                 dep = Department.objects.get(id=int(department_id))
@@ -1029,6 +1040,78 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
                     user_receive=user
                 )
         return queryset
+
+    @swagger_auto_schema(
+        operation_summary='新增',
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        notify.send(request.user,
+                    recipient=self.user_receive,
+                    verb=f'{self.user_apply.full_name}向您提出調班申請！',
+                    description='/results/exchange_application_list')
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @swagger_auto_schema(
+        operation_summary='更新',
+    )
+    def update(self, request, *args, **kwargs):
+        pass_code = False
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        status = serializer.validated_data['application_status']
+        if status == 1:
+            if instance.application_status == 0:
+                pass_code = True
+                notify.send(request.user,
+                    recipient=instance.user_apply,
+                    verb=f'{instance.user_receive.full_name}接受了您的調班申請',
+                    description='/results/exchange_application_list')
+        if status == 2:
+            pass_code = True
+            notify.send(request.user,
+                    recipient=instance.user_apply,
+                    verb=f'{instance.user_receive.full_name}拒絕了您的調班申請',
+                    description='/results/exchange_application_list')
+        if status == 3:
+            if request.user.role in ['manager', 'admin']:
+                if instance.application_status == 1:
+                    pass_code = True
+                    notify.send(request.user,
+                        recipient=[instance.user_apply, instance.user_receive],
+                        verb=f'{request.user.full_name}核准了您的調班申請',
+                        description='/results/exchange_application_list')
+        if status == 4:
+            if request.user.role in ['manager', 'admin']:
+                if instance.application_status == 1:
+                    pass_code = True
+                    notify.send(request.user,
+                        recipient=[instance.user_apply, instance.user_receive],
+                        verb=f'{request.user.full_name}駁回了您的調班申請',
+                        description='/results/exchange_application_list')
+
+        if pass_code:
+            self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        if pass_code:
+            return Response(serializer.data)
+        else:
+            return Response({
+                'error':{
+                    'message': '出現錯誤，無法更新'
+                }
+            })
 
     @swagger_auto_schema(
         operation_summary='刪除調班(軟刪除)',
@@ -2715,7 +2798,8 @@ def recreate_result_monthly(request):
                     if demand['demand'].shift.shift_type == 1:
                         eoa = check_noe(user, date_start)
                         if eoa == 1:
-                            user_pool[user.id]['promise_leave'].append(date_start)
+                            user_pool[user.id]['promise_leave'].append(
+                                date_start)
 
                 # 建立需求單
                 demand_dict = dict()
@@ -3389,7 +3473,8 @@ def recreate_result_weekly(request):
     }
 
     # 已排好的(前月的)班表
-    used_rest = get_used_rest(department, date_start - timedelta(days=7), date_start)
+    used_rest = get_used_rest(
+        department, date_start - timedelta(days=7), date_start)
 
     # get all stations, shifts in department
     stations = get_stations(department)
@@ -3438,7 +3523,8 @@ def recreate_result_weekly(request):
             weekly_cycles[-1].append(d)
 
     # get users
-    users_total = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
+    users_total = CustomUser.objects.filter(
+        department=department, can_be_scheduled=True, type_of_user__in=[0, 1])
     users_senior = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
                                              pregnant=False)
     users_senior_pregnant = CustomUser.objects.filter(department=department, can_be_scheduled=True, type_of_user=1,
@@ -3476,7 +3562,9 @@ def recreate_result_weekly(request):
     # 計算供需
     workday_dict = dict()
     for user in users_total:
-        workday_dict[user.id] = workday_num - len(promise_other_dict[user.id]) - len(official_leave_dict[user.id])
+        workday_dict[user.id] = workday_num - \
+            len(promise_other_dict[user.id]) - \
+            len(official_leave_dict[user.id])
 
     stations = get_stations(department)
     shifts = get_shifts(department)
@@ -3489,7 +3577,8 @@ def recreate_result_weekly(request):
     for station in stations:
         for shift in shifts:
             try:
-                demand_senior = DemandOfStation.objects.get(station=station, shift=shift, level=2)
+                demand_senior = DemandOfStation.objects.get(
+                    station=station, shift=shift, level=2)
                 k = str(station.id) + '-' + str(shift.id)
                 demand_dict_senior[k] = dict()
                 demand_dict_senior[k]['shift'] = shift
@@ -3510,7 +3599,8 @@ def recreate_result_weekly(request):
             except DemandOfStation.DoesNotExist:
                 pass
             try:
-                demand_junior = DemandOfStation.objects.get(station=station, shift=shift, level=1)
+                demand_junior = DemandOfStation.objects.get(
+                    station=station, shift=shift, level=1)
                 k = str(station.id) + '-' + str(shift.id)
                 demand_dict_junior[k] = dict()
                 demand_dict_senior[k]['shift'] = shift
@@ -3830,3 +3920,10 @@ def ordered_users(request):
         data['sort'] = i
         i += 1
     return Response(res_data)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsManagerOrReadOnly, ])
+@parser_classes([JSONParser])
+def exec_exchange(request):
+    pass

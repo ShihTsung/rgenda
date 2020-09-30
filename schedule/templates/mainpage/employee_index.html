@@ -6,7 +6,7 @@
 {% block content %}
 <div id="app" class="container">
   <div class="dash">
-    <employee-main-page></employee-main-page>
+    <employee-main-page user-id="{{ user.id }}"></employee-main-page>
   </div>
 
   <div id="calendar"></div>
@@ -228,7 +228,7 @@
         }
       },
       events: function (fetchInfo, successCallback, failureCallback) {
-        const queryString = '?mode=personal&start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr;
+        const queryString = '?uid={{ user.id }}&start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr;
 
         let resultPromise = Promise.all([
           fetch('/api/results/' + queryString).then(res => res.json()),

@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-{% block title %}部門調班審核{% endblock %}
+{% block title %}調班審核{% endblock %}
 
 {% block content %}
 <div id="app" class="container">
-    <h3>部門調班審核</h3>
-    <hr/>
-    <h4 class="modal-title">待審核表單</h4>
-    <application-audit csrf-token="{{ csrf_token }}"></application-audit>
-    <hr/>
-    <h4 class="modal-title">紀錄查詢</h4>
-    <application-records csrf-token="{{ csrf_token }}"></application-records>
+  {% if user.role in 'admin, manager' or user.is_superuser %}
+  <h3>部門調班審核</h3>
+  {% else %}
+  <h3>調班審核</h3>
+  {% endif %}
+  <hr />
+  <application-audit role="{{ user.role }}" is-superuser="{{ user.is_superuser }}" csrf-token="{{ csrf_token }}"
+    user-id="{{ user.id }}" user-name="{{ user.full_name }}">
+  </application-audit>
 </div>
 
-<script src="{% static 'assets/application-audit.bundle.js' %}"></script>
+<script src="{% static 'assets/exchange-application-audit.bundle.js' %}"></script>
 
-{% endblock %}
-{% block styles %}
 {% endblock %}

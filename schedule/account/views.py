@@ -19,6 +19,7 @@ import openpyxl
 from station.models import Station
 from shift.models import Shift
 from notifications.signals import notify
+from demand.models import DemandUserTable
 from datetime import time
 from numpy.random import choice
 from result.models import ExchangeApplication
@@ -338,10 +339,15 @@ def update(request, id=None):
                 messages.error(request, "權限不足，無法更改為admin")
                 return redirect(f'/accounts/update/{id}')
         form.save()
+        if form.cleaned_data['role'] == 'manager':
+            if not choosed_user.department.admin_in_schedule:
+                user = CustomUser.objects.get(id=id)
+                DemandUserTable.objects.filter(user=user).delete()
         if form.cleaned_data['pregnant'] is True:
             user = CustomUser.objects.get(id=id)
             user.can_be_scheduled = False
             user.save()
+            DemandUserTable.objects.filter(user=user).delete()
         return redirect('/accounts/list')
 
     context = {'form': form, 'target': choosed_user}
@@ -479,7 +485,9 @@ def departmentEdit(request, id=None):
         mgr2 = int(form.data['mgr2']) if form.data['mgr2'] else None
         mgr1_obj = get_or_none(CustomUser, id=mgr1)
         mgr2_obj = get_or_none(CustomUser, id=mgr2)
-
+        if not form.cleaned_data['admin_in_schedule']:
+            users = [form.data['mgr1'], form.data['mgr2']]
+            DemandUserTable.objects.filter(user__in=users).delete()
         if mgrtable:
             mgrtable.manager_one = mgr1_obj
             mgrtable.manager_two = mgr2_obj
