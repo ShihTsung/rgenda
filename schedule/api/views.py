@@ -3908,7 +3908,7 @@ def ordered_users(request):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsManagerOrReadOnly, ])
+@permission_classes([IsManagerOrReadOnly, ])
 @parser_classes([JSONParser])
 def exec_exchange(request):
     pass

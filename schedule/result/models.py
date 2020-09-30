@@ -150,7 +150,19 @@ class ExchangeApplication(models.Model):
         verbose_name=_('UserApply'),
         related_name='user_apply',
         on_delete=models.CASCADE,
-        null=False,
+        null=True,
+    )
+    shift_apply = models.ForeignKey(
+        Shift,
+        verbose_name="申請者班別",
+        on_delete=models.CASCADE,
+        null = False
+    )
+    station_apply = models.ForeignKey(
+        Station,
+        verbose_name="申請者工作站",
+        on_delete=models.CASCADE,
+        null = False
     )
     user_receive = models.ForeignKey(
         CustomUser,
@@ -158,6 +170,18 @@ class ExchangeApplication(models.Model):
         related_name='user_receive',
         on_delete=models.CASCADE,
         null=False,
+    )
+    shift_receive = models.ForeignKey(
+        Shift,
+        verbose_name="被調者班別",
+        on_delete=models.CASCADE,
+        null = False
+    )
+    station_receive = models.ForeignKey(
+        Station,
+        verbose_name="被調者工作站",
+        on_delete=models.CASCADE,
+        null = False
     )
     date_start = models.DateField(
         verbose_name=_('DateStart'),
@@ -175,9 +199,8 @@ class ExchangeApplication(models.Model):
             (0, '待確認'),
             (1, '審核中'),
             (2, '拒絕'),
-            (3, '核准-待確認'),
+            (3, '核准'),
             (4, '審核駁回'),
-            (5, '核准-已確認'),
         ),
     )
     remark = models.CharField(
