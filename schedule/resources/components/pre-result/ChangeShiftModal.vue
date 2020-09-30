@@ -104,7 +104,7 @@ export default {
         return [];
       },
     },
-    stationPicker: {
+    stationData: {
       type: Array,
       default: function () {
         return [];
@@ -124,7 +124,7 @@ export default {
     return {
       shiftCategory: '',
       adjustmentShift: -1,
-      adjustmentType: -1
+      adjustmentType: -1,
     };
   },
   computed: {
@@ -162,15 +162,16 @@ export default {
       return this.shiftData.filter(
         (item) => [0, 1, 2].indexOf(item.shift_type) >= 0
       );
-    }
-
+    },
+    stationPicker() {
+      return this.stationData.filter((i) => {
+        return i.name.indexOf("假") === -1;
+      });
+    },
   },
   methods: {
     save() {
-      if (this.shiftCategory !== 'adjustment'){
-        this.shiftCategory = '';
-        this.$parent.editResult(this.changeShift);
-      }else{
+      if (this.shiftCategory === 'adjustment'){
         let new_changeShift = {
           id: this.changeShift.id,
           user: this.changeShift.user,
@@ -180,16 +181,16 @@ export default {
         }
         switch(this.adjustmentType.id){
           case 0:
-            new_changeShift['shift'] = this.shiftData.filter(
-              e=>e.name=='休息')[0];
+            new_changeShift.shift = this.shiftData.find(
+              e=>e.name=='休息');
             break;
           case 1:
-            new_changeShift['shift'] = this.shiftData.filter(
-              e=>e.name=='國定假日')[0];
+            new_changeShift.shift = this.shiftData.find(
+              e=>e.name=='國定假日');
             break;
           case 2:
-            new_changeShift['shift'] = this.shiftData.filter(
-              e=>e.name=='空班')[0];
+            new_changeShift.shift = this.shiftData.find(
+              e=>e.name=='空班');
         }
         let new_adjustment = {
           user: this.changeShift.user,
@@ -201,22 +202,30 @@ export default {
         }
         switch(this.adjustmentShift.shift_type){
           case 0:
-            new_adjustment['remark'] = '白班';
+            new_adjustment.remark = '白班';
             break;
           case 1:
-            new_adjustment['remark'] = '小夜';
+            new_adjustment.remark = '小夜';
             break;
           case 2:
-            new_adjustment['remark'] = '大夜';
+            new_adjustment.remark = '大夜';
         }
 
         this.shiftCategory = '';
         this.$parent.editResult(new_changeShift);
         this.$parent.addAdjustment(new_adjustment);
+      } else {
+        if (this.shiftCategory === "holiday") {
+          if (this.changeShift.shift.shift_type === this.$getShiftTypeValue('VALUE_OFFICIAL_LEAVE')) {
+            this.changeShift.station = this.stationData.find(i => i.name === this.changeShift.shift.name);
+          } else {
+            this.changeShift.station = this.stationData.find(i => i.name === '休假');
+          }
+        }
+        this.shiftCategory = '';
+        this.$parent.editResult(this.changeShift);
       }
-
     },
-
   },
 };
 </script>
