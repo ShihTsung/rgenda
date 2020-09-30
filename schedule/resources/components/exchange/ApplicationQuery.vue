@@ -182,11 +182,20 @@ export default {
     },
     query() {
       this.toggleReady(false);
-      let url = "/api/exchange-shift/"; //TODO: 依時間搜尋
+      let start = moment(this.startDate);
+      let end = moment(this.endDate);
+      if (start.isAfter(end)) {
+        end = moment(start).add(1, "months");
+      }
+      let url =
+        "/api/exchange-shift/?start=" +
+        start.format("YYYY-MM-DD") +
+        "&end=" +
+        end.format("YYYY-MM-DD");
       if (this.isUser) {
-        url += `?receiveId=${this.userId}`;
+        url += `&receiveId=${this.userId}`;
       } else {
-        url += `?department=${this.departmentId}`
+        url += `&department=${this.departmentId}`;
       }
       this.$httpClient.get(url).then((res) => {
         this.applicationList = res.data;

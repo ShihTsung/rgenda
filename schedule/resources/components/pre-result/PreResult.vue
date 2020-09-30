@@ -1637,6 +1637,12 @@ export default {
             document.getElementById('printJS').remove();
           },
         });
+
+        // Solution: Improved the pop-up dialog box that cannot be closed normally in Windows
+        setTimeout(function () {
+          popup.close();
+          console.log('popup.close')
+        }, 5000);
       });
     },
     //加入加班資料, 儲存時才送出
