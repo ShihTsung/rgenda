@@ -16,7 +16,7 @@
       :userId="userId"
       :departmentId="currUser.department.id"
     ></application-query>
-    <user-shift-calendar v-if="isUser"></user-shift-calendar>
+    <user-shift-calendar v-if="isUser" :userId="userId"></user-shift-calendar>
   </div>
 </template>
 <script>

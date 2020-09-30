@@ -804,7 +804,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
                 date__range=[start[:10], end[:10]]
             )
         if uid:
-            user = CustomUser.objects.filter(id=int(id)).first()
+            user = CustomUser.objects.filter(id=int(uid)).first()
             queryset = queryset.filter(
                 user=user
             )
@@ -1016,10 +1016,10 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
             department_id = self.request.query_params.get('department', None)
             start = self.request.query_params.get('start', None)
             end = self.request.query_params.get('end', None)
-            start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
-            end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
 
             if start and end:
+                start = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+                end = datetime.datetime.strptime(end, '%Y-%m-%d').date()
                 queryset = queryset.filter(
                     date_start__gte=start, date_end__lte=end)
 
