@@ -300,6 +300,7 @@
       :stationData="stationData"
       :year="year"
       :month="month"
+      :workDayHours="workDayHours"
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
