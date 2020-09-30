@@ -43,11 +43,19 @@ export default {
       currentUserPromise: this.getCurrentUser(),
     };
   },
+  props: {
+    userId: {
+      type: String,
+      default: "",
+    },
+  },
   methods: {
     getShiftTimeStr,
     getEvents(fetchInfo, successCallback) {
       const queryString =
-        "?mode=personal&start=" +
+        "?mode=personal&uid=" +
+        this.userId +
+        "&start=" +
         fetchInfo.startStr +
         "&end=" +
         fetchInfo.endStr;
@@ -64,11 +72,9 @@ export default {
         this.currentUserPromise,
       ]).then(this.processTimeAdjustment);
 
-      let promisesPromise = this.currentUserPromise.then((response) => {
-        return this.$httpClient
-          .get("/api/promises/" + queryString + "&uid=" + response.data.id)
-          .then(this.processPromises);
-      });
+      let promisesPromise = this.$httpClient
+        .get("/api/promises/" + queryString)
+        .then(this.processPromises);
 
       let reservationsPromise = this.$httpClient
         .get("/api/reservations/" + queryString)
