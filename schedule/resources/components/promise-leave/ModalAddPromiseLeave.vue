@@ -139,7 +139,7 @@ export default {
     };
   },
   methods: {
-    $_promiseLeave_store_validate() {
+    async $_promiseLeave_store_validate() {
       let errMsg = [];
       let valid = true;
       if (null === this.addPromiseLeave.startDate) {
@@ -159,6 +159,18 @@ export default {
         valid = false;
         errMsg.push('備註不得超過 100 字');
       }
+      console.log(this.addPromiseLeave.startDate);
+      let year = this.addPromiseLeave.startDate.split('-')[0]
+      let month = parseInt(this.addPromiseLeave.startDate.split('-')[1])
+      self.$$httpClient.get(`/api/puslished-or-not?year=${year}&month=${month}`)
+      .then(res=>{
+        console.log(res);
+        if(res===true){
+          valid = false;
+          errMsd.push('班表已經發布，不得新增')
+        }
+        return res;
+      })
 
       return [valid, errMsg];
     },
