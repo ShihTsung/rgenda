@@ -334,19 +334,19 @@ def update(request, id=None):
     form = CustomUserChangeForm(request.POST or None, instance=choosed_user)
 
     if request.method == 'POST' and form.is_valid():
+        # 權限檢查
         if form.cleaned_data['role'] == 'admin':
             if request.user.role != 'admin' and not request.user.is_superuser:
                 messages.error(request, "權限不足，無法更改為admin")
                 return redirect(f'/accounts/update/{id}')
         form.save()
+
         if form.cleaned_data['role'] == 'manager':
             if not choosed_user.department.admin_in_schedule:
                 user = CustomUser.objects.get(id=id)
                 DemandUserTable.objects.filter(user=user).delete()
         if form.cleaned_data['pregnant'] is True:
             user = CustomUser.objects.get(id=id)
-            user.can_be_scheduled = False
-            user.save()
             DemandUserTable.objects.filter(user=user).delete()
         return redirect('/accounts/list')
 
