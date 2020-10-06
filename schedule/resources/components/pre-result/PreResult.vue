@@ -297,9 +297,10 @@
     <change-shift-modal
       :changeShift="changeInfo"
       :shiftData="shiftData"
-      :stationPicker="stationPicker"
+      :stationData="stationData"
       :year="year"
       :month="month"
+      :workDayHours="workDayHours"
       v-if="!rsShow && isEdit"
     ></change-shift-modal>
 
@@ -426,12 +427,6 @@ export default {
     //計算該年該月的天數
     getDays() {
       return moment([this.year, this.month - 1, 1]).daysInMonth();
-    },
-
-    stationPicker() {
-      return this.stationData.filter((i) => {
-        return i.name.indexOf("假") === -1;
-      });
     },
   },
 

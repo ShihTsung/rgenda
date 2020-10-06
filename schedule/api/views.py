@@ -2644,6 +2644,10 @@ def recreate_result_monthly(request):
     PreResult.objects.filter(user__department=department,
                              date__gte=date_start, date__lte=date_end).delete()
 
+    # 移除加減班資料
+    TimeAdjustment.objects.filter(user__department=department, date__gte=date_start,
+                                  date__lte=date_end).delete()
+
     # 日期資料
     date_list = [date_start + timedelta(days=i)
                  for i in range((date_end - date_start).days + 1)]
