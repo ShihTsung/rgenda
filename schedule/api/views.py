@@ -3911,14 +3911,32 @@ def ordered_users(request):
             }
         } for u in users
     }
+
+    demand_users = DemandUserTable.objects.filter(user__in=users)
+    dayshift = [x.user.username for x in demand_users if x.demand.shift.shift_type==0]
+    nightshift = [x.user.username for x in demand_users if x.demand.shift.shift_type==1]
+    graveyard = [x.user.username for x in demand_users if x.demand.shift.shift_type==2]
+    others = []
+    for u in users:
+        if u.username not in dayshift:
+            if u.username not in nightshift:
+                if u.username not in graveyard:
+                    others.append(u.username)
     for result in results:
         if result.shift.shift_type in [0, 1, 2, 7]:
             user_set[result.user.username] = result.shift.shift_type
     sorted_users = [v[0] for v in sorted(user_set.items(), key=lambda d: d[1])]
     res_data = []
     # 排序過的人員名單
-    for u in sorted_users:
+    for u in dayshift:
         res_data.append(user_dict_set[u])
+    for u in nightshift:
+        res_data.append(user_dict_set[u])
+    for u in graveyard:
+        res_data.append(user_dict_set[u])
+    for u in others:
+        res_data.append(user_dict_set[u])
+
     i = 0
     for data in res_data:
         data['sort'] = i
