@@ -156,13 +156,15 @@ class ExchangeApplication(models.Model):
         Shift,
         verbose_name="申請者班別",
         on_delete=models.CASCADE,
-        null = False
+        related_name='shift_apply',
+        null=False
     )
     station_apply = models.ForeignKey(
         Station,
         verbose_name="申請者工作站",
         on_delete=models.CASCADE,
-        null = False
+        related_name='station_apply',
+        null=False
     )
     user_receive = models.ForeignKey(
         CustomUser,
@@ -175,13 +177,15 @@ class ExchangeApplication(models.Model):
         Shift,
         verbose_name="被調者班別",
         on_delete=models.CASCADE,
-        null = False
+        related_name='shift_receive',
+        null=False
     )
     station_receive = models.ForeignKey(
         Station,
         verbose_name="被調者工作站",
         on_delete=models.CASCADE,
-        null = False
+        related_name='station_receive',
+        null=False
     )
     date_start = models.DateField(
         verbose_name=_('DateStart'),

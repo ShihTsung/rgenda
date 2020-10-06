@@ -151,29 +151,41 @@
         if (!locked_days.includes(info.dateStr)) {
           if (!choosed_days.includes(info.dateStr)) {
             if (choosed_days.length < max) {
-              newEvent = {
-                user: curr_user.id,
-                year: info.dateStr.split('-')[0],
-                date: info.dateStr.split('T')[0]
-              }
-              fetch('/api/reservations/',
-                {
-                  method: "POST",
-                  headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'content-type': 'application/json'
-                  },
-                  body: JSON.stringify(newEvent)
-                })
-                .then(response => {
-                  return response.json()
-                })
-                .then(jsonData => {
-                  if (jsonData.alarm) {
-                    showAlert(jsonData.alarm);
+              let published;
+              fetch(`/api/published-or-not?year=${info.dateStr.split('-')[0]}&month=${parseInt(info.dateStr.split('-')[1])}`)
+              .then(res=> res.json())
+              .then(json=>{
+                published = json;
+                console.log(published);
+                if(published===false){
+                  newEvent = {
+                    user: curr_user.id,
+                    year: info.dateStr.split('-')[0],
+                    date: info.dateStr.split('T')[0]
                   }
-                  calendar.refetchEvents();
-                });
+                  fetch('/api/reservations/',
+                    {
+                      method: "POST",
+                      headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'content-type': 'application/json'
+                      },
+                      body: JSON.stringify(newEvent)
+                    })
+                    .then(response => {
+                      return response.json()
+                    })
+                    .then(jsonData => {
+                      if (jsonData.alarm) {
+                        showAlert(jsonData.alarm);
+                      }
+                      calendar.refetchEvents();
+                    });
+                }else{
+                  showAlert('已經發布班表');
+                }
+              });
+
             } else {
               showAlert('超過限制天數！');
             }
@@ -222,13 +234,13 @@
         }
       }, {
         // 已經預定的資料
-        events: async function (fetchInfo, successCallback, failureCallback) {
+        events: function (fetchInfo, successCallback, failureCallback) {
           choosed_days = new Array()
-          await fetch('/api/users/curr').then(res=>{});
+          fetch('/api/users/curr').then(res=>{});
           let url = `/api/reservations/`
           start_str = fetchInfo.startStr
           end_str = fetchInfo.endStr
-          url += `?start=${start_str}&end=${end_str}&uid=${curr_user.id}`
+          url += `?start=${start_str}&end=${end_str}&uid={{user.id}}`
           fetch(url)
             .then(function (response) {
               return response.json();

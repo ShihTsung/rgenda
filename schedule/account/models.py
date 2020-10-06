@@ -216,6 +216,12 @@ class CustomUser(AbstractUser):
         null=True
     )
 
+    starting_month = models.IntegerField(
+        verbose_name='起始月',
+        default=1,
+        null=True
+    )
+
     def __str__(self):
         return self.username
 
