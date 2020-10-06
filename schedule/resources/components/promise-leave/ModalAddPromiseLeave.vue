@@ -233,7 +233,7 @@ export default {
 
       function getPublishedOrNot(date) {
         self.$httpClient
-          .get(`/api/published-or-not?year=${date.getYear()}&month=${date.getMonth() + 1}`)
+          .get(`/api/published-or-not?year=${date.getFullYear()}&month=${date.getMonth() + 1}`)
           .then((response) => {
             if (response.data==true) {
               date.setMonth(date.getMonth() + 1)
