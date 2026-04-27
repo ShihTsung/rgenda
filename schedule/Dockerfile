@@ -1,22 +1,27 @@
-# Pull the base image
-FROM python:3.7
+FROM python:3.12-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-RUN mkdir /code
-RUN mkdir /code/schedule
 WORKDIR /code/schedule
-#Upgrade pip
-RUN pip install pip -U
-RUN pip install --upgrade setuptools
-RUN apt-get update
-RUN apt-get install python3 default-libmysqlclient-dev gcc cron vim gettext -y
-RUN pip install mysqlclient uwsgi
-ADD . /code/schedule
+
+# libpq-dev 是 psycopg2 編譯所需的 PostgreSQL 客戶端函式庫
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    gettext \
+    cron \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade pip setuptools
+RUN pip install gunicorn
+
+# 先複製 requirements 以利用 Docker layer cache
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
 COPY crontab /etc/cron.d/cjob
 RUN chmod 0644 /etc/cron.d/cjob
-#Install dependencies
-RUN pip install -r requirements.txt
-RUN /usr/sbin/service cron start

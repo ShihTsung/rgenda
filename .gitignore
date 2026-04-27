@@ -161,3 +161,16 @@ dist
 .Trashes
 Thumbs.db
 desktop.ini
+
+# Database & migration temp files
+postgres/
+mysql_backup.sql
+pgloader.load
+postgres_backup.dump
+
+# Claude Code internal
+.claude/
+
+# Frontend build output
+frontend/dist/
+frontend/node_modules/

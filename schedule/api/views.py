@@ -10,8 +10,20 @@ from rest_framework.decorators import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+def swagger_auto_schema(*args, **kwargs):
+    if len(args) == 1 and callable(args[0]):
+        return args[0]
+    return lambda func: func
+
+class _OpenAPIStub:
+    @staticmethod
+    def Parameter(*args, **kwargs): return None
+    @staticmethod
+    def Schema(*args, **kwargs): return None
+    IN_QUERY = IN_PATH = IN_HEADER = IN_FORM_DATA = IN_BODY = 'query'
+    TYPE_STRING = TYPE_INTEGER = TYPE_BOOLEAN = TYPE_ARRAY = TYPE_OBJECT = TYPE_NUMBER = 'string'
+
+openapi = _OpenAPIStub()
 from rest_framework.parsers import JSONParser
 
 # others
@@ -3949,3 +3961,44 @@ def ordered_users(request):
 @parser_classes([JSONParser])
 def exec_exchange(request):
     pass
+
+
+# ── Auth endpoints ────────────────────────────────────────────────────────────
+
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+
+
+@api_view(['POST'])
+@permission_classes([])
+def auth_login(request):
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return Response({'detail': '帳號或密碼錯誤'}, status=status.HTTP_401_UNAUTHORIZED)
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({
+        'token': token.key,
+        'user': {
+            'id': user.pk,
+            'username': user.username,
+            'email': user.email,
+        }
+    })
+
+
+@api_view(['POST'])
+def auth_logout(request):
+    request.user.auth_token.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def auth_me(request):
+    user = request.user
+    return Response({
+        'id': user.pk,
+        'username': user.username,
+        'email': user.email,
+    })
