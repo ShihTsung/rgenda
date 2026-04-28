@@ -109,6 +109,12 @@ CORS_ALLOWED_ORIGINS = config(
     default='http://localhost',
     cast=Csv(),
 )
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost,http://localhost:5173,http://127.0.0.1',
+    cast=Csv(),
+)
 CORS_ALLOW_METHODS = (
     'DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'VIEW',
 )

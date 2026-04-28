@@ -52,7 +52,7 @@
         </template>
         <template v-else-if="props.column.field == 'actions'">
           <a class="icon-bts btn-sm" data-tooltip="tooltip" title="編輯"
-          :href="'/accounts/' + props.row.id"><i class="fas fa-edit"></i></a>
+          :href="'/zh-hant/accounts/' + props.row.id"><i class="fas fa-edit"></i></a>
           <div class="icon-bts btn-sm" data-tooltip="tooltip" title="刪除" data-toggle="modal" data-target="#modalDelete"
           @click="confirmDeletion(props.row)"><i class="fa fa-trash-alt"></i></div>
         </template>

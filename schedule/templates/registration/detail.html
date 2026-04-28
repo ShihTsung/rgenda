@@ -146,11 +146,11 @@
 
   </div>
   {% if target_user == user %}
-  <a href="/accounts/change_password" class="btn btn-rgenda">
+  <a href="/zh-hant/accounts/change_password" class="btn btn-rgenda">
     {% trans 'ChangePassword' %}</a>
   {% endif %}
   {% if user.is_staff %}
-  <a href="/accounts/update/{{target_user.id}}" class="btn btn-rgenda">{% trans 'Edit' %}</a>
+  <a href="/zh-hant/accounts/update/{{target_user.id}}" class="btn btn-rgenda">{% trans 'Edit' %}</a>
   {% endif %}
 
 </div>

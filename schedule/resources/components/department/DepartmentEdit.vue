@@ -244,7 +244,7 @@ export default {
           title: '修改排班規則',
           text: '請求成功',
         }, () => {
-          location.replace('/departments/list');
+          location.replace('/zh-hant/departments/list');
         });
       }).catch(errors => {
         popup.error({

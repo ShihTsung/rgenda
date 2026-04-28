@@ -167,6 +167,7 @@ postgres/
 mysql_backup.sql
 pgloader.load
 postgres_backup.dump
+# db_init.sql is intentionally tracked (database seed)
 
 # Claude Code internal
 .claude/

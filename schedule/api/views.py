@@ -6,7 +6,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import (
     action, api_view, parser_classes,
-    permission_classes)
+    permission_classes, authentication_classes)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
@@ -3970,6 +3970,7 @@ from django.contrib.auth import authenticate
 
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([])
 def auth_login(request):
     username = request.data.get('username', '').strip()
