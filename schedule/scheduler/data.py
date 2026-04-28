@@ -7,8 +7,13 @@
   方便在 unit test 裡用 dummy 資料跑、不需要起 DB
 - 單位約定：
     shift_type:
-        0=白班 / 1=小夜 / 2=大夜 / 3=oncall / 4=oncall後 /
-        5=休息類(計薪) / 6=休息類(扣薪) / 7=行政班
+        0=白班 / 1=小夜 / 2=大夜 / 3=公假 / 4=oncall /
+        5=有薪假 / 6=無薪假 / 7=行政班
+    law_rule (Department):
+        0=一般工時(7休2) / 1=雙週變形(14休4) /
+        2=四週變形(28休8) / 3=八週變形(56休16)
+    schedule_rule (Department):
+        0=單週同班種 / 1=單月同班種 / 2=三月同班種
     is_holiday: H_Calendar.attribute[str(dept_id)] == '2'
 """
 from dataclasses import dataclass, field

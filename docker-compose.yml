@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     container_name: postgresDB
-    restart: on-failure:3
+    restart: always
     env_file: .env
     volumes:
       - ./postgres:/var/lib/postgresql/data
@@ -31,7 +31,6 @@ services:
         gunicorn schedule.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120
     volumes:
       - .:/code
-      - ./schedule:/code/schedule
     depends_on:
       db:
         condition: service_healthy
@@ -44,7 +43,6 @@ services:
       - "80:80"
     volumes:
       - .:/code
-      - ./schedule:/code/schedule
       - ./log:/var/log/nginx
     depends_on:
       - app

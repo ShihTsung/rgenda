@@ -19,9 +19,6 @@ services:
         max-file: "5"
 
   nginx:
-    # 生產環境改為 port 80（或未來加 443）
-    ports:
-      - "80:80"
     logging:
       driver: "json-file"
       options:

@@ -10,7 +10,8 @@ echo ">>> 啟動 Docker 服務..."
 docker compose up -d
 
 echo ">>> 等待 Django 就緒..."
-until curl -s -o /dev/null -w "%{http_code}" http://localhost/api/auth/login/ | grep -q "405"; do
+# /api/auth/me/ 未帶 token 應回 401，代表 Django + DRF 都起來了
+until curl -s -o /dev/null -w "%{http_code}" http://localhost/api/auth/me/ | grep -q "401"; do
   sleep 2
 done
 echo "    Django OK — http://localhost/"

@@ -26,6 +26,7 @@ from account.views import (departmentList,
                            departmentDelete,
                            departmentDetail)
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from rest_framework.permissions import IsAuthenticated
 
 handler404 = 'mainpage.views.handler404'
 handler500 = 'mainpage.views.handler500'
@@ -33,8 +34,12 @@ handler500 = 'mainpage.views.handler500'
 urlpatterns = [
     path('api/', include('api.urls')),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='schema-swagger-ui'),
-    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='schema-redoc'),
+    path('swagger/', SpectacularSwaggerView.as_view(
+        url_name='schema', permission_classes=[IsAuthenticated]
+    ), name='schema-swagger-ui'),
+    path('redoc/', SpectacularRedocView.as_view(
+        url_name='schema', permission_classes=[IsAuthenticated]
+    ), name='schema-redoc'),
 ]
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),

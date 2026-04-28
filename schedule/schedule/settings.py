@@ -4,6 +4,7 @@ Django settings for schedule project.
 
 import os
 from decouple import config, Csv
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
 
@@ -13,6 +14,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Security — all secrets come from environment variables
 # ------------------------------------------------------------
 SECRET_KEY = config('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        'SECRET_KEY is empty. Generate one with '
+        '`python -c "import secrets; print(secrets.token_hex(50))"` and set it in .env'
+    )
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 

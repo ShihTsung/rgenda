@@ -3752,6 +3752,11 @@ def dashboard_stats(request):
     end = dt.date(year, month, monthrange(year, month)[1])
 
     department = request.user.department
+    if department is None:
+        return Response(
+            {'detail': 'User has no department assigned.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     users = CustomUser.objects.filter(department=department, can_be_scheduled=True)
     user_list = list(users)
     user_len = len(user_list) or 1
