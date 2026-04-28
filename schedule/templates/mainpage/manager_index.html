@@ -290,7 +290,7 @@
       resourceOrder: 'sort',
       resources: function (fetchInfo, successCallback, failureCallback) {
         fetch('/api/stations/?department={{department.id}}')
-          .then(res => res.json())
+          .then(res => { if (!res.ok) throw new Error('stations ' + res.status); return res.json(); })
           .then(data => {
             data.forEach(e => {
               if (e.name === '休假') {
@@ -313,7 +313,7 @@
               sort: 4,
             });
             successCallback(data);
-          });
+          }).catch(err => { console.error('[resources]', err); failureCallback(err); });
       },
       eventRender: function (info) {
         let prop = info.event.extendedProps;
@@ -409,12 +409,13 @@
 
         const startStr = fetchInfo.startStr.slice(0, 10);
         const endStr = fetchInfo.endStr.slice(0, 10);
+        const safeJson = res => { if (!res.ok) throw new Error(res.url + ' ' + res.status); return res.json(); };
         Promise.all([
-          fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
-          fetch('/api/users/').then(res => res.json()),
-          fetch('/api/shifts/').then(res => res.json()),
-          fetch('/api/dates/?start=' + startStr + '&end=' + endStr).then(res => res.json()),
-          fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr).then(res => res.json())
+          fetch('/api/results/?start=' + startStr + '&end=' + endStr).then(safeJson),
+          fetch('/api/users/').then(safeJson),
+          fetch('/api/shifts/').then(safeJson),
+          fetch('/api/dates/?start=' + startStr + '&end=' + endStr).then(safeJson),
+          fetch('/api/users-can-support/?start=' + startStr + '&end=' + endStr).then(safeJson)
         ]).then(dataArr => {
           const data = dataArr[0];
           const users = dataArr[1];
@@ -481,7 +482,7 @@
             }
             return stationId;
           }
-        });
+        }).catch(err => { console.error('[events]', err); failureCallback(err); });
       },
       loading: function (isLoading) {
         if (isLoading) {

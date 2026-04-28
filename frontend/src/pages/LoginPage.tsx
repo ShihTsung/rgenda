@@ -38,6 +38,12 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {import.meta.env.DEV && (
+              <div className="rounded bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 space-y-0.5">
+                <div><span className="font-semibold">dev 帳號：</span>circlepen</div>
+                <div><span className="font-semibold">dev 密碼：</span>circlepen</div>
+              </div>
+            )}
             <div className="space-y-1">
               <Label htmlFor="username">帳號</Label>
               <Input
