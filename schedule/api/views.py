@@ -4002,3 +4002,81 @@ def auth_me(request):
         'username': user.username,
         'email': user.email,
     })
+
+
+@api_view(['GET'])
+def dashboard_stats(request):
+    """
+    回傳本月部門統計資料，供前端 Dashboard 使用。
+    Query params: year, month (預設本月)
+    """
+    import datetime as dt
+    today = dt.date.today()
+    year = int(request.query_params.get('year', today.year))
+    month = int(request.query_params.get('month', today.month))
+    start = dt.date(year, month, 1)
+    end = dt.date(year, month, monthrange(year, month)[1])
+
+    department = request.user.department
+    users = CustomUser.objects.filter(department=department, can_be_scheduled=True)
+    user_list = list(users)
+    user_len = len(user_list) or 1
+
+    results = Result.objects.filter(
+        user__in=user_list, date__range=[start, end]
+    ).select_related('shift')
+
+    total_workhours = 0
+    legal_workhours = 0
+    official_rest = 0
+
+    for r in results:
+        total_workhours += r.shift.work_hours
+        if r.shift.shift_type in [0, 1, 2, 3, 7]:
+            legal_workhours += 8
+        if r.shift.shift_type == 3:
+            official_rest += r.shift.work_hours
+
+    from result.models import TimeAdjustment
+    adjustments = TimeAdjustment.objects.filter(
+        user__in=user_list, date__range=[start, end]
+    )
+    overtime = 0
+    minustime = 0
+    oncall = 0
+    for adj in adjustments:
+        if adj.adjustment_type == 0:
+            if adj.adjustment_item in [0, 1, 2]:
+                overtime += adj.hours
+            elif adj.adjustment_item == 4:
+                oncall += adj.hours
+        else:
+            if adj.adjustment_item == 5:
+                minustime += adj.hours
+
+    users_nums = [0] * 6
+    for u in user_list:
+        users_nums[u.type_of_user] += 1
+
+    diff = (total_workhours + overtime - minustime + oncall - legal_workhours) / user_len
+
+    return Response({
+        'year': year,
+        'month': month,
+        'user_count': user_len,
+        'avg_workhours': round(total_workhours / user_len, 2),
+        'avg_overtime': round(overtime / user_len, 2),
+        'avg_minustime': round(minustime / user_len, 2),
+        'avg_oncall': round(oncall / user_len, 2),
+        'legal_workhours': round(legal_workhours / user_len, 2),
+        'diff': round(diff, 2),
+        'official_rest': round(official_rest / user_len, 2),
+        'staff_types': {
+            '正職': users_nums[0],
+            '資深正職': users_nums[1],
+            '行政職': users_nums[2],
+            '新進人員': users_nums[3],
+            '兼職人員': users_nums[4],
+            '實習生': users_nums[5],
+        },
+    })
