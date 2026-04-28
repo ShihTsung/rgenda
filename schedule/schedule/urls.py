@@ -26,8 +26,6 @@ from account.views import (departmentList,
                            departmentDelete,
                            departmentDetail)
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from . import mail
-from . import initial
 
 handler404 = 'mainpage.views.handler404'
 handler500 = 'mainpage.views.handler500'
@@ -47,11 +45,9 @@ urlpatterns += i18n_patterns(
     path('departments/list', departmentList, name="departmentList"),
     path('departments/<int:id>', departmentDetail),
     path('departments/delete/<int:id>', departmentDelete),
-    path('mailtest', mail.mail),
     path('stations/', include('station.urls')),
     path('demands/', include('demand.urls')),
     path('shifts/', include('shift.urls')),
-    path('init/', initial.initial),
     path('dates/', include('date.urls')),
     path('reserves/', include('reservation.urls')),
     path('results/', include('result.urls')),
