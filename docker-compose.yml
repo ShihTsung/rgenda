@@ -27,8 +27,7 @@ services:
       - |
         python3 manage.py collectstatic --noinput
         django-admin compilemessages
-        python3 manage.py makemigrations
-        python3 manage.py migrate
+        python3 manage.py migrate --noinput
         gunicorn schedule.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2 --timeout 120
     volumes:
       - .:/code

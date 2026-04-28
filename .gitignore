@@ -63,8 +63,6 @@ db.sqlite3-journal
 /schedule/prod_static/*
 !/schedule/prod_static/assets/
 !/schedule/prod_static/assets/**
-/schedule/*/migrations/*
-!/schedule/*/migrations/__init__.py
 
 # Flask stuff:
 instance/

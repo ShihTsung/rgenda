@@ -1,6 +1,8 @@
 #!/bin/bash
-# 開發模式：Docker (Django + DB + nginx) + Vite dev server
+# 開發模式：Docker (Django + DB + nginx)
 # 使用方式：bash dev.sh
+#
+# 註：React 前端尚未完成。需要時再到 frontend/ 自行 `npm run dev`。
 
 set -e
 
@@ -11,7 +13,4 @@ echo ">>> 等待 Django 就緒..."
 until curl -s -o /dev/null -w "%{http_code}" http://localhost/api/auth/login/ | grep -q "405"; do
   sleep 2
 done
-echo "    Django OK"
-
-echo ">>> 啟動 Vite dev server (http://localhost:5173)"
-cd frontend && npm run dev
+echo "    Django OK — http://localhost/"
