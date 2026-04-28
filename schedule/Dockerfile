@@ -6,12 +6,11 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /code/schedule
 
 # libpq-dev 是 psycopg2 編譯所需的 PostgreSQL 客戶端函式庫
+# gettext 是 Django compilemessages 所需
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     gcc \
     gettext \
-    cron \
-    vim \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip setuptools
@@ -22,6 +21,3 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
-
-COPY crontab /etc/cron.d/cjob
-RUN chmod 0644 /etc/cron.d/cjob

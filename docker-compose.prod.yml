@@ -1,7 +1,5 @@
-version: "3.8"
-
 # 生產環境覆蓋設定
-# 使用方式: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# 使用方式: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
   db:
@@ -29,10 +27,3 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
-
-  cron:
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "5m"
-        max-file: "3"

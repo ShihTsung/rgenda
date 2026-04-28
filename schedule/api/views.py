@@ -10,20 +10,6 @@ from rest_framework.decorators import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-def swagger_auto_schema(*args, **kwargs):
-    if len(args) == 1 and callable(args[0]):
-        return args[0]
-    return lambda func: func
-
-class _OpenAPIStub:
-    @staticmethod
-    def Parameter(*args, **kwargs): return None
-    @staticmethod
-    def Schema(*args, **kwargs): return None
-    IN_QUERY = IN_PATH = IN_HEADER = IN_FORM_DATA = IN_BODY = 'query'
-    TYPE_STRING = TYPE_INTEGER = TYPE_BOOLEAN = TYPE_ARRAY = TYPE_OBJECT = TYPE_NUMBER = 'string'
-
-openapi = _OpenAPIStub()
 from rest_framework.parsers import JSONParser
 
 # others
@@ -89,46 +75,6 @@ class IsManagerOrReadOnly(BasePermission):
             return cond1 or cond2 or cond3
 
 
-get_all = openapi.Parameter('all', openapi.IN_QUERY,
-                            description="全部或是單一部門", type=openapi.TYPE_STRING)
-start_date = openapi.Parameter('start', openapi.IN_QUERY,
-                               description="開始日期", type=openapi.TYPE_STRING)
-start = openapi.Parameter('start', openapi.IN_QUERY,
-                          description="開始日期", type=openapi.TYPE_STRING)
-end_date = openapi.Parameter('end', openapi.IN_QUERY,
-                             description="結束日期", type=openapi.TYPE_STRING)
-end = openapi.Parameter('end', openapi.IN_QUERY,
-                        description="結束日期", type=openapi.TYPE_STRING)
-mode = openapi.Parameter('mode', openapi.IN_QUERY,
-                         description="模式", type=openapi.TYPE_STRING)
-month_head = openapi.Parameter('month_head', openapi.IN_QUERY,
-                               description="月初日", type=openapi.TYPE_STRING)
-uid = openapi.Parameter('uid', openapi.IN_QUERY,
-                        description="使用者id", type=openapi.TYPE_STRING)
-usertype = openapi.Parameter('type', openapi.IN_QUERY,
-                             description="排班身份類型", type=openapi.TYPE_STRING)
-date = openapi.Parameter('date', openapi.IN_QUERY,
-                         description="日期", type=openapi.TYPE_STRING)
-exchange_shift_type = openapi.Parameter('shift_type', openapi.IN_QUERY,
-                                        description="欲換班的班別", type=openapi.TYPE_STRING)
-follower = openapi.Parameter('follower', openapi.IN_QUERY,
-                             description="跟班者", type=openapi.TYPE_STRING)
-mentor = openapi.Parameter('mentor', openapi.IN_QUERY,
-                           description="帶班者", type=openapi.TYPE_STRING)
-adj_type = openapi.Parameter('type', openapi.IN_QUERY,
-                             description="類別", type=openapi.TYPE_STRING)
-adj_item = openapi.Parameter('item', openapi.IN_QUERY,
-                             description="加減班選項", type=openapi.TYPE_STRING)
-user_name = openapi.Parameter('name', openapi.IN_QUERY,
-                              description="使用者姓名", type=openapi.TYPE_STRING)
-month = openapi.Parameter('month', openapi.IN_QUERY,
-                          description="月份(整數)", type=openapi.TYPE_INTEGER)
-department = openapi.Parameter('department', openapi.IN_QUERY,
-                               description="科別(id)", type=openapi.TYPE_INTEGER)
-configs = openapi.Parameter('configs', openapi.IN_QUERY,
-                            description="人力需求配置", type=openapi.TYPE_STRING)
-
-
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('username')
     permission_classes = (IsManagerOrReadOnly, permissions.IsAuthenticated)
@@ -174,11 +120,6 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(department=target)
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='獲得使用者清單',
-        operation_description='GET 的說明',
-        manual_parameters=[mode, department, usertype]
-    )
     def list(self, request, *args, **kwargs):
         """
 
@@ -196,38 +137,18 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         """
         return super().list(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='新增使用者',
-        operation_description='POST 的說明',
-    )
     def create(self, request, *args, **kwargs):
         return super().create(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='獲得個別使用者',
-        operation_description='GET 單一個體的說明',
-    )
     def retrieve(self, request, pk=None, *args, **kwargs):
         return super().retrieve(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='更新使用者資料',
-        operation_description='PUT 的說明',
-    )
     def update(self, request, pk=None, partial=False, *args, **kwargs):
         return super().update(request, pk, partial, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='部分更新',
-        operation_description='PATCH 的說明',
-    )
     def partial_update(self, request, pk=None, *args, **kwargs):
         return super().partial_update(request, pk, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='刪除使用者',
-        operation_description='DELETE 的說明',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -273,39 +194,9 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='加減班清單',
-        operation_description='''列出所有加減班清單
-
-        type:
-
-            (0, '增加時數'),
-            (1, '減少時數'),
-
-        item:
-
-            (0, '工作日加班'),
-            (1, '休息日出勤'),
-            (2, '國定假日出勤'),
-            (3, '空班出勤'),
-            (4, 'On Call出勤'),
-            (5, '機構減班'),
-
-        start: 開始時間
-        end: 結束時間
-        uid: 使用者 id
-        ''',
-        manual_parameters=[
-            start_date, end_date, uid, adj_type, adj_item
-        ]
-    )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='新增加減班',
-        operation_description='增加一筆加減班',
-    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -392,10 +283,6 @@ class TimeAdjustmentViewSet(viewsets.ModelViewSet):
         data['adjustment_item_text'] = texts[data['adjustment_item']]
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='刪除加減班',
-        operation_description='DELETE 的說明',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -421,10 +308,6 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             return Department.objects.all()
         return Department.objects.filter(id=self.request.user.department.id)
 
-    @swagger_auto_schema(
-        operation_summary='更新科別資料',
-        operation_description='會將選為管理者的user權限設為管理者，把其他人權限拿掉',
-    )
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -448,10 +331,6 @@ class DepartmentManagerViewSet(viewsets.ModelViewSet):
     serializer_class = DepartmentManagerSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary='更新科別的管理者',
-        operation_description='會將選為管理者的user權限設為管理者，把其他人權限拿掉',
-    )
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -501,17 +380,9 @@ class ShiftViewSet(viewsets.ModelViewSet):
             return GetShiftSerializer
         return ShiftSerializer
 
-    @swagger_auto_schema(
-        operation_summary='獲得班別清單',
-        operation_description='GET 的說明',
-        manual_parameters=[get_all]
-    )
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='刪除班別',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -547,9 +418,6 @@ class StationViewSet(viewsets.ModelViewSet):
             )
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='刪除工作站',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -651,11 +519,6 @@ class ResultViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='獲得排班結果清單',
-        operation_description='GET 的說明',
-        manual_parameters=[start_date, end_date]
-    )
     def list(self, request, *args, **kwargs):
         """
         uid: 使用者id
@@ -664,10 +527,6 @@ class ResultViewSet(viewsets.ModelViewSet):
         """
         return super().list(self, request, *args, **kwargs)
 
-    @swagger_auto_schema(
-        operation_summary='更新資料',
-        operation_description='PATCH 更改result',
-    )
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -715,10 +574,6 @@ class PreResultViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='新增preresult',
-        operation_description='增加新的筆班表',
-    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -729,10 +584,6 @@ class PreResultViewSet(viewsets.ModelViewSet):
         data['shift_type'] = get_type(shift)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='更新資料',
-        operation_description='PATCH 更改pre-result',
-    )
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -852,9 +703,6 @@ class DemandViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(station__in=list(stations))
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='新增Demand',
-    )
     def create(self, request, pk=None, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -877,9 +725,6 @@ class DemandViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED,
                 headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='刪除Demand',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -897,9 +742,6 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
     permission_classes = (IsManagerOrReadOnly,)
 
 # 重寫 create 根據 combo 產生複數的班
-    @swagger_auto_schema(
-        operation_summary='新增預排假勤',
-    )
     def create(self, request, *args, **kwargs):
         """
         shift_type 分類
@@ -930,9 +772,6 @@ class PromiseShiftViewSet(viewsets.ModelViewSet):
             serializer.data, status=status.HTTP_201_CREATED,
             headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='刪除保證班',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -996,9 +835,6 @@ class LiscenseViewSet(viewsets.ModelViewSet):
                 return Liscense.objects.all()
         return Liscense.objects.all()
 
-    @swagger_auto_schema(
-        operation_summary='刪除證照',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1053,9 +889,6 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
                 )
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='新增',
-    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -1068,9 +901,6 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='更新',
-    )
     def update(self, request, *args, **kwargs):
         pass_code = False
         partial = kwargs.pop('partial', False)
@@ -1125,9 +955,6 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
                 }
             })
 
-    @swagger_auto_schema(
-        operation_summary='刪除調班(軟刪除)',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         instance.deleted = True
@@ -1141,11 +968,6 @@ class ExchangeApplicationViewSet(viewsets.ModelViewSet):
 # 排班檢查 api
 
 
-@swagger_auto_schema(
-    methods=['get', 'post'],
-    operation_summary='檢查排班結果，回傳有問題的班',
-    manual_parameters=[date, department]
-)
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1173,9 +995,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
         queryset = Notification.objects.filter(recipient_id=int(user.id))
         return queryset
 
-    @swagger_auto_schema(
-        operation_summary='刪除通知',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1188,10 +1007,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
 # 取得每天的白班，小夜，大夜總人數（總班表管理）
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='取得指定期間，每天三班的總人數',
-    manual_parameters=[start_date, end_date])
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1281,10 +1096,6 @@ def total_per_day_api(request):
     return Response(ret)
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='把所有通知標為已讀',
-    manual_parameters=[start_date, end_date])
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1302,9 +1113,6 @@ class UserRemarkViewSet(viewsets.ModelViewSet):
     serializer_class = UserRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary='刪除使用者備註',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1340,9 +1148,6 @@ class RemarkSquareViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers)
 
-    @swagger_auto_schema(
-        operation_summary='刪除備註方塊',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1363,9 +1168,6 @@ class ResultRemarkViewSet(viewsets.ModelViewSet):
     serializer_class = ResultRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary='刪除班表備註',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1387,9 +1189,6 @@ class PreResultRemarkViewSet(viewsets.ModelViewSet):
     serializer_class = PreResultRemarkSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary='刪除預排班表備註',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1406,10 +1205,6 @@ class PreResultRemarkViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='前月班表紀錄',
-    manual_parameters=[month_head])
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1451,9 +1246,6 @@ class DemandUserTableViewset(viewsets.ModelViewSet):
     serializer_class = DemandUserTableSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @swagger_auto_schema(
-        operation_summary='刪除User跟Demand的關係',
-    )
     def destroy(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -1464,11 +1256,6 @@ class DemandUserTableViewset(viewsets.ModelViewSet):
         )
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='取得可換班使用者',
-    manual_parameters=[date, exchange_shift_type],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def exchangeable_user(request):
@@ -1581,11 +1368,6 @@ def exchangeable_user(request):
     })
 
 
-@swagger_auto_schema(
-    methods=['get', ],
-    operation_summary='跟班設定',
-    manual_parameters=[start_date, end_date, follower, mentor]
-)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1618,11 +1400,6 @@ def follow_shift_api(request):
     )
 
 
-@swagger_auto_schema(
-    methods=['get', ],
-    operation_summary='預排班表跟班設定',
-    manual_parameters=[start_date, end_date, follower, mentor]
-)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -1655,11 +1432,6 @@ def preResult_follow_shift_api(request):
     )
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='可支援人力',
-    manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def users_can_support(request):
@@ -1735,10 +1507,6 @@ def users_can_support(request):
     return Response(output)
 
 
-@swagger_auto_schema(
-    methods=['post'],
-    operation_summary='配置建議人數',
-)
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def suggest_user_num(request, date_str):
@@ -1831,11 +1599,6 @@ def suggest_user_num(request, date_str):
     return Response(output)
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='手動重排',
-    manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result_periodic(request):
@@ -2607,11 +2370,6 @@ def recreate_result_periodic(request):
     })
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='手動重排',
-    manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result_monthly(request):
@@ -3385,11 +3143,6 @@ def recreate_result_monthly(request):
     })
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='手動重排',
-    manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result_monthly_b(request):
@@ -3400,11 +3153,6 @@ def recreate_result_monthly_b(request):
     })
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='手動重排',
-    manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def recreate_result_weekly(request):
@@ -3741,11 +3489,6 @@ def recreate_result_weekly(request):
     })
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='查詢某年某月是否發布過了',
-    # manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -3766,11 +3509,6 @@ def published_or_not(request):
             return Response(False)
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='發布班表',
-    # manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])
@@ -3855,11 +3593,6 @@ def publish_result(request):
         return Response("error: 請指定 year 和 month")
 
 
-@swagger_auto_schema(
-    methods=['get'],
-    operation_summary='取得依照班別排序過的使用者',
-    # manual_parameters=[start, end],
-)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated, ])
 @parser_classes([JSONParser])

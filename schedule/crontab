@@ -1,2 +1,0 @@
-# * * * * * root /usr/local/bin/python /code/schedule/manage.py newstation >> /code/schedule/cron.log 2>&1
-# Empty line

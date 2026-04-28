@@ -48,19 +48,3 @@ services:
       - ./log:/var/log/nginx
     depends_on:
       - app
-
-  cron:
-    build: ./schedule
-    container_name: cronjob
-    restart: always
-    env_file: .env
-    command:
-      - /bin/sh
-      - -c
-      - cron -f
-    volumes:
-      - .:/code
-      - ./schedule:/code/schedule
-    depends_on:
-      db:
-        condition: service_healthy
