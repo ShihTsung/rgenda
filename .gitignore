@@ -178,3 +178,6 @@ frontend/node_modules/
 
 # DB backups & archives (kept local, not in git)
 backups/
+
+# Local docker compose override (per-machine port/volume tweaks)
+docker-compose.override.yml

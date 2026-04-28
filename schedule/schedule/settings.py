@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'notifications',
     'notice',
     'drf_spectacular',
+    'scheduler',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
