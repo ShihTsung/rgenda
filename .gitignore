@@ -175,3 +175,6 @@ postgres_backup.dump
 # Frontend build output
 frontend/dist/
 frontend/node_modules/
+
+# DB backups & archives (kept local, not in git)
+backups/
