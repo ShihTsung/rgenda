@@ -16,7 +16,7 @@
         0=單週同班種 / 1=單月同班種 / 2=三月同班種
     is_holiday: H_Calendar.attribute[str(dept_id)] == '2'
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from typing import Optional
 
@@ -53,7 +53,7 @@ class DemandInput:
     """
     the_date: date
     shift_id: int               # FK 到 Shift（給 solver 把人指到正確班別用）
-    shift_type: int             # 0=白班 / 1=小夜 / 2=大夜 / 7=行政
+    shift_type: int             # 0=白班/1=小夜/2=大夜/3=公假/4=oncall/5=有薪假/6=無薪假/7=行政
     station_id: int             # FK 到 Station
     level: int                  # 該需求要的職級
     count: int                  # 需要幾位
@@ -83,8 +83,8 @@ class SchedulingProblem:
     year: int
     month: int
 
-    law_rule: int               # 0=7天循環 / 1=14天循環 / 2=三月循環
-    schedule_rule: int          # 0=每週同班 / 1=每月同班 / 2=三月同班
+    law_rule: int               # 0=一般(7休2) / 1=雙週(14休4) / 2=四週(28休8) / 3=八週(56休16)
+    schedule_rule: int          # 0=單週同班種 / 1=單月同班種 / 2=三月同班種
 
     days: list[DayInput]
     staffs: list[StaffInput]
@@ -101,9 +101,9 @@ class SchedulingProblem:
             f"  Period:        {self.year}-{self.month:02d}  "
             f"({n_days} 天，其中 {n_holidays} 假日)\n"
             f"  law_rule:      {self.law_rule}  "
-            f"(0=週/1=雙週/2=三月)\n"
+            f"(0=一般7休2 / 1=雙週14休4 / 2=四週28休8 / 3=八週56休16)\n"
             f"  schedule_rule: {self.schedule_rule}  "
-            f"(0=每週同班/1=每月同班/2=三月同班)\n"
+            f"(0=單週同班種 / 1=單月同班種 / 2=三月同班種)\n"
             f"  Staffs:        {len(self.staffs)} 人\n"
             f"  Demands:       {len(self.demands)} 條，總需求 {n_total_demand} 人次\n"
             f"  Commitments:   {len(self.commitments)} 條"
