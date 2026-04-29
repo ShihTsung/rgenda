@@ -30,3 +30,6 @@ openpyxl==3.1.5
 numpy==1.26.4
 Pillow==10.4.0
 python-decouple==3.8
+
+# CP-SAT scheduler (parallel experimental, see schedule/scheduler/)
+ortools==9.11.4210

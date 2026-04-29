@@ -17,8 +17,15 @@
     is_holiday: H_Calendar.attribute[str(dept_id)] == '2'
 """
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, time
 from typing import Optional
+
+
+# 「上班」班別（會計入工時、佔連續工作天）。3=公假 也算（人在工作崗位但領薪算工時）。
+WORKING_SHIFT_TYPES = frozenset({0, 1, 2, 3, 7})
+
+# 「請假」班別（5=有薪假, 6=無薪假），不計工時、會吃假日休假額度。
+LEAVE_SHIFT_TYPES = frozenset({5, 6})
 
 
 @dataclass(frozen=True)
@@ -60,6 +67,25 @@ class DemandInput:
 
 
 @dataclass(frozen=True)
+class ShiftInput:
+    """部門裡某個 shift 的靜態資料。"""
+    id: int
+    name: str
+    shift_type: int             # 0=白班/1=小夜/2=大夜/3=公假/4=oncall/5=有薪假/6=無薪假/7=行政
+    work_hours: float
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+
+    @property
+    def is_working(self) -> bool:
+        return self.shift_type in WORKING_SHIFT_TYPES
+
+    @property
+    def is_leave(self) -> bool:
+        return self.shift_type in LEAVE_SHIFT_TYPES
+
+
+@dataclass(frozen=True)
 class CommitmentInput:
     """員工已預先確定的某天動作（預排假 / 預排班 / 公假）。
 
@@ -88,6 +114,7 @@ class SchedulingProblem:
 
     days: list[DayInput]
     staffs: list[StaffInput]
+    shifts: list[ShiftInput]
     demands: list[DemandInput]
     commitments: list[CommitmentInput]
 
@@ -105,6 +132,28 @@ class SchedulingProblem:
             f"  schedule_rule: {self.schedule_rule}  "
             f"(0=單週同班種 / 1=單月同班種 / 2=三月同班種)\n"
             f"  Staffs:        {len(self.staffs)} 人\n"
+            f"  Shifts:        {len(self.shifts)} 種班別\n"
             f"  Demands:       {len(self.demands)} 條，總需求 {n_total_demand} 人次\n"
             f"  Commitments:   {len(self.commitments)} 條"
         )
+
+
+@dataclass(frozen=True)
+class Assignment:
+    """求解結果中單一 (user, date, shift) 指派。"""
+    user_id: int
+    the_date: date
+    shift_id: int
+
+
+@dataclass(frozen=True)
+class Solution:
+    """CP-SAT 求解結果。"""
+    status: str                 # 'OPTIMAL' / 'FEASIBLE' / 'INFEASIBLE' / 'MODEL_INVALID' / 'UNKNOWN'
+    walltime_ms: int
+    objective: Optional[float]
+    assignments: list[Assignment]
+
+    @property
+    def is_feasible(self) -> bool:
+        return self.status in ('OPTIMAL', 'FEASIBLE')

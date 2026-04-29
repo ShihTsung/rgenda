@@ -12,6 +12,7 @@ from .data import (
     DayInput,
     DemandInput,
     SchedulingProblem,
+    ShiftInput,
     StaffInput,
 )
 
@@ -28,6 +29,7 @@ def load_problem(department_id: int, year: int, month: int) -> SchedulingProblem
 
     days = _load_days(department_id, year, month)
     staffs = _load_staffs(department_id)
+    shifts = _load_shifts(department_id)
     demands = _load_demands(department_id, days)
     commitments = _load_commitments(
         {s.id for s in staffs}, year, month, Reservation, PromiseShift
@@ -42,6 +44,7 @@ def load_problem(department_id: int, year: int, month: int) -> SchedulingProblem
         schedule_rule=department.schedule_rule,
         days=days,
         staffs=staffs,
+        shifts=shifts,
         demands=demands,
         commitments=commitments,
     )
@@ -95,6 +98,23 @@ def _load_staffs(department_id: int) -> list[StaffInput]:
             ),
         )
         for u in qs
+    ]
+
+
+def _load_shifts(department_id: int) -> list[ShiftInput]:
+    from shift.models import Shift
+
+    qs = Shift.objects.filter(department_id=department_id).order_by('id')
+    return [
+        ShiftInput(
+            id=s.id,
+            name=s.name or '',
+            shift_type=s.shift_type or 0,
+            work_hours=s.work_hours or 0.0,
+            start_time=s.start_time,
+            end_time=s.end_time,
+        )
+        for s in qs
     ]
 
 
